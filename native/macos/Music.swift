@@ -80,6 +80,6 @@ final class StudioMusic {
         let position = sequencer?.currentPositionInSeconds ?? 0
         if position >= duration, sequencer?.isPlaying == true { stop() }
         return ["name": name, "duration": duration, "position": sequencer?.currentPositionInSeconds ?? 0,
-                "playing": sequencer?.isPlaying ?? false, "volume": engine.mainMixerNode.outputVolume]
+                "playing": sequencer?.isPlaying ?? false, "volume": engine.mainMixerNode.outputVolume, "peak": observedPeak]
     }
 }

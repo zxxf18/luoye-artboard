@@ -11,7 +11,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private var pendingWindowSize: String?
     private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
     private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
-    private lazy var music = StudioMusic()
+    private lazy var music = StudioMusic(observeOutput: true)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let menu = NSMenu()
@@ -264,8 +264,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             case "play": try music.play()
             case "stop": music.stop()
             case "volume":
-                guard let volume = body["volume"] as? Float, volume.isFinite else { throw MusicMessageError.invalid }
-                music.setVolume(volume)
+                guard let volume = body["volume"] as? Double, volume.isFinite else { throw MusicMessageError.invalid }
+                music.setVolume(Float(volume))
             case "state": break
             default: throw MusicMessageError.invalid
             }
