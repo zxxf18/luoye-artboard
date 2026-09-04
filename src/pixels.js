@@ -126,8 +126,8 @@ export function applyEffect(data, width, height, kind, options = {}) {
     else if (kind === 'posterize') { const steps=Math.max(2,p.levels||4);result=result.map(v=>Math.round(v/255*(steps-1))*255/(steps-1)); }
     else if (kind === 'solarize') result=result.map(v=>v>128?255-v:v);
     else if (kind === 'sepia') result=[.393*r+.769*g+.189*b,.349*r+.686*g+.168*b,.272*r+.534*g+.131*b];
-    else if (kind === 'function') result=result.map((v,k)=> { const mode=p.modes?.[k]||'sin';if(mode==='none')return v; return (p.offset??128)+(p.amplitude??127)*(mode==='cos'?Math.cos:Math.sin)(v/255*Math.PI*2*(p.frequency??1)); });
-    else if (kind === 'shift') { const x=i/4%width,y=Math.floor(i/4/width);result=result.map((v,k)=> { const px=Math.max(0,Math.min(width-1,x-(p.dx?.[k]||0))),py=Math.max(0,Math.min(height-1,y-(p.dy?.[k]||0)));return data[(py*width+px)*4+k]; }); }
+    else if (kind === 'function') result=result.map((v,k)=> { const mode=p.modes?.[k]||'sin',channel=p.channels?.[k]||p;if(mode==='none')return v; return (channel.offset??128)+(channel.amplitude??127)*(mode==='cos'?Math.cos:Math.sin)(v/255*Math.PI*2*(channel.frequency??1)); });
+    else if (kind === 'shift') { const x=i/4%width,y=Math.floor(i/4/width);result=result.map((v,k)=> { const px=Math.max(0,Math.min(width-1,x-Math.round(p.dx?.[k]||0))),py=Math.max(0,Math.min(height-1,y-Math.round(p.dy?.[k]||0)));return data[(py*width+px)*4+k]; }); }
     else throw new Error('未知的暗房操作：'+kind);
     for (let k=0;k<3;k++) out[i+k]=clampByte(result[k]);
   }

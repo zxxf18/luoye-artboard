@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { regionMask, combineMasks, applyEffect, blendMasked } from '../src/pixels.js';
 
+test('RGB function channels have independent parameters and channel shifts use integer pixels',()=>{
+ const pixels=new Uint8ClampedArray([10,20,30,255,100,110,120,255]);
+ const result=applyEffect(pixels,2,1,'function',{modes:['sin','cos','none'],channels:[{amplitude:0,offset:8,frequency:1},{amplitude:0,offset:9,frequency:2},{amplitude:0,offset:0,frequency:3}]});
+ assert.deepEqual([...result],[8,9,30,255,8,9,120,255]);
+ assert.deepEqual([...applyEffect(pixels,2,1,'shift',{dx:[1,0,0],dy:[0,0,0]})],[10,20,30,255,10,110,120,255]);
+});
+
 test('magic selection respects connected colors and tolerance', () => {
   const pixels = new Uint8ClampedArray([255,255,255,255, 0,0,0,255, 255,255,255,255]);
   assert.deepEqual([...regionMask(pixels,3,1,0,0,10)], [255,0,0]);

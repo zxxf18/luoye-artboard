@@ -4,8 +4,11 @@ import { toLayerPoint } from './core.js';
 import { shapePath } from './geometry.js';
 import { brushSegment } from './brushes.js';
 import { warpPixels } from './warps.js';
+import { textureData, materialSegment } from './materials.js';
 
 export class DrawingEngine extends EditorEngine {
+  setPaintTexture(image){this.paintTexture=textureData(image);}
+  setPaperTexture(image){this.paperTexture=textureData(image);}
   applyBoardFilter(kind,options={}){this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));}
   warpDab(point){
     const g=this.gesture,l=g.layer,radius=Math.max(1,Math.min(600,g.options.radius||120))/l.scale,dx=point.x-g.last.x,dy=point.y-g.last.y,ctx=l.canvas.getContext('2d');
@@ -69,7 +72,9 @@ export class DrawingEngine extends EditorEngine {
   segment(a,b){
     const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4;
     const bounds={x:Math.min(a.x,b.x)-pad,y:Math.min(a.y,b.y)-pad,width:Math.abs(b.x-a.x)+pad*2,height:Math.abs(b.y-a.y)+pad*2};this.captureTiles(g.layer,bounds,g.tiles);
-    brushSegment(g.layer.canvas.getContext('2d'),g,a,b);
+    const texture=g.options.fillSource==='texture'?this.paintTexture:null,paper=g.options.paperGrain?this.paperTexture:null;
+    if(g.options.tool==='pen'&&(texture||paper))materialSegment(g.layer.canvas.getContext('2d'),g,a,b,texture,paper,bounds);
+    else brushSegment(g.layer.canvas.getContext('2d'),g,a,b);
     if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
   }
   specialDab(p){

@@ -10,6 +10,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private var terminationPending = false
     private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
     private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
+    private lazy var music = StudioMusic()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let menu = NSMenu()
@@ -32,6 +33,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         if smokePath != nil { configuration.websiteDataStore = .nonPersistent() }
         configuration.userContentController.add(self, name: "files")
         configuration.userContentController.add(self, name: "ready")
+        configuration.userContentController.add(self, name: "music")
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.uiDelegate = self
         view.navigationDelegate = self
@@ -39,7 +41,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1380, height: 900),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self
-        window.title = "画王 · 小小创作室"
+        window.title = "画王 · 经典创作室"
         window.minSize = NSSize(width: 900, height: 650)
         window.contentView = view
         window.center()
@@ -115,22 +117,32 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         guard message.frameInfo.isMainFrame, message.frameInfo.request.url?.isFileURL == true else { return }
         if message.name == "ready" {
             logger.notice("Painting interface loaded")
+            if let data = try? JSONSerialization.data(withJSONObject: NSFontManager.shared.availableFontFamilies.sorted()),
+               let json = String(data: data, encoding: .utf8) {
+                webView?.evaluateJavaScript("window.JSHWSetFonts(\(json))")
+            }
             if let smokePath, let view = webView {
                 do {
                     let data = try JSONSerialization.data(withJSONObject: message.body, options: [.prettyPrinted, .sortedKeys])
                     try data.write(to: URL(fileURLWithPath: smokePath), options: .atomic)
                 } catch { logger.error("Smoke report failed: \(error.localizedDescription)") }
-                view.takeSnapshot(with: nil) { image, error in
-                    guard let image, let data = image.tiffRepresentation,
-                          let bitmap = NSBitmapImageRep(data: data),
-                          let png = bitmap.representation(using: .png, properties: [:]) else { return }
-                    do { try png.write(to: URL(fileURLWithPath: smokePath + ".png"), options: .atomic) }
-                    catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
-                    if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
-                }
+                if ProcessInfo.processInfo.environment["JSHW_SMOKE_MUSIC"] == "1" {
+                    view.callAsyncJavaScript("return await window.JSHWMusicSmoke();", arguments: [:], in: nil, in: .page) { result in
+                        let value: [String: Any]
+                        switch result {
+                        case .success(let payload): value = ["ok": true, "result": payload]
+                        case .failure(let error): value = ["ok": false, "error": error.localizedDescription]
+                        }
+                        do { try JSONSerialization.data(withJSONObject: value, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: smokePath + ".music.json"), options: .atomic) }
+                        catch { self.logger.error("Music smoke report failed: \(error.localizedDescription)") }
+                        self.finishSmoke(view: view, path: smokePath)
+                    }
+                } else { finishSmoke(view: view, path: smokePath) }
+
             }
             return
         }
+        if message.name == "music" { handleMusic(message.body); return }
         guard message.name == "files", let body = message.body as? [String: String],
               let id = body["id"], let name = body["name"], let content = body["content"],
               let mime = body["mime"], ["image/png", "image/jpeg", "application/json"].contains(mime),
@@ -156,6 +168,54 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         }
     }
 
+    private func finishSmoke(view: WKWebView, path: String) {
+        view.takeSnapshot(with: nil) { image, _ in
+            guard let image, let data = image.tiffRepresentation,
+                  let bitmap = NSBitmapImageRep(data: data),
+                  let png = bitmap.representation(using: .png, properties: [:]) else { return }
+            do { try png.write(to: URL(fileURLWithPath: path + ".png"), options: .atomic) }
+            catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
+            if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
+        }
+    }
+
+    private func handleMusic(_ message: Any) {
+        guard let body = message as? [String: Any], let id = body["id"] as? String,
+              let action = body["action"] as? String, id.count < 100 else { return }
+        var result: [String: Any] = ["id": id]
+        do {
+            switch action {
+            case "track":
+                guard let index = body["index"] as? Int, (0..<20).contains(index),
+                      let root = Bundle.main.resourceURL else { throw MusicMessageError.invalid }
+                let url = root.appendingPathComponent("site/music/back\(index).mid")
+                try music.load(Data(contentsOf: url), name: "背景音乐 \(index + 1)")
+                try music.play()
+            case "import":
+                guard let base64 = body["data"] as? String, base64.count <= 12 * 1024 * 1024,
+                      let data = Data(base64Encoded: base64), let name = body["name"] as? String else { throw MusicMessageError.invalid }
+                try music.load(data, name: name)
+                try music.play()
+            case "play": try music.play()
+            case "stop": music.stop()
+            case "volume":
+                guard let volume = body["volume"] as? Float, volume.isFinite else { throw MusicMessageError.invalid }
+                music.setVolume(volume)
+            case "state": break
+            default: throw MusicMessageError.invalid
+            }
+            result["state"] = music.state()
+        } catch { result["error"] = error.localizedDescription; logger.error("Music operation failed: \(error.localizedDescription)") }
+        if let data = try? JSONSerialization.data(withJSONObject: result), let json = String(data: data, encoding: .utf8) {
+            webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('native-music-result', {detail: \(json)}))")
+        }
+    }
+
+    private enum MusicMessageError: LocalizedError {
+        case invalid
+        var errorDescription: String? { "音乐操作参数无效。" }
+    }
+
     private func reply(id: String, saved: Bool = false, error: String? = nil) {
         var value: [String: Any] = ["id": id, "saved": saved]
         if let error { value["error"] = error }
@@ -175,8 +235,13 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     }
 }
 
-let application = NSApplication.shared
-let delegate = StudioDelegate()
-application.delegate = delegate
-application.setActivationPolicy(.regular)
-application.run()
+@main
+struct StudioApplication {
+    @MainActor static func main() {
+        let application = NSApplication.shared
+        let delegate = StudioDelegate()
+        application.delegate = delegate
+        application.setActivationPolicy(.regular)
+        withExtendedLifetime(delegate) { application.run() }
+    }
+}

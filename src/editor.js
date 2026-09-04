@@ -107,7 +107,7 @@ export class EditorEngine extends PaintEngine {
       if(g.kind==='shape'){this.captureTiles(g.layer,{x:0,y:0,width:g.layer.width,height:g.layer.height},g.tiles);const ctx=g.layer.canvas.getContext('2d');ctx.save();this.drawShape(ctx,g);ctx.restore();this.recordPixels(g.layer,g.tiles);this.changed();}}
     this.render();
   }
-  drawShape(ctx,g){const o=g.options;ctx.strokeStyle=o.color;ctx.fillStyle=o.color;ctx.lineWidth=o.size/g.layer.scale;ctx.globalAlpha*=o.opacity;ctx.lineCap='round';if(o.dashed)ctx.setLineDash([ctx.lineWidth*3,ctx.lineWidth*2]);const path=shapePath(o.tool,g.start,g.end,g.points);if(o.filled)ctx.fill(path);else ctx.stroke(path);}
+  drawShape(ctx,g){const o=g.options,paint=o.fillSource==='texture'&&this.paintTexture?ctx.createPattern(this.paintTexture.canvas,'repeat'):o.color;ctx.strokeStyle=paint;ctx.fillStyle=paint;ctx.lineWidth=o.size/g.layer.scale;ctx.globalAlpha*=o.opacity;ctx.lineCap='round';if(o.dashed)ctx.setLineDash([ctx.lineWidth*3,ctx.lineWidth*2]);const path=shapePath(o.tool,g.start,g.end,g.points);if(o.filled)ctx.fill(path);else ctx.stroke(path);}
   fillAt(point,options,end=point){
     const layer=this.active,start=toLayerPoint(point,layer),finish=toLayerPoint(end,layer),mode=options.fillMode||'region';
     const color=rgb(options.color||'#285b49'),background=rgb(options.background||'#ffffff'),alpha=Math.round((options.opacity??1)*255);
@@ -119,7 +119,9 @@ export class EditorEngine extends PaintEngine {
         if(mode==='rect'&&(x<Math.min(start.x,finish.x)||x>Math.max(start.x,finish.x)||y<Math.min(start.y,finish.y)||y>Math.max(start.y,finish.y)))continue;
         if(mode==='ellipse'&&((x-(start.x+finish.x)/2)**2/Math.max(.01,dx*dx/4)+(y-(start.y+finish.y)/2)**2/Math.max(.01,dy*dy/4)>1))continue;
         const t=mode.includes('gradient')||options.gradient?Math.max(0,Math.min(1,length?((x-start.x)*dx+(y-start.y)*dy)/length:0)):0;
-        for(let k=0;k<3;k++)data[n*4+k]=color[k]+(background[k]-color[k])*t;data[n*4+3]=alpha;
+        const texture=options.fillSource==='texture'?this.paintTexture:null;
+        if(texture){const index=((y%texture.height)*texture.width+x%texture.width)*4;for(let k=0;k<3;k++)data[n*4+k]=texture.pixels[index+k];data[n*4+3]=alpha*texture.pixels[index+3]/255;}
+        else{for(let k=0;k<3;k++)data[n*4+k]=color[k]+(background[k]-color[k])*t;data[n*4+3]=alpha;}
       }
       return data;
     });

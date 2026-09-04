@@ -1,7 +1,7 @@
 import { validateProject } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','removeActive','reorder','setProperty','addVertex','finishPath']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','removeActive','reorder','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){
@@ -19,6 +19,7 @@ export function validateRecording(raw){
   for(const slot of raw.slots){if(slot===null)continue;validateProject(slot.base);let resourcePixels=0;
     const resource=item=>{if(!item||!Number.isInteger(item.width)||!Number.isInteger(item.height)||item.width<1||item.height<1||item.width>4096||item.height>4096||item.width*item.height>8388608||typeof item.image!=='string'||!item.image.startsWith('data:image/png;base64,'))throw new Error('录像图片资源无效。');resourcePixels+=item.width*item.height;if(resourcePixels>90000000)throw new Error('录像图片资源超过像素预算。');};
     const groups=values=>{if(!Array.isArray(values)||values.length>1000)throw new Error('仙女袋分组无效。');for(const group of values){if(!Array.isArray(group.frames)||group.frames.length<1||group.frames.length>60)throw new Error('仙女袋帧数量无效。');group.frames.forEach(resource);}};
+    if(slot.paintTexture)resource(slot.paintTexture);if(slot.paperTexture)resource(slot.paperTexture);
     if(slot.fairyGroups)groups(slot.fairyGroups);
     if(slot.selection)resource(slot.selection);if(slot.stampImages){if(!Array.isArray(slot.stampImages)||slot.stampImages.length>60)throw new Error('印章资源数量无效。');slot.stampImages.forEach(resource);}
     if(slot.cloneSource&&(!slot.cloneSource.point||!Number.isFinite(slot.cloneSource.point.x)||!Number.isFinite(slot.cloneSource.point.y)||typeof slot.cloneSource.layerId!=='string'))throw new Error('仿制源点无效。');if(!Array.isArray(slot.events)||slot.events.length>5000)throw new Error('录像操作数量无效。');let points=0;
@@ -33,6 +34,7 @@ export function validateRecording(raw){
         validateProject({format:'jshw-studio',version:1,title:'录像资源',width:1,height:1,layers:[layer]});
       }
       if(event.resultIds&&(!Array.isArray(event.resultIds)||event.resultIds.length>20||event.resultIds.some(id=>typeof id!=='string'||id.length>256)))throw new Error('动画实例标识无效。');
+      if(['setPaintTexture','setPaperTexture'].includes(event.method)&&event.args[0])resource(event.args[0]);
       if(event.method==='setFairyGroups')groups(event.args[0]);
       if(event.method==='setStampImages'){if(!Array.isArray(event.args[0])||event.args[0].length>60)throw new Error('印章资源数量无效。');event.args[0].forEach(resource);}
       if(event.method==='setProperty'){const [,key,value]=event.args;if(!PROPERTY_KEYS.has(key))throw new Error('图层属性不受支持。');if(key==='name'?(typeof value!=='string'||value.length>120):key==='visible'?typeof value!=='boolean':!Number.isFinite(value))throw new Error('图层属性值无效。');if(key==='scale'&&(value<=0||value>100)||key==='opacity'&&(value<0||value>1)||['x','y'].includes(key)&&Math.abs(value)>100000)throw new Error('图层属性值超出范围。');}
@@ -51,6 +53,7 @@ export class Recorder {
     this.stop();this.engine.finishPath(true);const base=await this.engine.serialize(title);this.slot=index;this.slots[index]={base,events:[]};this.began=performance.now();this.recording=true;this.bytes=JSON.stringify(base).length;this.points=0;
     // Selection and tool sources are document-adjacent state and must be included at the boundary.
     // A PNG mask preserves non-rectangular selections without serializing millions of array entries.
+    this.slots[index].paintTexture=this.engine.paintTexture?imageRecord(this.engine.paintTexture.canvas):null;this.slots[index].paperTexture=this.engine.paperTexture?imageRecord(this.engine.paperTexture.canvas):null;
     this.slots[index].selection=this.engine.selectionCanvas?imageRecord(this.engine.selectionCanvas):null;
     this.slots[index].cloneSource=this.engine.cloneSource?structuredClone(this.engine.cloneSource):null;
     this.slots[index].fairyGroups=this.engine.fairyGroups?.map(group=>({...group,frames:group.frames.map(imageRecord)}))||null;this.slots[index].fairyMode=this.engine.fairyMode||null;
@@ -75,6 +78,7 @@ export class Recorder {
         let encoded=args;
         if(method==='setProperty')encoded=[args[0].id,args[1],args[2]];
         if(method==='setFairyGroups')encoded=[args[0].map(group=>({...group,frames:group.frames.map(imageRecord)})),args[1]];
+        if(['setPaintTexture','setPaperTexture'].includes(method))encoded=[args[0]?imageRecord(args[0]):null];
         if(method==='setStampImages')encoded=[args[0].map(imageRecord)];
         if(method==='addLayer'){
           const canvas=args[1]||makeCanvas(engine.width,engine.height),extra={...(args[3]||{})};if(extra.frames)extra.frames=extra.frames.map(imageRecord);
@@ -97,6 +101,7 @@ export class Recorder {
     try{
       await renderer.restore(slot.base);
       if(slot.selection){const image=await imageFromRecord(slot.selection),data=image.getContext('2d').getImageData(0,0,image.width,image.height).data;if(image.width!==renderer.width||image.height!==renderer.height)throw new Error('录像选区尺寸无效。');const mask=new Uint8ClampedArray(renderer.width*renderer.height);for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3];renderer.setSelection(mask);}
+      renderer.setPaintTexture(slot.paintTexture?await imageFromRecord(slot.paintTexture):null);renderer.setPaperTexture(slot.paperTexture?await imageFromRecord(slot.paperTexture):null);
       renderer.cloneSource=slot.cloneSource||null;if(slot.stampImages)renderer.setStampImages(await Promise.all(slot.stampImages.map(imageFromRecord)));
       if(slot.fairyGroups)renderer.setFairyGroups(await Promise.all(slot.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))}))),slot.fairyMode);
       const limit=Math.min(count,slot.events.length);let previous=0;
@@ -111,6 +116,7 @@ export class Recorder {
         }else{
           if(event.method==='setProperty')args[0]=renderer.layers.find(l=>l.id===args[0]);
           if(event.method==='setFairyGroups')args[0]=await Promise.all(args[0].map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))})));
+          if(['setPaintTexture','setPaperTexture'].includes(event.method))args[0]=args[0]?await imageFromRecord(args[0]):null;
           if(event.method==='setStampImages')args[0]=await Promise.all(args[0].map(imageFromRecord));
           if(event.method==='addLayer'){args[1]=await imageFromRecord(args[1]);if(args[3].frames)args[3].frames=await Promise.all(args[3].frames.map(imageFromRecord));}
           result=renderer[event.method](...args);
