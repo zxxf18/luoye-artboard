@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.DS_Store
+__pycache__/
+*.pyc
+.env*
+*.pem
+*.p12
+jshw/
+test-results/
