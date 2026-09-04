@@ -3,8 +3,15 @@ import { makeCanvas } from './engine.js';
 import { toLayerPoint } from './core.js';
 import { shapePath } from './geometry.js';
 import { brushSegment } from './brushes.js';
+import { warpPixels } from './warps.js';
 
 export class DrawingEngine extends EditorEngine {
+  applyBoardFilter(kind,options={}){this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));}
+  warpDab(point){
+    const g=this.gesture,l=g.layer,radius=Math.max(1,Math.min(600,g.options.radius||120))/l.scale,dx=point.x-g.last.x,dy=point.y-g.last.y,ctx=l.canvas.getContext('2d');
+    const pad=Math.ceil(radius+Math.max(Math.abs(dx),Math.abs(dy))+3),x=Math.max(0,Math.floor(point.x-pad)),y=Math.max(0,Math.floor(point.y-pad)),w=Math.min(l.width,x+pad*2)-x,h=Math.min(l.height,y+pad*2)-y;if(w<=0||h<=0){g.last=point;return;}
+    const bounds={x,y,width:w,height:h};this.captureTiles(l,bounds,g.tiles);const before=ctx.getImageData(x,y,w,h);before.data.set(warpPixels(before.data,w,h,{...g.options,kind:g.options.warpKind||'push',x:point.x-x,y:point.y-y,dx,dy,radius}));ctx.putImageData(before,x,y);if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);this.maskTiles(l,g.tiles,g.selectionMask,bounds);g.last=point;this.render();
+  }
   reset(w,h){this.path=null;this.cloneSource=null;super.reset(w,h);}
   async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;return title;}
   clearLayer(){const selection=this.selection,canvas=this.selectionCanvas,bounds=this.selectionBounds;this.clearSelection();try{this.clearPixels();}finally{this.selection=selection;this.selectionCanvas=canvas;this.selectionBounds=bounds;this.render();}}
@@ -43,6 +50,8 @@ export class DrawingEngine extends EditorEngine {
   }
   begin(point,options){
     options={...options,seed:options.seed??(Date.now()>>>0)};
+    if(options.tool==='warp'){this.assertRaster();const local=toLayerPoint(point,this.active);this.gesture={kind:'warp',layer:this.active,options,last:local,tiles:new Map()};if(options.warpKind==='zoom')this.warpDab(local);return;}
+    if(options.tool==='board-filter'){this.assertRaster();const local=toLayerPoint(point,this.active);this.applyBoardFilter(options.filterKind||'ripple',{...options,x:local.x,y:local.y,radius:(options.radius||120)/this.active.scale});return;}
     if((options.tool==='pen'&&options.strokeMode==='line')||(options.tool==='eraser'&&options.eraserMode==='rect')){
       this.assertRaster();const local=toLayerPoint(point,this.active);this.gesture={kind:options.tool==='pen'?'brush-line':'erase-rect',layer:this.active,options,start:local,end:local,tiles:new Map()};return;
     }
@@ -72,6 +81,7 @@ export class DrawingEngine extends EditorEngine {
   }
   update(point){
     const g=this.gesture;if(!g){super.update(point);return;}
+    if(g.kind==='warp'){this.warpDab(toLayerPoint(point,g.layer));return;}
     if(['brush-line','erase-rect'].includes(g.kind)){g.end=toLayerPoint(point,g.layer);this.render();return;}
     if(g.kind==='fairy-dynamic'){const dx=point.x-g.last.x,dy=point.y-g.last.y,distance=Math.hypot(dx,dy),spacing=Math.max(1,g.options.size*(g.options.stampSpacing??.7));for(let d=spacing-g.travel;d<=distance;d+=spacing)this.dynamicDab({x:g.last.x+dx*d/distance,y:g.last.y+dy*d/distance});g.travel=(g.travel+distance)%spacing;g.last=point;g.end=point;return;}
     if(['stamp','clone'].includes(g.kind)){
@@ -83,6 +93,7 @@ export class DrawingEngine extends EditorEngine {
   }
   end(cancel=false){
     const g=this.gesture;
+    if(g?.kind==='warp'){if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}else this.recordPixels(g.layer,g.tiles);this.gesture=null;this.changed();return;}
     if(g?.kind==='fairy-dynamic'){const after=this.layers.slice(),active=this.activeId;if(cancel){this.layers=g.beforeLayers;this.activeId=g.beforeActive;}else if(after.length!==g.beforeLayers.length)this.history.push({bytes:after.filter(l=>!g.beforeLayers.includes(l)).reduce((sum,l)=>sum+l.width*l.height*4,0),undo:()=>{this.layers=g.beforeLayers;this.activeId=g.beforeActive;},redo:()=>{this.layers=after;this.activeId=active;}});this.gesture=null;this.changed();return;}
     if(!g||!['brush-line','erase-rect','stamp','clone'].includes(g.kind)){super.end(cancel);return;}
     if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}
