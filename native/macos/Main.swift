@@ -17,7 +17,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let menu = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "退出画王", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "退出落叶画板", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         menu.addItem(appItem)
         let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
@@ -36,6 +36,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         configuration.userContentController.add(self, name: "ready")
         configuration.userContentController.add(self, name: "music")
         configuration.userContentController.add(self, name: "display")
+        configuration.userContentController.add(self, name: "assets")
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.uiDelegate = self
         view.navigationDelegate = self
@@ -43,7 +44,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1380, height: 900),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self
-        window.title = "画王 · 暖暖画室"
+        window.title = "落叶画板"
         window.contentMinSize = NSSize(width: 900, height: 650)
         window.contentView = view
         window.center()
@@ -79,7 +80,18 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                                    arguments: [:], in: nil, in: .page) { result in
             self.terminationPending = false
             switch result {
-            case .success:
+            case .success(let payload):
+                do {
+                    let root: URL
+                    if let path = self.smokePath { root = URL(fileURLWithPath: path + ".archive", isDirectory: true) }
+                    else { root = try FileManager.default.url(for: .picturesDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("落叶画板作品", isDirectory: true) }
+                    let saved = try StudioArchive(root: root).save(payload)
+                    self.logger.notice("Artwork archived: \(saved.path)")
+                } catch {
+                    self.showError("作品还没有保存成功，画室会保持打开。\n" + error.localizedDescription)
+                    sender.reply(toApplicationShouldTerminate: false)
+                    return
+                }
                 if let path = self.smokePath {
                     do { try Data("{\"draftFlush\":true,\"terminationApproved\":true}".utf8).write(to: URL(fileURLWithPath: path + ".close.json"), options: .atomic) }
                     catch { self.logger.error("Close report failed: \(error.localizedDescription)") }
@@ -138,6 +150,12 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                 if let scriptPath = ProcessInfo.processInfo.environment["JSHW_SMOKE_SCRIPT"],
                    let script = try? String(contentsOfFile: scriptPath, encoding: .utf8) {
                     view.callAsyncJavaScript(script, arguments: ["fileChecks": ProcessInfo.processInfo.environment["JSHW_SMOKE_FILES"] == "1"], in: nil, in: .page) { result in
+                        if case .success(let payload) = result,
+                           let report = payload as? [String: Any], report["reloadForTest"] as? Bool == true,
+                           ProcessInfo.processInfo.environment["JSHW_SMOKE_RELOAD"] == "1" {
+                            view.reload()
+                            return
+                        }
                         let value: [String: Any]
                         switch result {
                         case .success(let payload): value = ["ok": true, "result": payload]
@@ -163,6 +181,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             }
             return
         }
+        if message.name == "assets" { handleAsset(message.body); return }
         if message.name == "music" { handleMusic(message.body); return }
         if message.name == "display" { handleDisplay(message.body); return }
         guard message.name == "files", let body = message.body as? [String: String],
@@ -205,6 +224,27 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             do { try png.write(to: URL(fileURLWithPath: path + ".png"), options: .atomic) }
             catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
             if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
+        }
+    }
+
+    private func handleAsset(_ message: Any) {
+        guard let body = message as? [String: String], let id = body["id"], id.count < 100,
+              let path = body["path"], let root = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true) else { return }
+        var result: [String: String] = ["id": id]
+        do {
+            let url = root.appendingPathComponent(path).resolvingSymlinksInPath()
+            guard (path.hasPrefix("assets/") || path.hasPrefix("classic/")),
+                  url.path.hasPrefix(root.resolvingSymlinksInPath().path + "/"),
+                  ["png", "jpg", "jpeg", "webp"].contains(url.pathExtension.lowercased()),
+                  try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? Int.max < 32 * 1024 * 1024 else {
+                throw NSError(domain: "StudioAsset", code: 1, userInfo: [NSLocalizedDescriptionKey: "素材路径或大小无效。"])
+            }
+            let data = try Data(contentsOf: url)
+            let type = url.pathExtension == "jpg" ? "jpeg" : url.pathExtension
+            result["data"] = "data:image/" + type + ";base64," + data.base64EncodedString()
+        } catch { result["error"] = "素材没有读出来：" + error.localizedDescription }
+        if let data = try? JSONSerialization.data(withJSONObject: result), let json = String(data: data, encoding: .utf8) {
+            webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('native-asset-result', {detail: \(json)}))")
         }
     }
 

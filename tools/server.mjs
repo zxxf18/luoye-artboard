@@ -23,4 +23,4 @@ const server = http.createServer(async (request, response) => {
   } catch { response.writeHead(404); response.end('Not found'); }
 });
 server.on('error', error => { console.error(error.message); process.exitCode = 1; });
-server.listen(Number(process.env.PORT || 4173), '127.0.0.1', () => console.log(`画王创作室 http://127.0.0.1:${server.address().port}`));
+server.listen(Number(process.env.PORT || 4173), '127.0.0.1', () => console.log(`落叶画板 http://127.0.0.1:${server.address().port}`));

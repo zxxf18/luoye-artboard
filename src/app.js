@@ -4,7 +4,8 @@ import { decodeLegacyFly } from './legacy.js';
 import { mountGallery } from './gallery-ui.js';
 import { mountRecorder } from './recorder-ui.js';
 import { mountStudio } from './studio-ui.js';
-import { deliverFile, readDraft, writeDraft } from './storage.js';
+import { deliverFile, preserveDraft, writeDraft } from './storage.js';
+import { playfulIcon } from './playful-icons.js';
 import { icon } from './icons.js';
 import { mountClassic } from './classic-ui.js';
 import { mountText } from './text-ui.js';
@@ -16,8 +17,10 @@ import { mountMaterials } from './materials-ui.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.JSHW_ASSETS || [];
-const toolNames = { pen: '画笔', eraser: '橡皮', fill: '填色', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
+const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉当前图层上的笔迹', fill: '点击当前图层中想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
+const sessionId=crypto.randomUUID();
+let closeSnapshot=null;
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
 let toastTimer, saveTimer, pointerId, studio;
 
@@ -34,7 +37,7 @@ function setTool(next) {
   if(engine?.path&&next!==tool)engine.finishPath(true);
   tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
-  if (tool === 'select') $('tool-hint').textContent = '拖动圈选区域；画笔、倒色和暗房只修改选中部分';
+  if (tool === 'select') $('tool-hint').textContent = '拖动圈选区域；画笔、填色和暗房只修改选中部分';
   if (tool === 'magic') $('tool-hint').textContent = '点击颜色相连的区域，再调整公差与选区组合';
   if(tool==='stamp') $('tool-hint').textContent='连续盖章：在图库选择仙女袋，或将当前图层用作印章';
   if(tool==='clone') $('tool-hint').textContent='Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点';
@@ -85,7 +88,7 @@ function changed() {
     try {
       const project = await engine.serialize($('title').value.trim() || '我的画');
       await writeDraft(project);
-      if (savingRevision === revision) $('save-state').textContent = '草稿已保存在这台设备';
+      if (savingRevision === revision) $('save-state').textContent = '草稿已保存 · 关闭时存入图片／落叶画板作品';
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
   }, 900);
 }
@@ -99,7 +102,7 @@ function chooseCategory(category) {
     const img = document.createElement('img'); img.src = asset.thumbnail || asset.src; img.alt = ''; img.loading = 'lazy';
     const label = document.createElement('span'); label.textContent = asset.name;
     const plus = document.createElement('span'); plus.className = 'asset-add'; plus.textContent = '+';
-    button.append(img, label, plus); button.onclick = () => run(async () => { engine.end();if(asset.fairyGroups){const groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));engine.setFairyGroups(groups,asset.fairyMode);if(asset.fairyMode!=='dynamic'&&engine.active.frames?.length)engine.addLayer('仙女袋笔迹');$('size').value=240;$('size-value').textContent='240';setTool('stamp');document.body.classList.remove('library-open');toast(asset.name+' 已选中，在画布上拖动盖章');return;} await engine.addAsset(asset); setTool('move');document.body.classList.remove('library-open'); toast(`${asset.name} 来到画里了`); });
+    button.append(img, label, plus); button.onclick = () => run(async () => { engine.end();if(asset.fairyGroups){const groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));engine.setFairyGroups(groups,asset.fairyMode);if(asset.fairyMode!=='dynamic'&&engine.active.frames?.length)engine.addLayer('仙女袋笔迹');$('size').value=240;$('size-value').textContent='240';setTool('stamp');for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item===button);toast(asset.name+' 已选中，在画布上拖动盖章');return;} await engine.addAsset(asset); setTool('move');for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item===button); toast(`${asset.name} 来到画里了`); });
     $('asset-grid').append(button);
   }
 }
@@ -118,7 +121,7 @@ for (const swatch of palette) {
   button.onclick = () => setColor(swatch); $('swatches').append(button);
 }
 for (const [category, name] of Object.entries({ sticker: '小伙伴', background: '背景', animation: '动画', frame: '相框', fairy: '仙女袋', paper: '纸样', texture: '纹理' })) {
-  const button = document.createElement('button'); button.textContent = name; button.dataset.category = category;
+  const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'stamp',background:'paper',animation:'move',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
 engine = new DrawingEngine($('painting'), changed);engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
@@ -132,7 +135,7 @@ mountMusic({run,toast});
 const materials=mountMaterials({engine,run,toast});
 mountDisplay();
 mountPlayfulControls();
-new ResizeObserver(layoutCanvas).observe($('viewport'));
+let canvasLayoutFrame;new ResizeObserver(()=>{cancelAnimationFrame(canvasLayoutFrame);canvasLayoutFrame=requestAnimationFrame(layoutCanvas);}).observe($('viewport'));
 $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
 $('opacity').oninput = () => { $('opacity-value').textContent = `${$('opacity').value}%`; };
@@ -203,17 +206,22 @@ document.addEventListener('keydown', event => {
     if (event.key.toLowerCase() === 'o') { event.preventDefault(); $('open').click(); }
   }
 });
-window.JSHWFlushBeforeClose=async()=>{if(busy)throw new Error('请先完成当前操作');engine.end();engine.finishPath(true);clearTimeout(saveTimer);await writeDraft(await engine.serialize($('title').value.trim()||'我的画'));await recorder.flush();return true;};
+window.JSHWFlushBeforeClose=async()=>{
+  if(busy)throw new Error('请先完成当前操作');
+  engine.end();engine.finishPath(true);clearTimeout(saveTimer);
+  if(!closeSnapshot||closeSnapshot.revision!==revision){
+    const project=await engine.serialize($('title').value.trim()||'我的画');
+    closeSnapshot={sessionId,revision,project,png:engine.exportPNG()};
+  }
+  await writeDraft(closeSnapshot.project);await recorder.flush();
+  return closeSnapshot;
+};
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
 async function initialize() {
   try {
-    const draft = await readDraft();
-    if (draft?.project) {
-      showDialog('recover-dialog');
-      $('recover-dialog').addEventListener('close', () => run(async () => { if ($('recover-dialog').returnValue === 'recover') { $('title').value = await engine.restore(draft.project); changed(); } }), { once: true });
-    }
+    await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'0.4.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.1.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();

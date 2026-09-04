@@ -1,4 +1,5 @@
 let draftDatabase;
+let draftPreparation;
 async function openDraftDatabase() {
   if (draftDatabase) return draftDatabase;
   draftDatabase = await new Promise((resolve, reject) => {
@@ -11,10 +12,11 @@ async function openDraftDatabase() {
   return draftDatabase;
 }
 export async function writeDraft(project) {
+  await preserveDraft();
   const database = await openDraftDatabase();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction('drafts', 'readwrite');
-    const store=transaction.objectStore('drafts'), previous=store.get('current');previous.onsuccess=()=>{if(previous.result)store.put(previous.result,'previous');store.put({ project, updatedAt: Date.now() }, 'current');};
+    const store=transaction.objectStore('drafts'), previous=store.get('current');previous.onsuccess=()=>{if(previous.result)store.put(previous.result,'previous');store.put({ id:crypto.randomUUID(), project, updatedAt: Date.now() }, 'current');};
     transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error);
     transaction.onabort = () => reject(transaction.error || new Error('草稿写入被中断'));
   });
@@ -54,3 +56,21 @@ export async function galleryPut(item){const db=await openDraftDatabase();return
 
 export async function writeRecordingDraft(recording){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite');t.objectStore('drafts').put(recording,'recording');t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||new Error('录像保存中断'));});}
 export async function readRecordingDraft(){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const r=db.transaction('drafts').objectStore('drafts').get('recording');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+
+// One transaction protects the previous session before this session starts writing.
+export function preserveDraft(){
+  if(draftPreparation)return draftPreparation;
+  draftPreparation=prepareDraft().catch(error=>{draftPreparation=undefined;throw error;});
+  return draftPreparation;
+}
+async function prepareDraft(){
+  const db=await openDraftDatabase();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(['drafts','gallery'],'readwrite'),drafts=tx.objectStore('drafts'),request=drafts.get('current');
+    request.onsuccess=()=>{const old=request.result;if(!old?.project)return;
+      const id='previous-session-'+(old.id||old.updatedAt),store=tx.objectStore('gallery'),existing=store.get(id);
+      existing.onsuccess=()=>{if(!existing.result)store.put({id,folder:'自动保留',project:old.project,thumbnail:old.project.layers?.[0]?.image||'',updatedAt:old.updatedAt,deletedAt:null},id);drafts.delete('current');};
+    };
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('旧草稿保留失败'));
+  });
+}

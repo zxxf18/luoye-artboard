@@ -1,46 +1,41 @@
-# 画王 · 暖暖画室
+# 落叶画板
 
-从旧金山画王安装文件重新实现的离线桌面绘画项目。当前 v0.4 可在本机 macOS Apple Silicon 运行；Windows 客户端和完整旧版功能仍在后续计划中。
+基于金山画王安装文件分析和重新实现的离线儿童绘画客户端。用户确认的暖色界面基线固定为 Git 标签 `v1`（3ee9968，历史源码版本 0.4.0），后续工作在 `feature/v1-library-upgrade` 分批提交。
 
-## 运行客户端
+当前版本 1.1.0：macOS Apple Silicon 原生客户端与 Windows amd64 原生客户端。共用本地绘画界面和 Canvas 引擎，不运行本地 HTTP 服务，不依赖外部网页。Windows 构建已完成，Windows 实机验收尚未完成。
 
-双击 [画王创作室.app](build/画王创作室.app)，或在项目根目录运行：
+## 运行
 
-```sh
-open 'build/画王创作室.app'
-```
+macOS：双击 `build/落叶画板.app`。
 
-客户端内部包含全部界面和 38 条样例素材，不需要浏览器、Node 服务或网络。原 `jshw/` 只是研究和样本来源，客户端不依赖这个目录运行。
+Windows：完整解压 `build/落叶画板-1.1.0-windows-amd64.zip`，双击 `落叶画板.exe`；缺少 WebView2 时运行随包提供的微软 x64 离线安装器。无需 Node.js 或 .NET SDK。
 
-## 构建与测试
+默认新建 1920×1080 白纸，支持 2K 和可调整窗口、三档按钮大小。音乐默认 35% 音量播放。正常关闭会先保存工程与 PNG 到系统「图片／落叶画板作品／会话编号-修订号」。保存失败保持窗口打开。旧草稿保留在画夹「自动保留」。
 
-本机已有 Node 25.6.1 和 Swift 6.3.3。当前无第三方 npm 依赖，无需 npm install。旧格式兼容测试会读取本工作区保留的 `jshw/` 样本：
+## 本地构建与验证
 
 ```sh
 npm test
 npm run build:mac
+npm run build:windows
 ```
 
-`build:mac` 生成 arm64 应用，编译最低部署目标 macOS 13；本轮只在 macOS 26.6.2 实测。构建脚本会重建 `dist/` 和应用里的资源目录，请勿把作品放入这些生成目录。
+Mac 构建需 Swift / macOS SDK。Windows 交叉构建用 `.NET SDK 10.0.400`，本机已安装在 `build/tooling/dotnet`；可通过 `LUOYE_DOTNET` 指定其他安装位置。构建会读取 `build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe` 并复制到交付目录。依赖版本、安装位置、校验和与首次启动影响见 `design/12-v1-upgrade.md`。Windows NuGet 锁文件纳入 Git。
 
-开发时可运行 `npm run dev`，在本机 4173 端口检查界面；`/tests/browser.html` 是 9 项基础像素／工程测试，`/tests/editor.html` 是 13 项高级编辑／回放测试。另有 `/tests/creative.html` 的 3 项文字／变形／材质测试。新增 `/tests/brushes.html` 的 3 项笔迹／兼容性检查和 `/tests/layout.html` 的 12 组布局检查。它们只用于开发验证，不是客户端交付方式。
+`npm run dev` 只用于开发验收，不是最终产品的运行方式。
 
-## 当前能力
+## 素材状态
 
-- 奶油／杏橙暖色界面、新绘 SVG 卡通图标、图卡选择器和大滑块。
-- 三档界面尺寸、1080／2K 窗口、全屏；小窗口可展开九笔画盒。
-- 素材加入后继续画画自动使用整张绘画层；本地纸纹错误已修复。
+客户端目前仍是 38 组素材，不能视为已完成全库高清重制。原版完整库已解码为 1117 条目、3133 张图（含帧和封面），放在 `build/remaster/original`，清单位于 `build/remaster/manifest.json`。154 个仙女袋包 / 1825 帧已全部解析，异常修复有记录。待用户确认批量 AI 超分辨率或全部重绘方式后执行高清处理与替换。
 
-- 1080p、2560×1440、4:3、竖向和方形画纸。
-- 九种独立笔触与实时笔盒预览、软／硬／矩形橡皮、六类倒色、几何／多边形／Bezier、八种选区、魔力棒、仿制和连续印章。
-- 多图层、复制／清空／合并到底层、翻转、移动、旋转、缩放、剪切复制、撤销／恢复。
-- 32 个暗房处理入口：像素预览、应用和选区约束；不代表原版编号特效全部匹配。
-- 五段命令录像、逐步／改色回放、截断、`.jshwr` 导入导出。
-- 本地画夹、回收站；`.jshwx` 工程、PNG/JPEG 输出、已验证单图 FLY 导入、草稿与正常退出保存。
-- 38 条代表素材；动画暂停／定格。动态 GIR 六个代表包已接入。新增十项文字样式、调色板、推拉／缩放、五种画板滤镜、IFS／Mandel／Julia 和 Mac MIDI 音乐盒；文字仍为栅格，Norton 仅为原版低清预览。
+原始 `jshw/` 保持只读，不提交到 Git；已有源文件 SHA256 清单位于 `design/evidence/files.csv`。原安装程序不属于跨平台运行依赖。
 
-当前界面与体验记录见 [0.4 儿童交互改进](design/11-child-friendly-interaction.md)；旧功能还原边界见 [0.3 还原进度](design/10-classic-restoration.md)。
+## 文档
 
-完整范围、限制、安装记录与后续路径从 [design/README.md](design/README.md) 阅读。全量高清素材最后处理；当前 38 条样本大部分保持原分辨率，两张 AI 重制候选未通过 2K 规格，未打入客户端。
+- `design/01-current-state.md` 至 `design/05-implementation-plan.md`：安装包分析与还原路线。
+- `design/11-child-friendly-interaction.md`：v1 暖色儿童界面基线和画笔迭代。
+- `design/12-v1-upgrade.md`：本轮设计、保存可靠性、音乐根因、Windows 环境记录与验收状态。
+- `CHANGELOG.md`：版本变化。
+- `public/branding/PROVENANCE.md`：用户照片卡通图标的生成记录。
 
-旧版目录只读保留且不进入 Git；新源码、设计、清单和样例单独管理。
+尚未实现的原版算法或尚未验证的还原行为继续在 design 中明确标注，不宣称与原版完全等价。

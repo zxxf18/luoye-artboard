@@ -1,3 +1,4 @@
+import { bundledImageSource } from './bundled-images.js';
 import { History, fitInside, floodFill, toLayerPoint, validateProject } from './core.js';
 
 export function makeCanvas(width, height) {
@@ -7,10 +8,11 @@ export function makeCanvas(width, height) {
   return canvas;
 }
 
-export function loadImage(src) {
+export async function loadImage(src) {
+  const source=await bundledImageSource(src);
   return new Promise((resolve, reject) => {
     const image = new Image(); image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.JSHW_IMAGE_DATA?.[src] || src;
+    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.JSHW_IMAGE_DATA?.[src] || source;
   });
 }
 

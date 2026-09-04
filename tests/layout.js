@@ -21,6 +21,12 @@ for(const [width,height] of [[900,650],[1280,720],[1920,1080],[2560,1440]]){
    if(clipped){const expand=doc.querySelector('#all-brushes-open');assert(isVisible(expand),'有画笔被裁切但无展开入口');expand.click();const picks=doc.querySelectorAll('[data-pick-brush]');assert(picks.length===9,'展开后不足九支画笔');for(const b of picks)assert(b.getBoundingClientRect().width>=80&&b.getBoundingClientRect().height>=100,'展开笔盒按钮太小');doc.querySelector('#all-brushes-close').click();}
    const targets=[...doc.querySelectorAll('.header-actions button,.brush-card,.tool-button,.swatch,.left-actions button')].filter(isVisible);assert(targets.every(b=>b.getBoundingClientRect().width>=43.5&&b.getBoundingClientRect().height>=43.5),'点击区域小于44');
    assert(![...doc.querySelectorAll('select')].some(isVisible),'出现默认下拉框');
+   doc.querySelector('#mode-library').click();await pause(100);
+   const tray=doc.querySelector('.right-panel').getBoundingClientRect(),paper=viewport.getBoundingClientRect();
+   assert(tray.top>=paper.bottom-1,'素材遮挡画纸');assert(paper.height>=100,'素材栏挤掉画纸');
+   assert(inside(doc.querySelector('.right-panel'),doc.body),'素材栏超出窗口');
+   assert(inside(doc.querySelector('#tool-settings-open'),doc.body),'素材打开后工具参数超出窗口');
+   doc.querySelector('#mode-board').click();
    results.push({name,passed:true,canvas:{width:Math.round(r.width),height:Math.round(r.height)},expandedBrushBox:clipped});
   }catch(error){results.push({name,passed:false,error:error.message});for(const dialog of doc.querySelectorAll('dialog[open]'))dialog.close();}
  }

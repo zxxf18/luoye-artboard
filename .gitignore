@@ -9,3 +9,7 @@ __pycache__/
 *.p12
 jshw/
 test-results/
+native/windows/bin/
+native/windows/obj/
+tests/bin/
+tests/obj/

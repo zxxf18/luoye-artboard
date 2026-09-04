@@ -33,4 +33,12 @@ const art={
  display:'<rect x="6" y="10" width="52" height="37" rx="7" fill="#a9c5cd"/><path fill="#fff4d6" d="M12 16h40v25H12z"/><path d="M26 48v9h13v-9m-21 13h29"/><path d="m18 24 6-3m-6 12 6 3m17-15 5 3m-5 12 5-3" stroke="#ce835e"/>',
  more:'<path fill="#eeb591" d="M8 23h48v35H8z"/><path fill="#f8d592" d="M21 23V10h24v13"/><path d="M8 37h48m-29-5v10h10V32" fill="#fff3cd"/>',
 };
+Object.assign(art,{
+ cut:'<circle cx="16" cy="47" r="10" fill="#efa59b"/><circle cx="46" cy="47" r="10" fill="#a8cbbd"/><path d="M22 40 49 8 31 36 14 8 40 40" fill="#d8e0dc"/><circle cx="31" cy="33" r="3" fill="#f7d18c"/>',
+ copy:'<rect x="8" y="7" width="34" height="43" rx="5" fill="#a7c9bc"/><rect x="22" y="19" width="34" height="43" rx="5" fill="#fff2d2"/><path d="M30 31h18m-18 9h18m-18 9h12"/>',
+ paste:'<rect x="10" y="12" width="45" height="48" rx="6" fill="#ecc18b"/><rect x="17" y="21" width="31" height="32" rx="3" fill="#fff7e6"/><rect x="23" y="6" width="20" height="13" rx="4" fill="#a9cbbb"/><path d="m24 38 7 6 11-15"/>',
+ rotate:'<path d="M13 24a22 22 0 1 1 0 20" fill="none" stroke-width="6" stroke="#c77c59"/><path d="M8 10v18h18" fill="#f1c881"/><rect x="24" y="25" width="18" height="18" rx="4" fill="#b7d0ba" transform="rotate(20 33 34)"/>',
+ play:'<circle cx="32" cy="32" r="26" fill="#b5d3bc"/><path d="m26 18 20 14-20 14z" fill="#fff7df"/>',
+ stop:'<circle cx="32" cy="32" r="26" fill="#edb4a1"/><rect x="21" y="21" width="22" height="22" rx="4" fill="#fff7df"/>',
+});
 export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playful-icon" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="#705142" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${art[name]||art.palette}</g></svg>`;}
