@@ -2,6 +2,8 @@ import { History, fitInside, floodFill, toLayerPoint, validateProject } from './
 
 export function makeCanvas(width, height) {
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+  // Offscreen layers are read for every history tile; choose a stable readback path.
+  canvas.getContext('2d', {willReadFrequently:true});
   return canvas;
 }
 

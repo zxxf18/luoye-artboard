@@ -172,7 +172,7 @@ $('painting').addEventListener('pointerdown', event => {
   if (tool === 'text') { styledText.open(point); return; }
   if(tool==='fractal'){creative.open();return;}
   try {
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); }
   } catch (error) { toast(error.message); }
 });
