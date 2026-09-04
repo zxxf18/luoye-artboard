@@ -8,7 +8,7 @@ export function makeCanvas(width, height) {
 export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image(); image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = src;
+    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.JSHW_IMAGE_DATA?.[src] || src;
   });
 }
 

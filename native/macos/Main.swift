@@ -126,7 +126,19 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                     let data = try JSONSerialization.data(withJSONObject: message.body, options: [.prettyPrinted, .sortedKeys])
                     try data.write(to: URL(fileURLWithPath: smokePath), options: .atomic)
                 } catch { logger.error("Smoke report failed: \(error.localizedDescription)") }
-                if ProcessInfo.processInfo.environment["JSHW_SMOKE_MUSIC"] == "1" {
+                if let scriptPath = ProcessInfo.processInfo.environment["JSHW_SMOKE_SCRIPT"],
+                   let script = try? String(contentsOfFile: scriptPath, encoding: .utf8) {
+                    view.callAsyncJavaScript(script, arguments: [:], in: nil, in: .page) { result in
+                        let value: [String: Any]
+                        switch result {
+                        case .success(let payload): value = ["ok": true, "result": payload]
+                        case .failure(let error): value = ["ok": false, "error": error.localizedDescription]
+                        }
+                        do { try JSONSerialization.data(withJSONObject: value, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: smokePath + ".checks.json"), options: .atomic) }
+                        catch { self.logger.error("UI check report failed: \(error.localizedDescription)") }
+                        self.finishSmoke(view: view, path: smokePath)
+                    }
+                } else if ProcessInfo.processInfo.environment["JSHW_SMOKE_MUSIC"] == "1" {
                     view.callAsyncJavaScript("return await window.JSHWMusicSmoke();", arguments: [:], in: nil, in: .page) { result in
                         let value: [String: Any]
                         switch result {
