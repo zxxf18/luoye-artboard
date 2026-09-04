@@ -28,6 +28,8 @@ export class PaintEngine {
   get active() { return this.layers.find(l => l.id === this.activeId); }
   changed() { this.render(); this.onChange?.(); }
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
+    const existingPixels=this.layers.reduce((sum,layer)=>sum+layer.width*layer.height*(1+(layer.frames?.length||0)),0);
+    if(existingPixels+canvas.width*canvas.height*(1+(extra.frames?.length||0))>90000000)throw new Error('图层和动画超过像素预算，请先合并或删除部分图层。');
     if (this.layers.length >= 20) throw new Error('当前版本最多支持 20 个图层。');
     const previous = this.activeId;
     const { insertAt = this.layers.length, ...properties } = extra;
@@ -65,7 +67,7 @@ export class PaintEngine {
   redo() { if (this.history.redo()) this.changed(); }
   render() {
     if (this.drawQueued) return;
-    this.drawQueued = true; requestAnimationFrame(() => { this.drawQueued = false; this.paint(this.ctx, true); });
+    this.drawQueued = true; this.renderFrame = requestAnimationFrame(() => { this.drawQueued = false; this.paint(this.ctx, true); });
   }
   transform(ctx, layer) {
     ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180); ctx.scale(layer.scale, layer.scale);
@@ -77,7 +79,7 @@ export class PaintEngine {
     for (const layer of this.layers) {
       if (!layer.visible) continue;
       ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
-      const frame = layer.frames?.length ? layer.frames[Math.floor((this.playing ? performance.now() - this.animationStart : 0) / layer.frameDuration) % layer.frames.length] : layer.canvas;
+      const frame = layer.frames?.length ? layer.frames[this.frameIndex ? this.frameIndex(layer) : Math.floor((this.playing ? performance.now() - this.animationStart : 0) / layer.frameDuration) % layer.frames.length] : layer.canvas;
       ctx.drawImage(frame, 0, 0, layer.width, layer.height); ctx.restore();
     }
     const g = this.gesture;
