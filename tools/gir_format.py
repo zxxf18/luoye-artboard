@@ -7,6 +7,7 @@ alpha block: 284-byte descriptor + (x,y,length,alpha) uint16 runs.
 from pathlib import Path
 import json
 import struct
+import hashlib
 
 
 def parse_gir(raw):
@@ -24,20 +25,36 @@ def parse_gir(raw):
     if sum(counts)>10000 or any(not 0<w<=4096 or not 0<h<=4096 for w,h in zip(widths,heights)):
         raise ValueError('GIR budget exceeded')
     cursor=14+16*count;groups=[]
+    known_single_pixel_repair = hashlib.sha256(raw).hexdigest() == '63a5f89ef9399ef938ebef4bc71c4539f239b47a4bd49894513d3b6ef00686e9'
     for frame_count,width,height,flag in zip(counts,widths,heights,flags):
         frames=[]
         for _ in range(frame_count):
-            marker,length=read('<HI',cursor);dib=cursor+6
-            header,w,h,planes,bpp,compression=read('<IiiHHI',dib)
-            if marker!=0xfffe or header!=40 or planes!=1 or bpp!=24 or compression!=0 or not 0<w<=4096 or not 0<h<=4096 or length!=40+((w*3+3)//4)*4*h:
-                raise ValueError(f'unsupported DIB at {cursor}: {marker=} {length=} {header=} {w=} {h=} {planes=} {bpp=} {compression=}')
-            alpha=dib+length
+            marker,length=read('<HI',cursor);dib=cursor+6;rgb_runs=None
+            if marker==0xffff and length==1:
+                w,h=read('<II',cursor+6)
+                if not 0<w<=4096 or not 0<h<=4096:raise ValueError('compressed GIR budget exceeded')
+                position=cursor+14;covered=0;rgb_runs=[]
+                while covered<w*h:
+                    ry,rx,n,b,g,r=read('<3H3B',position)
+                    # RLE is top-down, row-major BGR. Reject holes and overlaps.
+                    if ry*w+rx!=covered or not n or rx+n>w:raise ValueError('invalid compressed RGB run')
+                    rgb_runs.append((rx,ry,n,r,g,b));covered+=n;position+=9
+                end_marker,run_count=read('<HI',position)
+                if end_marker!=0xffff or run_count!=len(rgb_runs):raise ValueError('compressed RGB count mismatch')
+                alpha=position+6
+            else:
+                header,w,h,planes,bpp,compression=read('<IiiHHI',dib)
+                if marker!=0xfffe or header!=40 or planes!=1 or bpp!=24 or compression!=0 or not 0<w<=4096 or not 0<h<=4096 or length!=40+((w*3+3)//4)*4*h:
+                    raise ValueError(f'unsupported DIB at {cursor}')
+                alpha=dib+length
             amagic,x,y,aw,ah,left,top,right,bottom,kind,total,runs=read('<12I',alpha)
             if amagic!=0x226 or (aw,ah)!=(w,h) or runs>w*h or x+w>width or y+h>height:
                 raise ValueError('unsupported alpha descriptor')
-            records=[];pixels=0;occupied=set()
+            records=[];pixels=0;occupied=set();repair=None
             for i in range(runs):
                 rx,ry,n,a=read('<4H',alpha+284+i*8)
+                if known_single_pixel_repair and w==h==runs==total==n==1 and x==y==0 and (rx>=w or ry>=h) and rx<width and ry<height:
+                    repair='known 2/17 single-pixel alpha uses group coordinates';x,y=rx,ry;rx=ry=0
                 if not n or rx+n>w or ry>=h or a>255:raise ValueError(f'invalid alpha run at {alpha+284+i*8}: {rx=} {ry=} {n=} {a=} {w=} {h=}')
                 for xx in range(rx,rx+n):
                     position=ry*w+xx
@@ -45,7 +62,10 @@ def parse_gir(raw):
                     occupied.add(position)
                 pixels+=n;records.append((rx,ry,n,a))
             if pixels!=total:raise ValueError('alpha pixel count mismatch')
-            frames.append(dict(dib_offset=dib,dib_length=length,width=w,height=h,x=x,y=y,runs=records))
+            frame=dict(dib_offset=dib,dib_length=length,width=w,height=h,x=x,y=y,runs=records)
+            if rgb_runs is not None:frame['rgb_runs']=rgb_runs
+            if repair:frame['repair']=repair
+            frames.append(frame)
             cursor=alpha+284+runs*8
         groups.append(dict(width=width,height=height,flag=flag,frames=frames))
     if cursor!=len(raw):raise ValueError('unparsed GIR tail')
