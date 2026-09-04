@@ -2,9 +2,10 @@ let draftDatabase;
 async function openDraftDatabase() {
   if (draftDatabase) return draftDatabase;
   draftDatabase = await new Promise((resolve, reject) => {
-    const request = indexedDB.open('jshw-studio', 1);
-    request.onupgradeneeded = () => request.result.createObjectStore('drafts');
-    request.onsuccess = () => resolve(request.result);
+    const request = indexedDB.open('jshw-studio', 2);
+    request.onupgradeneeded = () => { for(const name of ['drafts','gallery']) if(!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name); };
+    request.onsuccess = () => {request.result.onversionchange=()=>{request.result.close();draftDatabase=undefined;};resolve(request.result);};
+    request.onblocked=()=>reject(new Error('请先关闭旧版本创作室，再打开画夹。'));
     request.onerror = () => reject(request.error);
   });
   return draftDatabase;
@@ -13,7 +14,7 @@ export async function writeDraft(project) {
   const database = await openDraftDatabase();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction('drafts', 'readwrite');
-    transaction.objectStore('drafts').put({ project, updatedAt: Date.now() }, 'current');
+    const store=transaction.objectStore('drafts'), previous=store.get('current');previous.onsuccess=()=>{if(previous.result)store.put(previous.result,'previous');store.put({ project, updatedAt: Date.now() }, 'current');};
     transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error);
     transaction.onabort = () => reject(transaction.error || new Error('草稿写入被中断'));
   });
@@ -43,3 +44,13 @@ export async function deliverFile(name, mime, textOrDataURL) {
   if (url.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(url), 10000);
   return '已生成下载文件';
 }
+
+export async function galleryList(){
+  const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const items=[],request=db.transaction('gallery').objectStore('gallery').openCursor();request.onsuccess=()=>{const cursor=request.result;if(!cursor){resolve(items.sort((a,b)=>b.updatedAt-a.updatedAt));return;}const {project,...metadata}=cursor.value;items.push({...metadata,title:project.title});cursor.continue();};request.onerror=()=>reject(request.error);});
+}
+export async function galleryGet(id){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const r=db.transaction('gallery').objectStore('gallery').get(id);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+export async function galleryTrash(id,deletedAt){const item=await galleryGet(id);if(!item)throw new Error('画夹作品不存在。');await galleryPut({...item,deletedAt});}
+export async function galleryPut(item){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const t=db.transaction('gallery','readwrite');t.objectStore('gallery').put(item,item.id);t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||new Error('画夹保存中断'));});}
+
+export async function writeRecordingDraft(recording){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const t=db.transaction('drafts','readwrite');t.objectStore('drafts').put(recording,'recording');t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||new Error('录像保存中断'));});}
+export async function readRecordingDraft(){const db=await openDraftDatabase();return new Promise((resolve,reject)=>{const r=db.transaction('drafts').objectStore('drafts').get('recording');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}

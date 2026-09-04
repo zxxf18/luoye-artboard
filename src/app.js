@@ -1,13 +1,18 @@
-import { PaintEngine, makeCanvas, loadImage } from './engine.js';
+import { makeCanvas, loadImage } from './engine.js';
+import { DrawingEngine } from './drawing.js';
+import { decodeLegacyFly } from './legacy.js';
+import { mountGallery } from './gallery-ui.js';
+import { mountRecorder } from './recorder-ui.js';
+import { mountStudio } from './studio-ui.js';
 import { deliverFile, readDraft, writeDraft } from './storage.js';
 import { icon } from './icons.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.JSHW_ASSETS || [];
-const toolNames = { pen: '画笔', eraser: '橡皮', fill: '填色', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色' };
+const toolNames = { pen: '画笔', eraser: '橡皮', fill: '填色', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制' };
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉当前图层上的笔迹', fill: '点击当前图层中想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 let engine, tool = 'pen', color = '#285b49', zoom = 1, busy = false, ready = false, revision = 0;
-let toastTimer, saveTimer, pointerId, textPoint;
+let toastTimer, saveTimer, pointerId, textPoint, studio;
 
 function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 4000); }
 async function run(action) {
@@ -18,8 +23,15 @@ async function run(action) {
 }
 function bind(id, action) { $(id).addEventListener('click', () => run(action)); }
 function setTool(next) {
-  tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool];
+  if(engine?.path&&next!==tool)engine.finishPath(true);
+  tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
+  if (tool === 'select') $('tool-hint').textContent = '拖动圈选区域；画笔、倒色和暗房只修改选中部分';
+  if (tool === 'magic') $('tool-hint').textContent = '点击颜色相连的区域，再调整公差与选区组合';
+  if(tool==='stamp') $('tool-hint').textContent='连续盖章：在图库选择仙女袋，或将当前图层用作印章';
+  if(tool==='clone') $('tool-hint').textContent='Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点';
+  if(['polygon','bezier'].includes(tool)) $('tool-hint').textContent='点击添加顶点／控制点，Enter 或双击完成，Esc 取消';
+  studio?.toolChanged(tool);
 }
 function setColor(next) { color = next; $('color').value = next; $('current-color').style.background = next; for (const button of document.querySelectorAll('.swatch')) button.setAttribute('aria-pressed', button.dataset.color === next); }
 function layoutCanvas() {
@@ -73,7 +85,7 @@ function chooseCategory(category) {
     const img = document.createElement('img'); img.src = asset.thumbnail || asset.src; img.alt = ''; img.loading = 'lazy';
     const label = document.createElement('span'); label.textContent = asset.name;
     const plus = document.createElement('span'); plus.className = 'asset-add'; plus.textContent = '+';
-    button.append(img, label, plus); button.onclick = () => run(async () => { engine.end(); await engine.addAsset(asset); setTool('move'); toast(`${asset.name} 来到画里了`); });
+    button.append(img, label, plus); button.onclick = () => run(async () => { engine.end();if(asset.fairyGroups){const groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));engine.setFairyGroups(groups,asset.fairyMode);if(asset.fairyMode!=='dynamic'&&engine.active.frames?.length)engine.addLayer('仙女袋笔迹');$('size').value=240;$('size-value').textContent='240';setTool('stamp');toast(asset.name+' 已选中，在画布上拖动盖章');return;} await engine.addAsset(asset); setTool('move'); toast(`${asset.name} 来到画里了`); });
     $('asset-grid').append(button);
   }
 }
@@ -95,7 +107,10 @@ for (const [category, name] of Object.entries({ sticker: '小伙伴', background
   const button = document.createElement('button'); button.textContent = name; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
-engine = new PaintEngine($('painting'), changed); changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
+engine = new DrawingEngine($('painting'), changed);engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
+studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
+const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
+const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();}});
 new ResizeObserver(layoutCanvas).observe($('viewport'));
 $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
@@ -111,14 +126,16 @@ bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });
 bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
 bind('new', () => { engine.end(); showDialog('new-dialog'); });
-$('new-dialog').addEventListener('close', () => { if ($('new-dialog').returnValue === 'create') { const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; setTool('pen'); changed(); } });
+$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; setTool('pen'); changed(); } }));
 bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画'; const project = await engine.serialize(title); toast(await deliverFile(`${title}.jshwx`, 'application/json', JSON.stringify(project))); });
-bind('export', async () => { engine.end(); toast(await deliverFile(`${$('title').value.trim() || '我的画'}.png`, 'image/png', engine.exportPNG())); });
+bind('export',()=>showDialog('export-dialog'));
+$('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()||'我的画')+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
 bind('open', () => $('file-input').click()); bind('import-image', () => $('image-input').click());
 $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
-  const data = JSON.parse(await file.text()); engine.end(); $('title').value = await engine.restore(data); changed(); toast('作品打开了，接着画吧');
+  if(/\.fly$/i.test(file.name)){const image=decodeLegacyFly(await file.arrayBuffer());await gallery.backup();engine.reset(image.width,image.height);engine.active.canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);$('title').value=file.name.replace(/\.fly$/i,'');changed();toast('已作为单张图片导入；旧图层与记录不在此兼容范围内');return;}
+  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed(); toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
@@ -130,17 +147,20 @@ $('image-input').onchange = event => run(async () => {
 $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
   event.preventDefault(); $('painting').focus({ preventScroll: true }); const point = engine.point(event);
+  if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
+  if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
     const x = Math.max(0, Math.min(engine.width - 1, Math.floor(point.x))), y = Math.max(0, Math.min(engine.height - 1, Math.floor(point.y)));
-    const pixel = engine.ctx.getImageData(x, y, 1, 1).data;
-    setColor('#' + [...pixel.slice(0, 3)].map(n => n.toString(16).padStart(2, '0')).join('')); setTool('pen'); return;
+    const composite=makeCanvas(engine.width,engine.height);engine.paint(composite.getContext('2d'));const pixel = composite.getContext('2d').getImageData(x, y, 1, 1).data;
+    const picked='#'+[...pixel.slice(0,3)].map(n=>n.toString(16).padStart(2,'0')).join('');if(event.ctrlKey) $('background-color').value=picked;else setColor(picked);setTool('pen');return;
   }
   if (tool === 'text') { textPoint = point; showDialog('text-dialog'); $('text-content').focus(); return; }
   try {
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, tolerance: 20 });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, ...studio.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); }
   } catch (error) { toast(error.message); }
 });
+$('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
 $('painting').addEventListener('pointermove', event => { if (event.pointerId !== pointerId) return; const samples = event.getCoalescedEvents?.(); for (const sample of samples?.length ? samples : [event]) engine.update(engine.point(sample)); });
 function finishPointer(event) { if (event.pointerId !== pointerId) return; engine.end(event.type === 'pointercancel'); pointerId = undefined; }
 $('painting').addEventListener('pointerup', finishPointer); $('painting').addEventListener('pointercancel', finishPointer);
@@ -157,7 +177,8 @@ $('text-dialog').addEventListener('close', () => {
 });
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
-  if (event.key === 'Escape') { engine.end(true); pointerId = undefined; return; }
+  if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
+  if (event.key === 'Escape') { engine.finishPath(true);engine.end(true); pointerId = undefined; return; }
   if (event.metaKey || event.ctrlKey) {
     if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? engine.redo() : engine.undo(); }
     if (event.key.toLowerCase() === 'y') { event.preventDefault(); engine.redo(); }
@@ -165,6 +186,7 @@ document.addEventListener('keydown', event => {
     if (event.key.toLowerCase() === 'o') { event.preventDefault(); $('open').click(); }
   }
 });
+window.JSHWFlushBeforeClose=async()=>{if(busy)throw new Error('请先完成当前操作');engine.end();engine.finishPath(true);clearTimeout(saveTimer);await writeDraft(await engine.serialize($('title').value.trim()||'我的画'));await recorder.flush();return true;};
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
 async function initialize() {
   try {
@@ -175,6 +197,6 @@ async function initialize() {
     }
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:$('effect-kind').options.length, tools:Object.keys(toolNames), version:'0.2.0',fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();

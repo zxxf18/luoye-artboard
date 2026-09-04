@@ -1,4 +1,8 @@
 const iconPaths = {
+  select: '<rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="3 3"/>',
+  magic: '<path d="m4 20 12-12 3 3L7 23ZM14 10l3 3M17 2v3M21 5h-3M6 3v5M3 6h6"/>',
+  stamp: '<path d="M4 16h16v5H4ZM7 16v-3h10v3M10 13V9c-4-5 8-5 4 0v4M3 23h18"/>',
+  clone: '<path d="M4 14h11v7H4ZM7 14V9h5v5M16 3h5v5M21 3l-7 7M3 3h5M3 3v5"/>',
   pen: '<path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5M4 15l5 5"/>',
   eraser: '<path d="m8 20-5-5a2 2 0 0 1 0-3L13 2a2 2 0 0 1 3 0l6 6a2 2 0 0 1 0 3l-9 9H8Z"/><path d="m7 8 9 9M12 20h10"/>',
   fill: '<path d="m5 3 11 11M9 2l10 10-9 9-9-9Z"/><path d="M21 15s-3 4-3 5a3 3 0 0 0 6 0c0-1-3-5-3-5Z"/>',

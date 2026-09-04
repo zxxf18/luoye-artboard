@@ -12,7 +12,7 @@ await rm(path.join(app, 'Contents/Resources/site'), { recursive:true, force:true
 await cp(path.join(root, 'dist'), path.join(app, 'Contents/Resources/site'), { recursive:true });
 await writeFile(path.join(app, 'Contents/Info.plist'), `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict><key>CFBundleName</key><string>画王创作室</string><key>CFBundleDisplayName</key><string>画王创作室</string><key>CFBundleIdentifier</key><string>local.jshw.studio</string><key>CFBundleExecutable</key><string>JSHWStudio</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>0.1.0</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>NSHighResolutionCapable</key><true/></dict></plist>`);
+<plist version="1.0"><dict><key>CFBundleName</key><string>画王创作室</string><key>CFBundleDisplayName</key><string>画王创作室</string><key>CFBundleIdentifier</key><string>local.jshw.studio</string><key>CFBundleExecutable</key><string>JSHWStudio</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>0.2.0</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>NSHighResolutionCapable</key><true/></dict></plist>`);
 const result = spawnSync('xcrun', ['swiftc', '-swift-version', '6', '-target', 'arm64-apple-macos13.0', '-module-cache-path', path.join(root,'build/swift-cache'), '-framework','AppKit','-framework','WebKit', path.join(root,'native/macos/Main.swift'), '-o',path.join(app,'Contents/MacOS/JSHWStudio')], { stdio:'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
 console.log(`Mac application built: ${app}`);

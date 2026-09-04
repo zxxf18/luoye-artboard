@@ -4,9 +4,10 @@ import UniformTypeIdentifiers
 import os
 
 @MainActor
-final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler {
+final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, NSWindowDelegate {
     private var window: NSWindow?
     private var webView: WKWebView?
+    private var terminationPending = false
     private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
     private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
 
@@ -28,6 +29,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         NSApp.mainMenu = menu
 
         let configuration = WKWebViewConfiguration()
+        if smokePath != nil { configuration.websiteDataStore = .nonPersistent() }
         configuration.userContentController.add(self, name: "files")
         configuration.userContentController.add(self, name: "ready")
         let view = WKWebView(frame: .zero, configuration: configuration)
@@ -36,6 +38,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         if #available(macOS 13.3, *) { view.isInspectable = true }
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1380, height: 900),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window.delegate = self
         window.title = "画王 · 小小创作室"
         window.minSize = NSSize(width: 900, height: 650)
         window.contentView = view
@@ -50,6 +53,38 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let site = resources.appendingPathComponent("site", isDirectory: true)
         view.loadFileURL(site.appendingPathComponent("index.html"), allowingReadAccessTo: site)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        NSApp.terminate(nil)
+        return false
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let webView else { return .terminateNow }
+        if terminationPending { return .terminateCancel }
+        terminationPending = true
+        webView.callAsyncJavaScript("return window.JSHWFlushBeforeClose ? await window.JSHWFlushBeforeClose() : true;",
+                                   arguments: [:], in: nil, in: .page) { result in
+            self.terminationPending = false
+            switch result {
+            case .success:
+                if let path = self.smokePath {
+                    do { try Data("{\"draftFlush\":true,\"terminationApproved\":true}".utf8).write(to: URL(fileURLWithPath: path + ".close.json"), options: .atomic) }
+                    catch { self.logger.error("Close report failed: \(error.localizedDescription)") }
+                }
+                sender.reply(toApplicationShouldTerminate: true)
+            case .failure(let error):
+                self.logger.error("Draft flush failed: \(error.localizedDescription)")
+                let alert = NSAlert()
+                alert.messageText = "草稿未能保存"
+                alert.informativeText = "创作室将保持打开。请先将作品保存为工程文件，再重试退出。"
+                alert.addButton(withTitle: "继续画画")
+                alert.runModal()
+                sender.reply(toApplicationShouldTerminate: false)
+            }
+        }
+        return .terminateLater
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
@@ -91,23 +126,28 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                           let png = bitmap.representation(using: .png, properties: [:]) else { return }
                     do { try png.write(to: URL(fileURLWithPath: smokePath + ".png"), options: .atomic) }
                     catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
+                    if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
                 }
             }
             return
         }
         guard message.name == "files", let body = message.body as? [String: String],
               let id = body["id"], let name = body["name"], let content = body["content"],
-              let mime = body["mime"], ["image/png", "application/json"].contains(mime),
+              let mime = body["mime"], ["image/png", "image/jpeg", "application/json"].contains(mime),
               content.utf8.count <= 180 * 1024 * 1024 else { return }
         let data: Data?
-        if mime == "image/png", content.hasPrefix("data:image/png;base64,") {
-            data = Data(base64Encoded: String(content.dropFirst("data:image/png;base64,".count)))
+        let imagePrefix = "data:" + mime + ";base64,"
+        if mime.hasPrefix("image/"), content.hasPrefix(imagePrefix) {
+            data = Data(base64Encoded: String(content.dropFirst(imagePrefix.count)))
         } else if mime == "application/json" { data = content.data(using: .utf8) }
         else { data = nil }
         guard let data else { reply(id: id, error: "文件内容无法识别。"); return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = String(name.split(separator: "/").last ?? "我的画")
-        panel.allowedContentTypes = mime == "image/png" ? [.png] : [UTType(filenameExtension: "jshwx") ?? .data]
+        let extensionName = (name as NSString).pathExtension.lowercased()
+        if mime == "image/png" { panel.allowedContentTypes = [.png] }
+        else if mime == "image/jpeg" { panel.allowedContentTypes = [.jpeg] }
+        else { panel.allowedContentTypes = [UTType(filenameExtension: extensionName == "jshwr" ? "jshwr" : "jshwx") ?? .data] }
         guard let window else { reply(id: id, error: "窗口不可用。"); return }
         panel.beginSheetModal(for: window) { response in
             guard response == .OK, let url = panel.url else { self.reply(id: id, saved: false); return }

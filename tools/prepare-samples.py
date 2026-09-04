@@ -10,6 +10,7 @@ import json
 import re
 import struct
 from PIL import Image
+from gir_format import parse_gir
 
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY = ROOT / 'jshw'
@@ -73,20 +74,29 @@ for n in range(2):
     assets[-1]['sources'] = [dict(path=p, sha256=hashlib.sha256(index[p].read_bytes()).hexdigest())
                             for frame in paths for p in [frame, frame[:-4]+'a.bmp']]
 
-# Only extract structurally validated RGB DIBs; GIR alpha/sequence semantics remain unverified.
-probes = json.loads((ROOT / 'design/evidence/private-format-probes.json').read_text())
+# Decode only two representative containers per GIR kind. Full-corpus validation
+# is read-only and does not expand the shipped asset selection.
 for kind in range(3):
     for n in range(2):
-        source = f'glib/girl/{kind}/{n:02}.gir'
-        candidate = probes[source]['dib_candidates'][0]
-        raw = index[source].read_bytes()
-        dib = raw[candidate['offset']:candidate['offset']+candidate['byte_length']]
-        with Image.open(io.BytesIO(dib)) as im:
-            im.load(); target = OUT / f'girl-{kind}-{n}.png'; im.save(target)
-            assets.append(dict(id=f'girl-{kind}-{n}', name=f'仙女袋 {kind+1}·{n+1}', category='fairy',
-                               src=f'assets/{target.name}', thumbnail=f'assets/{target.name}', width=im.width, height=im.height,
-                               quality='embedded-rgb-only', note='首张 RGB 提取样本；透明度、动态语义待解析',
-                               sources=[dict(path=source, sha256=hashlib.sha256(raw).hexdigest())]))
+        source=f'glib/girl/{kind}/{n:02}.gir';raw=index[source].read_bytes();value=parse_gir(raw);groups=[]
+        for group_index,group in enumerate(value['groups']):
+            paths=[]
+            for frame_index,frame in enumerate(group['frames']):
+                sprite=Image.open(io.BytesIO(raw[frame['dib_offset']:frame['dib_offset']+frame['dib_length']])).convert('RGBA')
+                alpha=Image.new('L',sprite.size,0)
+                for x,y,length,opacity in frame['runs']:
+                    alpha.paste(opacity,(x,y,x+length,y+1))
+                sprite.putalpha(alpha)
+                canvas=Image.new('RGBA',(group['width'],group['height']),(0,0,0,0));canvas.alpha_composite(sprite,(frame['x'],frame['y']))
+                target=OUT/f'girl-{kind}-{n}-g{group_index}-f{frame_index}.png';canvas.save(target);paths.append(f'assets/{target.name}')
+                if group_index==0 and frame_index==0:
+                    canvas.save(OUT/f'girl-{kind}-{n}.png');thumb=canvas.copy();thumb.thumbnail((180,132));thumb.save(OUT/f'girl-{kind}-{n}-thumb.png')
+            groups.append(dict(width=group['width'],height=group['height'],frames=paths,frameDuration=160,flag=group['flag']))
+        assets.append(dict(id=f'girl-{kind}-{n}',name=f'{["单张","静态","动态"][kind]}仙女袋 {n+1}',category='fairy',
+            src=f'assets/girl-{kind}-{n}.png',thumbnail=f'assets/girl-{kind}-{n}-thumb.png',width=groups[0]['width'],height=groups[0]['height'],
+            fairyMode=['single','static','dynamic'][kind],fairyGroups=groups,quality='original-decoded-rgba',
+            note='DIB 与 Alpha 游程、组尺寸及帧顺序已验证；160ms 为新版预览时序，旧节奏与选择策略待对照',
+            sources=[dict(path=source,sha256=hashlib.sha256(raw).hexdigest())]))
 
 (OUT / 'catalog.json').write_text(json.dumps(assets, ensure_ascii=False, indent=2)+'\n')
 # JS wrapper also works in a sandboxed file:// macOS WebView without a local server.
