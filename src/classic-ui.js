@@ -1,40 +1,68 @@
 import { mountPalette } from './palette-ui.js';
+import { playfulIcon } from './playful-icons.js';
+import { BRUSHES, brushSegment } from './brushes.js';
+import { makeCanvas } from './engine.js';
 
-export function mountClassic({setTool,getColor,setColor}) {
-  const el=id=>document.getElementById(id);document.body.classList.add('classic');
-  const left=document.createElement('aside');left.className='classic-left';left.setAttribute('aria-label','辅助工具');document.querySelector('.workspace').append(left);
-  const tabs=document.querySelector('.workspace-tabs');document.querySelector('.tool-rail').prepend(tabs);
-  const parameters=document.createElement('section');parameters.className='classic-parameters';parameters.setAttribute('aria-label','当前工具参数');parameters.append(document.querySelector('.options-bar'),document.querySelector('.detail-bar'));document.querySelector('.studio').append(parameters);
-  const command=document.querySelector('.edit-commands');document.querySelector('.header-actions').prepend(command);
+export function brushPreview(id,color,width=140,height=42,size=28){
+  const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
+  const g={layer:{scale:1},options:{tool:'pen',brush:id,brushVersion:2,size,color,opacity:1,seed:913}};
+  let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};brushSegment(ctx,g,a,b);a=b;}return canvas;
+}
+
+export function mountClassic({setTool,getColor,setColor}){
+  const el=id=>document.getElementById(id);document.body.classList.add('playroom');
+  const workspace=document.querySelector('.workspace'),studio=document.querySelector('.studio');
+  const left=document.createElement('aside');left.className='classic-left';left.setAttribute('aria-label','画笔盒');workspace.prepend(left);
+  const heading=document.createElement('div');heading.className='canvas-topbar';const tabs=document.querySelector('.workspace-tabs');heading.append(tabs);const tip=document.createElement('span');tip.className='canvas-welcome';tip.textContent='每一笔，都是新发现';heading.append(tip);studio.prepend(heading);
+  const parameter=document.createElement('section');parameter.className='classic-parameters';parameter.setAttribute('aria-label','当前工具参数');parameter.innerHTML='<div class="brush-inspector"><div id="active-brush-preview"></div><div><strong id="active-tool-name">铅笔</strong><span id="active-tool-description">细细的线，勾轮廓</span></div></div>';
+  const options=document.querySelector('.options-bar');parameter.append(options);studio.append(parameter);
+  const settings=document.createElement('dialog');settings.id='tool-settings';settings.className='tool-settings wide-dialog';settings.innerHTML='<h2 id="settings-title">画笔的更多玩法</h2><div class="dialog-actions"><button id="settings-done" class="primary">选好了，去画画</button></div>';settings.querySelector('h2').after(document.querySelector('.detail-bar'));document.body.append(settings);
+  const settingsButton=document.createElement('button');settingsButton.id='tool-settings-open';settingsButton.className='settings-button';settingsButton.innerHTML=playfulIcon('more')+'<span>更多玩法</span>';settingsButton.onclick=()=>settings.showModal();parameter.append(settingsButton);el('settings-done').onclick=()=>settings.close();
+  const paintTarget=document.createElement('label');paintTarget.dataset.option='pen';paintTarget.innerHTML='<input id="paint-on-layer" type="checkbox">在当前小伙伴上涂色';paintTarget.title='默认在整张画纸上画；勾选后，只修改当前图层里的像素。';settings.querySelector('.detail-bar').append(paintTarget);
+  const palette=document.querySelector('.palette');palette.className='quick-palette';parameter.before(palette);palette.querySelector('.palette-label').remove();palette.querySelector('.custom-color').hidden=true;
+  const moreColor=document.createElement('button');moreColor.className='more-colors';moreColor.innerHTML=playfulIcon('palette')+'<span>更多颜色</span>';moreColor.onclick=()=>el('palette-open').click();palette.append(moreColor);
+  const status=document.querySelector('.canvas-footer');studio.append(status);const zoom=document.querySelector('.zoom-controls');heading.append(zoom);
+  document.querySelector('.canvas-heading').hidden=true;
+  const footer=document.createElement('div');footer.className='left-actions';
+  const pens=document.createElement('div');pens.className='brush-box';pens.setAttribute('aria-label','九种画笔');const title=document.createElement('h2');title.textContent='我的画笔盒';left.append(title,pens);
+  let currentBrush=el('brush').value;const sizes={};
+  function chooseBrush(value){sizes[currentBrush]=Number(el('size').value);currentBrush=value;el('brush').value=value;el('size').value=sizes[value]||BRUSHES.find(b=>b.id===value).size;el('size').dispatchEvent(new Event('input',{bubbles:true}));setTool('pen');sync();document.dispatchEvent(new Event('controlschange'));}
+  for(const brush of BRUSHES){const b=document.createElement('button');b.type='button';b.className='brush-card';b.dataset.brush=brush.id;b.style.setProperty('--brush-color',brush.color);b.setAttribute('aria-label',brush.name);b.title=brush.name+'：'+brush.hint;b.innerHTML=playfulIcon(brush.id)+`<span>${brush.name}</span><span class="brush-sample"></span>`;b.onclick=()=>{if(!document.body.hasAttribute('aria-busy'))chooseBrush(brush.id);};pens.append(b);const option=[...el('brush').options].find(o=>o.value===brush.id);option.textContent=brush.name;}
+  const allPens=document.createElement('button');allPens.id='all-brushes-open';allPens.className='all-brushes';allPens.textContent='展开画笔盒 ↗';allPens.hidden=true;pens.after(allPens);
+  const penDialog=document.createElement('dialog');penDialog.id='all-brushes-dialog';penDialog.className='wide-dialog';penDialog.innerHTML='<h2>九种画笔，试试不一样的笔迹</h2><div class="expanded-brushes"></div><div class="dialog-actions"><button id="all-brushes-close">返回画纸</button></div>';document.body.append(penDialog);el('all-brushes-close').onclick=()=>penDialog.close();
+  allPens.onclick=()=>{const grid=penDialog.querySelector('.expanded-brushes');grid.replaceChildren();for(const brush of BRUSHES){const b=document.createElement('button');b.dataset.pickBrush=brush.id;b.setAttribute('aria-pressed',el('brush').value===brush.id);b.innerHTML=playfulIcon(brush.id)+`<strong>${brush.name}</strong><span>${brush.hint}</span>`;b.append(brushPreview(brush.id,getColor()));b.onclick=()=>{chooseBrush(brush.id);penDialog.close();pens.querySelector(`[data-brush="${brush.id}"]`).scrollIntoView({block:'nearest'});};grid.append(b);}penDialog.showModal();};
+  const updatePenOverflow=()=>{const needed=!pens.hidden&&pens.scrollHeight>pens.clientHeight+(allPens.hidden?0:allPens.offsetHeight+parseFloat(getComputedStyle(left).gap))+2;allPens.hidden=!needed;};new ResizeObserver(updatePenOverflow).observe(pens);
+  el('size').value=BRUSHES[0].size;el('size-value').textContent=BRUSHES[0].size;
+  const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,footer);
+  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','仙女袋'],['fill','倒色'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形']];
+  const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
+  const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
-  const groups=[['pen','笔',0],['eraser','橡皮',1],['stamp','仙女袋',9],['fill','倒色',2],['picker','吸色管',3],['line','几何图形',4],['text','文字',5],['select','区域',6],['magic','魔力棒',7],['move','操纵器',8],['warp','变形',13],['board-filter','滤镜',11],['clone','仿制印章',10],['fractal','分形',12]];
-  const geometryTools=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
-  const groupTool=()=>geometryTools.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
-  const flip=document.createElement('button');flip.id='tool-page';flip.title='工具翻页';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=1-page;render();};
-  function render(){bar.replaceChildren();for(const [name,label,index] of groups.slice(page*7,page*7+7)){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=name;b.title=label;b.setAttribute('aria-label',label);b.innerHTML=`<span class="legacy-tool-art" style="background-image:url('classic/paint/but${index}.jpg')"></span><span>${label}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(name);if(name==='stamp'){document.querySelector('[data-category="fairy"]').click();document.body.classList.add('library-open');}};bar.append(b);}flip.textContent=page?'◀ 第一页':'第二页 ▶';bar.append(flip);const tool=groupTool();for(const b of bar.querySelectorAll('[data-tool]'))b.setAttribute('aria-pressed',b.dataset.tool===tool);}
-  render();
-  const pens=document.createElement('div');pens.className='classic-pens';pens.setAttribute('aria-label','九种画笔');
-  [...el('brush').options].forEach((o,i)=>{const b=document.createElement('button');b.title=o.textContent;b.setAttribute('aria-label',o.textContent);b.dataset.brush=o.value;b.innerHTML=`<span style="background-image:url('classic/recent/pen${i}.jpg')"></span><small>${o.textContent}</small>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;el('brush').value=o.value;setTool('pen');sync();};pens.append(b);});left.append(pens);
-  const subtools=document.createElement('div');subtools.className='classic-pens classic-subtools';left.append(subtools);
-  function sync(){
-    const tool=el('painting').dataset.tool;for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===el('brush').value);pens.hidden=tool!=='pen';subtools.replaceChildren();
-    for(const b of bar.querySelectorAll('[data-tool]'))b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
-    const geometry=geometryTools.includes(tool);
-    const map={eraser:['eraser-mode','rubber'],fill:['fill-mode','fill'],select:['selection-shape','rgn'],warp:['warp-kind','krew'],'board-filter':['board-filter-kind','effect']};
-    const config=geometry?['geometry','draw']:map[tool];if(!config)return;const select=el(config[0]);if(!select)return;
-    const shapes={line:0,triangle:1,rect:2,pentagon:3,hexagon:4,roundrect:5,ellipse:6,polygon:7,bezier:8};
-    const regions={triangle:0,rect:1,pentagon:2,hexagon:3,roundrect:4,ellipse:5,free:6,bezier:7};
-    const fills={all:0,gradient:1,region:2,'region-gradient':3,ellipse:4,rect:5};
-    [...select.options].forEach((option,i)=>{const index=geometry?shapes[option.value]:tool==='select'?regions[option.value]:tool==='fill'?fills[option.value]:i;const b=document.createElement('button');b.title=option.textContent;b.textContent=option.textContent;b.setAttribute('aria-pressed',select.value===option.value);if(index!==undefined){const art=document.createElement('span');art.style.backgroundImage=`url('classic/recent/${config[1]}${index}.jpg')`;b.prepend(art);}b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;select.value=option.value;select.dispatchEvent(new Event('change'));sync();};subtools.append(b);});
+  const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=1-page;renderTools();sync();};
+  function renderTools(){bar.replaceChildren();for(const [id,name] of tools.slice(page*7,page*7+7)){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(id);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}};bar.append(b);}flip.innerHTML=page?'<span>← 常用工具</span><small>2 / 2</small>':'<span>更多工具 →</span><small>1 / 2</small>';bar.after(flip);}
+  renderTools();
+  let lastColor='';
+  function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
+    if(tool!=='pen')allPens.hidden=true;else requestAnimationFrame(updatePenOverflow);
+    for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
+    if(getColor()!==lastColor){lastColor=getColor();for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,24));}
+    const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('settings-title').textContent=name+'的更多玩法';el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,getColor(),140,50,Math.min(36,Number(el('size').value))):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
+    el('brush-options').hidden=!['pen','eraser','stamp','clone',...geometries].includes(tool);document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal'].includes(tool);
+    const map={eraser:'eraser-mode',fill:'fill-mode',select:'selection-shape',warp:'warp-kind','board-filter':'board-filter-kind'};const config=geometries.includes(tool)?'geometry':map[tool],select=config&&el(config);
+    if(select){for(const option of select.options){const b=document.createElement('button');b.type='button';b.className='subtool-card';b.textContent=option.textContent;b.setAttribute('aria-pressed',select.value===option.value);b.onclick=()=>{select.value=option.value;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));sync();};subtools.append(b);}}
+    else if(tool!=='pen'){const p=document.createElement('p');p.className='tool-coach';p.textContent=el('tool-hint').textContent;subtools.append(p);if(tool==='text'||tool==='fractal'){const b=document.createElement('button');b.className='primary';b.textContent=tool==='text'?'写几个字':'生成分形';b.onclick=()=>{if(tool==='fractal')el('fractal-open').click();else [...document.querySelectorAll('.detail-bar button')].find(n=>n.dataset.option==='text')?.click();};subtools.append(b);}}
   }
-  document.addEventListener('change',e=>{if(['brush','geometry','eraser-mode','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id))sync();});document.addEventListener('toolchange',()=>{const index=groups.findIndex(g=>g[0]===groupTool());if(index>=0&&Math.floor(index/7)!==page){page=Math.floor(index/7);render();}sync();});sync();
-  el('mode-library').onclick=()=>{document.body.classList.toggle('library-open');el('mode-library').setAttribute('aria-pressed',document.body.classList.contains('library-open'));};
-  el('mode-board').addEventListener('click',()=>document.body.classList.remove('library-open'));
-  const close=document.createElement('button');close.className='library-close';close.textContent='返回画板';close.onclick=()=>document.body.classList.remove('library-open');document.querySelector('.right-panel').prepend(close);
-  el('layer-menu').textContent='图层';left.append(el('layer-menu'));el('selection-menu').textContent='选区操作';
-  document.querySelector('.canvas-heading').hidden=true;document.querySelector('.panel-heading h2').textContent='图库';document.querySelector('.panel-description').textContent='背景、角色、动画、相框、仙女袋、纸样、纹理';
-  document.querySelector('.brand small').textContent='经典创作室';el('tool-hint').textContent='选择右侧工具，在画纸上创作';
-  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>作品名称</h2><div class="dialog-actions"><button id="title-done">确定</button></div>';titleDialog.prepend(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='作品名称';rename.onclick=()=>titleDialog.showModal();left.append(rename);el('title-done').onclick=()=>titleDialog.close();
-  mountPalette({getColor,setColor});
-  return {groups};
+  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id))sync();});el('size').addEventListener('input',sync);
+  function openLibrary(open){document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}
+  new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}).observe(document.body,{attributes:true,attributeFilter:['class']});
+  el('mode-library').onclick=()=>openLibrary(!document.body.classList.contains('library-open'));el('mode-board').addEventListener('click',()=>openLibrary(false));
+  const library=document.querySelector('.right-panel'),close=document.createElement('button');close.className='library-close';close.textContent='选好了，返回画纸';close.onclick=()=>openLibrary(false);library.prepend(close);document.querySelector('.panel-heading h2').textContent='灵感百宝箱';
+  const layer=el('layer-menu');layer.innerHTML=playfulIcon('layers')+'<span>我的图层</span>';footer.append(layer);const newPaper=el('new');newPaper.innerHTML=playfulIcon('paper')+'<span>新画纸</span>';footer.append(newPaper);
+  const more=document.createElement('dialog');more.id='more-dialog';more.className='wide-dialog';more.innerHTML='<h2>创作工具箱</h2><div class="more-actions"></div><div class="dialog-actions"><button id="more-done">返回画纸</button></div>';document.body.append(more);const actions=more.querySelector('.more-actions');for(const id of ['copy','cut','paste','selection-menu','recordings','import-image'])actions.append(el(id));actions.addEventListener('click',()=>more.close(),true);el('more-done').onclick=()=>more.close();
+  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='给画起名字';rename.onclick=()=>titleDialog.showModal();actions.append(rename);el('title-done').onclick=()=>titleDialog.close();
+  const header=document.querySelector('.header-actions');header.prepend(el('undo'),el('redo'));for(const [id,icon,name] of [['undo','undo','撤销'],['redo','redo','重做'],['open','folder','打开'],['save','save','保存'],['export','download','导出'],['gallery','folder','画夹']]){el(id).innerHTML=playfulIcon(icon)+`<span>${name}</span>`;el(id).className='header-command';}
+  const moreButton=document.createElement('button');moreButton.id='more-open';moreButton.className='header-command';moreButton.innerHTML=playfulIcon('more')+'<span>工具箱</span>';moreButton.onclick=()=>more.showModal();header.append(moreButton);
+  document.querySelector('.brand').innerHTML=playfulIcon('palette')+'<span><strong>画王</strong><small>我的暖暖画室</small></span>';
+  const layerDialog=el('layer-dialog');layerDialog.querySelector('h2').textContent='图层与小伙伴';layerDialog.querySelector('h2').after(document.querySelector('.layers-panel'));
+  mountPalette({getColor,setColor});sync();return {groups:tools,sync};
 }

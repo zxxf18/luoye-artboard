@@ -8,6 +8,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private var window: NSWindow?
     private var webView: WKWebView?
     private var terminationPending = false
+    private var pendingWindowSize: String?
     private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
     private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
     private lazy var music = StudioMusic()
@@ -34,6 +35,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         configuration.userContentController.add(self, name: "files")
         configuration.userContentController.add(self, name: "ready")
         configuration.userContentController.add(self, name: "music")
+        configuration.userContentController.add(self, name: "display")
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.uiDelegate = self
         view.navigationDelegate = self
@@ -41,13 +43,20 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1380, height: 900),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self
-        window.title = "画王 · 经典创作室"
-        window.minSize = NSSize(width: 900, height: 650)
+        window.title = "画王 · 暖暖画室"
+        window.contentMinSize = NSSize(width: 900, height: 650)
         window.contentView = view
         window.center()
         window.makeKeyAndOrderFront(nil)
         self.window = window
         self.webView = view
+        if smokePath != nil,
+           let width = Double(ProcessInfo.processInfo.environment["JSHW_SMOKE_WIDTH"] ?? ""),
+           let height = Double(ProcessInfo.processInfo.environment["JSHW_SMOKE_HEIGHT"] ?? ""),
+           (900...2560).contains(width), (650...1440).contains(height) {
+            // Isolated UI checks can inspect a workspace larger than this display.
+            window.setContentSize(NSSize(width: width, height: height))
+        }
         guard let resources = Bundle.main.resourceURL else {
             showError("无法找到应用资源。")
             return
@@ -128,7 +137,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                 } catch { logger.error("Smoke report failed: \(error.localizedDescription)") }
                 if let scriptPath = ProcessInfo.processInfo.environment["JSHW_SMOKE_SCRIPT"],
                    let script = try? String(contentsOfFile: scriptPath, encoding: .utf8) {
-                    view.callAsyncJavaScript(script, arguments: [:], in: nil, in: .page) { result in
+                    view.callAsyncJavaScript(script, arguments: ["fileChecks": ProcessInfo.processInfo.environment["JSHW_SMOKE_FILES"] == "1"], in: nil, in: .page) { result in
                         let value: [String: Any]
                         switch result {
                         case .success(let payload): value = ["ok": true, "result": payload]
@@ -155,6 +164,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             return
         }
         if message.name == "music" { handleMusic(message.body); return }
+        if message.name == "display" { handleDisplay(message.body); return }
         guard message.name == "files", let body = message.body as? [String: String],
               let id = body["id"], let name = body["name"], let content = body["content"],
               let mime = body["mime"], ["image/png", "image/jpeg", "application/json"].contains(mime),
@@ -166,6 +176,13 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         } else if mime == "application/json" { data = content.data(using: .utf8) }
         else { data = nil }
         guard let data else { reply(id: id, error: "文件内容无法识别。"); return }
+        if let smokePath, ProcessInfo.processInfo.environment["JSHW_SMOKE_FILES"] == "1" {
+            // Only the explicitly launched isolated smoke process bypasses the save panel.
+            let filename = String(name.split(separator: "/").last ?? "我的画")
+            do { try data.write(to: URL(fileURLWithPath: smokePath + "." + filename), options: .atomic); reply(id: id, saved: true) }
+            catch { reply(id: id, error: error.localizedDescription) }
+            return
+        }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = String(name.split(separator: "/").last ?? "我的画")
         let extensionName = (name as NSString).pathExtension.lowercased()
@@ -189,6 +206,42 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
             if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
         }
+    }
+
+    private func handleDisplay(_ message: Any) {
+        guard let body = message as? [String: String], let action = body["action"],
+              let window, let screen = window.screen ?? NSScreen.main else { return }
+        if action == "fullscreen" { pendingWindowSize = nil; window.toggleFullScreen(nil); return }
+        let desired: NSSize
+        switch action {
+        case "1080": desired = NSSize(width: 1920, height: 1080)
+        case "2k": desired = NSSize(width: 2560, height: 1440)
+        case "fit": desired = screen.visibleFrame.size
+        default: return
+        }
+        if window.styleMask.contains(.fullScreen) {
+            pendingWindowSize = action
+            window.toggleFullScreen(nil)
+            return
+        }
+        let available = window.contentRect(forFrameRect: screen.visibleFrame).size
+        window.setContentSize(NSSize(width: min(desired.width, available.width), height: min(desired.height, available.height)))
+        window.center()
+        publishDisplaySize()
+    }
+
+    func windowDidResize(_ notification: Notification) { publishDisplaySize() }
+
+    func windowDidExitFullScreen(_ notification: Notification) {
+        guard let action = pendingWindowSize else { return }
+        pendingWindowSize = nil
+        handleDisplay(["action": action])
+    }
+
+    private func publishDisplaySize() {
+        guard let view = webView else { return }
+        let size = view.bounds.size
+        view.evaluateJavaScript("window.dispatchEvent(new CustomEvent('native-display-result', {detail: {width: \(size.width), height: \(size.height)}}))")
     }
 
     private func handleMusic(_ message: Any) {

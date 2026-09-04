@@ -10,6 +10,8 @@ import { mountClassic } from './classic-ui.js';
 import { mountText } from './text-ui.js';
 import { mountCreative } from './creative-ui.js';
 import { mountMusic } from './music-ui.js';
+import { mountDisplay } from './display-ui.js';
+import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
 
 const $ = id => document.getElementById(id);
@@ -43,7 +45,7 @@ function setTool(next) {
   studio?.toolChanged(tool);
   document.dispatchEvent(new Event('toolchange'));
 }
-function setColor(next) { color = next; $('color').value = next; $('current-color').style.background = next; for (const button of document.querySelectorAll('.swatch')) button.setAttribute('aria-pressed', button.dataset.color === next); document.dispatchEvent(new Event('palettechange')); }
+function setColor(next) { color = next; $('color').value = next; for (const button of document.querySelectorAll('.swatch')) button.setAttribute('aria-pressed', button.dataset.color === next); document.dispatchEvent(new Event('palettechange')); }
 function layoutCanvas() {
   const viewport = $('viewport'), style = getComputedStyle(viewport);
   const availableWidth = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
@@ -56,6 +58,8 @@ function layoutCanvas() {
   $('zoom-value').textContent = zoom === 1 ? '适合窗口' : `${Math.round(zoom * 100)}%`;
 }
 function renderLayers() {
+  if($('current-layer-name'))$('current-layer-name').textContent=engine.active.name;
+  if($('layer-opacity'))$('layer-opacity').value=engine.active.opacity*100;
   $('layer-list').replaceChildren(); $('layer-count').textContent = engine.layers.length;
   for (const layer of [...engine.layers].reverse()) {
     const row = document.createElement('div'); row.className = `layer-row ${layer.id === engine.activeId ? 'active' : ''}`;
@@ -126,6 +130,8 @@ const styledText=mountText({engine,run,toast,getColor:()=>color,setTool});
 const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool});
 mountMusic({run,toast});
 const materials=mountMaterials({engine,run,toast});
+mountDisplay();
+mountPlayfulControls();
 new ResizeObserver(layoutCanvas).observe($('viewport'));
 $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
@@ -172,6 +178,11 @@ $('painting').addEventListener('pointerdown', event => {
   if (tool === 'text') { styledText.open(point); return; }
   if(tool==='fractal'){creative.open();return;}
   try {
+    if (tool === 'pen' && !$('paint-on-layer').checked) {
+      const layer = engine.active;
+      const fullPaper = layer.visible && !layer.frames?.length && !layer.sourceId && layer.width === engine.width && layer.height === engine.height && layer.scale === 1 && layer.rotation === 0 && layer.x === engine.width / 2 && layer.y === engine.height / 2;
+      if (!fullPaper) { engine.addLayer('我的画笔'); toast('给画笔加了一层纸，小伙伴还可以自由移动'); }
+    }
     engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); }
   } catch (error) { toast(error.message); }
@@ -203,6 +214,6 @@ async function initialize() {
     }
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'0.3.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'0.4.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
