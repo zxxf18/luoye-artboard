@@ -2,13 +2,13 @@
 
 基于金山画王安装文件分析和重新实现的离线儿童绘画客户端。用户确认的暖色界面基线固定为 Git 标签 `v1`（3ee9968，历史源码版本 0.4.0），后续工作在 `feature/v1-library-upgrade` 分批提交。
 
-当前版本 1.1.0：macOS Apple Silicon 原生客户端与 Windows amd64 原生客户端。共用本地绘画界面和 Canvas 引擎，不运行本地 HTTP 服务，不依赖外部网页。Windows 构建已完成，Windows 实机验收尚未完成。
+当前版本 1.2.0：macOS Apple Silicon 原生客户端与 Windows amd64 原生客户端。共用本地绘画界面和 Canvas 引擎，不运行本地 HTTP 服务，不依赖外部网页。Windows 构建已完成，Windows 实机验收尚未完成。
 
 ## 运行
 
 macOS：双击 `build/落叶画板.app`。
 
-Windows：完整解压 `build/落叶画板-1.1.0-windows-amd64.zip`，双击 `落叶画板.exe`；缺少 WebView2 时运行随包提供的微软 x64 离线安装器。无需 Node.js 或 .NET SDK。
+Windows：完整解压 `build/落叶画板-1.2.0-windows-amd64.zip`，双击 `落叶画板.exe`；缺少 WebView2 时运行随包提供的微软 x64 离线安装器。无需 Node.js 或 .NET SDK。
 
 默认新建 1920×1080 白纸，支持 2K 和可调整窗口、三档按钮大小。音乐默认 35% 音量播放。正常关闭会先保存工程与 PNG 到系统「图片／落叶画板作品／会话编号-修订号」。保存失败保持窗口打开。旧草稿保留在画夹「自动保留」。
 
@@ -39,3 +39,5 @@ Mac 构建需 Swift / macOS SDK。Windows 交叉构建用 `.NET SDK 10.0.400`，
 - `public/branding/PROVENANCE.md`：用户照片卡通图标的生成记录。
 
 尚未实现的原版算法或尚未验证的还原行为继续在 design 中明确标注，不宣称与原版完全等价。
+
+1.2 修复：笔迹／宽窄放到第一屏，底部素材栏不再挤小画纸；仙女袋支持预览、调大小、长按连续画，动态图整笔归层；背景替换、橡皮后重画和 Mac 画板刷新已补回归。图层改成卡片与常用动作，更多操作可展开。详情见 [交互修复记录](design/13-layer-and-fairy-interaction.md)。
