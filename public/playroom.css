@@ -125,3 +125,42 @@
 
 .deprecated-stroke-control{display:none!important}
 .playroom .canvas-footer #tool-hint{display:block;flex:1;min-width:0;text-align:right}
+
+/* A single responsive dock reserves the same space for painting and browsing. */
+.playroom .tool-dock{height:clamp(230px,25dvh,350px);container-type:inline-size;grid-template-rows:clamp(58px,5dvh,72px) minmax(0,1fr)}
+.playroom .tool-dock .quick-palette{height:100%}
+.playroom .tool-dock .classic-parameters{grid-template-columns:minmax(0,1fr) clamp(60px,5vw,90px);gap:6px 10px;padding:8px 10px}
+.playroom .tool-dock .options-bar #brush-options,.playroom .tool-dock .options-bar .opacity-control,.playroom .options-bar>label[data-option=pen]{max-width:none;min-width:0}
+.playroom .primary-brush-options{gap:clamp(8px,1vw,24px);justify-content:space-between}
+.playroom .primary-brush-options>label{flex:1}
+.playroom .primary-brush-options .choice-button{width:100%;max-width:230px}
+.playroom .primary-brush-options input[type=range]{width:100%;max-width:230px}
+.playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) clamp(84px,8dvh,110px)}
+.playroom .tool-dock .asset-grid{grid-auto-flow:row;grid-template-columns:repeat(var(--shelf-columns,4),minmax(0,1fr));grid-auto-columns:auto;grid-template-rows:minmax(0,1fr);overflow:hidden;gap:clamp(6px,.7vw,12px)}
+.playroom .tool-dock .asset{min-width:0;padding:4px;overflow:hidden}
+.playroom .tool-dock .asset img{height:0;width:100%;flex:1;min-height:32px;object-fit:contain}
+.playroom .tool-dock .asset span{white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25;font-size:clamp(12px,.8vw,16px);max-width:100%}
+.playroom .tool-dock .categories{margin-right:80px}
+.playroom .tool-dock .categories button{font-size:clamp(12px,.85vw,16px)}
+.playroom.library-open .tool-dock .classic-parameters{grid-template-columns:minmax(90px,1fr) auto clamp(60px,5vw,90px);grid-template-rows:1fr}
+.playroom.library-open .tool-dock .options-bar{padding-right:0;grid-column:1}
+.playroom.library-open #library-pagination{grid-column:2;gap:6px}
+.playroom.library-open .tool-dock .settings-button{grid-column:3}
+@media(min-width:1800px){.playroom .tool-dock .options-bar,.playroom .primary-brush-options>label{font-size:16px}.playroom #stroke-buttons button,.playroom .primary-brush-options .choice-button{font-size:15px;min-height:54px}.playroom #stroke-buttons .choice-picture{width:46px;height:46px}}
+@media(max-width:1200px){.playroom .tool-dock{height:270px}.playroom .tool-dock .classic-parameters{grid-template-rows:64px minmax(0,1fr)}.playroom.library-open .tool-dock .classic-parameters{grid-template-rows:1fr}}
+@container(max-width:680px){
+ .playroom .primary-brush-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:44px minmax(0,1fr);overflow:hidden;gap:4px 6px;padding:0}
+ .playroom #stroke-buttons{grid-column:1/-1;justify-content:flex-start;gap:8px}
+ .playroom #stroke-buttons button{min-height:44px;flex:1;max-width:180px}
+ .playroom #stroke-buttons .choice-picture{width:32px;height:32px}
+ .playroom .primary-brush-options>label{min-width:0;font-size:11px;align-self:center}
+ .playroom .primary-brush-options .choice-button{min-width:0;min-height:44px;padding:2px 5px;font-size:12px}
+ .playroom .primary-brush-options input[type=range]{min-width:44px}
+ .playroom .primary-brush-options .choice-picture{display:none}
+ .playroom #library-pagination button span{display:none}
+ .playroom #library-pagination button{min-width:44px}
+ .playroom #library-pagination{gap:3px}
+ .playroom .tool-dock .classic-parameters{padding:4px;gap:4px}
+}
+
+.playroom .tool-dock .asset .asset-add{display:none}

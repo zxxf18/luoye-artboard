@@ -51,7 +51,7 @@ export function mountClassic({setTool,getColor,setColor}){
   function renderTools(){bar.replaceChildren();for(const [id,name] of tools.slice(page*7,page*7+7)){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(id);if(id==='pen')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}};bar.append(b);}flip.innerHTML=page?'<span>← 常用工具</span><small>2 / 2</small>':'<span>更多工具 →</span><small>1 / 2</small>';bar.after(flip);}
   renderTools();
   let lastColor='';
-  function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
+  function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     if(tool!=='pen')allPens.hidden=true;else requestAnimationFrame(updatePenOverflow);
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
     if(getColor()!==lastColor){lastColor=getColor();for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,24));}
