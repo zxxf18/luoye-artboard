@@ -18,7 +18,7 @@ import { mountMaterials } from './materials-ui.js';
 const $ = id => document.getElementById(id);
 const catalog = window.JSHW_ASSETS || [];
 const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
-const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉当前图层上的笔迹', fill: '点击当前图层中想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
+const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
@@ -115,6 +115,8 @@ function chooseCategory(category,collection='',page=0) {
   pager.replaceChildren();for(const [delta,label,iconName] of [[-1,'上一页','undo'],[1,'下一页','redo']]){const b=document.createElement('button');b.setAttribute('aria-label',label);b.innerHTML=playfulIcon(iconName)+'<span>'+label+'</span>';b.disabled=delta<0?libraryPage===0:libraryPage===pages-1;b.onclick=()=>chooseCategory(category,collection,libraryPage+delta);pager.append(b);if(delta===-1){const count=document.createElement('span');count.textContent=`${libraryPage+1} / ${pages} · ${items.length} 个`;pager.append(count);}}
 
   $('asset-count').textContent = `${items.length} 个灵感`;
+  let instruction=$('library-instruction');if(!instruction){instruction=document.createElement('div');instruction.id='library-instruction';document.querySelector('.classic-parameters')?.append(instruction);}
+  instruction.innerHTML=playfulIcon(category==='coloring'?'fill':category==='fairy'?'stamp':'forest')+'<span>'+(category==='coloring'?'拿起油漆桶，给小故事涂上颜色':category==='fairy'?'选好图案，按住鼠标连续画':'选一个喜欢的图案，放进你的画里')+'</span>';
   for (const asset of items.slice(libraryPage*pageSize,libraryPage*pageSize+pageSize)) {
     const button = document.createElement('button'); button.className = 'asset'; button.title = asset.name; button.setAttribute('aria-label', `加入${asset.name}`);
     const img = document.createElement('img'); img.src = asset.thumbnail || asset.src; img.alt = ''; img.loading = 'lazy';

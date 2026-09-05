@@ -164,3 +164,6 @@
 }
 
 .playroom .tool-dock .asset .asset-add{display:none}
+#library-instruction{display:none}
+.playroom.library-open .classic-parameters:has(#brush-options[hidden]) #library-instruction{display:flex;align-items:center;gap:8px;min-width:0;grid-column:1;grid-row:1;font-size:clamp(12px,1vw,16px);color:#8c623f}
+.playroom #library-instruction .playful-icon{width:36px;height:36px}
