@@ -93,3 +93,35 @@
 .playroom .tool-dock .options-bar input[type=range]{width:100%!important}
 .playroom #selection-reset{background:#ffe0a2;border-color:#b46f38;font-size:13px}
 .playroom #selection-reset span{text-align:left}
+
+/* Direct paper controls: two mutually exclusive illustrated stroke buttons. */
+#toast{display:none!important}
+.playroom #stroke-buttons{display:flex;gap:6px;flex:none}
+.playroom #stroke-buttons button{min-height:52px;min-width:88px;padding:3px 6px;display:flex;gap:3px;font-size:13px}
+.playroom #stroke-buttons .choice-picture{display:block;width:38px;height:38px}
+.playroom #stroke-buttons .choice-picture svg{width:100%;height:100%}
+.playroom #stroke-buttons [aria-pressed=true]{background:#ffd68e;border-color:#ac683e;box-shadow:inset 0 0 0 2px #fff2ce}
+.playroom .primary-brush-options{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:2px 0 5px;scrollbar-width:thin}
+.playroom .primary-brush-options>label{flex:none;flex-direction:column;gap:2px;font-size:12px}
+.playroom .primary-brush-options .choice-button{min-width:112px;min-height:44px;font-size:12px}
+.playroom .options-bar>label[data-option=pen]{display:grid;font-size:14px;grid-template-columns:1fr auto;gap:4px;flex:1;max-width:200px}
+.playroom .options-bar #brush-ratio{grid-column:1/-1;grid-row:2}
+.playroom .options-bar #ratio-value{grid-row:1;grid-column:2;font-size:13px;color:#8e573e}
+#library-pagination{display:none}
+.playroom.library-open #library-pagination{display:flex;align-items:center;gap:6px;grid-row:1;grid-column:1;justify-self:end;background:#fff8e9}
+.playroom #library-pagination button{min-height:46px;min-width:50px;gap:3px;padding:3px;font-size:12px}
+.playroom #library-pagination .playful-icon{width:25px;height:25px}
+.playroom #library-pagination>span{font-size:12px;white-space:nowrap}
+.playroom.library-open .tool-dock .options-bar{padding-right:250px}
+.playroom.library-open .tool-dock .opacity-control{display:none}
+#library-groups{display:none}
+.playroom.library-open #library-groups:not(:empty){display:flex;flex-direction:column;gap:7px;min-height:0;overflow:auto;flex:1}
+.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .brush-box,.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .subtool-box,.playroom.library-open .classic-left:has(#library-groups:not(:empty)) #all-brushes-open{display:none}
+.playroom #library-groups img{width:58px;height:46px;object-fit:contain;border-radius:9px}
+.playroom #library-groups .subtool-card{min-height:64px;display:flex;flex-direction:row;flex:none}
+@media(max-width:1100px){.playroom #stroke-buttons button{min-width:72px}.playroom #library-pagination button span{display:none}.playroom.library-open .tool-dock .options-bar{padding-right:165px}.playroom #library-pagination{gap:2px}.playroom #library-pagination .playful-icon{width:24px;height:24px}}
+.playroom .tool-dock .options-bar{grid-row:1}
+.playroom.library-open .options-bar>label[data-option=pen]{display:none}
+
+.deprecated-stroke-control{display:none!important}
+.playroom .canvas-footer #tool-hint{display:block;flex:1;min-width:0;text-align:right}

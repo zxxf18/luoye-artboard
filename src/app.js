@@ -22,10 +22,10 @@ const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉�
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
-let toastTimer, saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
+let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 
-function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 4000); }
+function toast(message) { const status=$('tool-hint');status.textContent=message;status.title=message;status.setAttribute('role','status'); }
 async function run(action) {
   if (busy) return;
   busy = true; document.body.setAttribute('aria-busy', 'true');
@@ -99,12 +99,22 @@ function changed() {
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
   }, 900);
 }
-function chooseCategory(category) {
+let libraryCategory='sticker',libraryCollection='',libraryPage=0;
+const collectionNames={color0:'黑白涂色',color1:'漫画风景',color2:'水彩风景',color3:'油画风景',color4:'矢量风景',role0:'陆地动物',role1:'海洋动物',role2:'飞行伙伴',role3:'花草果蔬',role4:'人物朋友',role5:'生活物品',role6:'交通与其他',illustrated:'新绘插画',anim0:'陆地动物动画',anim1:'海洋动物动画',anim2:'飞行伙伴动画',anim3:'人物动画',anim4:'其他动画'};
+function chooseCategory(category,collection='',page=0) {
+  libraryCategory=category;libraryCollection=collection;libraryPage=page;
   for (const button of $('categories').children) button.setAttribute('aria-pressed', button.dataset.category === category);
   $('asset-grid').replaceChildren();
-  const items = catalog.filter(asset => asset.category === category && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
+  const all = catalog.filter(asset => asset.category === category && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
+  const items=all.filter(asset=>!collection||asset.collection===collection);
+  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))];if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key]||'其他图案'):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
+  const heading=document.querySelector('.classic-left>h2');if(heading&&document.body.classList.contains('library-open'))heading.textContent=category==='fairy'?'仙女袋怎么玩':'找一找图案';
+  const pages=Math.max(1,Math.ceil(items.length/12));libraryPage=Math.min(page,pages-1);
+  let pager=$('library-pagination');if(!pager){pager=document.createElement('div');pager.id='library-pagination';document.querySelector('.classic-parameters')?.append(pager);}
+  pager.replaceChildren();for(const [delta,label,iconName] of [[-1,'上一页','undo'],[1,'下一页','redo']]){const b=document.createElement('button');b.setAttribute('aria-label',label);b.innerHTML=playfulIcon(iconName)+'<span>'+label+'</span>';b.disabled=delta<0?libraryPage===0:libraryPage===pages-1;b.onclick=()=>chooseCategory(category,collection,libraryPage+delta);pager.append(b);if(delta===-1){const count=document.createElement('span');count.textContent=`${libraryPage+1} / ${pages} · ${items.length} 个`;pager.append(count);}}
+
   $('asset-count').textContent = `${items.length} 个灵感`;
-  for (const asset of items) {
+  for (const asset of items.slice(libraryPage*12,libraryPage*12+12)) {
     const button = document.createElement('button'); button.className = 'asset'; button.title = asset.name; button.setAttribute('aria-label', `加入${asset.name}`);
     const img = document.createElement('img'); img.src = asset.thumbnail || asset.src; img.alt = ''; img.loading = 'lazy';
     const label = document.createElement('span'); label.textContent = asset.name;
@@ -114,7 +124,7 @@ function chooseCategory(category) {
       engine.end();
       if(asset.fairyGroups){
         let groups=fairyCache.get(asset.id);
-        if(!groups){groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(asset.id,groups);}
+        if(!groups){groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(asset.id,groups);while(fairyCache.size>2)fairyCache.delete(fairyCache.keys().next().value);}
         engine.setFairyGroups(groups,asset.fairyMode);engine.stampName=asset.name;
         setTool('stamp');
         toast(asset.name+'：调好大小，再到画纸上按住鼠标画');
@@ -143,14 +153,14 @@ for (const swatch of palette) {
   button.onclick = () => setColor(swatch); $('swatches').append(button);
 }
 for (const [category, name] of Object.entries({ sticker: '小伙伴', background: '背景', animation: '动画', frame: '相框', fairy: '仙女袋', paper: '纸样', texture: '纹理' })) {
-  const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'stamp',background:'paper',animation:'move',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
+  const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
-engine = new DrawingEngine($('painting'), changed);engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
+engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();}});
-mountClassic({setTool,getColor:()=>color,setColor});
+mountClassic({setTool,getColor:()=>color,setColor});chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
@@ -211,7 +221,7 @@ $('painting').addEventListener('pointerdown', event => {
       if(!hit){toast('请点住画里的小伙伴或笔迹来移动，背景会留在最下面');return;}
       engine.activeId=hit.id;renderLayers();
     }
-    if ((tool === 'pen' && !$('paint-on-layer').checked) || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'仙女袋笔迹':'我的画笔');
+    if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'仙女袋笔迹':'我的画笔');
     engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
@@ -258,6 +268,6 @@ async function initialize() {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.2.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.3.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();

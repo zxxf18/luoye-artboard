@@ -6,11 +6,11 @@ try {
  const chooseTool=tool=>{if(!document.querySelector(`#tools [data-tool="${tool}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${tool}"]`).click();};
  const idle=async()=>{for(let i=0;i<200&&document.body.hasAttribute('aria-busy');i++)await pause(50);if(document.body.hasAttribute('aria-busy'))throw new Error('素材加载超时');await pause(120);};
  const snapshot=()=>window.JSHWFlushBeforeClose();
- check(visible($('stroke-mode').closest('label'))&&!$('stroke-mode').closest('dialog'),'笔迹在第一屏');
+ check(visible($('stroke-buttons'))&&document.querySelectorAll('#stroke-buttons button').length===2,'笔迹在第一屏');
  check(visible($('brush-ratio'))&&!$('brush-ratio').closest('dialog'),'宽窄在第一屏');
  const before=$('viewport').getBoundingClientRect();$('mode-library').click();await pause(250);const after=$('viewport').getBoundingClientRect();
  check(Math.abs(before.height-after.height)<1&&Math.abs(before.width-after.width)<1,'打开素材不缩小画板');
- document.querySelector('[data-category="background"]').click();$('asset-grid').children[0].click();await idle();$('asset-grid').children[1].click();await idle();
+ document.querySelector('[data-category="background"]').click();document.querySelector('[data-asset-id="color0-0"]').click();await idle();document.querySelector('[data-asset-id="color0-1"]').click();await idle();
  let project=(await snapshot()).project;
  check(project.layers.filter(l=>l.role==='background').length===1&&project.layers[0].sourceId==='color0-1','新背景替换旧背景');
  $('undo').click();await idle();check((await snapshot()).project.layers[0].sourceId==='color0-0','背景替换撤销');$('redo').click();await idle();
