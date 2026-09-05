@@ -1,7 +1,7 @@
 import { validateProject } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','reorder','setProperty','addVertex','finishPath']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){
@@ -38,6 +38,7 @@ export function validateRecording(raw){
       if(['setPaintTexture','setPaperTexture'].includes(event.method)&&event.args[0])resource(event.args[0]);
       if(event.method==='setFairyGroups')groups(event.args[0]);
       if(event.method==='setStampImages'){if(!Array.isArray(event.args[0])||event.args[0].length>60)throw new Error('印章资源数量无效。');event.args[0].forEach(resource);}
+      if(event.method==='resizeActiveObject'&&(!Number.isFinite(event.args[0])||event.args[0]<=0||event.args[0]>10))throw new Error('缩放比例无效。');
       if(event.method==='setProperty'){const [,key,value]=event.args;if(!PROPERTY_KEYS.has(key))throw new Error('图层属性不受支持。');if(key==='name'?(typeof value!=='string'||value.length>120):key==='visible'?typeof value!=='boolean':!Number.isFinite(value))throw new Error('图层属性值无效。');if(key==='scale'&&(value<=0||value>100)||key==='opacity'&&(value<0||value>1)||['x','y'].includes(key)&&Math.abs(value)>100000)throw new Error('图层属性值超出范围。');}
     }if(points>MAX_POINTS)throw new Error('录像笔触采样点过多。');
   }return raw;
@@ -89,7 +90,7 @@ export class Recorder {
         }
         if(method==='replaceBackground')encoded=[args[0],imageRecord(args[1]),args[2]];
         const event=rec.event(method,structuredClone(encoded));rec.depth++;
-        try{const result=original(...args);if(result?.id)event.resultId=result.id;rec.add(event);return result;}finally{rec.depth--;}
+        try{const result=original(...args);if(result?.then)return result.then(value=>{if(value?.id)event.resultId=value.id;rec.add(event);return value;}).finally(()=>{rec.depth--;});if(result?.id)event.resultId=result.id;rec.add(event);rec.depth--;return result;}catch(error){rec.depth--;throw error;}
       };
     }
     // Undo/redo may reach before the recording boundary; stop rather than silently replaying a different document.
@@ -124,7 +125,7 @@ export class Recorder {
           if(event.method==='setStampImages')args[0]=await Promise.all(args[0].map(imageFromRecord));
           if(event.method==='addLayer'){args[1]=await imageFromRecord(args[1]);if(args[3].frames)args[3].frames=await Promise.all(args[3].frames.map(imageFromRecord));}
           if(event.method==='replaceBackground')args[1]=await imageFromRecord(args[1]);
-          result=renderer[event.method](...args);
+          result=await renderer[event.method](...args);
           if(event.resultId&&result?.id){const id=result.id;result.id=event.resultId;if(renderer.activeId===id)renderer.activeId=result.id;}
         }
         renderer.paint(renderer.ctx);onStep(i+1);if(i%10===0)await new Promise(resolve=>setTimeout(resolve,0));

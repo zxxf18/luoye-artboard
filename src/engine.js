@@ -32,7 +32,7 @@ export class PaintEngine {
   get active() { return this.layers.find(l => l.id === this.activeId); }
   changed() { this.render(); this.onChange?.(); }
   layerPixels(layer) {
-    return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteMask?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
+    return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
     const existingPixels=this.layers.reduce((sum,layer)=>sum+this.layerPixels(layer),0);
@@ -69,6 +69,15 @@ export class PaintEngine {
     layer[key] = value;
     this.history.push({ bytes: 0, undo: () => { layer[key] = before; }, redo: () => { layer[key] = value; } });
     this.changed();
+  }
+  resizeActiveObject(factor) {
+    const layer=this.active;if(!layer||layer.role==='background'||!Number.isFinite(factor)||factor<=0||factor>10)return;
+    const before={scale:layer.scale,x:layer.x,y:layer.y},scale=Math.max(.05,Math.min(40,layer.scale*factor));
+    let cx=layer.width/2,cy=layer.height/2;
+    if(layer.sprites?.length){const xs=layer.sprites.map(s=>s.x),ys=layer.sprites.map(s=>s.y);cx=(Math.min(...xs)+Math.max(...xs))/2;cy=(Math.min(...ys)+Math.max(...ys))/2;}
+    const dx=(cx-layer.width/2)*(layer.scale-scale),dy=(cy-layer.height/2)*(layer.scale-scale),angle=layer.rotation*Math.PI/180;
+    const after={scale,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle)};
+    Object.assign(layer,after);this.history.push({bytes:0,undo:()=>Object.assign(layer,before),redo:()=>Object.assign(layer,after)});this.changed();
   }
   undo() { if (this.gesture) this.end(true); if (this.history.undo()) this.changed(); }
   redo() { if (this.history.redo()) this.changed(); }

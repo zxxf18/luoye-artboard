@@ -167,3 +167,35 @@
 #library-instruction{display:none}
 .playroom.library-open .classic-parameters:has(#brush-options[hidden]) #library-instruction{display:flex;align-items:center;gap:8px;min-width:0;grid-column:1;grid-row:1;font-size:clamp(12px,1vw,16px);color:#8c623f}
 .playroom #library-instruction .playful-icon{width:36px;height:36px}
+.playroom #effect-progress{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;min-width:0}
+.playroom #effect-progress button{font-size:13px;white-space:nowrap}
+.playroom.processing-effect .canvas-welcome,.playroom.processing-effect .zoom-controls{display:none}
+/* A stable, labelled color station; recent colors no longer grow two extra rows. */
+.playroom .classic-colors{padding:8px;display:flex;flex-direction:column;gap:5px}
+.playroom .classic-colors h3{margin:0;text-align:center;font-size:15px}
+.playroom .color-pair{display:grid;grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 44px;gap:4px;height:66px;align-items:center}
+.playroom .color-slot{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;min-width:0}
+.playroom .color-slot #foreground-palette,.playroom .color-slot #background-palette{height:46px;width:100%;max-width:66px;min-width:44px}
+.playroom #swap-colors{width:44px;height:44px;margin-bottom:19px}
+.playroom #foreground-history{height:44px;min-height:44px;display:flex;align-items:center;overflow:hidden;gap:4px}
+.playroom #foreground-history>span{font-size:11px;color:#8c6b55;text-align:center;line-height:1.5}
+.playroom #foreground-history button{width:44px;flex:none;border-width:4px;border-radius:50%}
+.playroom #palette-open{min-height:44px;margin:0;padding:3px;font-size:13px;background:#ffebc7;border:1px solid #dbb58b}
+.playroom #palette-open:before{content:none}
+.playroom .classic-palette-dialog{width:min(780px,calc(100vw - 36px))}
+.playroom .palette-presets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.playroom .preset-color{padding:5px;min-width:0;min-height:64px;display:flex;align-items:center;gap:6px;font-size:12px}
+.playroom .preset-color i{width:30px;height:34px;background:var(--preset);border-radius:12px;border:2px solid #c9a983;flex:none}
+.playroom .palette-editor{grid-template-columns:minmax(220px,1.1fr) minmax(160px,1fr);gap:22px}
+.playroom #color-plane{width:100%;height:auto;aspect-ratio:4/3}
+.playroom #color-preview{height:76px;margin-bottom:14px;border-radius:16px}
+.playroom .color-numbers summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:13px}
+.playroom .color-numbers label{margin:4px 0}
+@media(max-height:740px){.playroom .classic-palette-dialog{padding:16px}.playroom .palette-presets{gap:5px;margin-bottom:12px}.playroom .preset-color{min-height:48px}.playroom .classic-palette-dialog h2{margin-bottom:12px}.playroom .classic-palette-dialog .dialog-actions{bottom:-16px}.playroom #color-plane{max-height:170px;object-fit:fill}}
+.playroom #object-controls{grid-column:1;grid-row:1/3;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff8e9;z-index:1;min-width:0;height:100%}
+.playroom.library-open #object-controls{grid-row:1}
+.playroom #object-controls>div{min-width:0;flex:1}
+.playroom #object-controls strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.playroom #object-controls>div>span{display:block;font-size:12px;color:#8d6b52}
+.playroom #object-controls button{flex-direction:column;font-size:13px;flex:none;min-width:54px;padding:4px}
+.playroom #object-controls .playful-icon{width:30px;height:30px}

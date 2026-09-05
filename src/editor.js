@@ -1,3 +1,4 @@
+import { runPaperEffect } from './animated-effects.js';
 import { PaintEngine, makeCanvas, loadImage } from './engine.js';
 import { toLayerPoint } from './core.js';
 import { regionMask, combineMasks, blendMasked, applyEffect, rgb } from './pixels.js';
@@ -63,20 +64,7 @@ export class EditorEngine extends PaintEngine {
     const after=new ImageData(blendMasked(before.data,candidate,this.layerMask(layer)),layer.width,layer.height);
     ctx.putImageData(after,0,0);this.history.push({bytes:before.data.byteLength*2,undo:()=>ctx.putImageData(before,0,0),redo:()=>ctx.putImageData(after,0,0)});this.changed();
   }
-  mutatePaper(callback){
-    const visible=this.layers.filter(l=>l.visible&&l.opacity>0),before=this.layers.slice();
-    if(visible.length*this.width*this.height+before.filter(l=>!visible.includes(l)).reduce((n,l)=>n+this.layerPixels(l),0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用这个效果。');
-    const after=before.map(layer=>{
-      if(!visible.includes(layer))return layer;
-      const c=makeCanvas(this.width,this.height),ctx=c.getContext('2d');ctx.save();this.transform(ctx,layer);this.drawLayer(ctx,layer);ctx.restore();
-      const pixels=ctx.getImageData(0,0,this.width,this.height),candidate=callback(new Uint8ClampedArray(pixels.data),this.width,this.height);
-      ctx.putImageData(new ImageData(blendMasked(pixels.data,candidate,this.selection),this.width,this.height),0,0);
-      const next={...layer,canvas:c,width:this.width,height:this.height,x:this.width/2,y:this.height/2,scale:1,rotation:0};
-      for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip','eraseMask'])delete next[key];return next;
-    });
-    if(after.reduce((n,l)=>n+this.layerPixels(l),0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用这个效果。');
-    this.layers=after;this.history.push({bytes:[...before,...after].reduce((n,l)=>n+this.layerPixels(l)*4,0),undo:()=>{this.layers=before;},redo:()=>{this.layers=after;}});this.changed();
-  }
+  mutatePaper(callback){return runPaperEffect(this,callback);}
   clearPixels(){this.mutatePixels(data=>{for(let i=3;i<data.length;i+=4)data[i]=0;return data;});}
   applyDarkroom(kind,options={}){if(this.paperMode)return this.mutatePaper((data,w,h)=>applyEffect(data,w,h,kind,options));this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
   effectPreview(kind,options={}){

@@ -1,0 +1,36 @@
+const checks=[];
+try{
+ const $=id=>document.getElementById(id),pause=ms=>new Promise(r=>setTimeout(r,ms));
+ const check=(ok,name)=>{checks.push({passed:!!ok,name});if(!ok)throw Error(name);};
+ const idle=async()=>{for(let i=0;i<600&&document.body.hasAttribute('aria-busy');i++)await pause(25);check(!document.body.hasAttribute('aria-busy'),'操作结束后恢复响应');await pause(100);};
+ const project=async()=> (await window.JSHWFlushBeforeClose()).project;
+ const tool=id=>{if(!document.querySelector(`#tools [data-tool="${id}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${id}"]`).click();};
+ const library=category=>{if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector(`[data-category="${category}"]`).click();};
+ const add=async(category,id)=>{library(category);const b=document.querySelector(`[data-asset-id="${id}"]`);check(b,'素材可选 '+id);b.click();await idle();};
+ await add('background','background-garden');
+ await add('sticker','role0-1');
+ await add('animation','animation-0');
+ let p=await project(),object=p.layers.at(-1),scale=object.scale;
+ check(object.frames?.length>1,'放入会动的小伙伴');
+ check($('object-controls').getBoundingClientRect().height>0,'放入后直接显示大小按钮');
+ $('object-bigger').click();await idle();p=await project();
+ check(p.layers.at(-1).scale>scale&&p.layers.at(-1).frames.length===object.frames.length,'变大保持动画帧');
+ $('undo').click();await idle();check((await project()).layers.at(-1).scale===scale,'大小调整可撤销');
+ const panel=document.querySelector('.classic-colors'),panelHeight=panel.getBoundingClientRect().height;
+ $('foreground-palette').click();document.querySelector('.preset-color[aria-label="苹果红"]').click();$('palette-apply').click();
+ check($('foreground-palette').style.background==='rgb(239, 83, 80)','一键选儿童常用颜色');
+ check(panel.getBoundingClientRect().height===panelHeight,'历史色不把左边面板越撑越高');
+ $('foreground-palette').click();document.querySelector('.preset-color[aria-label="天空蓝"]').click();$('palette-cancel').click();
+ check($('foreground-palette').style.background==='rgb(239, 83, 80)','取消选色保持原画笔色');
+ tool('board-filter');$('board-filter-kind').value='waterfall';$('board-filter-kind').dispatchEvent(new Event('change',{bubbles:true}));$('creative-radius').value=600;
+ $('filter-preview-button').click();await idle();check($('board-preview').closest('dialog').open,'组合画面可以预览瀑布');
+ let ticks=0,maxGap=0,previous=performance.now();const heartbeat=setInterval(()=>{ticks++;maxGap=Math.max(maxGap,performance.now()-previous);previous=performance.now();},16),began=performance.now();
+ $('board-apply').click();await idle();clearInterval(heartbeat);
+ check(!document.querySelector('dialog[open]'),'确定滤镜后没有遗留模态窗口挡住点击');
+ p=await project();const filtered=p.layers.find(l=>l.id===object.id);
+ check(filtered?.frames?.length===object.frames.length,'背景和普通伙伴并存时，瀑布保留动画');
+ const paper=$('painting');const first=paper.toDataURL();await pause(220);check(paper.toDataURL()!==first,'瀑布完成后屏幕动画仍在播放');
+ tool('pen');check(paper.dataset.tool==='pen','滤镜后画笔按钮能继续使用');
+ $('undo').click();await idle();$('redo').click();await idle();check((await project()).layers.find(l=>l.id===object.id)?.frames?.length===object.frames.length,'滤镜撤销重做仍保留动画');
+ return {passed:true,checks,filterMilliseconds:performance.now()-began,heartbeatTicks:ticks,maxEventLoopGapMilliseconds:maxGap};
+}catch(error){return {passed:false,checks,error:error.message,stack:error.stack};}

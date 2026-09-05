@@ -79,6 +79,8 @@ function renderLayers() {
     eye.onclick = () => run(() => engine.setProperty(layer, 'visible', !layer.visible));
     eye.append(document.createTextNode(layer.visible ? '藏起来' : '显示')); row.append(name, eye); $('layer-list').append(row);
   }
+  document.dispatchEvent(new Event('objectchange'));
+  $('smaller').disabled=$('bigger').disabled=engine.active.role==='background';
   $('undo').disabled = !engine.history.past.length; $('redo').disabled = !engine.history.future.length;
   $('delete-layer').disabled = engine.layers.length < 2;
   $('layer-up').disabled = engine.active === engine.layers.at(-1) || engine.active.role === 'background';
@@ -161,7 +163,7 @@ for (const [category, name] of Object.entries({ sticker: '小伙伴', background
   const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',coloring:'pen',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
-engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
+engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();}});
@@ -184,8 +186,8 @@ bind('undo', () => engine.undo()); bind('redo', () => engine.redo());
 bind('add-layer', () => engine.addLayer(`画笔图层 ${engine.layers.length + 1}`));
 bind('delete-layer', () => engine.removeActive()); bind('layer-up', () => engine.reorder(1)); bind('layer-down', () => engine.reorder(-1));
 bind('rotate', () => engine.setProperty(engine.active, 'rotation', (engine.active.rotation + 15) % 360));
-bind('smaller', () => engine.setProperty(engine.active, 'scale', Math.max(.05, engine.active.scale / 1.15)));
-bind('bigger', () => engine.setProperty(engine.active, 'scale', Math.min(40, engine.active.scale * 1.15)));
+bind('smaller', () => engine.resizeActiveObject(1/1.15));
+bind('bigger', () => engine.resizeActiveObject(1.15));
 bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });
 bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
@@ -220,6 +222,7 @@ $('painting').addEventListener('pointerdown', event => {
   }
   if (tool === 'text') { styledText.open(point); return; }
   if(tool==='fractal'){creative.open();return;}
+  if(tool==='board-filter'){const o=creative.options();run(()=>engine.applyBoardFilter(o.filterKind,{...o,x:point.x,y:point.y}));return;}
   try {
     if(tool==='move'){
       const hit=engine.pickLayer(point);
@@ -276,3 +279,13 @@ async function initialize() {
   if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.4.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
+
+const effectProgress=document.createElement('div');effectProgress.id='effect-progress';effectProgress.hidden=true;effectProgress.innerHTML='<span role="status">正在给画面变魔法…</span><button id="cancel-effect">取消这次效果</button>';document.querySelector('.canvas-topbar').append(effectProgress);
+engine.onEffectProgress=active=>{effectProgress.hidden=!active;document.body.classList.toggle('processing-effect',active);};
+$('cancel-effect').onclick=()=>{engine.effectCancelled=true;};
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&engine.effectRunning){event.preventDefault();event.stopImmediatePropagation();engine.effectCancelled=true;}},true);
+
+const objectControls=document.createElement('div');objectControls.id='object-controls';objectControls.hidden=true;objectControls.innerHTML='<div><strong id="object-caption"></strong><span>拖动它换位置，点按钮调大小</span></div><button id="object-smaller" aria-label="缩小画里的小伙伴">'+playfulIcon('shrink')+'<span>变小</span></button><button id="object-bigger" aria-label="放大画里的小伙伴">'+playfulIcon('grow')+'<span>变大</span></button>';
+document.querySelector('.classic-parameters').append(objectControls);$('object-smaller').onclick=()=>$('smaller').click();$('object-bigger').onclick=()=>$('bigger').click();
+function objectState(){const layer=engine.active;objectControls.hidden=tool!=='move'||!layer||layer.role==='background';if(layer)$('object-caption').textContent=layer.sprites?'调整这串动态图案':layer.name;}
+document.addEventListener('toolchange',objectState);document.addEventListener('objectchange',objectState);objectState();
