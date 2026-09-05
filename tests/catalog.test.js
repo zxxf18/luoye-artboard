@@ -22,3 +22,20 @@ test('every catalogue bitmap and original animation frame ships locally and has 
  const paths=new Set();for(const a of assets){for(const p of [a.src,a.thumbnail,...a.frames||[],...(a.fairyGroups||[]).flatMap(g=>g.frames)])paths.add(p);}
  for(const path of paths){assert.match(path,/^assets\/[\w/-]+\.png$/);const file=new URL(path,root);assert(existsSync(file),path);const fd=openSync(file,'r'),b=Buffer.alloc(24);try{assert.equal(readSync(fd,b,0,24,0),24);}finally{closeSync(fd);}assert.equal(b.subarray(1,4).toString(),'PNG',path);assert(b.readUInt32BE(16)>0&&b.readUInt32BE(20)>0,path);}
 });
+test('all 154 fairy packs use new artwork while retaining modes and combination counts',()=>{
+ const fairy=assets.filter(a=>a.id.startsWith('girl-'));
+ assert.equal(fairy.length,154);
+ assert.deepEqual(Object.fromEntries(['single','static','dynamic'].map(mode=>[mode,fairy.filter(a=>a.fairyMode===mode).length])),{single:100,static:32,dynamic:22});
+ assert.equal(fairy.reduce((n,a)=>n+a.fairyGroups.length,0),470);
+ for(const a of fairy){
+   assert.equal(a.quality,'new-illustration-v15',a.id);assert(a.thumbnail.startsWith('assets/fairy-v15/'));
+   assert.equal(a.fairyGroups.length,a.originalFairyGroups.length,a.id);
+   for(const [i,g] of a.fairyGroups.entries()){
+     assert.equal(g.frameDuration,a.originalFairyGroups[i].frameDuration,a.id);
+     assert.equal(g.frames.length,a.fairyMode==='dynamic'?8:1,a.id);
+     assert.equal(new Set(g.frames).size,g.frames.length,'Do not inflate animation counts using repeated frame paths');
+     assert(g.frames.every(p=>p.startsWith('assets/fairy-v15/sprites/')),a.id);
+     assert(g.width>0&&g.height>0&&Math.max(g.width,g.height)<=(a.fairyMode==='dynamic'?480:1024),a.id);
+   }
+ }
+});

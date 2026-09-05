@@ -42,6 +42,14 @@ if redrawn.exists():
             item['originalDimensions']=[item['width'],item['height']]
             item.update({k:v for k,v in replacement.items() if k not in ('id','replaceOriginal')})
     assets=[item for item in json.loads(redrawn.read_text()) if not item.get('replaceOriginal')]+assets
+fairy=out/'fairy-v15/catalog.json'
+if fairy.exists():
+    replacements={item['id']:item for item in json.loads(fairy.read_text())}
+    for item in assets:
+        if item['id'] in replacements:
+            item['originalSrc']=item['src'];item['originalDimensions']=[item['width'],item['height']]
+            item['originalFairyGroups']=item['fairyGroups']
+            item.update(replacements[item['id']])
 (out/'catalog.json').write_text(json.dumps(assets,ensure_ascii=False,indent=2)+'\n')
 (out/'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets,ensure_ascii=False)+';\n')
 print(json.dumps({'entries':len(assets),'original':manifest['counts']},ensure_ascii=False))
