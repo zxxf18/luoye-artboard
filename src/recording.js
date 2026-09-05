@@ -1,7 +1,7 @@
 import { validateProject } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','removeActive','reorder','setProperty','addVertex','finishPath']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','reorder','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){
@@ -25,9 +25,9 @@ export function validateRecording(raw){
     if(slot.cloneSource&&(!slot.cloneSource.point||!Number.isFinite(slot.cloneSource.point.x)||!Number.isFinite(slot.cloneSource.point.y)||typeof slot.cloneSource.layerId!=='string'))throw new Error('仿制源点无效。');if(!Array.isArray(slot.events)||slot.events.length>5000)throw new Error('录像操作数量无效。');let points=0;
     for(const event of slot.events){if(!event||!COMMANDS.has(event.method)||!Array.isArray(event.args)||typeof event.activeId!=='string'||!Number.isFinite(event.time)||event.time<0)throw new Error('录像操作无效。');bounded(event.args);if(event.resultId!==undefined&&(typeof event.resultId!=='string'||event.resultId.length>256))throw new Error('录像图层标识无效。');
       if(event.method==='stroke'){const [path,o]=event.args;if(!Array.isArray(path)||!path.length||!o||typeof o!=='object')throw new Error('笔触无效。');points+=path.length;if(path.length>20000)throw new Error('单笔采样点过多。');if(o.size!==undefined&&(!Number.isFinite(o.size)||o.size<.1||o.size>1024))throw new Error('录像笔尖尺寸无效。');if(o.opacity!==undefined&&(!Number.isFinite(o.opacity)||o.opacity<0||o.opacity>1))throw new Error('录像透明度无效。');if(o.color!==undefined&&!/^#[a-f0-9]{6}$/i.test(o.color))throw new Error('录像颜色无效。');for(const p of path)if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>100000||Math.abs(p.y)>100000)throw new Error('笔触坐标无效。');if(!['pen','eraser','fill','move','line','rect','ellipse','triangle','pentagon','hexagon','roundrect','star','stamp','clone','select','magic','warp','board-filter'].includes(o.tool))throw new Error('笔触工具无效。');}
-      if(event.method==='addLayer'){
-        const item=event.args[1],extra=event.args[3]||{};resource(item);
-        const keys=new Set(['name','x','y','scale','rotation','opacity','visible','sourceId','insertAt','frames','frameDuration']);if(Object.keys(extra).some(key=>!keys.has(key)))throw new Error('录像图层参数不受支持。');
+      if(['addLayer','replaceBackground'].includes(event.method)){
+        const item=event.args[1],extra=event.args[event.method==='addLayer'?3:2]||{};resource(item);
+        const keys=new Set(['name','x','y','scale','rotation','opacity','visible','sourceId','role','insertAt','frames','frameDuration']);if(Object.keys(extra).some(key=>!keys.has(key)))throw new Error('录像图层参数不受支持。');
         if(extra.insertAt!==undefined&&(!Number.isInteger(extra.insertAt)||extra.insertAt<0||extra.insertAt>19))throw new Error('录像图层顺序无效。');
         if(extra.frames){if(!Array.isArray(extra.frames)||extra.frames.length>60)throw new Error('动画帧数量无效。');extra.frames.forEach(resource);}
         const layer={id:'resource',name:event.args[0],x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,...extra,width:item.width,height:item.height,image:item.image};if(extra.frames)layer.frames=extra.frames.map(frame=>frame.image);
@@ -72,6 +72,8 @@ export class Recorder {
     const begin=engine.begin.bind(engine),update=engine.update.bind(engine),end=engine.end.bind(engine);
     engine.begin=function(point,options){const o={...options,seed:options.seed??(Date.now()>>>0)};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
     engine.update=function(point){if(rec.pending){if(rec.pending.args[0].length>=20000){rec.pending=null;rec.recording=false;rec.onState('单笔超过采样上限，本段录制已结束。');}else rec.pending.args[0].push({...point});}rec.depth++;try{return update(point);}finally{rec.depth--;}};
+    const repeat=engine.repeatStamp.bind(engine);
+    engine.repeatStamp=function(force=false){rec.depth++;let result;try{result=repeat(force);}finally{rec.depth--;}if(result&&rec.pending){const point=rec.pending.args[0].at(-1);if(rec.pending.args[0].length<20000)rec.pending.args[0].push({...point,repeat:true});else rec.stop('单笔超过采样上限，本段录制已结束。');}return result;};
     engine.end=function(cancel=false){rec.depth++;try{const result=end(cancel);if(rec.pending&&!cancel){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);}rec.pending=null;return result;}finally{rec.depth--;}};
     for(const method of COMMANDS){if(method==='stroke')continue;const original=engine[method]?.bind(engine);if(!original)continue;
       engine[method]=function(...args){if(!rec.recording||rec.depth)return original(...args);
@@ -84,6 +86,7 @@ export class Recorder {
           const canvas=args[1]||makeCanvas(engine.width,engine.height),extra={...(args[3]||{})};if(extra.frames)extra.frames=extra.frames.map(imageRecord);
           encoded=[args[0]||'新的图层',imageRecord(canvas),true,extra];
         }
+        if(method==='replaceBackground')encoded=[args[0],imageRecord(args[1]),args[2]];
         const event=rec.event(method,structuredClone(encoded));rec.depth++;
         try{const result=original(...args);if(result?.id)event.resultId=result.id;rec.add(event);return result;}finally{rec.depth--;}
       };
@@ -97,7 +100,7 @@ export class Recorder {
   async replay(index,count,canvas,style={},onStep=()=>{},signal){
     const slot=this.slots[index];if(!slot)throw new Error('这段录像还是空的。');
     validateRecording({format:'jshw-recording',version:1,slots:this.slots});
-    const renderer=new this.engine.constructor(canvas,()=>{});clearInterval(renderer.animationTimer);cancelAnimationFrame(renderer.renderFrame);renderer.render=()=>{};
+    const renderer=new this.engine.constructor(canvas,()=>{});clearInterval(renderer.animationTimer);cancelAnimationFrame(renderer.renderFrame);clearTimeout(renderer.renderDeadline);renderer.drawQueued=false;renderer.render=()=>{};
     try{
       await renderer.restore(slot.base);
       if(slot.selection){const image=await imageFromRecord(slot.selection),data=image.getContext('2d').getImageData(0,0,image.width,image.height).data;if(image.width!==renderer.width||image.height!==renderer.height)throw new Error('录像选区尺寸无效。');const mask=new Uint8ClampedArray(renderer.width*renderer.height);for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3];renderer.setSelection(mask);}
@@ -112,13 +115,14 @@ export class Recorder {
         let result;
         if(event.method==='stroke'){
           const [path,options]=args;if(style.color&&options.tool!=='eraser')options.color=style.color;if(style.opacity!==undefined)options.opacity=style.opacity;
-          const beforeIds=new Set(renderer.layers.map(layer=>layer.id));renderer.begin(path[0],options);for(const point of path.slice(1))renderer.update(point);renderer.end();const created=renderer.layers.filter(layer=>!beforeIds.has(layer.id));if(event.resultIds){if(created.length!==event.resultIds.length)throw new Error('录像生成图层数量不一致。');created.forEach((layer,index)=>{const previous=layer.id;layer.id=event.resultIds[index];if(renderer.activeId===previous)renderer.activeId=layer.id;});}
+          const beforeIds=new Set(renderer.layers.map(layer=>layer.id));renderer.begin(path[0],options);for(const point of path.slice(1)){if(point.repeat)renderer.repeatStamp(true);else renderer.update(point);};renderer.end();const created=renderer.layers.filter(layer=>!beforeIds.has(layer.id));if(event.resultIds){if(created.length!==event.resultIds.length)throw new Error('录像生成图层数量不一致。');created.forEach((layer,index)=>{const previous=layer.id;layer.id=event.resultIds[index];if(renderer.activeId===previous)renderer.activeId=layer.id;});}
         }else{
           if(event.method==='setProperty')args[0]=renderer.layers.find(l=>l.id===args[0]);
           if(event.method==='setFairyGroups')args[0]=await Promise.all(args[0].map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))})));
           if(['setPaintTexture','setPaperTexture'].includes(event.method))args[0]=args[0]?await imageFromRecord(args[0]):null;
           if(event.method==='setStampImages')args[0]=await Promise.all(args[0].map(imageFromRecord));
           if(event.method==='addLayer'){args[1]=await imageFromRecord(args[1]);if(args[3].frames)args[3].frames=await Promise.all(args[3].frames.map(imageFromRecord));}
+          if(event.method==='replaceBackground')args[1]=await imageFromRecord(args[1]);
           result=renderer[event.method](...args);
           if(event.resultId&&result?.id){const id=result.id;result.id=event.resultId;if(renderer.activeId===id)renderer.activeId=result.id;}
         }

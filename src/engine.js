@@ -21,7 +21,7 @@ export class PaintEngine {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
     this.history = new History(); this.layers = []; this.activeId = ''; this.playing = true;
     this.gesture = null; this.drawQueued = false; this.animationStart = performance.now();
-    this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length)) this.render(); }, 100);
+    this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
   reset(width, height) {
@@ -31,9 +31,12 @@ export class PaintEngine {
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
   changed() { this.render(); this.onChange?.(); }
+  layerPixels(layer) {
+    return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
+  }
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
-    const existingPixels=this.layers.reduce((sum,layer)=>sum+layer.width*layer.height*(1+(layer.frames?.length||0)),0);
-    if(existingPixels+canvas.width*canvas.height*(1+(extra.frames?.length||0))>90000000)throw new Error('图层和动画超过像素预算，请先合并或删除部分图层。');
+    const existingPixels=this.layers.reduce((sum,layer)=>sum+this.layerPixels(layer),0);
+    if(existingPixels+this.layerPixels({width:canvas.width,height:canvas.height,...extra})>90000000)throw new Error('图层和动画超过像素预算，请先合并或删除部分图层。');
     if (this.layers.length >= 20) throw new Error('当前版本最多支持 20 个图层。');
     const previous = this.activeId;
     const { insertAt = this.layers.length, ...properties } = extra;
@@ -57,7 +60,7 @@ export class PaintEngine {
   }
   reorder(delta) {
     const layer = this.active, from = this.layers.indexOf(layer), to = from + delta;
-    if (to < 0 || to >= this.layers.length) return;
+    if (to < 0 || to >= this.layers.length || layer.role === 'background' || this.layers[to].role === 'background') return;
     const move = (a, b) => this.layers.splice(b, 0, this.layers.splice(a, 1)[0]);
     move(from, to); this.history.push({ bytes: 0, undo: () => move(to, from), redo: () => move(from, to) }); this.changed();
   }
@@ -71,20 +74,37 @@ export class PaintEngine {
   redo() { if (this.history.redo()) this.changed(); }
   render() {
     if (this.drawQueued) return;
-    this.drawQueued = true; this.renderFrame = requestAnimationFrame(() => { this.drawQueued = false; this.paint(this.ctx, true); });
+    this.drawQueued = true;
+    // WKWebView can suspend animation frames while a native window is occluded.
+    // Keep the actual canvas current for snapshots and the next visible frame.
+    const draw = () => { if(!this.drawQueued)return;this.drawQueued=false;clearTimeout(this.renderDeadline);cancelAnimationFrame(this.renderFrame);this.paint(this.ctx,true); };
+    this.renderFrame=requestAnimationFrame(draw);this.renderDeadline=setTimeout(draw,16);
   }
   transform(ctx, layer) {
     ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180); ctx.scale(layer.scale, layer.scale);
     ctx.translate(-layer.width / 2, -layer.height / 2);
   }
+  drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0) {
+    if(layer.sprites){
+      let target=ctx,clipCanvas;
+      if(layer.spriteClip){clipCanvas=makeCanvas(layer.width,layer.height);target=clipCanvas.getContext('2d');}
+      for(const item of layer.sprites){
+        const group=layer.spriteGroups[item.group],frame=group.frames[Math.floor(time/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
+        target.save();target.globalAlpha*=item.opacity;target.drawImage(frame,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.restore();
+      }
+      if(clipCanvas){target.globalCompositeOperation='destination-in';target.drawImage(layer.spriteClip,0,0);ctx.drawImage(clipCanvas,0,0);}
+    }else{
+      const frame=layer.frames?.length?layer.frames[Math.floor(time/layer.frameDuration)%layer.frames.length]:layer.canvas;
+      ctx.drawImage(frame,0,0,layer.width,layer.height);
+    }
+  }
   paint(ctx, guides = false) {
-    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.width, this.height);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0, 0, this.width, this.height);
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, this.width, this.height);
     for (const layer of this.layers) {
       if (!layer.visible) continue;
       ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
-      const frame = layer.frames?.length ? layer.frames[this.frameIndex ? this.frameIndex(layer) : Math.floor((this.playing ? performance.now() - this.animationStart : 0) / layer.frameDuration) % layer.frames.length] : layer.canvas;
-      ctx.drawImage(frame, 0, 0, layer.width, layer.height); ctx.restore();
+      this.drawLayer(ctx,layer); ctx.restore();
     }
     const g = this.gesture;
     if (guides && g && ['line', 'rect', 'ellipse'].includes(g.options.tool)) {
@@ -118,7 +138,7 @@ export class PaintEngine {
   begin(point, options) {
     const layer = this.active;
     if (!layer?.visible) throw new Error('先显示当前图层，或选择另一个图层。');
-    if (layer.frames?.length && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
+    if ((layer.frames?.length || layer.sprites) && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
     const local = toLayerPoint(point, layer);
     this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
       origin: point, x: layer.x, y: layer.y, tiles: new Map() };
@@ -200,17 +220,43 @@ export class PaintEngine {
     const full = ['background', 'frame', 'paper', 'texture'].includes(asset.category);
     const fit = fitInside(image.width, image.height, this.width * (full ? 1 : .32), this.height * (full ? 1 : .5));
     const extra = { scale: fit.width / image.width, sourceId: asset.id };
-    if (asset.category === 'background' || asset.category === 'paper' || asset.category === 'texture') extra.insertAt = 0;
+    if(asset.category==='background')extra.scale=Math.max(this.width/image.width,this.height/image.height);
+    if (['background', 'paper', 'texture'].includes(asset.category)) { extra.insertAt = 0; extra.role = 'background'; }
     if (asset.frames?.length) { extra.frames = await Promise.all(asset.frames.map(loadImage)); extra.frameDuration = asset.frameDuration; }
+    if (extra.role === 'background') return this.replaceBackground(asset.name, canvas, extra);
     return this.addLayer(asset.name, canvas, true, extra);
+  }
+  replaceBackground(name, canvas, extra) {
+      // Replace the paper beneath the artwork in one undoable operation.
+      const before = this.layers.slice(), previous = this.activeId;
+      this.layers = before.filter(layer => layer.role !== 'background' && !/^(color[0-4]|paper|texture)-/.test(layer.sourceId || ''));
+      let background;
+      try { background = this.addLayer(name, canvas, false, extra); }
+      catch (error) { this.layers = before; this.activeId = previous; throw error; }
+      this.activeId = this.layers.find(layer => layer.id === previous)?.id || this.layers.at(-1).id;
+      const after = this.layers.slice(), active = this.activeId;
+      this.history.push({ bytes: [...before.filter(layer => !after.includes(layer)), background].reduce((n, layer) => n + layer.width * layer.height * 4, 0),
+        undo: () => { this.layers = before.slice(); this.activeId = previous; },
+        redo: () => { this.layers = after.slice(); this.activeId = active; } });
+      this.changed(); return background;
+  }
+  ensureDrawingLayer(name = '我的画笔') {
+    const layer = this.active;
+    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.sourceId && layer.role !== 'background' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
+    if (!fullPaper || layer !== this.layers.at(-1)) this.addLayer(name);
+    return this.active;
   }
   async serialize(title) {
     const layers = this.layers.map(layer => {
-      const { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId } = layer;
-      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, image: layer.canvas.toDataURL('image/png') };
+      const { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role } = layer;
+      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role, image: layer.canvas.toDataURL('image/png') };
       if (layer.frames?.length) {
         item.frames = layer.frames.map(frame => { const c = makeCanvas(width, height); c.getContext('2d').drawImage(frame, 0, 0, width, height); return c.toDataURL('image/png'); });
         item.frameDuration = layer.frameDuration;
+      }
+      if(layer.sprites){
+        item.sprites=layer.sprites.map(s=>({...s}));item.spriteMask=layer.spriteMask;
+        item.spriteGroups=layer.spriteGroups.map(g=>({frameDuration:g.frameDuration,frames:g.frames.map(frame=>{const c=makeCanvas(frame.width,frame.height);c.getContext('2d').drawImage(frame,0,0);return {width:frame.width,height:frame.height,image:c.toDataURL('image/png')};})}));
       }
       return item;
     });
@@ -225,9 +271,15 @@ export class PaintEngine {
       if (image.width !== info.width || image.height !== info.height) throw new Error('图层图片与记录尺寸不一致。');
       const canvas = makeCanvas(info.width, info.height); canvas.getContext('2d').drawImage(image, 0, 0);
       const layer = { ...info, canvas }; delete layer.image;
+      if (!layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')) layer.role = 'background';
       if (info.frames) {
         layer.frames = [];
         for (const data of info.frames) { const frame = await loadImage(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }
+      }
+      if(info.sprites){
+        layer.spriteGroups=[];
+        for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await loadImage(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('仙女袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
+        if(info.spriteMask)layer.spriteClip=await loadImage(info.spriteMask);
       }
       layers.push(layer);
     }

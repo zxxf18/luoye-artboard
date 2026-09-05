@@ -83,11 +83,11 @@ await check('非法录像命令与无穷笔尖被拒绝，原作品保持不变'
  raw.slots[0].events=[{method:'restore',activeId:'x',args:[],time:0}];let rejected=false;try{validateRecording(raw);}catch{rejected=true;}assert(rejected,'可调用任意方法');
  raw.slots[0].events=[{method:'stroke',activeId:'x',args:[[{x:0,y:0}],{tool:'pen',size:1e9}],time:0}];rejected=false;try{validateRecording(raw);}catch{rejected=true;}assert(rejected,'无界笔尖未拒绝');assert(editor.exportPNG()===before,'验证修改了原作');
 });
-await check('动态仙女袋连续创建独立动画，取消／撤销和录像后续引用保持正确',async()=>{
+await check('动态仙女袋整笔归层，保留实例动画、选区、撤销和录像引用',async()=>{
  const e=new DrawingEngine(makeCanvas(64,64),()=>{});e.reset(64,64);clearInterval(e.animationTimer);
  const first=makeCanvas(8,8),second=makeCanvas(8,8);first.getContext('2d').fillRect(2,2,4,4);second.getContext('2d').fillRect(0,0,2,2);e.setFairyGroups([{frames:[first,second],frameDuration:10000}], 'dynamic');
- const rec=new Recorder(e);await rec.start(0,'动态盖章');e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:1,stampSpacing:2});e.update({x:30,y:16});e.end();assert(e.layers.length===3&&e.layers[1].frames.length===2,'动态实例或帧丢失');assert(pixel(e.layers[1].canvas,0,0)[3]===0,'透明区丢失');e.setProperty(e.active,'x',44);rec.stop();
- const output=makeCanvas(64,64);const project=await rec.replay(0,2,output);assert(project.layers.length===3&&project.layers.at(-1).x===44&&project.layers[1].frames.length===2,'回放图层引用失效');
- e.undo();e.undo();assert(e.layers.length===1,'整次盖章撤销失败');e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:1});e.end(true);assert(e.layers.length===1,'取消留下动画实例');e.selectShape('rect',{x:0,y:0},{x:9,y:64});e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:.5});e.end();assert(e.active.opacity===.5&&pixel(e.active.canvas,4,4)[3]===0,'动画盖章未遵守透明度或选区');
+ const rec=new Recorder(e);await rec.start(0,'动态盖章');e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:1,stampSpacing:2});e.update({x:30,y:16});e.end();assert(e.layers.length===2&&e.layers[1].sprites.length===2&&e.layers[1].spriteGroups[0].frames.length===2,'动态实例或帧丢失');assert(pixel(e.layers[1].canvas,0,0)[3]===0,'透明区丢失');e.setProperty(e.active,'x',44);rec.stop();
+ const output=makeCanvas(64,64);const project=await rec.replay(0,2,output);assert(project.layers.length===2&&project.layers.at(-1).x===44&&project.layers[1].sprites.length===2&&project.layers[1].spriteGroups[0].frames.length===2,'回放图层引用失效');
+ e.undo();e.undo();assert(e.layers.length===1,'整次盖章撤销失败');e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:1});e.end(true);assert(e.layers.length===1,'取消留下动画实例');e.selectShape('rect',{x:0,y:0},{x:9,y:64});e.begin({x:10,y:16},{tool:'stamp',size:8,opacity:.5});e.end();assert(e.active.sprites[0].opacity===.5&&pixel(e.active.canvas,8,16)[3]===128&&pixel(e.active.canvas,10,16)[3]===0,'动画盖章未遵守透明度或选区');
 });
 clearInterval(editor.animationTimer);const count=results.filter(r=>r.ok).length;document.querySelector('#status').textContent=`${count}/${results.length} passed`;document.title=`${count}/${results.length} passed`;

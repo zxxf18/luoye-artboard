@@ -48,3 +48,11 @@ test('project validation rejects oversized, remote, duplicate and nonfinite laye
   assert.throws(() => validateProject({ ...project, version: 99 }));
   assert.throws(() => validateProject({ ...project, layers: [{ ...layer, width: 2 }] }));
 });
+
+test('animated fairy projects reject missing groups, bad positions and remote frames', () => {
+ const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
+ const layer={id:'a',name:'花朵',width:1,height:1,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image,sprites:[{group:0,x:0,y:0,size:16,opacity:1}],spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image}]}]};
+ const project={format:'jshw-studio',version:1,width:1,height:1,title:'花朵',layers:[layer]};
+ assert.doesNotThrow(()=>validateProject(project));
+ for(const change of [{spriteGroups:[]},{sprites:[{...layer.sprites[0],group:-1}]},{sprites:[{...layer.sprites[0],x:Infinity}]},{spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image:'https://example.com/a.png'}]}]}])assert.throws(()=>validateProject({...project,layers:[{...layer,...change}]}));
+});
