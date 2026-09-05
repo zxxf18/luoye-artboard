@@ -26,4 +26,11 @@ check(recorder.slots[0].events.map(x=>x.method).join(',')==='applyBoardFilter,re
 const interrupted=e.applyBoardFilter('twist',{radius:600});setTimeout(()=>{e.effectCancelled=true;},0);try{await interrupted;}catch{}
 check(recorder.slots[0].events.length===2&&recorder.depth===0,'取消效果不写入录像，也不影响后续录制');
 recorder.stop();await recorder.replay(0,2,makeCanvas(1920,1080));check(true,'动画滤镜与缩放录像可重放');
+const cluster=new DrawingEngine(makeCanvas(320,180));cluster.reset(320,180);cluster.paperMode=true;
+const crowd=cluster.addLayer('很多小伙伴',makeCanvas(320,180),true,{sprites:Array.from({length:250},(_,i)=>({group:0,x:8+i%25*12,y:8+Math.floor(i/25)*16,size:8,opacity:1})),spriteGroups:[{frames:[solid('#f06050'),solid('#60b0f0')],frameDuration:100}]});
+cluster.applyBoardFilter('ripple',{x:20,y:20,radius:10});let updated=cluster.layers.find(l=>l.id===crowd.id);
+check(updated.sprites.length===250&&updated.spriteGroups.length<15,'长串动态图案只为滤镜影响区域生成新帧');
+cluster.undo();cluster.applyDarkroom('invert');updated=cluster.layers.find(l=>l.id===crowd.id);
+check(updated.sprites.length===250&&updated.spriteGroups.length===1,'暗房对重复动态图案共用结果，避免重复占用内存');
+await cluster.serialize('长串动态图案');check(true,'滤镜处理后的长串动态图案仍符合可保存格式');clearInterval(cluster.animationTimer);
 clearInterval(e.animationTimer);clearInterval(restored.animationTimer);document.body.dataset.results=JSON.stringify(results);document.querySelector('#summary').textContent=results.filter(x=>x.passed).length+'/'+results.length+' 通过';document.querySelector('#results').textContent=JSON.stringify(results,null,2);

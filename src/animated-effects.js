@@ -5,14 +5,25 @@ import { blendMasked } from './pixels.js';
 // document remain live until every frame succeeds. Cancelling never commits half a filter.
 export function* paperEffectSteps(engine, callback) {
   const before=engine.layers.slice(),next=[],paperPixels=engine.width*engine.height;
-  let predicted=0;
+  const affected=space=>!callback.worldRegion||Math.hypot(space.x-callback.worldRegion.x,space.y-callback.worldRegion.y)<callback.worldRegion.radius+Math.hypot(space.width,space.height)*space.scale/2;
+  const plans=new Map();let predicted=0;
   for(const layer of before){
     if(!layer.visible||!layer.opacity){predicted+=engine.layerPixels(layer);continue;}
     if(layer.sprites){
-      if(layer.sprites.length>200)throw Error('这串动态图案比较长，请先拆成几笔再应用滤镜。原画还保留着。');
-      predicted+=paperPixels*(1+(layer.spriteClip?1:0));for(const item of layer.sprites)predicted+=layer.spriteGroups[item.group].frames.reduce((n,f)=>n+f.width*f.height,0);
-    }
-    else predicted+=layer.frames?.length?layer.width*layer.height*(layer.frames.length+1):paperPixels;
+      const groups=[],sprites=[],keys=new Map();
+      for(const [index,item] of layer.sprites.entries()){
+        const group=layer.spriteGroups[item.group],base=group.frames[0],scale=item.size/Math.max(base.width,base.height),angle=layer.rotation*Math.PI/180;
+        const dx=(item.x-layer.width/2)*layer.scale,dy=(item.y-layer.height/2)*layer.scale;
+        const space={width:base.width,height:base.height,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle),rotation:layer.rotation,scale:layer.scale*scale};
+        const process=affected(space),key=!process?'original-'+item.group:callback.spaceIndependent&&!engine.selection?'effect-'+item.group:'instance-'+index;
+        if(!keys.has(key)){keys.set(key,groups.length);groups.push({group,space,process});}
+        sprites.push({...item,group:keys.get(key)});
+      }
+      if(groups.length>200)throw Error('这片区域的动态图案比较多，请缩小滤镜范围后再试。原画还保留着。');
+      plans.set(layer,{groups,sprites});
+      predicted+=layer.width*layer.height*(1+(layer.spriteClip?1:0)+(layer.eraseMask?1:0));
+      for(const item of groups)predicted+=item.group.frames.reduce((n,f)=>n+f.width*f.height,0);
+    }else predicted+=layer.frames?.length?engine.layerPixels(layer):paperPixels;
   }
   if(predicted>90000000||predicted+before.reduce((n,l)=>n+engine.layerPixels(l),0)>120000000)throw Error('这幅画的动画比较多，请分几次处理或减少一些重复图案。原画还保留着。');
   function process(canvas,space,mask){
@@ -23,18 +34,17 @@ export function* paperEffectSteps(engine, callback) {
   for(const layer of before){
     if(!layer.visible||!layer.opacity){next.push(layer);continue;}
     if(layer.frames?.length){
+      if(!affected(layer)){next.push(layer);continue;}
       const frames=[],mask=engine.layerMask(layer);
       for(const frame of layer.frames){const c=makeCanvas(layer.width,layer.height);engine.drawLayer(c.getContext('2d'),{...layer,frames:[frame]},0);frames.push(process(c,layer,mask));yield;}
       const updated={...layer,canvas:frames[0],frames};delete updated.eraseMask;next.push(updated);
     }else if(layer.sprites){
-      const spriteGroups=[],sprites=[];
-      for(const item of layer.sprites){
-        const group=layer.spriteGroups[item.group],frames=[],base=group.frames[0],scale=item.size/Math.max(base.width,base.height),angle=layer.rotation*Math.PI/180;
-        const dx=(item.x-layer.width/2)*layer.scale,dy=(item.y-layer.height/2)*layer.scale;
-        const space={width:base.width,height:base.height,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle),rotation:layer.rotation,scale:layer.scale*scale};
-        const mask=engine.layerMask(space);
+      const spriteGroups=[],{groups,sprites}=plans.get(layer);
+      for(const {group,space,process:shouldProcess} of groups){
+        if(!shouldProcess){spriteGroups.push(group);continue;}
+        const frames=[],mask=engine.layerMask(space);
         for(const frame of group.frames){const c=makeCanvas(frame.width,frame.height);c.getContext('2d').drawImage(frame,0,0);frames.push(process(c,space,mask));yield;}
-        sprites.push({...item,group:spriteGroups.length});spriteGroups.push({...group,frames});
+        spriteGroups.push({...group,frames});
       }
       const canvas=makeCanvas(layer.width,layer.height),updated={...layer,canvas,spriteGroups,sprites};engine.drawLayer(canvas.getContext('2d'),updated,0);next.push(updated);
     }else{

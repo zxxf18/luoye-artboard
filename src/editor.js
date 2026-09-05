@@ -66,7 +66,7 @@ export class EditorEngine extends PaintEngine {
   }
   mutatePaper(callback){return runPaperEffect(this,callback);}
   clearPixels(){this.mutatePixels(data=>{for(let i=3;i<data.length;i+=4)data[i]=0;return data;});}
-  applyDarkroom(kind,options={}){if(this.paperMode)return this.mutatePaper((data,w,h)=>applyEffect(data,w,h,kind,options));this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
+  applyDarkroom(kind,options={}){if(this.paperMode){const effect=(data,w,h)=>applyEffect(data,w,h,kind,options);effect.spaceIndependent=true;return this.mutatePaper(effect);}this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
   effectPreview(kind,options={}){
     if(!this.paperMode)this.assertRaster();const layer=this.paperMode?{canvas:makeCanvas(this.width,this.height),width:this.width,height:this.height}:this.active;if(this.paperMode)this.paint(layer.canvas.getContext('2d'));const fit=Math.min(1,320/Math.max(layer.width,layer.height)),c=makeCanvas(Math.max(1,Math.round(layer.width*fit)),Math.max(1,Math.round(layer.height*fit))),ctx=c.getContext('2d');ctx.drawImage(layer.canvas,0,0,c.width,c.height);
     const pixels=ctx.getImageData(0,0,c.width,c.height);pixels.data.set(applyEffect(pixels.data,c.width,c.height,kind,options));ctx.putImageData(pixels,0,0);return c;

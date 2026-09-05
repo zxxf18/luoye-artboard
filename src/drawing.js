@@ -10,7 +10,14 @@ import { textureData, materialSegment } from './materials.js';
 export class DrawingEngine extends EditorEngine {
   setPaintTexture(image){this.paintTexture=textureData(image);}
   setPaperTexture(image){this.paperTexture=textureData(image);}
-  applyBoardFilter(kind,options={}){if(this.paperMode)return this.mutatePaper((data,w,h,space)=>{const point=space?toLayerPoint({x:options.x??this.width/2,y:options.y??this.height/2},space):null;return warpPixels(data,w,h,{...options,kind,...(point?{x:point.x,y:point.y,radius:(options.radius||120)/space.scale}:{})});});this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));}
+  applyBoardFilter(kind,options={}){
+    if(this.paperMode){
+      const effect=(data,w,h,space)=>{const point=space?toLayerPoint({x:options.x??this.width/2,y:options.y??this.height/2},space):null;return warpPixels(data,w,h,{...options,kind,...(point?{x:point.x,y:point.y,radius:(options.radius||120)/space.scale}:{})});};
+      effect.worldRegion={x:options.x??this.width/2,y:options.y??this.height/2,radius:options.radius||120};
+      return this.mutatePaper(effect);
+    }
+    this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));
+  }
   warpDab(point){
     const g=this.gesture,l=g.layer,radius=Math.max(1,Math.min(600,g.options.radius||120))/l.scale,dx=point.x-g.last.x,dy=point.y-g.last.y,ctx=l.canvas.getContext('2d');
     const pad=Math.ceil(radius+Math.max(Math.abs(dx),Math.abs(dy))+3),x=Math.max(0,Math.floor(point.x-pad)),y=Math.max(0,Math.floor(point.y-pad)),w=Math.min(l.width,x+pad*2)-x,h=Math.min(l.height,y+pad*2)-y;if(w<=0||h<=0){g.last=point;return;}
