@@ -116,6 +116,16 @@ export class PaintEngine {
     const r = this.canvas.getBoundingClientRect();
     return { x: (event.clientX - r.left) * this.width / r.width, y: (event.clientY - r.top) * this.height / r.height };
   }
+  pickLayer(point) {
+    for(const layer of [...this.layers].reverse()){
+      if(!layer.visible||layer.opacity===0||layer.role==='background')continue;
+      const local=toLayerPoint(point,layer),x=Math.floor(local.x),y=Math.floor(local.y);
+      if(x<0||y<0||x>=layer.width||y>=layer.height)continue;
+      const sample=makeCanvas(1,1),ctx=sample.getContext('2d');ctx.translate(-x,-y);this.drawLayer(ctx,layer);
+      if(ctx.getImageData(0,0,1,1).data[3]>8)return layer;
+    }
+    return null;
+  }
   captureTiles(layer, bounds, tiles) {
     const context = layer.canvas.getContext('2d'), size = 128;
     const minX = Math.max(0, Math.floor(bounds.x / size)), minY = Math.max(0, Math.floor(bounds.y / size));

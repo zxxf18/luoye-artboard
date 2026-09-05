@@ -19,5 +19,10 @@ const checks=[];try{
  tool('select');stroke(.1,.1,.2,.2);await idle();check(!$('selection-reset').hidden,'选区限制有明显提示');$('selection-reset').click();check($('selection-reset').hidden,'一键取消圈选后整张画纸可画');
  $('layer-menu').click();await idle();const rows=[...document.querySelectorAll('.layer-name')];rows.at(-1).click();await idle();check($('layer-up').disabled&&$('layer-down').disabled,'背景不会误移到前面挡住画');
  rows[0].click();$('duplicate-layer').click();await idle();const duplicated=(await window.JSHWFlushBeforeClose()).project.layers.length;$('delete-layer').click();await idle();check((await window.JSHWFlushBeforeClose()).project.layers.length===duplicated-1,'卡片复制和移走生效');$('undo').click();await idle();check((await window.JSHWFlushBeforeClose()).project.layers.length===duplicated,'移走卡片可以撤销找回');
- $('layer-dialog').querySelector('[data-close]').click();tool('pen');paper.setPointerCapture=capture;await pause(80);return {passed:true,checks};
+ $('layer-dialog').querySelector('[data-close]').click();
+ if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector('[data-category="sticker"]').click();$('asset-grid').children[1].click();await idle();
+ let movedProject=(await window.JSHWFlushBeforeClose()).project;const elephant=movedProject.layers.at(-1);tool('move');stroke(.5,.5,.65,.6);await idle();
+ movedProject=(await window.JSHWFlushBeforeClose()).project;const moved=movedProject.layers.find(l=>l.id===elephant.id);check(moved.x>elephant.x+100&&moved.y>elephant.y,'直接点中小象移动，透明画纸不挡住选择');
+ const background=movedProject.layers.find(l=>l.role==='background');stroke(.01,.01,.1,.1);await idle();const still=(await window.JSHWFlushBeforeClose()).project.layers.find(l=>l.id===background.id);check(still.x===background.x&&still.y===background.y,'点空白区域不会把背景拖走');
+ tool('pen');paper.setPointerCapture=capture;await pause(80);return {passed:true,checks};
 }catch(error){return {passed:false,checks,failure:error.message,stack:error.stack};}

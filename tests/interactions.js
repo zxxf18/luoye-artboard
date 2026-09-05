@@ -13,6 +13,10 @@ try{
  check(engine.layers.length===2&&engine.layers[0].sourceId===b.id,'背景替换而非堆在旧背景下');engine.undo();check(engine.layers[0]===previous,'替换背景可撤销');engine.redo();check(engine.layers[0].sourceId===b.id,'替换背景可重做');
  engine.activeId=engine.layers[0].id;engine.reorder(1);check(engine.layers[0].sourceId===b.id,'背景保持底部');
  const obj=await engine.addAsset({name:'小红图案',category:'sticker',src:red.toDataURL()});engine.ensureDrawingLayer();check(engine.active!==obj&&engine.active===engine.layers.at(-1),'选中小图后画笔在整张画纸最上面画');
+ check(engine.pickLayer({x:80,y:50})===obj,'移动时穿过上面的透明画纸，点到实际小图');
+ check(engine.pickLayer({x:1,y:1})===null,'移动不会选中并拖走背景');
+ engine.setProperty(obj,'visible',false);check(engine.pickLayer({x:80,y:50})===null,'移动不会选中隐藏图层');engine.setProperty(obj,'visible',true);
+ const selected=engine.pickLayer({x:80,y:50});engine.activeId=selected.id;engine.begin({x:80,y:50},{tool:'move'});engine.update({x:100,y:65});engine.end();check(obj.x===100&&obj.y===65,'移动只改变点中的图层');engine.undo();check(obj.x===80&&obj.y===50,'移动图层可以撤销');
  const groups=[{frames:[red,blue],frameDuration:100},{frames:[blue,red,blue],frameDuration:160}];engine.setFairyGroups(groups,'dynamic');
  const count=engine.layers.length;engine.begin({x:25,y:25},{tool:'stamp',size:20,opacity:1,stampSpacing:.4});
  for(let i=0;i<30;i++){engine.update({x:25+(i%8)*10,y:25+Math.floor(i/8)*10});engine.repeatStamp(true);}engine.end();

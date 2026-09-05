@@ -206,6 +206,11 @@ $('painting').addEventListener('pointerdown', event => {
   if (tool === 'text') { styledText.open(point); return; }
   if(tool==='fractal'){creative.open();return;}
   try {
+    if(tool==='move'){
+      const hit=engine.pickLayer(point);
+      if(!hit){toast('请点住画里的小伙伴或笔迹来移动，背景会留在最下面');return;}
+      engine.activeId=hit.id;renderLayers();
+    }
     if ((tool === 'pen' && !$('paint-on-layer').checked) || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'仙女袋笔迹':'我的画笔');
     engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
