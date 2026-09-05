@@ -31,6 +31,17 @@ for item in assets:
     item['thumbnail']='assets/thumbs/'+thumb.name
 additional=out/'illustrated/catalog.json'
 if additional.exists():assets=json.loads(additional.read_text())+assets
+redrawn=out/'redrawn-v14/catalog.json'
+if redrawn.exists():
+    replacements={item['referenceId']:item for item in json.loads(redrawn.read_text()) if item.get('replaceOriginal')}
+    for item in assets:
+        if item['id'].startswith('color0-'):item['coloring']=True
+        replacement=replacements.get(item['id'])
+        if replacement:
+            item['originalSrc']=item['src']
+            item['originalDimensions']=[item['width'],item['height']]
+            item.update({k:v for k,v in replacement.items() if k not in ('id','replaceOriginal')})
+    assets=[item for item in json.loads(redrawn.read_text()) if not item.get('replaceOriginal')]+assets
 (out/'catalog.json').write_text(json.dumps(assets,ensure_ascii=False,indent=2)+'\n')
 (out/'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets,ensure_ascii=False)+';\n')
 print(json.dumps({'entries':len(assets),'original':manifest['counts']},ensure_ascii=False))

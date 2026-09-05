@@ -226,6 +226,13 @@ export class PaintEngine {
     this.gesture = null; this.changed();
   }
   async addAsset(asset) {
+    if(asset.coloring) {
+      const image=await loadImage(asset.src),canvas=makeCanvas(this.width,this.height),ctx=canvas.getContext('2d');
+      const fit=fitInside(image.width,image.height,this.width,this.height);
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,this.width,this.height);
+      ctx.drawImage(image,(this.width-fit.width)/2,(this.height-fit.height)/2,fit.width,fit.height);
+      return this.replaceBackground(asset.name,canvas,{sourceId:asset.id,insertAt:0,role:'background'});
+    }
     if(asset.category==='frame') {
       const image=await loadImage(asset.src),canvas=makeCanvas(this.width,this.height),ctx=canvas.getContext('2d');
       // Nine-slice fitting keeps corner decorations round while all four edges reach the paper.
