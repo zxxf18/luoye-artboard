@@ -22,15 +22,25 @@ try{
  check(panel.getBoundingClientRect().height===panelHeight,'历史色不把左边面板越撑越高');
  $('foreground-palette').click();document.querySelector('.preset-color[aria-label="天空蓝"]').click();$('palette-cancel').click();
  check($('foreground-palette').style.background==='rgb(239, 83, 80)','取消选色保持原画笔色');
+ tool('stamp');check([...document.querySelectorAll('.fairy-modes button')].every(b=>{const r=b.getBoundingClientRect();return r.height>=44&&r.bottom<innerHeight;}),'三种仙女袋玩法直接可见且按钮足够大');[...document.querySelectorAll('.subtool-card')].find(b=>b.textContent==='会动图案').click();
+ document.querySelector('[data-asset-id="girl-2-0"]').click();await idle();
+ $('size').value=180;$('size').dispatchEvent(new Event('input'));
+ const paperForStamp=$('painting'),r=paperForStamp.getBoundingClientRect(),capture=paperForStamp.setPointerCapture;paperForStamp.setPointerCapture=()=>{};
+ for(let i=0;i<=8;i++)paperForStamp.dispatchEvent(new PointerEvent(i===0?'pointerdown':i===8?'pointerup':'pointermove',{bubbles:true,pointerId:87,pointerType:'mouse',button:0,buttons:i===8?0:1,clientX:r.x+r.width*(.30+i*.035),clientY:r.y+r.height*.74}));
+ paperForStamp.setPointerCapture=capture;await idle();p=await project();const fairy=p.layers.find(l=>l.sprites?.length);
+ check(fairy?.sprites.length>1,'按住拖动连续放入动态仙女袋');
+ check(fairy.spriteGroups.every(g=>g.frames.length===8),'新版动态图案使用八个新关键帧');
+ tool('move');const fairyScale=fairy.scale;$('object-bigger').click();await idle();check((await project()).layers.find(l=>l.id===fairy.id).scale>fairyScale,'动态仙女袋画好后可直接放大');
  tool('board-filter');$('board-filter-kind').value='waterfall';$('board-filter-kind').dispatchEvent(new Event('change',{bubbles:true}));$('creative-radius').value=600;
  $('filter-preview-button').click();await idle();check($('board-preview').closest('dialog').open,'组合画面可以预览瀑布');
  let ticks=0,maxGap=0,previous=performance.now();const heartbeat=setInterval(()=>{ticks++;maxGap=Math.max(maxGap,performance.now()-previous);previous=performance.now();},16),began=performance.now();
- $('board-apply').click();await idle();clearInterval(heartbeat);
+ $('board-apply').click();await idle();const filterMilliseconds=performance.now()-began;clearInterval(heartbeat);
  check(!document.querySelector('dialog[open]'),'确定滤镜后没有遗留模态窗口挡住点击');
- p=await project();const filtered=p.layers.find(l=>l.id===object.id);
+ p=await project();const filtered=p.layers.find(l=>l.id===object.id);check(p.layers.find(l=>l.id===fairy.id)?.spriteGroups.every(g=>g.frames.length===8),'混合场景滤镜保留重绘仙女袋的每组动画');
  check(filtered?.frames?.length===object.frames.length,'背景和普通伙伴并存时，瀑布保留动画');
  const paper=$('painting');const first=paper.toDataURL();await pause(220);check(paper.toDataURL()!==first,'瀑布完成后屏幕动画仍在播放');
  tool('pen');check(paper.dataset.tool==='pen','滤镜后画笔按钮能继续使用');
  $('undo').click();await idle();$('redo').click();await idle();check((await project()).layers.find(l=>l.id===object.id)?.frames?.length===object.frames.length,'滤镜撤销重做仍保留动画');
- return {passed:true,checks,filterMilliseconds:performance.now()-began,heartbeatTicks:ticks,maxEventLoopGapMilliseconds:maxGap};
+ const beforeCancel=await project();tool('board-filter');$('filter-preview-button').click();await idle();$('board-apply').click();check(!$('effect-progress').hidden,'处理时提供可见取消入口');$('cancel-effect').click();await idle();const afterCancel=await project();check(afterCancel.layers.every((l,i)=>l.image===beforeCancel.layers[i].image),'取消滤镜后整幅原画保持不变');
+ return {passed:true,checks,filterMilliseconds,heartbeatTicks:ticks,maxEventLoopGapMilliseconds:maxGap};
 }catch(error){return {passed:false,checks,error:error.message,stack:error.stack};}

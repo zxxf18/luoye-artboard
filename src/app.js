@@ -29,7 +29,7 @@ function toast(message) { const status=$('tool-hint');status.textContent=message
 async function run(action) {
   if (busy) return;
   busy = true; document.body.setAttribute('aria-busy', 'true');
-  try { return await action(); } catch (error) { toast(error.message || '操作没有完成，请重试。'); console.error(error); }
+  try { return await action(); } catch (error) { toast(error.message || '操作没有完成，请重试。'); if(error.name!=='AbortError')console.error(error); }
   finally { busy = false; document.body.removeAttribute('aria-busy'); }
 }
 function bind(id, action) { $(id).addEventListener('click', () => run(action)); }
@@ -276,7 +276,7 @@ async function initialize() {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.4.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.5.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 
