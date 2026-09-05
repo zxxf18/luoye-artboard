@@ -98,6 +98,12 @@ for kind in range(3):
             note='DIB 与 Alpha 游程、组尺寸及帧顺序已验证；160ms 为新版预览时序，旧节奏与选择策略待对照',
             sources=[dict(path=source,sha256=hashlib.sha256(raw).hexdigest())]))
 
+names = json.loads((ROOT / 'tools/asset-names.json').read_text())
+for asset in assets:
+    asset['name'] = names.get(asset['id'], asset['name'])
+    if asset.get('fairyGroups'):
+        frames = asset['fairyGroups'][0]['frames']
+        asset['thumbnail'] = frames[len(frames)//2]
 (OUT / 'catalog.json').write_text(json.dumps(assets, ensure_ascii=False, indent=2)+'\n')
 # JS wrapper also works in a sandboxed file:// macOS WebView without a local server.
 (OUT / 'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets, ensure_ascii=False)+';\n')

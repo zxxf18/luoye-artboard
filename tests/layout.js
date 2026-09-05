@@ -23,7 +23,7 @@ for(const [width,height] of [[900,650],[1280,720],[1920,1080],[2560,1440]]){
    assert(![...doc.querySelectorAll('select')].some(isVisible),'出现默认下拉框');
    doc.querySelector('#mode-library').click();await pause(100);
    const tray=doc.querySelector('.right-panel').getBoundingClientRect(),paper=viewport.getBoundingClientRect();
-   assert(tray.top>=paper.bottom-1,'素材遮挡画纸');assert(paper.height>=100,'素材栏挤掉画纸');
+   assert(tray.top>=paper.bottom-1,'素材遮挡画纸');assert(paper.height>=100,'素材栏挤掉画纸');assert(Math.abs(paper.height-r.height)<1&&Math.abs(paper.width-r.width)<1,'素材打开后画板尺寸变化');
    assert(inside(doc.querySelector('.right-panel'),doc.body),'素材栏超出窗口');
    assert(inside(doc.querySelector('#tool-settings-open'),doc.body),'素材打开后工具参数超出窗口');
    doc.querySelector('#mode-board').click();

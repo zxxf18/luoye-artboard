@@ -22,7 +22,8 @@ const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉�
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
-let toastTimer, saveTimer, pointerId, studio;
+let toastTimer, saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
+const fairyCache = new Map();
 
 function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 4000); }
 async function run(action) {
@@ -33,13 +34,16 @@ async function run(action) {
 }
 function bind(id, action) { $(id).addEventListener('click', () => run(action)); }
 function setTool(next) {
-  engine?.end();
+  clearInterval(stampTimer); pointerId = undefined;
+  if(tool === 'stamp') stampSize = Number($('size').value);
+  if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
+  engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
   if(engine?.path&&next!==tool)engine.finishPath(true);
   tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
   if (tool === 'select') $('tool-hint').textContent = '拖动圈选区域；画笔、填色和暗房只修改选中部分';
   if (tool === 'magic') $('tool-hint').textContent = '点击颜色相连的区域，再调整公差与选区组合';
-  if(tool==='stamp') $('tool-hint').textContent='连续盖章：在图库选择仙女袋，或将当前图层用作印章';
+  if(tool==='stamp') $('tool-hint').textContent='先选图案、调大小，再移到画纸上按住鼠标画';
   if(tool==='clone') $('tool-hint').textContent='Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点';
   if(['polygon','bezier'].includes(tool)) $('tool-hint').textContent='点击添加顶点／控制点，Enter 或双击完成，Esc 取消';
   if(tool==='warp')$('tool-hint').textContent='推拉：拖动变形；缩放：点击或拖动。负速度用于反向变形';
@@ -61,7 +65,7 @@ function layoutCanvas() {
   $('zoom-value').textContent = zoom === 1 ? '适合窗口' : `${Math.round(zoom * 100)}%`;
 }
 function renderLayers() {
-  if($('current-layer-name'))$('current-layer-name').textContent=engine.active.name;
+  if($('current-layer-name'))$('current-layer-name').textContent='正在调整：'+engine.active.name;
   if($('layer-opacity'))$('layer-opacity').value=engine.active.opacity*100;
   $('layer-list').replaceChildren(); $('layer-count').textContent = engine.layers.length;
   for (const layer of [...engine.layers].reverse()) {
@@ -69,14 +73,17 @@ function renderLayers() {
     const thumb = makeCanvas(64, 42); thumb.className = 'layer-thumb';
     const fit = Math.min(64 / layer.width, 42 / layer.height), context = thumb.getContext('2d');
     context.drawImage(layer.canvas, (64 - layer.width * fit) / 2, (42 - layer.height * fit) / 2, layer.width * fit, layer.height * fit);
-    const name = document.createElement('button'); name.className = 'layer-name'; name.textContent = layer.name; name.setAttribute('aria-pressed', layer.id === engine.activeId);
-    name.onclick = () => { if (busy) return; engine.activeId = layer.id; renderLayers(); };
-    const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '隐藏' : '显示'}${layer.name}`);
+    const name = document.createElement('button'); name.className = 'layer-name'; name.innerHTML = ''; const caption = document.createElement('span'); caption.textContent = (layer.role === 'background' ? '画纸背景 · ' : '') + layer.name; name.append(thumb,caption); name.setAttribute('aria-pressed', layer.id === engine.activeId);
+    name.onclick = () => { if (busy) return; engine.activeId = layer.id; renderLayers(); document.dispatchEvent(new Event('controlschange')); };
+    const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '藏起来：' : '显示：'}${layer.name}`);
     eye.onclick = () => run(() => engine.setProperty(layer, 'visible', !layer.visible));
-    row.append(thumb, name, eye); $('layer-list').append(row);
+    eye.append(document.createTextNode(layer.visible ? '藏起来' : '显示')); row.append(name, eye); $('layer-list').append(row);
   }
   $('undo').disabled = !engine.history.past.length; $('redo').disabled = !engine.history.future.length;
   $('delete-layer').disabled = engine.layers.length < 2;
+  $('layer-up').disabled = engine.active === engine.layers.at(-1) || engine.active.role === 'background';
+  $('layer-down').disabled = engine.layers.indexOf(engine.active) === 0 || engine.active.role === 'background' || engine.layers[engine.layers.indexOf(engine.active)-1]?.role === 'background';
+  if($('move-selected-layer')) $('move-selected-layer').disabled = engine.active.role === 'background';
 }
 function changed() {
   if (!engine) return;
@@ -95,17 +102,32 @@ function changed() {
 function chooseCategory(category) {
   for (const button of $('categories').children) button.setAttribute('aria-pressed', button.dataset.category === category);
   $('asset-grid').replaceChildren();
-  const items = catalog.filter(asset => asset.category === category);
+  const items = catalog.filter(asset => asset.category === category && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
   $('asset-count').textContent = `${items.length} 个灵感`;
   for (const asset of items) {
     const button = document.createElement('button'); button.className = 'asset'; button.title = asset.name; button.setAttribute('aria-label', `加入${asset.name}`);
     const img = document.createElement('img'); img.src = asset.thumbnail || asset.src; img.alt = ''; img.loading = 'lazy';
     const label = document.createElement('span'); label.textContent = asset.name;
     const plus = document.createElement('span'); plus.className = 'asset-add'; plus.textContent = '+';
-    button.append(img, label, plus); button.onclick = () => run(async () => { engine.end();if(asset.fairyGroups){const groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));engine.setFairyGroups(groups,asset.fairyMode);if(asset.fairyMode!=='dynamic'&&engine.active.frames?.length)engine.addLayer('仙女袋笔迹');$('size').value=240;$('size-value').textContent='240';setTool('stamp');for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item===button);toast(asset.name+' 已选中，在画布上拖动盖章');return;} await engine.addAsset(asset); setTool('move');for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item===button); toast(`${asset.name} 来到画里了`); });
+    button.dataset.assetId=asset.id;
+    button.append(img, label, plus); button.onclick = () => run(async () => {
+      engine.end();
+      if(asset.fairyGroups){
+        let groups=fairyCache.get(asset.id);
+        if(!groups){groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(asset.id,groups);}
+        engine.setFairyGroups(groups,asset.fairyMode);engine.stampName=asset.name;
+        setTool('stamp');
+        toast(asset.name+'：调好大小，再到画纸上按住鼠标画');
+      } else {
+        await engine.addAsset(asset); setTool(['background','paper','texture'].includes(asset.category)?'pen':'move');
+        toast(`${asset.name} ${['background','paper','texture'].includes(asset.category)?'已换好，画里的小伙伴都还在':'来到画里了'}`);
+      }
+      for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item===button);
+    });
     $('asset-grid').append(button);
   }
 }
+document.addEventListener('fairymodechange',()=>chooseCategory('fairy'));
 function showDialog(id) { const dialog = $(id); dialog.returnValue = ''; dialog.showModal(); }
 
 for (const element of document.querySelectorAll('[data-icon]')) element.insertAdjacentHTML('afterbegin', icon(element.dataset.icon));
@@ -129,6 +151,9 @@ studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:(
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();}});
 mountClassic({setTool,getColor:()=>color,setColor});
+const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
+engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
+
 const styledText=mountText({engine,run,toast,getColor:()=>color,setTool});
 const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool});
 mountMusic({run,toast});
@@ -172,7 +197,7 @@ $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
   event.preventDefault(); $('painting').focus({ preventScroll: true }); const point = engine.point(event);
   if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
-  if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options()});}catch(e){toast(e.message);}return;}
+  if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
     const x = Math.max(0, Math.min(engine.width - 1, Math.floor(point.x))), y = Math.max(0, Math.min(engine.height - 1, Math.floor(point.y)));
     const composite=makeCanvas(engine.width,engine.height);engine.paint(composite.getContext('2d'));const pixel = composite.getContext('2d').getImageData(x, y, 1, 1).data;
@@ -181,24 +206,30 @@ $('painting').addEventListener('pointerdown', event => {
   if (tool === 'text') { styledText.open(point); return; }
   if(tool==='fractal'){creative.open();return;}
   try {
-    if (tool === 'pen' && !$('paint-on-layer').checked) {
-      const layer = engine.active;
-      const fullPaper = layer.visible && !layer.frames?.length && !layer.sourceId && layer.width === engine.width && layer.height === engine.height && layer.scale === 1 && layer.rotation === 0 && layer.x === engine.width / 2 && layer.y === engine.height / 2;
-      if (!fullPaper) { engine.addLayer('我的画笔'); toast('给画笔加了一层纸，小伙伴还可以自由移动'); }
-    }
+    if ((tool === 'pen' && !$('paint-on-layer').checked) || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'仙女袋笔迹':'我的画笔');
     engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
-    if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); }
+    if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });
 $('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
-$('painting').addEventListener('pointermove', event => { if (event.pointerId !== pointerId) return; const samples = event.getCoalescedEvents?.(); for (const sample of samples?.length ? samples : [event]) engine.update(engine.point(sample)); });
-function finishPointer(event) { if (event.pointerId !== pointerId) return; engine.end(event.type === 'pointercancel'); pointerId = undefined; }
-$('painting').addEventListener('pointerup', finishPointer); $('painting').addEventListener('pointercancel', finishPointer);
-$('painting').addEventListener('lostpointercapture', event => { if (event.pointerId === pointerId) { engine.end(); pointerId = undefined; } });
+function previewStamp(point) {
+  hoverPoint=point;engine.stampPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;engine.render();
+}
+$('size').addEventListener('input',()=>previewStamp(hoverPoint));
+$('painting').addEventListener('pointermove', event => {
+  const point=engine.point(event);previewStamp(point);
+  if (event.pointerId !== pointerId) return;
+  const samples=event.getCoalescedEvents?.();
+  for(const sample of samples?.length?samples:[event])engine.update(engine.point(sample));
+});
+$('painting').addEventListener('pointerleave',()=>previewStamp(null));
+function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);engine.end(event.type==='pointercancel');pointerId=undefined; }
+$('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
+window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;previewStamp(null);});
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
-  if (event.key === 'Escape') { engine.finishPath(true);engine.end(true); pointerId = undefined; return; }
+  if (event.key === 'Escape') { clearInterval(stampTimer); previewStamp(null); engine.finishPath(true);engine.end(true); pointerId = undefined; return; }
   if (event.metaKey || event.ctrlKey) {
     if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? engine.redo() : engine.undo(); }
     if (event.key.toLowerCase() === 'y') { event.preventDefault(); engine.redo(); }
@@ -222,6 +253,6 @@ async function initialize() {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.1.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.2.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
