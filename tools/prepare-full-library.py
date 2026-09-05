@@ -59,13 +59,13 @@ for directory,label in [('role0','陆地伙伴'),('role1','海洋伙伴'),('role
         n=int(Path(src).stem);add(f'{directory}-{n}',f'{label} {n+1}','sticker',src,src[:-4]+'a.bmp')
 for category,label,pattern in [('frame','相框',r'glib/frame/w\d+\.jpg'),('paper','纸样',r'glib/paper/w\d+\.bmp'),('texture','纸纹',r'glib/tex/draw/tex\d+\.bmp'),('file-texture','填充纹理',r'glib/tex/file/texi?\d+\.(bmp|jpg)')]:
     for src in sorted((p for p in INDEX if re.fullmatch(pattern,p)),key=lambda p:(natural(p),p)):
-        n=int(re.search(r'\d+',Path(src).stem)[0]);add(f'{category}-{n}',f'{label} {n+1}','texture' if category=='file-texture' else category,src,src[:-4]+'a.bmp' if category=='frame' else None)
+        n=int(re.search(r'\d+',Path(src).stem)[0]);key=f'{category}-picture-{n}' if category=='file-texture' and Path(src).stem.startswith('texi') else f'{category}-{n}';add(key,f'{label} {n+1}'+(' · 彩色' if '-picture-' in key else ''),'texture' if category=='file-texture' else category,src,src[:-4]+'a.bmp' if category=='frame' else None)
 animations={}
 for src in sorted((p for p in INDEX if re.fullmatch(r'glib/lib/anim[0-4]/\d+\$\d+\.jpg',p)),key=lambda p:(natural(p),p)):
     if src=='glib/lib/anim3/0004$03.jpg':continue
     n=(int(src.split('/')[-2][4:]),int(Path(src).stem.split('$')[0]));animations.setdefault(n,[]).append(src)
 for n,paths in animations.items():
-    group,number=n;key=f'animation-{number}' if group==0 else f'animation-{group}-{number}';item=add(key,f'{["动物动画","人物动画","趣味动画","自然动画","奇妙动画"][group]} {number+1}','animation',paths[0],paths[0][:-4]+'a.bmp')
+    group,number=n;key=f'animation-{number}' if group==0 else f'animation-{group}-{number}';item=add(key,f'{["陆地动物动画","海洋动物动画","飞行伙伴动画","人物动画","其他动画"][group]} {number+1}','animation',paths[0],paths[0][:-4]+'a.bmp')
     item['frames']=[save(f'{key}-{i}',image(p,p[:-4]+'a.bmp'),'animation',sources_for(p),repair=repair_for(p)) for i,p in enumerate(paths)]
     item.update(frameDuration=160,timingStatus='legacy frame order preserved; timing unverified')
 variant=add('legacy-sailboat-variant','帆船 · 原版备用图','sticker','glib/lib/anim3/0004$03.jpg','glib/lib/anim3/000$03a.bmp');variant['note']='Misnamed extra 0004$03 image matches 000 sailboat dimensions; kept separately from animation 004.'
