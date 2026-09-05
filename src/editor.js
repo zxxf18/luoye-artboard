@@ -32,10 +32,10 @@ export class EditorEngine extends PaintEngine {
   selectAll(){this.setSelection(new Uint8ClampedArray(this.width*this.height).fill(255));}
   invertSelection(){this.setSelection(this.selection?this.selection.map(v=>255-v):new Uint8ClampedArray(this.width*this.height).fill(255));}
   layerOnPaper(layer) {
-    const c=makeCanvas(this.width,this.height),ctx=c.getContext('2d');ctx.save();ctx.globalAlpha=layer.opacity;this.transform(ctx,layer);ctx.drawImage(layer.canvas,0,0);ctx.restore();return c;
+    const c=makeCanvas(this.width,this.height),ctx=c.getContext('2d');ctx.save();ctx.globalAlpha=layer.opacity;this.transform(ctx,layer);this.drawLayer(ctx,layer);ctx.restore();return c;
   }
   magicSelect(point,tolerance=20,operation='replace') {
-    const c=this.layerOnPaper(this.active),data=c.getContext('2d').getImageData(0,0,this.width,this.height).data;
+    const c=this.paperMode?makeCanvas(this.width,this.height):this.layerOnPaper(this.active);if(this.paperMode)this.paint(c.getContext('2d'));const data=c.getContext('2d').getImageData(0,0,this.width,this.height).data;
     this.setSelection(regionMask(data,this.width,this.height,point.x,point.y,tolerance),operation);
   }
   layerMask(layer) {
@@ -63,32 +63,53 @@ export class EditorEngine extends PaintEngine {
     const after=new ImageData(blendMasked(before.data,candidate,this.layerMask(layer)),layer.width,layer.height);
     ctx.putImageData(after,0,0);this.history.push({bytes:before.data.byteLength*2,undo:()=>ctx.putImageData(before,0,0),redo:()=>ctx.putImageData(after,0,0)});this.changed();
   }
+  mutatePaper(callback){
+    const visible=this.layers.filter(l=>l.visible&&l.opacity>0),before=this.layers.slice();
+    if(visible.length*this.width*this.height+before.filter(l=>!visible.includes(l)).reduce((n,l)=>n+this.layerPixels(l),0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用这个效果。');
+    const after=before.map(layer=>{
+      if(!visible.includes(layer))return layer;
+      const c=makeCanvas(this.width,this.height),ctx=c.getContext('2d');ctx.save();this.transform(ctx,layer);this.drawLayer(ctx,layer);ctx.restore();
+      const pixels=ctx.getImageData(0,0,this.width,this.height),candidate=callback(new Uint8ClampedArray(pixels.data),this.width,this.height);
+      ctx.putImageData(new ImageData(blendMasked(pixels.data,candidate,this.selection),this.width,this.height),0,0);
+      const next={...layer,canvas:c,width:this.width,height:this.height,x:this.width/2,y:this.height/2,scale:1,rotation:0};
+      for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip','eraseMask'])delete next[key];return next;
+    });
+    if(after.reduce((n,l)=>n+this.layerPixels(l),0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用这个效果。');
+    this.layers=after;this.history.push({bytes:[...before,...after].reduce((n,l)=>n+this.layerPixels(l)*4,0),undo:()=>{this.layers=before;},redo:()=>{this.layers=after;}});this.changed();
+  }
   clearPixels(){this.mutatePixels(data=>{for(let i=3;i<data.length;i+=4)data[i]=0;return data;});}
-  applyDarkroom(kind,options={}){this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
+  applyDarkroom(kind,options={}){if(this.paperMode)return this.mutatePaper((data,w,h)=>applyEffect(data,w,h,kind,options));this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
   effectPreview(kind,options={}){
-    this.assertRaster();const layer=this.active,fit=Math.min(1,320/Math.max(layer.width,layer.height)),c=makeCanvas(Math.max(1,Math.round(layer.width*fit)),Math.max(1,Math.round(layer.height*fit))),ctx=c.getContext('2d');ctx.drawImage(layer.canvas,0,0,c.width,c.height);
+    if(!this.paperMode)this.assertRaster();const layer=this.paperMode?{canvas:makeCanvas(this.width,this.height),width:this.width,height:this.height}:this.active;if(this.paperMode)this.paint(layer.canvas.getContext('2d'));const fit=Math.min(1,320/Math.max(layer.width,layer.height)),c=makeCanvas(Math.max(1,Math.round(layer.width*fit)),Math.max(1,Math.round(layer.height*fit))),ctx=c.getContext('2d');ctx.drawImage(layer.canvas,0,0,c.width,c.height);
     const pixels=ctx.getImageData(0,0,c.width,c.height);pixels.data.set(applyEffect(pixels.data,c.width,c.height,kind,options));ctx.putImageData(pixels,0,0);return c;
   }
   copySelection(cut=false){
-    this.assertRaster();const bounds=this.selection?this.selectionBounds:{x:0,y:0,width:this.width,height:this.height};if(!bounds)throw new Error('选区是空的。');
-    const paper=this.layerOnPaper(this.active),ctx=paper.getContext('2d');if(this.selectionCanvas){ctx.globalCompositeOperation='destination-in';ctx.drawImage(this.selectionCanvas,0,0);}
-    const c=makeCanvas(bounds.width,bounds.height);c.getContext('2d').drawImage(paper,bounds.x,bounds.y,bounds.width,bounds.height,0,0,bounds.width,bounds.height);this.clipboard={canvas:c,bounds};if(cut)this.clearPixels();return this.clipboard;
+    if(!this.paperMode)this.assertRaster();const bounds=this.selection?this.selectionBounds:{x:0,y:0,width:this.width,height:this.height};if(!bounds)throw new Error('选区是空的。');
+    const paper=this.paperMode?makeCanvas(this.width,this.height):this.layerOnPaper(this.active),ctx=paper.getContext('2d');if(this.paperMode)this.paint(ctx);if(this.selectionCanvas){ctx.globalCompositeOperation='destination-in';ctx.drawImage(this.selectionCanvas,0,0);}
+    const c=makeCanvas(bounds.width,bounds.height);c.getContext('2d').drawImage(paper,bounds.x,bounds.y,bounds.width,bounds.height,0,0,bounds.width,bounds.height);this.clipboard={canvas:c,bounds};if(cut){if(this.paperMode){this.begin({x:bounds.x,y:bounds.y},{tool:'eraser',eraserMode:'rect',size:12,opacity:1});this.update({x:bounds.x+bounds.width,y:bounds.y+bounds.height});this.end();}else this.clearPixels();}return this.clipboard;
   }
   paste(){if(!this.clipboard)throw new Error('请先复制或剪切一块画面。');const {canvas,bounds}=this.clipboard,c=makeCanvas(canvas.width,canvas.height);c.getContext('2d').drawImage(canvas,0,0);const layer=this.addLayer('粘贴的画',c,true,{x:bounds.x+bounds.width/2,y:bounds.y+bounds.height/2});this.clearSelection();return layer;}
   duplicateLayer(){const layer=this.active,c=makeCanvas(layer.width,layer.height);c.getContext('2d').drawImage(layer.canvas,0,0);const {id,canvas,role,...props}=layer;if(role==='background')delete props.sourceId;return this.addLayer(layer.name.slice(0,116)+' 副本',c,true,{...props,name:layer.name.slice(0,116)+' 副本'});}
-  flipLayer(axis){this.assertRaster();if(this.selection)throw new Error('请先剪切并粘贴选区为独立层，再翻转。');const layer=this.active,c=makeCanvas(layer.width,layer.height),ctx=c.getContext('2d');ctx.translate(axis==='x'?layer.width:0,axis==='y'?layer.height:0);ctx.scale(axis==='x'?-1:1,axis==='y'?-1:1);ctx.drawImage(layer.canvas,0,0);const after=ctx.getImageData(0,0,c.width,c.height).data;this.mutatePixels(()=>after);}
+  flipLayer(axis){
+    this.assertRaster();if(this.selection)throw new Error('请先剪切并粘贴选区为独立层，再翻转。');
+    const layer=this.active,before={canvas:layer.canvas,eraseMask:layer.eraseMask},c=makeCanvas(layer.width,layer.height),ctx=c.getContext('2d');
+    ctx.translate(axis==='x'?layer.width:0,axis==='y'?layer.height:0);ctx.scale(axis==='x'?-1:1,axis==='y'?-1:1);this.drawLayer(ctx,layer);
+    const apply=()=>{layer.canvas=c;delete layer.eraseMask;};apply();this.history.push({bytes:layer.width*layer.height*8,undo:()=>Object.assign(layer,before),redo:apply});this.changed();
+  }
+
   mergeToBottom(){
     const layer=this.active,bottom=this.layers[0];if(layer===bottom)throw new Error('当前已经是最底层。');if(!layer.visible||!bottom.visible)throw new Error('合并前请先显示当前层和最底层。');if(layer.frames?.length||bottom.frames?.length||layer.sprites||bottom.sprites)throw new Error('合并前请先将动画层定格。');
-    const before=this.layers.slice(),activeId=this.activeId,c=this.layerOnPaper(bottom),ctx=c.getContext('2d');ctx.globalAlpha=layer.opacity;this.transform(ctx,layer);ctx.drawImage(layer.canvas,0,0);
+    const before=this.layers.slice(),activeId=this.activeId,c=this.layerOnPaper(bottom),ctx=c.getContext('2d');ctx.globalAlpha=layer.opacity;this.transform(ctx,layer);this.drawLayer(ctx,layer);
     const merged={...bottom,canvas:c,width:this.width,height:this.height,x:this.width/2,y:this.height/2,scale:1,rotation:0,opacity:1,visible:true};
+    delete merged.eraseMask;
     const after=[merged,...this.layers.slice(1).filter(l=>l!==layer)];this.layers=after;this.activeId=merged.id;
     this.history.push({bytes:(c.width*c.height+bottom.width*bottom.height+layer.width*layer.height)*4,undo:()=>{this.layers=before;this.activeId=activeId;},redo:()=>{this.layers=after;this.activeId=merged.id;}});this.changed();
   }
   freezeAnimation(){
     const layer=this.active;if(!layer.frames?.length&&!layer.sprites)return;
-    const before={frames:layer.frames,sprites:layer.sprites,spriteGroups:layer.spriteGroups,spriteMask:layer.spriteMask,spriteClip:layer.spriteClip,canvas:layer.canvas};
+    const before={frames:layer.frames,sprites:layer.sprites,spriteGroups:layer.spriteGroups,spriteMask:layer.spriteMask,spriteClip:layer.spriteClip,canvas:layer.canvas,eraseMask:layer.eraseMask};
     const c=makeCanvas(layer.width,layer.height);this.drawLayer(c.getContext('2d'),layer);
-    const freeze=()=>{layer.canvas=c;for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip'])delete layer[key];};
+    const freeze=()=>{layer.canvas=c;for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip','eraseMask'])delete layer[key];};
     freeze();this.history.push({bytes:c.width*c.height*4,undo:()=>Object.assign(layer,before),redo:freeze});this.changed();
   }
   frameIndex(layer){return Math.floor((this.playing?performance.now()-this.animationStart:this.animationTime||0)/layer.frameDuration)%layer.frames.length;}
@@ -116,9 +137,10 @@ export class EditorEngine extends PaintEngine {
   drawShape(ctx,g){const o=g.options,paint=o.fillSource==='texture'&&this.paintTexture?ctx.createPattern(this.paintTexture.canvas,'repeat'):o.color;ctx.strokeStyle=paint;ctx.fillStyle=paint;ctx.lineWidth=o.size/g.layer.scale;ctx.globalAlpha*=o.opacity;ctx.lineCap='round';if(o.dashed)ctx.setLineDash([ctx.lineWidth*3,ctx.lineWidth*2]);const path=shapePath(o.tool,g.start,g.end,g.points);if(o.filled)ctx.fill(path);else ctx.stroke(path);}
   fillAt(point,options,end=point){
     const layer=this.active,start=toLayerPoint(point,layer),finish=toLayerPoint(end,layer),mode=options.fillMode||'region';
+    const composite=this.paperMode?makeCanvas(this.width,this.height):null;if(composite)this.paint(composite.getContext('2d'));
     const color=rgb(options.color||'#285b49'),background=rgb(options.background||'#ffffff'),alpha=Math.round((options.opacity??1)*255);
     this.mutatePixels((data,w,h)=>{
-      const selected=mode.startsWith('region')?regionMask(data,w,h,start.x,start.y,options.tolerance??20):null;
+      const selected=mode.startsWith('region')?regionMask(composite?composite.getContext('2d').getImageData(0,0,w,h).data:data,w,h,start.x,start.y,options.tolerance??20):null;
       const dx=finish.x-start.x,dy=finish.y-start.y,length=dx*dx+dy*dy;
       for(let y=0;y<h;y++)for(let x=0;x<w;x++){
         const n=y*w+x;if(selected&&!selected[n])continue;

@@ -48,7 +48,7 @@ export class History {
 
 export function validateProject(value) {
   const fail = (message) => { throw new Error(message); };
-  if (!value || value.format !== 'jshw-studio' || value.version !== 1) fail('不是支持的画王工程，或版本过新。');
+  if (!value || value.format !== 'jshw-studio' || ![1,2].includes(value.version)) fail('不是支持的画王工程，或版本过新。');
   const size = (w, h) => Number.isInteger(w) && Number.isInteger(h) && w > 0 && h > 0 && w <= 4096 && h <= 4096 && w * h <= 8_388_608;
   if (!size(value.width, value.height)) fail('画布尺寸超出当前版本支持范围。');
   if (typeof value.title !== 'string' || value.title.length > 120) fail('作品名称无效。');
@@ -75,6 +75,7 @@ export function validateProject(value) {
     if (layer.role !== undefined && layer.role !== 'background') fail('图层类型无效。');
     png(layer.image, layer.width, layer.height);
     bytes += layer.image.length;
+    if(layer.eraseMask!==undefined){png(layer.eraseMask,layer.width,layer.height);bytes+=layer.eraseMask.length;pixels+=layer.width*layer.height;}
     if (layer.frames !== undefined) {
       if (!Array.isArray(layer.frames) || layer.frames.length > 60 || !Number.isFinite(layer.frameDuration) || layer.frameDuration < 30 || layer.frameDuration > 10000) fail('动画参数无效。');
       for (const frame of layer.frames) {

@@ -32,7 +32,7 @@ export class PaintEngine {
   get active() { return this.layers.find(l => l.id === this.activeId); }
   changed() { this.render(); this.onChange?.(); }
   layerPixels(layer) {
-    return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
+    return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteMask?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
     const existingPixels=this.layers.reduce((sum,layer)=>sum+this.layerPixels(layer),0);
@@ -84,7 +84,8 @@ export class PaintEngine {
     ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180); ctx.scale(layer.scale, layer.scale);
     ctx.translate(-layer.width / 2, -layer.height / 2);
   }
-  drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0) {
+  drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0, applyMask=true) {
+    if(applyMask&&layer.eraseMask){const c=makeCanvas(layer.width,layer.height),target=c.getContext('2d');this.drawLayer(target,layer,time,false);target.globalCompositeOperation='destination-in';target.drawImage(layer.eraseMask,0,0);ctx.drawImage(c,0,0);return;}
     if(layer.sprites){
       let target=ctx,clipCanvas;
       if(layer.spriteClip){clipCanvas=makeCanvas(layer.width,layer.height);target=clipCanvas.getContext('2d');}
@@ -252,7 +253,7 @@ export class PaintEngine {
   }
   ensureDrawingLayer(name = '我的画笔') {
     const layer = this.active;
-    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.sourceId && layer.role !== 'background' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
+    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.eraseMask && !layer.sourceId && layer.role !== 'background' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
     if (!fullPaper || layer !== this.layers.at(-1)) this.addLayer(name);
     return this.active;
   }
@@ -260,6 +261,7 @@ export class PaintEngine {
     const layers = this.layers.map(layer => {
       const { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role } = layer;
       const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role, image: layer.canvas.toDataURL('image/png') };
+      if(layer.eraseMask)item.eraseMask=layer.eraseMask.toDataURL('image/png');
       if (layer.frames?.length) {
         item.frames = layer.frames.map(frame => { const c = makeCanvas(width, height); c.getContext('2d').drawImage(frame, 0, 0, width, height); return c.toDataURL('image/png'); });
         item.frameDuration = layer.frameDuration;
@@ -271,7 +273,7 @@ export class PaintEngine {
       return item;
     });
     // Never write a document that our own importer would refuse to reopen.
-    return validateProject({ format: 'jshw-studio', version: 1, title, width: this.width, height: this.height, layers });
+    return validateProject({ format: 'jshw-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: this.width, height: this.height, layers });
   }
   async restore(raw) {
     const value = validateProject(raw), layers = [];
@@ -282,6 +284,7 @@ export class PaintEngine {
       const canvas = makeCanvas(info.width, info.height); canvas.getContext('2d').drawImage(image, 0, 0);
       const layer = { ...info, canvas }; delete layer.image;
       if (!layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')) layer.role = 'background';
+      if(info.eraseMask){const mask=await loadImage(info.eraseMask);layer.eraseMask=makeCanvas(info.width,info.height);layer.eraseMask.getContext('2d').drawImage(mask,0,0);}
       if (info.frames) {
         layer.frames = [];
         for (const data of info.frames) { const frame = await loadImage(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }

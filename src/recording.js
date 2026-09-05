@@ -22,7 +22,8 @@ export function validateRecording(raw){
     if(slot.paintTexture)resource(slot.paintTexture);if(slot.paperTexture)resource(slot.paperTexture);
     if(slot.fairyGroups)groups(slot.fairyGroups);
     if(slot.selection)resource(slot.selection);if(slot.stampImages){if(!Array.isArray(slot.stampImages)||slot.stampImages.length>60)throw new Error('印章资源数量无效。');slot.stampImages.forEach(resource);}
-    if(slot.cloneSource&&(!slot.cloneSource.point||!Number.isFinite(slot.cloneSource.point.x)||!Number.isFinite(slot.cloneSource.point.y)||typeof slot.cloneSource.layerId!=='string'))throw new Error('仿制源点无效。');if(!Array.isArray(slot.events)||slot.events.length>5000)throw new Error('录像操作数量无效。');let points=0;
+    if(slot.paperMode!==undefined&&typeof slot.paperMode!=='boolean')throw new Error('录像绘画范围无效。');if(slot.cloneSource?.image)resource(slot.cloneSource.image);
+    if(slot.cloneSource&&(!slot.cloneSource.point||!Number.isFinite(slot.cloneSource.point.x)||!Number.isFinite(slot.cloneSource.point.y)||(!slot.cloneSource.image&&typeof slot.cloneSource.layerId!=='string')))throw new Error('仿制源点无效。');if(!Array.isArray(slot.events)||slot.events.length>5000)throw new Error('录像操作数量无效。');let points=0;
     for(const event of slot.events){if(!event||!COMMANDS.has(event.method)||!Array.isArray(event.args)||typeof event.activeId!=='string'||!Number.isFinite(event.time)||event.time<0)throw new Error('录像操作无效。');bounded(event.args);if(event.resultId!==undefined&&(typeof event.resultId!=='string'||event.resultId.length>256))throw new Error('录像图层标识无效。');
       if(event.method==='stroke'){const [path,o]=event.args;if(!Array.isArray(path)||!path.length||!o||typeof o!=='object')throw new Error('笔触无效。');points+=path.length;if(path.length>20000)throw new Error('单笔采样点过多。');if(o.size!==undefined&&(!Number.isFinite(o.size)||o.size<.1||o.size>1024))throw new Error('录像笔尖尺寸无效。');if(o.opacity!==undefined&&(!Number.isFinite(o.opacity)||o.opacity<0||o.opacity>1))throw new Error('录像透明度无效。');if(o.color!==undefined&&!/^#[a-f0-9]{6}$/i.test(o.color))throw new Error('录像颜色无效。');for(const p of path)if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>100000||Math.abs(p.y)>100000)throw new Error('笔触坐标无效。');if(!['pen','eraser','fill','move','line','rect','ellipse','triangle','pentagon','hexagon','roundrect','star','stamp','clone','select','magic','warp','board-filter'].includes(o.tool))throw new Error('笔触工具无效。');}
       if(['addLayer','replaceBackground'].includes(event.method)){
@@ -50,12 +51,12 @@ async function imageFromRecord(item){
 export class Recorder {
   constructor(engine,onState=()=>{}){this.engine=engine;this.onState=onState;this.slots=Array(5).fill(null);this.slot=0;this.recording=false;this.depth=0;this.pending=null;this.attach();}
   async start(index,title){
-    this.stop();this.engine.finishPath(true);const base=await this.engine.serialize(title);this.slot=index;this.slots[index]={base,events:[]};this.began=performance.now();this.recording=true;this.bytes=JSON.stringify(base).length;this.points=0;
+    this.stop();this.engine.finishPath(true);const base=await this.engine.serialize(title);this.slot=index;this.slots[index]={base,events:[],paperMode:!!this.engine.paperMode};this.began=performance.now();this.recording=true;this.bytes=JSON.stringify(base).length;this.points=0;
     // Selection and tool sources are document-adjacent state and must be included at the boundary.
     // A PNG mask preserves non-rectangular selections without serializing millions of array entries.
     this.slots[index].paintTexture=this.engine.paintTexture?imageRecord(this.engine.paintTexture.canvas):null;this.slots[index].paperTexture=this.engine.paperTexture?imageRecord(this.engine.paperTexture.canvas):null;
     this.slots[index].selection=this.engine.selectionCanvas?imageRecord(this.engine.selectionCanvas):null;
-    this.slots[index].cloneSource=this.engine.cloneSource?structuredClone(this.engine.cloneSource):null;
+    this.slots[index].cloneSource=this.engine.cloneSource?{point:{...this.engine.cloneSource.point},layerId:this.engine.cloneSource.layerId,image:this.engine.cloneSource.canvas?imageRecord(this.engine.cloneSource.canvas):undefined}:null;
     this.slots[index].fairyGroups=this.engine.fairyGroups?.map(group=>({...group,frames:group.frames.map(imageRecord)}))||null;this.slots[index].fairyMode=this.engine.fairyMode||null;
     this.slots[index].stampImages=this.engine.stampImages?.map(imageRecord)||[];
     this.bytes=JSON.stringify(this.slots[index]).length;this.onState();
@@ -70,7 +71,7 @@ export class Recorder {
   attach(){
     const engine=this.engine,rec=this;
     const begin=engine.begin.bind(engine),update=engine.update.bind(engine),end=engine.end.bind(engine);
-    engine.begin=function(point,options){const o={...options,seed:options.seed??(Date.now()>>>0)};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
+    engine.begin=function(point,options){const o={...options,seed:options.seed??(Date.now()>>>0)};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
     engine.update=function(point){if(rec.pending){if(rec.pending.args[0].length>=20000){rec.pending=null;rec.recording=false;rec.onState('单笔超过采样上限，本段录制已结束。');}else rec.pending.args[0].push({...point});}rec.depth++;try{return update(point);}finally{rec.depth--;}};
     const repeat=engine.repeatStamp.bind(engine);
     engine.repeatStamp=function(force=false){rec.depth++;let result;try{result=repeat(force);}finally{rec.depth--;}if(result&&rec.pending){const point=rec.pending.args[0].at(-1);if(rec.pending.args[0].length<20000)rec.pending.args[0].push({...point,repeat:true});else rec.stop('单笔超过采样上限，本段录制已结束。');}return result;};
@@ -102,10 +103,10 @@ export class Recorder {
     validateRecording({format:'jshw-recording',version:1,slots:this.slots});
     const renderer=new this.engine.constructor(canvas,()=>{});clearInterval(renderer.animationTimer);cancelAnimationFrame(renderer.renderFrame);clearTimeout(renderer.renderDeadline);renderer.drawQueued=false;renderer.render=()=>{};
     try{
-      await renderer.restore(slot.base);
+      await renderer.restore(slot.base);renderer.paperMode=!!slot.paperMode;
       if(slot.selection){const image=await imageFromRecord(slot.selection),data=image.getContext('2d').getImageData(0,0,image.width,image.height).data;if(image.width!==renderer.width||image.height!==renderer.height)throw new Error('录像选区尺寸无效。');const mask=new Uint8ClampedArray(renderer.width*renderer.height);for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3];renderer.setSelection(mask);}
       renderer.setPaintTexture(slot.paintTexture?await imageFromRecord(slot.paintTexture):null);renderer.setPaperTexture(slot.paperTexture?await imageFromRecord(slot.paperTexture):null);
-      renderer.cloneSource=slot.cloneSource||null;if(slot.stampImages)renderer.setStampImages(await Promise.all(slot.stampImages.map(imageFromRecord)));
+      renderer.cloneSource=slot.cloneSource?{...slot.cloneSource,canvas:slot.cloneSource.image?await imageFromRecord(slot.cloneSource.image):undefined}:null;if(slot.stampImages)renderer.setStampImages(await Promise.all(slot.stampImages.map(imageFromRecord)));
       if(slot.fairyGroups)renderer.setFairyGroups(await Promise.all(slot.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))}))),slot.fairyMode);
       const limit=Math.min(count,slot.events.length);let previous=0;
       for(let i=0;i<limit;i++){
