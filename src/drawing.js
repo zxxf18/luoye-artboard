@@ -63,7 +63,7 @@ export class DrawingEngine extends EditorEngine {
       const group=this.fairyGroups?.[index%this.fairyGroups.length];
       const image=group?group.frames[Math.floor(group.frames.length/2)]:this.stampImages[index%this.stampImages.length],scale=size/Math.max(image.width,image.height);
       ctx.save();ctx.globalAlpha=.6;ctx.drawImage(image,point.x-image.width*scale/2,point.y-image.height*scale/2,image.width*scale,image.height*scale);
-      ctx.globalAlpha=1;ctx.strokeStyle='#a55b36';ctx.lineWidth=1.5*this.width/Math.max(1,this.canvas.clientWidth);ctx.setLineDash([5,4]);ctx.strokeRect(point.x-image.width*scale/2,point.y-image.height*scale/2,image.width*scale,image.height*scale);ctx.restore();
+      ctx.restore();
     }
     if(this.path){const p=this.path;ctx.save();if(!p.select)this.transform(ctx,p.layer);ctx.strokeStyle=p.options.color||'#285b49';ctx.lineWidth=2;ctx.stroke(shapePath(p.options.tool,p.points[0],p.points.at(-1),p.points));ctx.setLineDash([5,4]);ctx.beginPath();p.points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.stroke();for(const v of p.points){ctx.fillStyle='#ffffff';ctx.fillRect(v.x-4,v.y-4,8,8);ctx.strokeRect(v.x-4,v.y-4,8,8);}ctx.restore();}
     const g=this.gesture;if(g?.kind==='paper-erase'&&g.options.eraserMode==='rect'){ctx.save();ctx.strokeStyle='#9c684b';ctx.lineWidth=2*this.width/Math.max(1,this.canvas.clientWidth);ctx.setLineDash([6,4]);ctx.strokeRect(g.start.x,g.start.y,g.end.x-g.start.x,g.end.y-g.start.y);ctx.restore();}

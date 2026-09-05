@@ -226,6 +226,15 @@ export class PaintEngine {
     this.gesture = null; this.changed();
   }
   async addAsset(asset) {
+    if(asset.category==='frame') {
+      const image=await loadImage(asset.src),canvas=makeCanvas(this.width,this.height),ctx=canvas.getContext('2d');
+      // Nine-slice fitting keeps corner decorations round while all four edges reach the paper.
+      const inset=Math.min(image.width,image.height)*.28,corner=Math.min(this.width,this.height)*.28;
+      const sx=[0,inset,image.width-inset,image.width],sy=[0,inset,image.height-inset,image.height];
+      const dx=[0,corner,this.width-corner,this.width],dy=[0,corner,this.height-corner,this.height];
+      for(let y=0;y<3;y++)for(let x=0;x<3;x++)ctx.drawImage(image,sx[x],sy[y],sx[x+1]-sx[x],sy[y+1]-sy[y],dx[x],dy[y],dx[x+1]-dx[x],dy[y+1]-dy[y]);
+      return this.addLayer(asset.name,canvas,true,{sourceId:asset.id});
+    }
     const image = await loadImage(asset.src), canvas = makeCanvas(image.width, image.height);
     canvas.getContext('2d').drawImage(image, 0, 0);
     const full = ['background', 'frame', 'paper', 'texture'].includes(asset.category);
