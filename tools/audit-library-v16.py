@@ -22,7 +22,7 @@ for item in catalog:
         if transparent and not (lo==0 and hi>=250):failures.append({'id':item['id'],'reason':f'alpha range {lo}..{hi}'})
         if not visible:failures.append({'id':item['id'],'reason':'empty image'})
         if item['category']=='background' and (im.width<1600 or abs(im.width/im.height-16/9)>.02):failures.append({'id':item['id'],'reason':f'background dimensions {im.size}'})
-        if max(im.size)<900:failures.append({'id':item['id'],'reason':f'master too small {im.size}'})
+        if args.masters and max(im.size)<900:failures.append({'id':item['id'],'reason':f'master too small {im.size}'})
 for digest,ids in hashes.items():
     if len(ids)>1:failures.append({'ids':ids,'reason':'byte-identical art reused across different entries'})
 report={'scope':'masters' if args.masters else 'runtime','checked':len(records),'failures':failures,'assets':records}

@@ -50,6 +50,10 @@ if fairy.exists():
             item['originalSrc']=item['src'];item['originalDimensions']=[item['width'],item['height']]
             item['originalFairyGroups']=item['fairyGroups']
             item.update(replacements[item['id']])
+preschool=out/'library-v16/catalog.json'
+if preschool.exists():
+    replacements={item['id']:item for item in json.loads(preschool.read_text())}
+    assets=[replacements.get(item['id'],item) for item in assets]
 (out/'catalog.json').write_text(json.dumps(assets,ensure_ascii=False,indent=2)+'\n')
 (out/'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets,ensure_ascii=False)+';\n')
 print(json.dumps({'entries':len(assets),'original':manifest['counts']},ensure_ascii=False))
