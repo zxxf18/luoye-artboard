@@ -18,7 +18,7 @@ for(const [pkg,version] of [['meltysynth','2.4.1'],['naudio','2.2.1'],['microsof
  const dir=path.join(root,'build/nuget',pkg,version);const names=await import('node:fs/promises').then(m=>m.readdir(dir));
  for(const name of names.filter(n=>/licen[sc]e|notice/i.test(n)))await cp(path.join(dir,name),path.join(output,'licenses',pkg+'-'+name));
 }
-const checks={version:'1.5.0',target:'win-x64',selfContained:true,windowsRuntimeTested:false,files:{}};
+const checks={version:'1.6.0',target:'win-x64',selfContained:true,windowsRuntimeTested:false,files:{}};
 for(const name of ['落叶画板.exe','WebView2Loader.dll','MicrosoftEdgeWebView2RuntimeInstallerX64.exe','audio/GeneralUser-GS.sf2']){const bytes=await readFile(path.join(output,name));checks.files[name]={bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};}
 await writeFile(path.join(output,'build-manifest.json'),JSON.stringify(checks,null,2));
 await writeFile(path.join(root,'design/evidence/windows-build.json'),JSON.stringify(checks,null,2));
