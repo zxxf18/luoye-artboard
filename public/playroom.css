@@ -207,7 +207,7 @@
 
 /* v1.6: keep the paper dominant at 1080p while preserving 44px child targets. */
 .playroom{--header:clamp(64px,6.4dvh,70px)}
-.playroom .app-header{padding:5px 12px;gap:8px}
+.playroom .app-header{height:var(--header);padding:5px 12px;gap:8px}
 .playroom .brand>.playful-icon{width:46px;height:46px}
 .playroom .brand strong{font-size:calc(19px*var(--u))}
 .playroom .brand small{font-size:11px}
