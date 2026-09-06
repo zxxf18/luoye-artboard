@@ -39,3 +39,21 @@ test('all 154 fairy packs use new artwork while retaining modes and combination 
    }
  }
 });
+
+test('v1.6 publishes the complete preschool-natural library without changing legacy behavior',()=>{
+ assert.equal(assets.length,1132);
+ assert(assets.every(a=>a.quality==='preschool-natural-v16'),new Set(assets.filter(a=>a.quality!=='preschool-natural-v16').map(a=>a.quality)));
+ for(const a of assets){
+   assert(a.src.startsWith('assets/library-v16/'),a.id);
+   assert(a.thumbnail.startsWith('assets/library-v16/'),a.id);
+ }
+ const transparent=assets.filter(a=>['sticker','animation','fairy','frame'].includes(a.category));
+ assert(transparent.every(a=>a.alphaRequired===true));
+ const backgrounds=assets.filter(a=>a.category==='background');
+ assert(backgrounds.every(a=>a.width>=1600&&Math.abs(a.width/a.height-16/9)<0.02));
+ for(const a of assets.filter(a=>a.category==='animation')){
+   assert(a.frames.length>=8,a.id);
+   assert.equal(new Set(a.frames).size,a.frames.length,a.id);
+   assert(a.frames.every(p=>p.startsWith('assets/library-v16/')),a.id);
+ }
+});
