@@ -14,6 +14,9 @@ for(const [width,height] of [[900,650],[1280,720],[1920,1080],[2560,1440]]){
    doc.querySelector('#display-open').click();doc.querySelector(`[data-ui-size="${size}"]`).click();doc.querySelector('#display-close').click();await pause(150);
    const scale=Number(doc.body.style.getPropertyValue('--u'));assert(scale>previousScale,'大按钮没有变大');previousScale=scale;
    const viewport=doc.querySelector('#viewport'),r=viewport.getBoundingClientRect();assert(r.width>=200&&r.height>=100,'画纸被挤压');
+   const headerRect=doc.querySelector('.app-header').getBoundingClientRect(),dock=doc.querySelector('.tool-dock').getBoundingClientRect();
+   assert(headerRect.height<=72,'顶部操作区过高');
+   assert(dock.height<=Math.min(252,Math.max(186,height*.21)),'底部状态选择区过高');
    for(const id of ['display-open','new','tool-page','tool-settings-open'])assert(inside(doc.getElementById(id),doc.body),'控件超出窗口 '+id);
    const header=[...doc.querySelectorAll('.brand,.header-actions button')];for(let i=1;i<header.length;i++)assert(header[i-1].getBoundingClientRect().right<=header[i].getBoundingClientRect().left+1,'顶部按钮互相覆盖');
    const parameters=doc.querySelector('.classic-parameters');assert(parameters.scrollWidth<=parameters.clientWidth+2,'画笔参数溢出');

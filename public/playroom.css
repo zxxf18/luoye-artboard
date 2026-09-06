@@ -204,3 +204,30 @@
 .playroom .fairy-modes .subtool-card{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:5px 2px;min-height:70px;font-size:12px;min-width:0}
 .playroom .fairy-modes .playful-icon{width:28px;height:28px}
 .playroom .fairy-modes .subtool-card[aria-pressed=true]:after{display:none}
+
+/* v1.6: keep the paper dominant at 1080p while preserving 44px child targets. */
+.playroom{--header:clamp(64px,6.4dvh,70px)}
+.playroom .app-header{padding:5px 12px;gap:8px}
+.playroom .brand>.playful-icon{width:46px;height:46px}
+.playroom .brand strong{font-size:calc(19px*var(--u))}
+.playroom .brand small{font-size:11px}
+.playroom .header-actions{gap:5px}
+.playroom .header-actions button{height:54px;min-width:calc(60px*var(--u));font-size:calc(12px*var(--u));padding:2px 6px}
+.playroom .header-actions button .playful-icon{width:27px;height:27px}
+.playroom .workspace{gap:8px;padding:8px}
+.playroom .studio{gap:5px}
+.playroom .canvas-topbar{min-height:44px;gap:6px}
+.playroom .workspace-tabs{gap:4px}
+.playroom .workspace-tabs button{min-height:44px;padding:3px 8px}
+.playroom .workspace-tabs .playful-icon{width:27px;height:27px}
+.playroom .viewport{padding:8px;border-radius:16px}
+.playroom .canvas-footer{height:20px;font-size:11px}
+.playroom .tool-dock{height:clamp(184px,20dvh,250px);grid-template-rows:52px minmax(0,1fr);gap:4px}
+.playroom .tool-dock .quick-palette{height:52px;padding-block:0}
+.playroom .tool-dock .classic-parameters{padding:4px 8px;gap:3px 8px}
+.playroom .tool-dock .options-bar{gap:8px}
+.playroom .primary-brush-options{gap:clamp(5px,.7vw,14px);padding-bottom:1px}
+.playroom #stroke-buttons button{min-height:44px}
+.playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 64px}
+@media(max-width:1200px){.playroom .tool-dock{height:clamp(184px,20dvh,224px)}.playroom .tool-dock .classic-parameters{grid-template-rows:54px minmax(0,1fr)}}
+@media(max-height:760px){.playroom .canvas-welcome{display:none}.playroom .tool-dock{height:184px}.playroom .tool-dock .asset img{height:42px}}
