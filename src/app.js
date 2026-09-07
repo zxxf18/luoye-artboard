@@ -17,7 +17,7 @@ import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
 
 const $ = id => document.getElementById(id);
-const catalog = window.JSHW_ASSETS || [];
+const catalog = window.LUOYE_ASSETS || [];
 const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 const sessionId=crypto.randomUUID();
@@ -206,7 +206,7 @@ bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
 bind('new', () => { engine.end(); showDialog('new-dialog'); });
 $('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; setTool('pen'); changed(); } }));
-bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(`${title}.jshwx`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
+bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
 $('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()||'我的画')+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
 bind('open', () => $('file-input').click()); bind('import-image', () => $('image-input').click());
@@ -273,7 +273,7 @@ document.addEventListener('keydown', event => {
     if (event.key.toLowerCase() === 'o') { event.preventDefault(); $('open').click(); }
   }
 });
-window.JSHWFlushBeforeClose=async()=>{
+window.LUOYEFlushBeforeClose=async()=>{
   if(busy)throw new Error('请先完成当前操作');
   engine.end();engine.finishPath(true);clearTimeout(saveTimer);
   if(!closeSnapshot||closeSnapshot.revision!==revision){
@@ -286,10 +286,10 @@ window.JSHWFlushBeforeClose=async()=>{
 const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
 closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
-window.JSHWRequestClose=createCloseFlow({
+window.LUOYERequestClose=createCloseFlow({
  hasChanges:()=>revision!==savedRevision||($('title').value.trim()||'我的画')!==savedTitle,
  ask:()=>new Promise(resolve=>{closeDialog.returnValue='cancel';closeDialog.addEventListener('close',()=>resolve(closeDialog.returnValue),{once:true});closeDialog.showModal();}),
- save:()=>window.JSHWFlushBeforeClose(),
+ save:()=>window.LUOYEFlushBeforeClose(),
  discard:async()=>{clearTimeout(saveTimer);await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';}
 });
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
@@ -299,7 +299,7 @@ async function initialize() {
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.3',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.4',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 

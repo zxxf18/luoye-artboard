@@ -5,7 +5,7 @@ import json
 import shutil
 
 root = Path(__file__).resolve().parent.parent
-source = root / 'jshw/res'
+source = root / 'local-only/reference/res'
 target = root / 'public/classic'
 manifest = []
 files = [source / 'desk/back.JPG']

@@ -23,14 +23,14 @@ struct StudioArchive {
         try files.createDirectory(at: root, withIntermediateDirectories: true)
         if files.fileExists(atPath: destination.path) {
             // Compare bytes before acknowledging a retry; never silently replace another snapshot.
-            if try Data(contentsOf: destination.appendingPathComponent("作品.jshwx")) == json,
+            if try Data(contentsOf: destination.appendingPathComponent("作品.luoyex")) == json,
                try Data(contentsOf: destination.appendingPathComponent("作品.png")) == png { return destination }
             throw NSError(domain: "StudioArchive", code: 3, userInfo: [NSLocalizedDescriptionKey: "保存编号重复，但作品内容不同。请重试保存。"])
         }
         let staging = root.appendingPathComponent(".saving-" + UUID().uuidString, isDirectory: true)
         try files.createDirectory(at: staging, withIntermediateDirectories: false)
         defer { try? files.removeItem(at: staging) }
-        try json.write(to: staging.appendingPathComponent("作品.jshwx"), options: .atomic)
+        try json.write(to: staging.appendingPathComponent("作品.luoyex"), options: .atomic)
         try png.write(to: staging.appendingPathComponent("作品.png"), options: .atomic)
         let metadata: [String: Any] = ["title": project["title"] as? String ?? "我的画", "savedAt": ISO8601DateFormatter().string(from: Date()), "sessionId": session, "revision": revision]
         try JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted, .sortedKeys]).write(to: staging.appendingPathComponent("作品信息.json"), options: .atomic)

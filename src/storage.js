@@ -1,15 +1,39 @@
+import { validateProject } from './core.js';
+import { validateRecording } from './recording.js';
 let draftDatabase;
 let draftPreparation;
 async function openDraftDatabase() {
   if (draftDatabase) return draftDatabase;
   draftDatabase = await new Promise((resolve, reject) => {
-    const request = indexedDB.open('jshw-studio', 2);
+    const request = indexedDB.open('luoye-studio', 2);
     request.onupgradeneeded = () => { for(const name of ['drafts','gallery']) if(!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name); };
     request.onsuccess = () => {request.result.onversionchange=()=>{request.result.close();draftDatabase=undefined;};resolve(request.result);};
     request.onblocked=()=>reject(new Error('请先关闭旧版本创作室，再打开画夹。'));
     request.onerror = () => reject(request.error);
   });
+  await migrateCompatibleLibraries(draftDatabase);
   return draftDatabase;
+}
+async function migrateCompatibleLibraries(target){
+ if(typeof indexedDB.databases!=='function')return;
+ for(const info of await indexedDB.databases()){
+  if(!info.name||info.name===target.name||!info.name.endsWith('-studio'))continue;
+  const marker='luoye-imported:'+info.name;
+  if(localStorage.getItem(marker))continue;
+  const source=await new Promise((resolve,reject)=>{const r=indexedDB.open(info.name);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+  try{
+   if(!['gallery','drafts'].every(s=>source.objectStoreNames.contains(s)))continue;
+   const records=[];let recording;
+   for(const name of ['gallery','drafts'])await new Promise((resolve,reject)=>{
+    const tx=source.transaction(name),cursor=tx.objectStore(name).openCursor();
+    cursor.onsuccess=()=>{const c=cursor.result;if(!c)return;try{const item=c.value;if(item?.project){const project=validateProject(item.project);records.push({...item,project,id:'imported:'+info.name+':'+name+':'+c.key,folder:'旧版作品',deletedAt:item.deletedAt??null});}if(name==='drafts'&&c.key==='recording')recording=validateRecording(item);c.continue();}catch(error){tx.abort();reject(error);}};
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('旧作品读取失败'));
+   });
+   await new Promise((resolve,reject)=>{const tx=target.transaction('gallery','readwrite'),store=tx.objectStore('gallery');for(const item of records)store.put(item,item.id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('旧作品迁移失败'));});
+   if(recording)await new Promise((resolve,reject)=>{const tx=target.transaction('drafts','readwrite'),store=tx.objectStore('drafts'),r=store.get('recording');r.onsuccess=()=>{if(!r.result)store.put(recording,'recording');};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('录像迁移失败'));});
+   localStorage.setItem(marker,'1');
+  }finally{source.close();}
+ }
 }
 export async function writeDraft(project) {
   await preserveDraft();

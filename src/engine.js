@@ -12,7 +12,7 @@ export async function loadImage(src) {
   const source=await bundledImageSource(src);
   return new Promise((resolve, reject) => {
     const image = new Image(); image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.JSHW_IMAGE_DATA?.[src] || source;
+    image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.LUOYE_IMAGE_DATA?.[src] || source;
   });
 }
 
@@ -301,7 +301,7 @@ export class PaintEngine {
       return item;
     });
     // Never write a document that our own importer would refuse to reopen.
-    return validateProject({ format: 'jshw-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: this.width, height: this.height, layers });
+    return validateProject({ format: 'luoye-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: this.width, height: this.height, layers });
   }
   async restore(raw) {
     const value = validateProject(raw), layers = [];

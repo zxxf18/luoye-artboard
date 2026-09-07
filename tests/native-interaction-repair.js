@@ -5,7 +5,7 @@ try {
  const visible=e=>!!e&&e.getBoundingClientRect().height>0;
  const chooseTool=tool=>{if(!document.querySelector(`#tools [data-tool="${tool}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${tool}"]`).click();};
  const idle=async()=>{for(let i=0;i<200&&document.body.hasAttribute('aria-busy');i++)await pause(50);if(document.body.hasAttribute('aria-busy'))throw new Error('素材加载超时');await pause(120);};
- const snapshot=()=>window.JSHWFlushBeforeClose();
+ const snapshot=()=>window.LUOYEFlushBeforeClose();
  check(visible($('stroke-buttons'))&&document.querySelectorAll('#stroke-buttons button').length===2,'笔迹在第一屏');
  check(visible($('brush-ratio'))&&!$('brush-ratio').closest('dialog'),'宽窄在第一屏');
  const before=$('viewport').getBoundingClientRect();$('mode-library').click();await pause(250);const after=$('viewport').getBoundingClientRect();

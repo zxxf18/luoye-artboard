@@ -13,7 +13,7 @@ moved=[]
 for name in filter(None,files):
     p=root/name
     unused=name.startswith('public/assets/') and name not in keep and not (p.suffix=='.svg' and '/vectors/' in name)
-    generated=name.startswith('design/') and ('.archive/' in name or p.suffix.lower() in {'.png','.jpg','.jpeg','.jshwx','.jshwr'} or (p.suffix=='.json' and p.is_file() and p.stat().st_size>1024*1024))
+    generated=name.startswith('design/') and ('.archive/' in name or p.suffix.lower() in {'.png','.jpg','.jpeg','.luoyex','.luoyer'} or (p.suffix=='.json' and p.is_file() and p.stat().st_size>1024*1024))
     if not(unused or generated) or not(p.exists() or p.is_symlink()):continue
     dest=root/'local-only/repository-cleanup'/name
     dest.parent.mkdir(parents=True,exist_ok=True)

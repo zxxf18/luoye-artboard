@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 from gir_format import parse_gir
 ROOT=Path(__file__).resolve().parents[1]
-LEGACY=ROOT/'jshw';OUT=ROOT/'build/remaster/original';OUT.mkdir(parents=True,exist_ok=True)
+LEGACY=ROOT/'local-only/reference';OUT=ROOT/'build/remaster/original';OUT.mkdir(parents=True,exist_ok=True)
 INDEX={p.relative_to(LEGACY).as_posix().lower():p for p in LEGACY.rglob('*') if p.is_file()}
 MASK_ALIASES={'glib/lib/anim1/009$04a.bmp':'glib/lib/anim1/009$05a.bmp','glib/lib/anim4/006$05a.bmp':'glib/lib/anim4/006$06a.bmp','glib/lib/anim3/0004$03a.bmp':'glib/lib/anim3/000$03a.bmp'}
 assets=[];jobs={}

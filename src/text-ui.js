@@ -9,7 +9,7 @@ export function mountText({engine,run,toast,getColor,setTool}) {
   const previewColumn=document.createElement('div');previewColumn.className='text-result';const previewPanel=dialog.querySelector('.effect-preview');previewPanel.before(previewColumn);previewColumn.append(previewPanel,el('text-fill').closest('label'),dialog.querySelector('.text-texture-actions'));
   const fonts=['PingFang SC','Songti SC','Kaiti SC','Heiti SC','Arial','Times New Roman','Courier New','Microsoft YaHei','SimSun','KaiTi'];
   function setFonts(values){const selected=el('text-font').value||fonts[0];el('text-font').replaceChildren();for(const font of [...new Set([...fonts,...values])]){const o=document.createElement('option');o.value=font;o.textContent=({'PingFang SC':'圆圆黑体','Songti SC':'整齐宋体','Kaiti SC':'毛笔楷体','Heiti SC':'粗粗黑体','Arial':'简单英文','Times New Roman':'经典英文','Courier New':'打字机'})[font]||font;el('text-font').append(o);}el('text-font').value=selected;}
-  setFonts(window.JSHW_NATIVE_FONTS||[]);window.JSHWSetFonts=values=>setFonts(values);
+  setFonts(window.LUOYE_NATIVE_FONTS||[]);window.LUOYESetFonts=values=>setFonts(values);
   function spec(){return {text:el('text-content').value,size:Number(el('text-size').value),font:el('text-font').value,color:getColor(),background:el('background-color').value,...Object.fromEntries(flags.map(([key])=>[key,el('text-'+key).checked]))};}
   function render(){if(el('text-fill').value==='texture'&&!texture)throw new Error('请先输入一张底纹图片。');return renderStyledText(spec(),el('text-fill').value==='texture'?texture:null);}
   function preview(){try{el('text-preview').replaceChildren(render());el('text-error').textContent='';el('text-add').disabled=false;}catch(e){el('text-error').textContent=e.message;el('text-add').disabled=true;}}

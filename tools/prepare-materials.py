@@ -6,7 +6,7 @@ import json
 root = Path(__file__).resolve().parent.parent
 manifest = []
 for index in range(2):
-    source = next(p for p in (root / 'jshw/glib/tex/draw').iterdir() if p.stem.lower() == f'tex{index}')
+    source = next(p for p in (root / 'local-only/reference/glib/tex/draw').iterdir() if p.stem.lower() == f'tex{index}')
     target = root / f'public/assets/grain-{index}.png'
     image = Image.open(source).convert('RGB')
     image.save(target)

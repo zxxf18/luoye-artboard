@@ -14,6 +14,6 @@ for src in targets:
     dest.parent.mkdir(parents=True,exist_ok=True)
     shutil.move(str(src),str(dest))
     records.append({'from':str(src),'trash':str(dest)})
-report={'moved':records,'preserved':['source and git tags','design/versions','original jshw files','Pictures/落叶画板作品','build/tooling and dependency caches','current build/releases/v1.6.3']}
+report={'moved':records,'preserved':['source and git tags','design/versions','original luoye files','Pictures/落叶画板作品','build/tooling and dependency caches','current build/releases/v1.6.3']}
 (root/'design/versions/v1.6.3/cleanup.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(f'Moved {len(records)} obsolete generated paths to {trash}')

@@ -53,7 +53,7 @@ for(const item of catalog.filter(a=>a.fairyMode==='dynamic'||a.category==='anima
  item.artNote='独立矢量部件绘制；无原版位图取样，动作按物品结构制作。';
 }
 await writeFile(path.join(root,'public/assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
-await writeFile(path.join(root,'public/assets/catalog.js'),'window.JSHW_ASSETS = '+JSON.stringify(catalog)+';\n');
+await writeFile(path.join(root,'public/assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
 await mkdir(path.join(root,'design/versions/v1.6.2/evidence'),{recursive:true});
 await writeFile(path.join(root,'design/versions/v1.6.2/evidence/motion.json'),JSON.stringify({records,characters:characterSpecs,method:'independent vector parts; no bitmap sheet slicing'},null,2)+'\n');
 console.log('Published '+records.length+' magic packs and '+characterSpecs.length+' animated companions.');

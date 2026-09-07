@@ -3,7 +3,7 @@ try{
  const $=id=>document.getElementById(id),pause=ms=>new Promise(r=>setTimeout(r,ms));
  const check=(ok,name)=>{checks.push({passed:!!ok,name});if(!ok)throw Error(name);};
  const idle=async()=>{for(let i=0;i<600&&document.body.hasAttribute('aria-busy');i++)await pause(25);check(!document.body.hasAttribute('aria-busy'),'操作结束后恢复响应');await pause(100);};
- const project=async()=> (await window.JSHWFlushBeforeClose()).project;
+ const project=async()=> (await window.LUOYEFlushBeforeClose()).project;
  const tool=id=>{if(!document.querySelector(`#tools [data-tool="${id}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${id}"]`).click();};
  const library=category=>{if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector(`[data-category="${category}"]`).click();};
  const add=async(category,id)=>{library(category);const b=document.querySelector(`[data-asset-id="${id}"]`);check(b,'素材可选 '+id);b.click();await idle();};
