@@ -104,13 +104,24 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='';
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
 const collectionNames={frame:'经典相框',paper:'经典纸样',texture:'经典纹理',file:'图片纹理',color0:'黑白涂色',color1:'漫画风景',color2:'水彩风景',color3:'油画风景',color4:'矢量风景',role0:'陆地动物',role1:'海洋动物',role2:'飞行伙伴',role3:'花草果蔬',role4:'人物朋友',role5:'生活物品',role6:'交通与其他',illustrated:'新绘插画',redrawn:'童话新相框',coloring:'经典主题新绘',newcoloring:'想象力新主题',anim0:'陆地动物动画',anim1:'海洋动物动画',anim2:'飞行伙伴动画',anim3:'人物动画',anim4:'其他动画'};
+const fairyGroups=[
+  ['','全部小袋','stamp'],['nature','花草自然','forest'],['animal','动物伙伴','friend'],['sky','星空飞舞','spark'],['life','生活小物','palette']
+];
+function fairyGroup(asset){
+  const name=asset.name||'';
+  if(/草|花|叶|枝|果|蘑菇|珊瑚|蒲公英|麦穗|葡萄/.test(name))return 'nature';
+  if(/羊|牛|蟹|狮|蝎|山羊|鱼|鸟|蜂|蝶|虫|龙|马|动物/.test(name))return 'animal';
+  if(/星|太阳|月|烟|泡泡|风车|飘|飞|彩虹/.test(name))return 'sky';
+  return 'life';
+}
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   for (const button of $('categories').children) button.setAttribute('aria-pressed', button.dataset.category === category);
   $('asset-grid').replaceChildren();
   const all = catalog.filter(asset => (category==='coloring'?asset.coloring:asset.category === category&&!asset.coloring) && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
-  const items=all.filter(asset=>!collection||asset.collection===collection);
-  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))];if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key]||'其他图案'):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
+  const items=all.filter(asset=>!collection||(category==='fairy'?fairyGroup(asset)===collection:asset.collection===collection));
+  const surface=category==='fairy'?'fairy':'gallery';document.querySelector('.right-panel').dataset.librarySurface=surface;
+  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();if(category==='fairy'){for(const [key,label,picture] of fairyGroups){const sample=all.find(asset=>!key||fairyGroup(asset)===key),b=document.createElement('button');b.className='subtool-card fairy-group';b.dataset.libraryGroup=key;b.innerHTML=playfulIcon(picture)+'<span>'+label+'</span>';if(sample)b.style.setProperty('--group-preview',`url("${sample.thumbnail}")`);b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}else{const collections=[...new Set(all.map(a=>a.collection))];if(collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key]||'其他图案'):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}}
   const heading=document.querySelector('.classic-left>h2');if(heading&&document.body.classList.contains('library-open'))heading.textContent=category==='fairy'?'仙女袋怎么玩':'找一找图案';
   const pageSize=libraryPageSize(),pages=Math.max(1,Math.ceil(items.length/pageSize));libraryPage=Math.min(page,pages-1);$('asset-grid').style.setProperty('--shelf-columns',pageSize);
   let pager=$('library-pagination');if(!pager){pager=document.createElement('div');pager.id='library-pagination';document.querySelector('.classic-parameters')?.append(pager);}
@@ -145,6 +156,7 @@ function chooseCategory(category,collection='',page=0) {
 let shelfResize;window.addEventListener('resize',()=>{clearTimeout(shelfResize);shelfResize=setTimeout(()=>chooseCategory(libraryCategory,libraryCollection,libraryPage),100);});
 document.addEventListener('uisizechange',()=>{clearTimeout(shelfResize);shelfResize=setTimeout(()=>chooseCategory(libraryCategory,libraryCollection,libraryPage),100);});
 document.addEventListener('fairymodechange',()=>chooseCategory('fairy'));
+document.addEventListener('librarygallery',()=>chooseCategory('sticker'));
 function showDialog(id) { const dialog = $(id); dialog.returnValue = ''; dialog.showModal(); }
 
 for (const element of document.querySelectorAll('[data-icon]')) element.insertAdjacentHTML('afterbegin', icon(element.dataset.icon));
@@ -276,7 +288,7 @@ async function initialize() {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.1',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0) });
 }
 initialize();
 

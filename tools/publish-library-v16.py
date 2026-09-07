@@ -1,7 +1,7 @@
 """Publish v1.6 generated masters while preserving all legacy catalogue behavior."""
 from pathlib import Path
 import argparse, json, math, shutil
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 
 ROOT=Path(__file__).resolve().parents[1]
 PUBLIC=ROOT/'public'
@@ -42,15 +42,69 @@ def save_image(im,path):
 def thumbnail(im,item_id,landscape=False):
     canvas=contain(im,(432,243) if landscape else (288,216),background=(247,241,226,255) if landscape else (0,0,0,0),margin=.03)
     path=THUMBS/f'{item_id}.webp';save_image(canvas,path);return rel(path)
-def motion_frames(base,item_id,limit=640):
-    base=crop_visible(base,.10);usable=round(limit*.82);base.thumbnail((usable,usable),Image.Resampling.LANCZOS)
-    side=max(base.width,base.height);cw=base.width+max(24,side//7);ch=base.height+max(24,side//7)
+FAIRY_MOTION={
+    'girl-2-0':'grow','girl-2-1':'grow','girl-2-2':'rise','girl-2-3':'bubble-rise',
+    'girl-2-4':'grow','girl-2-5':'grow','girl-2-6':'grow','girl-2-7':'grow',
+    'girl-2-8':'grow','girl-2-9':'grow','girl-2-10':'crawl','girl-2-11':'fly',
+    'girl-2-12':'grow','girl-2-13':'spin','girl-2-14':'swim','girl-2-15':'sway',
+    'girl-2-16':'grow','girl-2-17':'bubble-rise','girl-2-18':'grow','girl-2-19':'spin',
+    'girl-2-20':'fall','girl-2-21':'float',
+}
+
+def motion_profile(item):
+    if item.get('id') in FAIRY_MOTION:return FAIRY_MOTION[item['id']]
+    name=item.get('name','')
+    if '灯' in name:return 'lamp-on'
+    if any(word in name for word in ('烟','雾')):return 'rise'
+    if any(word in name for word in ('泡泡','气泡')):return 'bubble-rise'
+    if any(word in name for word in ('蝴蝶','蜜蜂','小鸟','飞')):return 'fly'
+    if any(word in name for word in ('鱼','海豚','鲸')):return 'swim'
+    if any(word in name for word in ('叶','枫')):return 'fall'
+    if any(word in name for word in ('草','花','蘑菇','珊瑚','枝')):return 'grow'
+    return 'pulse'
+
+def alpha_copy(im,opacity=1):
+    result=im.copy()
+    if opacity<1:result.putalpha(result.getchannel('A').point(lambda value:round(value*opacity)))
+    return result
+
+def motion_frames(base,item_id,limit=640,profile='pulse'):
+    # Keep an even transparent safety margin around the action. It prevents a
+    # growing plant or a rotating star from touching a rectangular sprite edge.
+    base=crop_visible(base,.10);usable=round(limit*.66);base.thumbnail((usable,usable),Image.Resampling.LANCZOS)
+    side=max(base.width,base.height);pad=max(30,side//5);cw=base.width+pad*2;ch=base.height+pad*2
     frames=[]
-    transforms=[(0,0,0),(0,-.025,-1.3),(.012,-.045,0),(.02,-.025,1.2),(0,0,0),(-.012,.012,-1),(-.018,0,0),(-.008,-.012,1)]
-    for i,(dx,dy,angle) in enumerate(transforms):
-        rotated=base.rotate(angle,Image.Resampling.BICUBIC,expand=True)
-        canvas=Image.new('RGBA',(cw,ch));x=(cw-rotated.width)//2+round(cw*dx);y=(ch-rotated.height)//2+round(ch*dy)
-        canvas.alpha_composite(rotated,(x,y));path=SPRITES/f'{item_id}-f{i}.webp';save_image(canvas,path);frames.append(rel(path))
+    for i in range(8):
+        t=i/7
+        canvas=Image.new('RGBA',(cw,ch))
+        image=base;opacity=1;angle=0;x=(cw-base.width)//2;y=(ch-base.height)//2
+        if profile=='grow':
+            scale=.22+.78*t;image=base.resize((max(1,round(base.width*scale)),max(1,round(base.height*scale))),Image.Resampling.LANCZOS)
+            x=(cw-image.width)//2;y=ch-pad-image.height
+        elif profile in ('rise','bubble-rise'):
+            scale=(.58+.42*t) if profile=='rise' else (.25+.75*t);image=base.resize((max(1,round(base.width*scale)),max(1,round(base.height*scale))),Image.Resampling.LANCZOS)
+            opacity=.3+.7*t if profile=='rise' else min(1,.45+.65*t);x=(cw-image.width)//2;y=ch-pad-image.height-round(ch*(.18+.20*t))
+        elif profile=='lamp-on':
+            level=.38+.62*t;image=ImageEnhance.Brightness(base).enhance(level)
+            glow=Image.new('RGBA',(cw,ch));mask=base.getchannel('A').resize((base.width*2,base.height*2),Image.Resampling.LANCZOS).filter(ImageFilter.GaussianBlur(max(5,side//9)))
+            light=Image.new('RGBA',mask.size,(255,220,118,round(110*t)));light.putalpha(mask.point(lambda value:round(value*.34*t)))
+            glow.alpha_composite(light,((cw-light.width)//2,(ch-light.height)//2));canvas.alpha_composite(glow)
+        elif profile=='spin':angle=360*t
+        elif profile=='crawl':x=(cw-base.width)//2+round((t-.5)*pad*1.4);y=(ch-base.height)//2+round(math.sin(t*math.pi*2)*3)
+        elif profile=='swim':x=(cw-base.width)//2+round((t-.5)*pad*1.8);y=(ch-base.height)//2-round(math.sin(t*math.pi)*pad*.10)
+        elif profile=='fly':x=(cw-base.width)//2+round((t-.5)*pad*1.6);y=(ch-base.height)//2-round(math.sin(t*math.pi)*pad*.70);angle=math.sin(t*math.pi*2)*5
+        elif profile=='fall':x=(cw-base.width)//2+round(math.sin(t*math.pi)*pad*.6);y=pad//2+round(t*(ch-base.height-pad));angle=-35+70*t
+        elif profile=='float':x=(cw-base.width)//2+round(math.sin(t*math.pi*2)*pad*.45);y=(ch-base.height)//2-round(math.sin(t*math.pi)*pad*.6);angle=math.sin(t*math.pi*2)*8
+        elif profile=='sway':
+            angle=math.sin(t*math.pi*2)*7
+            image=base.rotate(angle,Image.Resampling.BICUBIC,expand=True)
+            x=(cw-image.width)//2;y=ch-pad-image.height
+        else:
+            scale=.94+.06*math.sin(t*math.pi);image=base.resize((max(1,round(base.width*scale)),max(1,round(base.height*scale))),Image.Resampling.LANCZOS)
+            x=(cw-image.width)//2;y=(ch-image.height)//2
+        if angle and profile!='sway':image=image.rotate(angle,Image.Resampling.BICUBIC,expand=True);x=(cw-image.width)//2 if profile in ('spin','fall') else x;y=(ch-image.height)//2 if profile=='spin' else y
+        canvas.alpha_composite(alpha_copy(image,opacity),(round(x),round(y)))
+        path=SPRITES/f'{item_id}-f{i}.webp';save_image(canvas,path);frames.append(rel(path))
     return frames,(cw,ch)
 def split_groups(im,count):
     if count==1:return [crop_visible(im)],0
@@ -83,18 +137,18 @@ for old in OLD:
         path=SPRITES/f"{item['id']}.webp";save_image(runtime.convert('RGB'),path)
         item.update(src=rel(path),width=1672,height=941,thumbnail=thumbnail(runtime,item['id'],True))
     elif cat=='animation':
-        frames,size=motion_frames(im,item['id'])
-        item.update(src=frames[0],frames=frames,width=size[0],height=size[1],thumbnail=thumbnail(crop_visible(im),item['id']),alphaRequired=True)
+        profile=motion_profile(item);frames,size=motion_frames(im,item['id'],profile=profile)
+        item.update(src=frames[0],frames=frames,width=size[0],height=size[1],motionProfile=profile,thumbnail=thumbnail(crop_visible(im),item['id']),alphaRequired=True)
     elif cat=='fairy':
         originals=item.get('originalFairyGroups') or item.get('fairyGroups') or []
         groups=[];pieces,synthesized=split_groups(im,len(originals));record['synthesizedGroups']=synthesized
         for n,(piece,old_group) in enumerate(zip(pieces,originals)):
             if item.get('fairyMode')=='dynamic':
-                frames,size=motion_frames(piece,f"{item['id']}-g{n}",480)
+                profile=motion_profile(item);frames,size=motion_frames(piece,f"{item['id']}-g{n}",480,profile)
             else:
                 piece=crop_visible(piece);piece.thumbnail((1024,1024),Image.Resampling.LANCZOS);path=SPRITES/f"{item['id']}-g{n}.webp";save_image(piece,path);frames=[rel(path)];size=piece.size
-            groups.append({**old_group,'frames':frames,'width':size[0],'height':size[1]})
-        item.update(src=groups[0]['frames'][0],fairyGroups=groups,width=groups[0]['width'],height=groups[0]['height'],thumbnail=thumbnail(pieces[0],item['id']),alphaRequired=True)
+            groups.append({**old_group,'frames':frames,'width':size[0],'height':size[1],**({'motionProfile':profile} if item.get('fairyMode')=='dynamic' else {})})
+        item.update(src=groups[0]['frames'][0],fairyGroups=groups,width=groups[0]['width'],height=groups[0]['height'],**({'motionProfile':motion_profile(item)} if item.get('fairyMode')=='dynamic' else {}),thumbnail=thumbnail(pieces[0],item['id']),alphaRequired=True)
     elif cat=='frame':
         runtime=contain(im,(1672,941),margin=0);path=SPRITES/f"{item['id']}.webp";save_image(runtime,path)
         item.update(src=rel(path),width=1672,height=941,thumbnail=thumbnail(runtime,item['id'],True),alphaRequired=True)

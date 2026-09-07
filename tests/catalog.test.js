@@ -40,6 +40,21 @@ test('all 154 fairy packs use preschool artwork while retaining modes and combin
  }
 });
 
+test('dynamic fairy packs describe a real action instead of sharing one shake loop',()=>{
+ const byId=Object.fromEntries(assets.map(asset=>[asset.id,asset]));
+ const expected={
+   'girl-2-0':'grow','girl-2-1':'grow','girl-2-4':'grow','girl-2-7':'grow','girl-2-8':'grow','girl-2-18':'grow',
+   'girl-2-2':'rise','girl-2-3':'bubble-rise','girl-2-10':'crawl','girl-2-11':'fly','girl-2-13':'spin',
+   'girl-2-14':'swim','girl-2-17':'bubble-rise','girl-2-19':'spin','girl-2-20':'fall','girl-2-21':'float'
+ };
+ for(const [id,profile] of Object.entries(expected)){
+   assert.equal(byId[id].motionProfile,profile,`${id} should have an action that matches its name`);
+   assert(byId[id].fairyGroups.every(group=>group.motionProfile===profile),`${id} should carry its action through every stamp group`);
+ }
+ const dynamic=assets.filter(asset=>asset.category==='fairy'&&asset.fairyMode==='dynamic');
+ assert(dynamic.every(asset=>asset.motionProfile&&asset.motionProfile!=='shake'), 'dynamic fairy packs must never fall back to a generic shake');
+});
+
 test('v1.6 publishes the complete preschool-natural library without changing legacy behavior',()=>{
  assert.equal(assets.length,1132);
  assert(assets.every(a=>a.quality==='preschool-natural-v16'),new Set(assets.filter(a=>a.quality!=='preschool-natural-v16').map(a=>a.quality)));

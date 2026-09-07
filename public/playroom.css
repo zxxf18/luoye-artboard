@@ -231,3 +231,32 @@
 .playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 64px}
 @media(max-width:1200px){.playroom .tool-dock{height:clamp(184px,20dvh,224px)}.playroom .tool-dock .classic-parameters{grid-template-rows:54px minmax(0,1fr)}}
 @media(max-height:760px){.playroom .canvas-welcome{display:none}.playroom .tool-dock{height:184px}.playroom .tool-dock .asset img{height:42px}}
+
+/* v1.6.1: distinguish the fairy bag from the gallery and keep every child control reachable. */
+.playroom .right-panel[data-library-surface=fairy]{background:#fff0d5;border-color:#d99b5e}
+.playroom .right-panel[data-library-surface=fairy] .categories button:not([data-category=fairy]){display:none}
+.playroom .right-panel[data-library-surface=fairy] .categories{background:#ffe2ae;border-radius:13px;padding:2px 6px;margin-right:86px}
+.playroom .right-panel[data-library-surface=fairy] .categories button[data-category=fairy]{background:#f9b960;color:#653a24;border-color:#b66d3a}
+.playroom .right-panel[data-library-surface=fairy] .asset-grid{background:#fff9e9;border-radius:12px;padding:5px}
+.playroom .right-panel[data-library-surface=fairy] .asset{background:#fff3d7;border-color:#e1ad70}
+.playroom #library-groups .fairy-group{position:relative;overflow:hidden;border-color:#ddad74;background:#fff8e8}
+.playroom #library-groups .fairy-group .playful-icon{width:36px;height:36px}
+.playroom #library-groups .fairy-group[aria-pressed=true]{background:#ffd691;border-color:#b96c3e}
+.playroom #library-groups .fairy-group span{font-size:13px;line-height:1.2;text-align:left}
+.playroom .tool-dock .classic-parameters{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#d69b62 #fff3d8;align-content:start}
+.playroom .tool-dock .options-bar{align-items:center;min-height:44px}
+.playroom #layer-dialog .layer-actions button{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.playroom #layer-dialog #move-selected-layer{flex:1 1 118px}
+.playroom #layer-dialog #move-selected-layer span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:1200px){
+ .playroom .tool-dock{height:clamp(208px,23dvh,244px)}
+ .playroom .tool-dock .classic-parameters{grid-template-rows:minmax(54px,auto) minmax(48px,auto)}
+ .playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 72px}
+ .playroom.library-open .tool-dock .classic-parameters{grid-template-rows:minmax(58px,auto)}
+}
+@media(max-height:760px){
+ .playroom .tool-dock{height:208px}
+ .playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 68px}
+ .playroom .tool-dock .options-bar{flex-wrap:wrap;row-gap:2px}
+ .playroom .tool-dock .settings-button{min-height:52px}
+}
