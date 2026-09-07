@@ -1,10 +1,10 @@
 import { bundledImageSource } from './bundled-images.js';
 import { History, fitInside, floodFill, toLayerPoint, validateProject } from './core.js';
 
-export function makeCanvas(width, height) {
+export function makeCanvas(width, height, readback = true) {
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
   // Offscreen layers are read for every history tile; choose a stable readback path.
-  canvas.getContext('2d', {willReadFrequently:true});
+  canvas.getContext('2d', {willReadFrequently:readback});
   return canvas;
 }
 
@@ -16,11 +16,29 @@ export async function loadImage(src) {
   });
 }
 
+function canvasPNG(canvas){
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>{
+    if(!blob){reject(new Error('图片编码失败，请重试保存。'));return;}
+    const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob);
+  },'image/png'));
+}
+// Animation frame resources are immutable; edits replace frames. A weak cache
+// avoids encoding the same resource on every autosave without retaining old art.
+const animationFrameExports=new WeakMap();
+function framePNG(frame,width=frame.width,height=frame.height){
+  let sizes=animationFrameExports.get(frame);if(!sizes){sizes=new Map();animationFrameExports.set(frame,sizes);}
+  const key=width+'x'+height;let value=sizes.get(key);
+  if(!value){const canvas=makeCanvas(width,height);canvas.getContext('2d').drawImage(frame,0,0,width,height);value=canvasPNG(canvas).catch(error=>{sizes.delete(key);throw error;});sizes.set(key,value);}
+  return value;
+}
+
 export class PaintEngine {
   constructor(canvas, onChange) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
     this.history = new History(); this.layers = []; this.activeId = ''; this.playing = true;
     this.gesture = null; this.drawQueued = false; this.animationStart = performance.now();
+    this.compositeSurfaces=new WeakMap();
+    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0};
     this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
@@ -86,18 +104,23 @@ export class PaintEngine {
     this.drawQueued = true;
     // WKWebView can suspend animation frames while a native window is occluded.
     // Keep the actual canvas current for snapshots and the next visible frame.
-    const draw = () => { if(!this.drawQueued)return;this.drawQueued=false;clearTimeout(this.renderDeadline);cancelAnimationFrame(this.renderFrame);this.paint(this.ctx,true); };
+    const draw = () => { if(!this.drawQueued)return;this.drawQueued=false;clearTimeout(this.renderDeadline);cancelAnimationFrame(this.renderFrame);const start=performance.now();this.paint(this.ctx,true);const elapsed=performance.now()-start;this.metrics.frames++;this.metrics.submissionMs+=elapsed;this.metrics.maxSubmissionMs=Math.max(this.metrics.maxSubmissionMs,elapsed); };
     this.renderFrame=requestAnimationFrame(draw);this.renderDeadline=setTimeout(draw,16);
   }
   transform(ctx, layer) {
     ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180); ctx.scale(layer.scale, layer.scale);
     ctx.translate(-layer.width / 2, -layer.height / 2);
   }
+  compositeSurface(layer,kind){
+    let surfaces=this.compositeSurfaces.get(layer);if(!surfaces){surfaces={};this.compositeSurfaces.set(layer,surfaces);}
+    let canvas=surfaces[kind];if(!canvas||canvas.width!==layer.width||canvas.height!==layer.height)canvas=surfaces[kind]=makeCanvas(layer.width,layer.height,false);
+    const ctx=canvas.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,canvas.width,canvas.height);return canvas;
+  }
   drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0, applyMask=true) {
-    if(applyMask&&layer.eraseMask){const c=makeCanvas(layer.width,layer.height),target=c.getContext('2d');this.drawLayer(target,layer,time,false);target.globalCompositeOperation='destination-in';target.drawImage(layer.eraseMask,0,0);ctx.drawImage(c,0,0);return;}
+    if(applyMask&&layer.eraseMask){const c=this.compositeSurface(layer,'erase'),target=c.getContext('2d');this.drawLayer(target,layer,time,false);target.globalCompositeOperation='destination-in';target.drawImage(layer.eraseMask,0,0);ctx.drawImage(c,0,0);return;}
     if(layer.sprites){
       let target=ctx,clipCanvas;
-      if(layer.spriteClip){clipCanvas=makeCanvas(layer.width,layer.height);target=clipCanvas.getContext('2d');}
+      if(layer.spriteClip){clipCanvas=this.compositeSurface(layer,'clip');target=clipCanvas.getContext('2d');}
       for(const item of layer.sprites){
         const group=layer.spriteGroups[item.group],elapsed=Math.max(0,time-(item._birth||0)),frame=group.frames[Math.floor(elapsed/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
         target.save();target.globalAlpha*=item.opacity;target.drawImage(frame,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.restore();
@@ -286,22 +309,27 @@ export class PaintEngine {
     return this.active;
   }
   async serialize(title) {
-    const layers = this.layers.map(layer => {
+    const widthAtStart=this.width,heightAtStart=this.height;
+    const jobs = this.layers.map(layer => {
       const { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role } = layer;
-      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role, image: layer.canvas.toDataURL('image/png') };
-      if(layer.eraseMask)item.eraseMask=layer.eraseMask.toDataURL('image/png');
+      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role };
+      // Start every mutable-canvas snapshot before yielding, so drawing can
+      // continue while PNG encoding completes without mixing document revisions.
+      const jobs=[canvasPNG(layer.canvas).then(value=>{item.image=value;})];
+      if(layer.eraseMask)jobs.push(canvasPNG(layer.eraseMask).then(value=>{item.eraseMask=value;}));
       if (layer.frames?.length) {
-        item.frames = layer.frames.map(frame => { const c = makeCanvas(width, height); c.getContext('2d').drawImage(frame, 0, 0, width, height); return c.toDataURL('image/png'); });
+        jobs.push(Promise.all(layer.frames.map(frame=>framePNG(frame,width,height))).then(value=>{item.frames=value;}));
         item.frameDuration = layer.frameDuration;
       }
       if(layer.sprites){
         item.sprites=layer.sprites.map(s=>({...s}));item.spriteMask=layer.spriteMask;
-        item.spriteGroups=layer.spriteGroups.map(g=>({frameDuration:g.frameDuration,frames:g.frames.map(frame=>{const c=makeCanvas(frame.width,frame.height);c.getContext('2d').drawImage(frame,0,0);return {width:frame.width,height:frame.height,image:c.toDataURL('image/png')};})}));
+        jobs.push(Promise.all(layer.spriteGroups.map(async g=>({frameDuration:g.frameDuration,frames:await Promise.all(g.frames.map(async frame=>({width:frame.width,height:frame.height,image:await framePNG(frame)})))}))).then(value=>{item.spriteGroups=value;}));
       }
-      return item;
+      return Promise.all(jobs).then(()=>item);
     });
+    const layers=await Promise.all(jobs);
     // Never write a document that our own importer would refuse to reopen.
-    return validateProject({ format: 'luoye-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: this.width, height: this.height, layers });
+    return validateProject({ format: 'luoye-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: widthAtStart, height: heightAtStart, layers });
   }
   async restore(raw) {
     const value = validateProject(raw), layers = [];
