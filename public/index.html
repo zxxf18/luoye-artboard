@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'">
+  <title>落叶画板</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="playroom.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#" aria-label="落叶画板"><span class="brand-mark">画</span><span><strong>落叶画板</strong><small>小小创作室</small></span></a>
+    <div class="document-name"><input id="title" value="我的奇妙世界" aria-label="作品名称" maxlength="120"><span id="save-state">准备画画吧</span></div>
+    <div class="header-actions"><button id="open" class="quiet" data-icon="folder">打开作品</button><button id="save" class="quiet" data-icon="save">保存作品</button><button id="export" class="primary" data-icon="download">导出图片</button></div>
+  </header>
+  <main class="workspace">
+    <aside class="tool-rail" aria-label="绘画工具"><div id="tools"></div><div class="rail-bottom"><button id="new" title="新画纸" aria-label="新画纸" data-icon="plus"></button><span>新画纸</span></div></aside>
+    <section class="studio" aria-label="创作画布">
+      <div class="options-bar"><div id="brush-options"><select id="brush" aria-label="画笔类型"><option value="pencil">铅笔</option><option value="spray">喷笔</option><option value="watercolor">水彩</option><option value="brush">刷子</option><option value="marker">麦克笔</option><option value="crayon">蜡笔</option><option value="chalk">粉笔</option><option value="tube">颜料管</option><option value="effect">特效笔</option></select><span class="divider"></span><label for="size">笔尖</label><input id="size" type="range" min="2" max="300" value="12"><output id="size-value">12</output></div><div class="opacity-control"><label for="opacity">不透明度</label><input id="opacity" type="range" min="0" max="100" value="100"><output id="opacity-value">100%</output></div><div class="history-buttons"><button id="undo" title="撤销 ⌘Z / Ctrl+Z" aria-label="撤销" data-icon="undo"></button><button id="redo" title="恢复 ⌘⇧Z / Ctrl+Y" aria-label="恢复" data-icon="redo"></button></div></div>
+      <div class="canvas-heading"><div><span class="eyebrow">LET YOUR IMAGINATION WANDER</span><h1>今天，想画点什么？</h1></div><button id="import-image" class="quiet" data-icon="image">放入自己的图片</button></div>
+      <div id="viewport" class="viewport"><div id="sheet" class="canvas-sheet"><canvas id="painting" width="1920" height="1080" tabindex="0" aria-label="绘画画布，使用鼠标或触控笔创作"></canvas></div></div>
+      <div class="canvas-footer"><span><i class="status-dot"></i><span id="canvas-size">1920 × 1080</span> <span class="muted">· 画纸</span></span><span id="tool-hint">拿起画笔，把想象画下来</span><div class="zoom-controls"><button id="zoom-out" aria-label="缩小画布">−</button><span id="zoom-value">适合窗口</span><button id="zoom-in" aria-label="放大画布">＋</button><button id="fit">适合</button></div></div>
+      <div class="palette"><div class="palette-label"><span class="current-color" id="current-color"></span><span>调色盘<small>选一个喜欢的颜色</small></span></div><div id="swatches" class="swatches"></div><label class="custom-color" title="自选颜色"><span>＋</span><input id="color" type="color" value="#285b49" aria-label="自选画笔颜色"></label></div>
+    </section>
+    <aside class="right-panel"><section class="library"><div class="panel-heading"><h2>灵感百宝箱</h2><span id="asset-count"></span></div><p class="panel-description">选个小伙伴，一起走进画里。</p><nav id="categories" class="categories" aria-label="素材类别"></nav><div id="asset-grid" class="asset-grid"></div><div class="library-tip"><span data-icon="spark"></span><span>小提示：选「移动」工具，可以拖动素材的位置。</span></div></section>
+      <section class="layers-panel"><div class="panel-heading"><h2><span data-icon="layers"></span>我的图层 <small id="layer-count">1</small></h2><button id="add-layer" aria-label="新建图层" title="新建图层" data-icon="plus"></button></div><div id="layer-list"></div><div class="layer-actions"><button id="layer-up" title="上移一层" aria-label="上移一层">↑</button><button id="layer-down" title="下移一层" aria-label="下移一层">↓</button><button id="rotate" title="旋转 15 度">旋转</button><button id="smaller" title="缩小当前层">−</button><button id="bigger" title="放大当前层">＋</button><button id="delete-layer" aria-label="删除当前图层" title="删除当前图层" data-icon="trash"></button></div></section>
+    </aside>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input id="file-input" type="file" accept=".jshwx,.json,.fly" hidden><input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" hidden>
+  <dialog id="export-dialog"><form method="dialog"><h2>导出图片</h2><label>文件格式 <select id="export-format"><option value="png">PNG · 无损图片</option><option value="jpeg">JPEG · 适合分享</option></select></label><p>按当前画纸尺寸导出，透明画纸区域以白色呈现。</p><div class="dialog-actions"><button value="cancel">取消</button><button value="export" class="primary">导出</button></div></form></dialog>
+  <dialog id="new-dialog"><form method="dialog"><span class="dialog-art">✳</span><h2>打开一张新画纸</h2><p>这张画值得留下。开始新画前，可以先保存当前作品。</p><label for="preset">画纸尺寸</label><select id="preset"><option value="1920,1080">横向 · 1920 × 1080</option><option value="2560,1440">2K 横向 · 2560 × 1440</option><option value="1920,1440">经典 4:3 · 1920 × 1440</option><option value="1440,1920">竖向 · 1440 × 1920</option><option value="1080,1080">正方形 · 1080 × 1080</option></select><div class="dialog-actions"><button value="cancel">再画一会儿</button><button value="create" class="primary">开始新画</button></div></form></dialog>
+  <dialog id="text-dialog"><form method="dialog"><h2>把心里话写在画里</h2><label for="text-content">文字内容</label><input id="text-content" placeholder="你好，奇妙世界！" maxlength="100"><label for="text-size">文字大小</label><input id="text-size" type="number" min="12" max="240" value="72"><div class="dialog-actions"><button value="cancel">取消</button><button value="add" class="primary">放进画里</button></div></form></dialog>
+  <dialog id="recover-dialog"><form method="dialog"><h2>上次的想象，还在这里</h2><p>找到了保存在这台设备上的草稿，要接着画吗？</p><div class="dialog-actions"><button value="cancel">先看空白画纸</button><button value="recover" class="primary">继续上次的画</button></div></form></dialog>
+  <script src="canvas-assets.js"></script><script src="assets/catalog.js"></script><script src="app.js"></script>
+</body></html>

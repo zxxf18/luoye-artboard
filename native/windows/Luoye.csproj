@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <AssemblyName>落叶画板</AssemblyName><RootNamespace>Luoye</RootNamespace>
+    <Version>1.6.3</Version><ApplicationIcon>../../public/branding/AppIcon.ico</ApplicationIcon>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+    <PackageReference Include="MeltySynth" Version="2.4.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <Content Include="../../dist/**/*" Link="site/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="audio/**/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <!-- This app uses WinForms; the SDK also injects WPF, whose WindowsBase reference conflicts. -->
+  <Target Name="RemoveUnusedWpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup><Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" /></ItemGroup>
+  </Target>
+</Project>
