@@ -31,18 +31,27 @@ export class DrawingEngine extends EditorEngine {
   setFairyGroups(groups,mode){this.setStampImages(groups.map(group=>group.frames[0]));this.fairyGroups=groups;this.fairyMode=mode;}
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
+    if(g.limitNotice)return;
     g.lastStampTime=performance.now();
     try {
-      if(!g.layer){
+      if(!g.layer||g.layer.sprites.length>=2000){
+        const top=this.layers.at(-1);
+        const reusable=!g.layer&&!this.selectionCanvas&&top?.sprites&&top.sprites.length<2000&&top.spriteGroups===this.fairyGroups&&top.visible&&top.opacity===1&&!top.eraseMask&&!top.spriteClip&&top.scale===1&&top.rotation===0&&top.width===this.width&&top.height===this.height&&top.x===this.width/2&&top.y===this.height/2;
+        if(reusable){g.layer=top;this.activeId=top.id;}
+        else {
         const extra={spriteGroups:this.fairyGroups,sprites:[]};
         if(this.selectionCanvas){extra.spriteMask=this.selectionCanvas.toDataURL('image/png');extra.spriteClip=makeCanvas(this.width,this.height);extra.spriteClip.getContext('2d').drawImage(this.selectionCanvas,0,0);}
         g.layer=this.addLayer(this.stampName||'动态魔法袋',makeCanvas(this.width,this.height),false,extra);
+        }
+        (g.touched??=[]).push({layer:g.layer,start:g.layer.sprites.length});
       }
-      if(g.layer.sprites.length>=2000)throw new Error('这一笔已经有 2000 个图案了，松开鼠标后可以继续画。');
       const sprite={group:index,x:point.x,y:point.y,size:g.options.size,opacity:g.options.opacity};
       Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
       g.layer.sprites.push(sprite);g.stampIndex++;
-      const context=g.layer.canvas.getContext('2d');context.clearRect(0,0,this.width,this.height);this.drawLayer(context,g.layer,0);
+      // This canvas is the static fallback/thumbnail, not the live animation.
+      // Append one first-frame stamp instead of redrawing the whole stroke.
+      const context=g.layer.canvas.getContext('2d'),frame=this.fairyGroups[index].frames[0],scale=sprite.size/Math.max(frame.width,frame.height);
+      context.save();context.globalAlpha=sprite.opacity;context.drawImage(frame,point.x-frame.width*scale/2,point.y-frame.height*scale/2,frame.width*scale,frame.height*scale);context.restore();
       this.render();
     }catch(error){if(!g.limitNotice){this.notice?.(error.message);g.limitNotice=true;}}
   }
@@ -58,7 +67,8 @@ export class DrawingEngine extends EditorEngine {
   paint(ctx,guides=false){
     const line=this.gesture;
     if(guides&&line?.kind==='brush-line'){
-      const c=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d'),stroke=makeCanvas(c.width,c.height),preview={layer:line.layer,options:{...line.options}};
+      const c=line.previewCanvas??=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d'),stroke=line.previewStroke??=makeCanvas(c.width,c.height),preview={layer:line.layer,options:{...line.options}};
+      target.clearRect(0,0,c.width,c.height);const strokeContext=stroke.getContext('2d');strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,c.width,c.height);
       target.drawImage(line.layer.canvas,0,0);
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
       if(texture||paper)materialSegment(stroke.getContext('2d'),preview,line.start,line.end,texture,paper,{x:0,y:0,width:c.width,height:c.height});else brushSegment(stroke.getContext('2d'),preview,line.start,line.end);
@@ -149,7 +159,15 @@ export class DrawingEngine extends EditorEngine {
     if(g?.kind==='paper-erase'){endPaperErase(this,cancel);return;}
     if(g?.kind==='paper-warp'){endPaperWarp(this,cancel);return;}
     if(g?.kind==='warp'){if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}else this.recordPixels(g.layer,g.tiles);this.gesture=null;this.changed();return;}
-    if(g?.kind==='fairy-dynamic'){const after=this.layers.slice(),active=this.activeId;if(cancel){this.layers=g.beforeLayers;this.activeId=g.beforeActive;}else if(after.length!==g.beforeLayers.length)this.history.push({bytes:after.filter(l=>!g.beforeLayers.includes(l)).reduce((sum,l)=>sum+this.layerPixels(l)*4,0),undo:()=>{this.layers=g.beforeLayers;this.activeId=g.beforeActive;},redo:()=>{this.layers=after;this.activeId=active;}});this.gesture=null;this.changed();return;}
+    if(g?.kind==='fairy-dynamic'){
+      const after=this.layers.slice(),active=this.activeId,touched=(g.touched||[]).map(t=>({...t,added:t.layer.sprites.slice(t.start)}));
+      const refresh=layer=>{const c=layer.canvas.getContext('2d');c.clearRect(0,0,layer.width,layer.height);this.drawLayer(c,layer,0);};
+      const undo=()=>{for(const t of touched){t.layer.sprites.length=t.start;refresh(t.layer);}this.layers=g.beforeLayers;this.activeId=g.beforeActive;};
+      if(cancel)undo();
+      else if(touched.some(t=>t.added.length))this.history.push({bytes:touched.reduce((sum,t)=>sum+t.added.length*48+(g.beforeLayers.includes(t.layer)?0:this.layerPixels(t.layer)*4),0),undo,redo:()=>{for(const t of touched){t.layer.sprites.length=t.start;t.layer.sprites.push(...t.added);refresh(t.layer);}this.layers=after;this.activeId=active;}});
+      if(!cancel)for(const t of touched)if(t.layer.spriteClip)refresh(t.layer);
+      this.gesture=null;this.changed();return;
+    }
     if(!g||!['brush-line','erase-rect','stamp','clone'].includes(g.kind)){super.end(cancel);return;}
     if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}
     else {

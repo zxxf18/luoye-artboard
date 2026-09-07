@@ -98,6 +98,7 @@ function changed() {
     const savingRevision = revision;
     try {
       const project = await engine.serialize($('title').value.trim() || '我的画');
+      if(savingRevision!==revision)return;
       await writeDraft(project);
       if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
@@ -275,15 +276,20 @@ document.addEventListener('keydown', event => {
 });
 window.LUOYEFlushBeforeClose=async()=>{
   if(busy)throw new Error('请先完成当前操作');
+  busy=true;
+  try{
   engine.end();engine.finishPath(true);clearTimeout(saveTimer);
   if(!closeSnapshot||closeSnapshot.revision!==revision){
+    const png=engine.exportPNG(),snapshotRevision=revision;
     const project=await engine.serialize($('title').value.trim()||'我的画');
-    closeSnapshot={sessionId,revision,project,png:engine.exportPNG()};
+    closeSnapshot={sessionId,revision:snapshotRevision,project,png};
   }
   await writeDraft(closeSnapshot.project);await recorder.flush();
   return closeSnapshot;
+  }finally{busy=false;}
 };
 const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
+window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.layers.reduce((n,l)=>n+engine.layerPixels(l),0)});
 closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
 window.LUOYERequestClose=createCloseFlow({
@@ -299,7 +305,7 @@ async function initialize() {
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.4',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.5',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 
