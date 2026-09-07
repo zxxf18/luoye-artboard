@@ -4,7 +4,8 @@ import { decodeLegacyFly } from './legacy.js';
 import { mountGallery } from './gallery-ui.js';
 import { mountRecorder } from './recorder-ui.js';
 import { mountStudio } from './studio-ui.js';
-import { deliverFile, preserveDraft, writeDraft } from './storage.js';
+import { deliverFile, preserveDraft, writeDraft, discardCurrentDraft } from './storage.js';
+import { createCloseFlow } from './close-flow.js';
 import { playfulIcon } from './playful-icons.js';
 import { icon } from './icons.js';
 import { mountClassic } from './classic-ui.js';
@@ -21,6 +22,7 @@ const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '�
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
+let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
 let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
@@ -92,14 +94,14 @@ function changed() {
   revision++; renderLayers(); layoutCanvas(); $('canvas-size').textContent = `${engine.width} × ${engine.height}`;
   if (!ready) return;
   $('save-state').textContent = '正在保留这份想象…'; clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
+  saveTimer = setTimeout(() => {draftInFlight=(async () => {
     const savingRevision = revision;
     try {
       const project = await engine.serialize($('title').value.trim() || '我的画');
       await writeDraft(project);
-      if (savingRevision === revision) $('save-state').textContent = '草稿已保存 · 关闭时存入图片／落叶画板作品';
+      if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
-  }, 900);
+  })();}, 900);
 }
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='';
 let galleryLocation={category:'sticker',collection:'',page:0};
@@ -177,7 +179,7 @@ for (const [category, name] of Object.entries({ sticker: '小伙伴', background
 engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
-const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();}});
+const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 mountClassic({setTool,getColor:()=>color,setColor});chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
@@ -204,7 +206,7 @@ bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
 bind('new', () => { engine.end(); showDialog('new-dialog'); });
 $('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; setTool('pen'); changed(); } }));
-bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画'; const project = await engine.serialize(title); toast(await deliverFile(`${title}.jshwx`, 'application/json', JSON.stringify(project))); });
+bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(`${title}.jshwx`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
 $('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()||'我的画')+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
 bind('open', () => $('file-input').click()); bind('import-image', () => $('image-input').click());
@@ -212,7 +214,7 @@ $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
   if(/\.fly$/i.test(file.name)){const image=decodeLegacyFly(await file.arrayBuffer());await gallery.backup();engine.reset(image.width,image.height);engine.active.canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);$('title').value=file.name.replace(/\.fly$/i,'');changed();toast('已作为单张图片导入；旧图层与记录不在此兼容范围内');return;}
-  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed(); toast('作品打开了，接着画吧');
+  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
@@ -281,13 +283,23 @@ window.JSHWFlushBeforeClose=async()=>{
   await writeDraft(closeSnapshot.project);await recorder.flush();
   return closeSnapshot;
 };
+const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
+closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
+document.body.append(closeDialog);
+window.JSHWRequestClose=createCloseFlow({
+ hasChanges:()=>revision!==savedRevision||($('title').value.trim()||'我的画')!==savedTitle,
+ ask:()=>new Promise(resolve=>{closeDialog.returnValue='cancel';closeDialog.addEventListener('close',()=>resolve(closeDialog.returnValue),{once:true});closeDialog.showModal();}),
+ save:()=>window.JSHWFlushBeforeClose(),
+ discard:async()=>{clearTimeout(saveTimer);await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';}
+});
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
 async function initialize() {
   try {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.2',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.3',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 

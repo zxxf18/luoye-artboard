@@ -79,24 +79,31 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         guard let webView else { return .terminateNow }
         if terminationPending { return .terminateCancel }
         terminationPending = true
-        webView.callAsyncJavaScript("return window.JSHWFlushBeforeClose ? await window.JSHWFlushBeforeClose() : true;",
+        webView.callAsyncJavaScript("return await window.JSHWRequestClose();",
                                    arguments: [:], in: nil, in: .page) { result in
             self.terminationPending = false
             switch result {
-            case .success(let payload):
+            case .success(let response):
+                guard let decision = response as? [String: Any], let action = decision["action"] as? String else {
+                    sender.reply(toApplicationShouldTerminate: false)
+                    return
+                }
+                if action == "cancel" { sender.reply(toApplicationShouldTerminate: false); return }
+                if action == "save" {
                 do {
                     let root: URL
                     if let path = self.smokePath { root = URL(fileURLWithPath: path + ".archive", isDirectory: true) }
                     else { root = try FileManager.default.url(for: .picturesDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("落叶画板作品", isDirectory: true) }
-                    let saved = try StudioArchive(root: root).save(payload)
+                    let saved = try StudioArchive(root: root).save(decision["payload"] as Any)
                     self.logger.notice("Artwork archived: \(saved.path)")
                 } catch {
                     self.showError("作品还没有保存成功，画室会保持打开。\n" + error.localizedDescription)
                     sender.reply(toApplicationShouldTerminate: false)
                     return
                 }
+                } else if action != "exit" { sender.reply(toApplicationShouldTerminate: false); return }
                 if let path = self.smokePath {
-                    do { try Data("{\"draftFlush\":true,\"terminationApproved\":true}".utf8).write(to: URL(fileURLWithPath: path + ".close.json"), options: .atomic) }
+                    do { try JSONSerialization.data(withJSONObject: ["action": action, "terminationApproved": true]).write(to: URL(fileURLWithPath: path + ".close.json"), options: .atomic) }
                     catch { self.logger.error("Close report failed: \(error.localizedDescription)") }
                 }
                 sender.reply(toApplicationShouldTerminate: true)

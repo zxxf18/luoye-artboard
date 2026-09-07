@@ -122,10 +122,13 @@ sealed class StudioWindow : Form
             }
             web.CoreWebView2.WebMessageReceived+=Handler;
             try {
-                await web.ExecuteScriptAsync("(async()=>{try{const payload=await window.JSHWFlushBeforeClose();window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",payload});}catch(e){window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",error:e.message});}})()");
-                var result=await completion.Task.WaitAsync(TimeSpan.FromSeconds(90));
+                await web.ExecuteScriptAsync("(async()=>{try{const payload=await window.JSHWRequestClose();window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",payload});}catch(e){window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",error:e.message});}})()");
+                var result=await completion.Task;
                 if(result.TryGetProperty("error",out var error))throw new IOException(error.GetString());
-                await Task.Run(()=>StudioArchive.Save(result.GetProperty("payload"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),"落叶画板作品")));
+                var decision=result.GetProperty("payload");var action=decision.GetProperty("action").GetString();
+                if(action=="cancel")return;
+                if(action=="save")await Task.Run(()=>StudioArchive.Save(decision.GetProperty("payload"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),"落叶画板作品")));
+                else if(action!="exit")throw new IOException("退出选择无效。");
             } finally {web.CoreWebView2.WebMessageReceived-=Handler;}
             approved=true;Close();
         } catch(Exception ex) {MessageBox.Show(this,"作品还没有保存成功，画室会保持打开。\n"+ex.Message,Text);}
