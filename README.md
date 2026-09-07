@@ -1,6 +1,6 @@
 # luoye-artboard · 落叶画板
 
-面向儿童的离线绘画客户端，当前版本 **1.6.5**。macOS 使用 Swift / WKWebView，Windows 使用 .NET / WebView2，共用本地绘画引擎和界面；正式客户端不运行 HTTP 服务。
+面向儿童的离线绘画客户端，当前版本 **1.6.6**。macOS 使用 Swift / WKWebView，Windows 使用 .NET / WebView2，共用本地绘画引擎和界面；正式客户端不运行 HTTP 服务。
 
 支持九种画笔、图层、魔法袋、动画伙伴、背景与涂色页、文字、分形、滤镜和音乐。未保存修改退出时可选择保存并退出、不保存退出或继续画画。Mac 已完成原生验证；Windows 已交叉构建，尚未实机验收。
 
@@ -14,7 +14,7 @@ npm run build:mac
 npm run build:windows
 ```
 
-两个平台的构建请依次执行。产物放在 `build/releases/v1.6.5/`，不提交 Git。`npm run dev` 仅用于开发验收。
+两个平台的构建请依次执行。产物放在 `build/releases/v1.6.6/`，不提交 Git。`npm run dev` 仅用于开发验收。
 
 Windows 可通过 `LUOYE_DOTNET` 指定 SDK；需将官方 Microsoft Edge WebView2 x64 离线安装器放在 `build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe`。首次还原 NuGet 依赖需要网络。完整环境记录见 [环境记录](design/06-environment-log.md) 和版本设计文档。
 
