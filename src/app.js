@@ -75,6 +75,7 @@ function renderLayers() {
     const thumb = makeCanvas(64, 42); thumb.className = 'layer-thumb';
     const fit = Math.min(64 / layer.width, 42 / layer.height), context = thumb.getContext('2d');
     context.drawImage(layer.canvas, (64 - layer.width * fit) / 2, (42 - layer.height * fit) / 2, layer.width * fit, layer.height * fit);
+    for(const mask of [layer.eraseMask,layer.spriteClip])if(mask){context.globalCompositeOperation='destination-in';context.drawImage(mask,(64-layer.width*fit)/2,(42-layer.height*fit)/2,layer.width*fit,layer.height*fit);}
     const name = document.createElement('button'); name.className = 'layer-name'; name.innerHTML = ''; const caption = document.createElement('span'); caption.textContent = (layer.role === 'background' ? '画纸背景 · ' : '') + layer.name; name.append(thumb,caption); name.setAttribute('aria-pressed', layer.id === engine.activeId);
     name.onclick = () => { if (busy) return; engine.activeId = layer.id; renderLayers(); document.dispatchEvent(new Event('controlschange')); };
     const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '藏起来：' : '显示：'}${layer.name}`);
@@ -181,7 +182,7 @@ engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engi
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
-mountClassic({setTool,getColor:()=>color,setColor});chooseCategory(libraryCategory);
+mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
@@ -289,7 +290,7 @@ window.LUOYEFlushBeforeClose=async()=>{
   }finally{busy=false;}
 };
 const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
-window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.layers.reduce((n,l)=>n+engine.layerPixels(l),0)});
+window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.scenePixels()});
 closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
 window.LUOYERequestClose=createCloseFlow({
@@ -305,7 +306,7 @@ async function initialize() {
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.5',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.6',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 

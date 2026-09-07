@@ -10,10 +10,10 @@ try {
  check(visible($('brush-ratio'))&&!$('brush-ratio').closest('dialog'),'宽窄在第一屏');
  const before=$('viewport').getBoundingClientRect();$('mode-library').click();await pause(250);const after=$('viewport').getBoundingClientRect();
  check(Math.abs(before.height-after.height)<1&&Math.abs(before.width-after.width)<1,'打开素材不缩小画板');
- document.querySelector('[data-category="background"]').click();document.querySelector('[data-asset-id="color0-0"]').click();await idle();document.querySelector('[data-asset-id="color0-1"]').click();await idle();
+ document.querySelector('[data-category="background"]').click();document.querySelector('[data-asset-id="background-garden"]').click();await idle();document.querySelector('[data-asset-id="illustrated-meadow"]').click();await idle();
  let project=(await snapshot()).project;
- check(project.layers.filter(l=>l.role==='background').length===1&&project.layers[0].sourceId==='color0-1','新背景替换旧背景');
- $('undo').click();await idle();check((await snapshot()).project.layers[0].sourceId==='color0-0','背景替换撤销');$('redo').click();await idle();
+ check(project.layers.filter(l=>l.role==='background').length===1&&project.layers[0].sourceId==='illustrated-meadow','新背景替换旧背景');
+ $('undo').click();await idle();check((await snapshot()).project.layers[0].sourceId==='background-garden','背景替换撤销');$('redo').click();await idle();
  chooseTool('eraser');$('eraser-mode').value='rect';$('eraser-mode').dispatchEvent(new Event('change',{bubbles:true}));
  check(!visible($('size'))&&!visible($('opacity')),'矩形清除隐藏无关宽度和透明度');
  chooseTool('stamp');const count=(await snapshot()).project.layers.length;$('asset-grid').children[0].click();await idle();
