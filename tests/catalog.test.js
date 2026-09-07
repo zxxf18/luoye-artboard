@@ -28,13 +28,13 @@ test('all 154 fairy packs use preschool artwork while retaining modes and combin
  assert.deepEqual(Object.fromEntries(['single','static','dynamic'].map(mode=>[mode,fairy.filter(a=>a.fairyMode===mode).length])),{single:100,static:32,dynamic:22});
  assert.equal(fairy.reduce((n,a)=>n+a.fairyGroups.length,0),470);
  for(const a of fairy){
-   assert.equal(a.quality,'preschool-natural-v16',a.id);assert(a.thumbnail.startsWith('assets/library-v16/'));
+   assert.equal(a.quality,'preschool-natural-v16',a.id);assert(a.thumbnail.startsWith(a.fairyMode==='dynamic'?'assets/motion-v162/':'assets/library-v16/'));
    assert.equal(a.fairyGroups.length,a.originalFairyGroups.length,a.id);
    for(const [i,g] of a.fairyGroups.entries()){
      assert.equal(g.frameDuration,a.originalFairyGroups[i].frameDuration,a.id);
      assert.equal(g.frames.length,a.fairyMode==='dynamic'?8:1,a.id);
      assert.equal(new Set(g.frames).size,g.frames.length,'Do not inflate animation counts using repeated frame paths');
-     assert(g.frames.every(p=>p.startsWith('assets/library-v16/sprites/')),a.id);
+     assert(g.frames.every(p=>p.startsWith(a.fairyMode==='dynamic'?'assets/motion-v162/sprites/':'assets/library-v16/sprites/')),a.id);
      assert(g.width>0&&g.height>0&&Math.max(g.width,g.height)<=(a.fairyMode==='dynamic'?480:1024),a.id);
    }
  }
@@ -44,8 +44,8 @@ test('v1.6 publishes the complete preschool-natural library without changing leg
  assert.equal(assets.length,1132);
  assert(assets.every(a=>a.quality==='preschool-natural-v16'),new Set(assets.filter(a=>a.quality!=='preschool-natural-v16').map(a=>a.quality)));
  for(const a of assets){
-   assert(a.src.startsWith('assets/library-v16/'),a.id);
-   assert(a.thumbnail.startsWith('assets/library-v16/'),a.id);
+   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162)\//.test(a.src),a.id);
+   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162)\//.test(a.thumbnail),a.id);
  }
  const transparent=assets.filter(a=>['sticker','animation','fairy','frame'].includes(a.category));
  assert(transparent.every(a=>a.alphaRequired===true));
@@ -54,6 +54,6 @@ test('v1.6 publishes the complete preschool-natural library without changing leg
  for(const a of assets.filter(a=>a.category==='animation')){
    assert(a.frames.length>=8,a.id);
    assert.equal(new Set(a.frames).size,a.frames.length,a.id);
-   assert(a.frames.every(p=>p.startsWith('assets/library-v16/')),a.id);
+   assert(a.frames.every(p=>p.startsWith('assets/library-v16/')||p.startsWith('assets/motion-v162/')),a.id);
  }
 });

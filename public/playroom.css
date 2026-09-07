@@ -231,3 +231,25 @@
 .playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 64px}
 @media(max-width:1200px){.playroom .tool-dock{height:clamp(184px,20dvh,224px)}.playroom .tool-dock .classic-parameters{grid-template-rows:54px minmax(0,1fr)}}
 @media(max-height:760px){.playroom .canvas-welcome{display:none}.playroom .tool-dock{height:184px}.playroom .tool-dock .asset img{height:42px}}
+
+/* v1.6.2: preserve the v1.6.0 paper area; controls scroll sideways as one row. */
+.playroom #layer-dialog .layer-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
+.playroom #layer-dialog .layer-actions button{flex-direction:column;white-space:normal;line-height:1.25;padding:4px;gap:2px;min-width:0}
+.playroom .tool-dock .options-bar{height:auto;min-height:0}
+.playroom .tool-dock .settings-button{min-height:44px;height:auto;max-height:100%;gap:1px}
+.playroom .tool-dock .settings-button .playful-icon{width:26px;height:26px}
+.playroom .primary-brush-options{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;min-height:0;align-items:center;justify-content:flex-start}
+.playroom .primary-brush-options>label{flex:1 0 108px;flex-direction:row;white-space:nowrap;gap:4px}
+.playroom .primary-brush-options .choice-button{min-height:44px;height:44px;max-width:150px}
+.playroom #stroke-buttons{grid-column:auto;flex:none}
+.playroom #stroke-buttons button{height:44px;min-height:44px;font-size:12px}
+.playroom #stroke-buttons .choice-picture{width:30px;height:30px}
+.playroom #library-groups .subtool-card{white-space:normal;line-height:1.3}
+.playroom[data-library-surface=fairy] .categories button{display:none}
+.playroom[data-library-surface=fairy] .categories button[data-category=fairy]{display:flex}
+.playroom.library-open .tool-dock .classic-parameters{grid-template-rows:minmax(0,1fr)}
+.playroom .tool-dock .asset-grid{align-content:stretch}
+.playroom .tool-dock .asset img{min-height:16px}
+.playroom .tool-dock .asset span{flex-shrink:0;font-size:12px;line-height:15px}
+.playroom #object-controls button{min-height:44px;height:auto;gap:2px}
+.playroom #object-controls>div>span{line-height:1.2}

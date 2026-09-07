@@ -8,6 +8,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private var window: NSWindow?
     private var webView: WKWebView?
     private var terminationPending = false
+    private var interfaceReady = false
     private var pendingWindowSize: String?
     private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
     private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
@@ -73,6 +74,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        // Before the drawing interface is ready there cannot be a new artwork.
+        guard interfaceReady else { return .terminateNow }
         guard let webView else { return .terminateNow }
         if terminationPending { return .terminateCancel }
         terminationPending = true
@@ -137,6 +140,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, message.frameInfo.request.url?.isFileURL == true else { return }
         if message.name == "ready" {
+            interfaceReady = true
             logger.notice("Painting interface loaded")
             if let data = try? JSONSerialization.data(withJSONObject: NSFontManager.shared.availableFontFamilies.sorted()),
                let json = String(data: data, encoding: .utf8) {

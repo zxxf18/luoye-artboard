@@ -36,10 +36,11 @@ export class DrawingEngine extends EditorEngine {
       if(!g.layer){
         const extra={spriteGroups:this.fairyGroups,sprites:[]};
         if(this.selectionCanvas){extra.spriteMask=this.selectionCanvas.toDataURL('image/png');extra.spriteClip=makeCanvas(this.width,this.height);extra.spriteClip.getContext('2d').drawImage(this.selectionCanvas,0,0);}
-        g.layer=this.addLayer(this.stampName||'动态仙女袋',makeCanvas(this.width,this.height),false,extra);
+        g.layer=this.addLayer(this.stampName||'动态魔法袋',makeCanvas(this.width,this.height),false,extra);
       }
       if(g.layer.sprites.length>=2000)throw new Error('这一笔已经有 2000 个图案了，松开鼠标后可以继续画。');
       const sprite={group:index,x:point.x,y:point.y,size:g.options.size,opacity:g.options.opacity};
+      Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
       g.layer.sprites.push(sprite);g.stampIndex++;
       const context=g.layer.canvas.getContext('2d');context.clearRect(0,0,this.width,this.height);this.drawLayer(context,g.layer,0);
       this.render();

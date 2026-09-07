@@ -99,12 +99,13 @@ export class PaintEngine {
       let target=ctx,clipCanvas;
       if(layer.spriteClip){clipCanvas=makeCanvas(layer.width,layer.height);target=clipCanvas.getContext('2d');}
       for(const item of layer.sprites){
-        const group=layer.spriteGroups[item.group],frame=group.frames[Math.floor(time/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
+        const group=layer.spriteGroups[item.group],elapsed=Math.max(0,time-(item._birth||0)),frame=group.frames[Math.floor(elapsed/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
         target.save();target.globalAlpha*=item.opacity;target.drawImage(frame,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.restore();
       }
       if(clipCanvas){target.globalCompositeOperation='destination-in';target.drawImage(layer.spriteClip,0,0);ctx.drawImage(clipCanvas,0,0);}
     }else{
-      const frame=layer.frames?.length?layer.frames[Math.floor(time/layer.frameDuration)%layer.frames.length]:layer.canvas;
+      const elapsed=Math.max(0,time-(layer._birth||0));
+      const frame=layer.frames?.length?layer.frames[Math.floor(elapsed/layer.frameDuration)%layer.frames.length]:layer.canvas;
       ctx.drawImage(frame,0,0,layer.width,layer.height);
     }
   }
@@ -260,7 +261,9 @@ export class PaintEngine {
     if (['background', 'paper', 'texture'].includes(asset.category)) { extra.insertAt = 0; extra.role = 'background'; }
     if (asset.frames?.length) { extra.frames = await Promise.all(asset.frames.map(loadImage)); extra.frameDuration = asset.frameDuration; }
     if (extra.role === 'background') return this.replaceBackground(asset.name, canvas, extra);
-    return this.addLayer(asset.name, canvas, true, extra);
+    const layer=this.addLayer(asset.name, canvas, true, extra);
+    if(extra.frames)Object.defineProperty(layer,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
+    return layer;
   }
   replaceBackground(name, canvas, extra) {
       // Replace the paper beneath the artwork in one undoable operation.
@@ -311,12 +314,14 @@ export class PaintEngine {
       if (!layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')) layer.role = 'background';
       if(info.eraseMask){const mask=await loadImage(info.eraseMask);layer.eraseMask=makeCanvas(info.width,info.height);layer.eraseMask.getContext('2d').drawImage(mask,0,0);}
       if (info.frames) {
+        Object.defineProperty(layer,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
         layer.frames = [];
         for (const data of info.frames) { const frame = await loadImage(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }
       }
       if(info.sprites){
+        for(const sprite of layer.sprites)Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
         layer.spriteGroups=[];
-        for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await loadImage(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('仙女袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
+        for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await loadImage(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('魔法袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
         if(info.spriteMask)layer.spriteClip=await loadImage(info.spriteMask);
       }
       layers.push(layer);

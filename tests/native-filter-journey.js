@@ -22,7 +22,7 @@ try{
  check(panel.getBoundingClientRect().height===panelHeight,'历史色不把左边面板越撑越高');
  $('foreground-palette').click();document.querySelector('.preset-color[aria-label="天空蓝"]').click();$('palette-cancel').click();
  check($('foreground-palette').style.background==='rgb(239, 83, 80)','取消选色保持原画笔色');
- tool('stamp');check([...document.querySelectorAll('.fairy-modes button')].every(b=>{const r=b.getBoundingClientRect();return r.height>=44&&r.bottom<innerHeight;}),'三种仙女袋玩法直接可见且按钮足够大');[...document.querySelectorAll('.subtool-card')].find(b=>b.textContent==='会动图案').click();
+ tool('stamp');const modes=[...document.querySelectorAll('#library-groups [data-fairy-mode]')];check(modes.length===3&&modes.every(b=>{const r=b.getBoundingClientRect();return r.height>=44&&r.bottom<innerHeight;}),'魔法袋左侧三种玩法直接可见且按钮足够大');document.querySelector('#library-groups [data-fairy-mode="dynamic"]').click();
  document.querySelector('[data-asset-id="girl-2-0"]').click();await idle();
  $('size').value=180;$('size').dispatchEvent(new Event('input'));
  const paperForStamp=$('painting'),r=paperForStamp.getBoundingClientRect(),capture=paperForStamp.setPointerCapture;paperForStamp.setPointerCapture=()=>{};

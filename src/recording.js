@@ -18,7 +18,7 @@ export function validateRecording(raw){
   if(JSON.stringify(raw).length>MAX_BYTES)throw new Error('录像超过 64 MiB 上限。');
   for(const slot of raw.slots){if(slot===null)continue;validateProject(slot.base);let resourcePixels=0;
     const resource=item=>{if(!item||!Number.isInteger(item.width)||!Number.isInteger(item.height)||item.width<1||item.height<1||item.width>4096||item.height>4096||item.width*item.height>8388608||typeof item.image!=='string'||!item.image.startsWith('data:image/png;base64,'))throw new Error('录像图片资源无效。');resourcePixels+=item.width*item.height;if(resourcePixels>90000000)throw new Error('录像图片资源超过像素预算。');};
-    const groups=values=>{if(!Array.isArray(values)||values.length>1000)throw new Error('仙女袋分组无效。');for(const group of values){if(!Array.isArray(group.frames)||group.frames.length<1||group.frames.length>60)throw new Error('仙女袋帧数量无效。');group.frames.forEach(resource);}};
+    const groups=values=>{if(!Array.isArray(values)||values.length>1000)throw new Error('魔法袋分组无效。');for(const group of values){if(!Array.isArray(group.frames)||group.frames.length<1||group.frames.length>60)throw new Error('魔法袋帧数量无效。');group.frames.forEach(resource);}};
     if(slot.paintTexture)resource(slot.paintTexture);if(slot.paperTexture)resource(slot.paperTexture);
     if(slot.fairyGroups)groups(slot.fairyGroups);
     if(slot.selection)resource(slot.selection);if(slot.stampImages){if(!Array.isArray(slot.stampImages)||slot.stampImages.length>60)throw new Error('印章资源数量无效。');slot.stampImages.forEach(resource);}

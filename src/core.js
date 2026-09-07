@@ -84,12 +84,12 @@ export function validateProject(value) {
       }
     }
     if(layer.sprites!==undefined){
-      if(!Array.isArray(layer.sprites)||layer.sprites.length>2000||!Array.isArray(layer.spriteGroups)||!layer.spriteGroups.length||layer.spriteGroups.length>200)fail('仙女袋组合无效。');
+      if(!Array.isArray(layer.sprites)||layer.sprites.length>2000||!Array.isArray(layer.spriteGroups)||!layer.spriteGroups.length||layer.spriteGroups.length>200)fail('魔法袋组合无效。');
       for(const group of layer.spriteGroups){
-        if(!group||!Array.isArray(group.frames)||!group.frames.length||group.frames.length>60||!Number.isFinite(group.frameDuration)||group.frameDuration<30||group.frameDuration>10000)fail('仙女袋动画无效。');
-        for(const frame of group.frames){if(!size(frame.width,frame.height))fail('仙女袋图片尺寸无效。');png(frame.image,frame.width,frame.height);bytes+=frame.image.length;pixels+=frame.width*frame.height;}
+        if(!group||!Array.isArray(group.frames)||!group.frames.length||group.frames.length>60||!Number.isFinite(group.frameDuration)||group.frameDuration<30||group.frameDuration>10000)fail('魔法袋动画无效。');
+        for(const frame of group.frames){if(!size(frame.width,frame.height))fail('魔法袋图片尺寸无效。');png(frame.image,frame.width,frame.height);bytes+=frame.image.length;pixels+=frame.width*frame.height;}
       }
-      for(const sprite of layer.sprites)if(!sprite||!Number.isInteger(sprite.group)||!layer.spriteGroups[sprite.group]||![sprite.x,sprite.y,sprite.size,sprite.opacity].every(Number.isFinite)||Math.abs(sprite.x)>100000||Math.abs(sprite.y)>100000||sprite.size<=0||sprite.size>4096||sprite.opacity<0||sprite.opacity>1)fail('仙女袋位置或大小无效。');
+      for(const sprite of layer.sprites)if(!sprite||!Number.isInteger(sprite.group)||!layer.spriteGroups[sprite.group]||![sprite.x,sprite.y,sprite.size,sprite.opacity].every(Number.isFinite)||Math.abs(sprite.x)>100000||Math.abs(sprite.y)>100000||sprite.size<=0||sprite.size>4096||sprite.opacity<0||sprite.opacity>1)fail('魔法袋位置或大小无效。');
       if(layer.spriteMask){png(layer.spriteMask,layer.width,layer.height);bytes+=layer.spriteMask.length;pixels+=layer.width*layer.height;}
     }
   }
