@@ -55,5 +55,5 @@ if preschool.exists():
     replacements={item['id']:item for item in json.loads(preschool.read_text())}
     assets=[replacements.get(item['id'],item) for item in assets]
 (out/'catalog.json').write_text(json.dumps(assets,ensure_ascii=False,indent=2)+'\n')
-(out/'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets,ensure_ascii=False)+';\n')
+(out/'catalog.js').write_text('window.LUOYE_ASSETS = '+json.dumps(assets,ensure_ascii=False)+';\n')
 print(json.dumps({'entries':len(assets),'original':manifest['counts']},ensure_ascii=False))

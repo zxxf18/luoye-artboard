@@ -17,12 +17,12 @@ static class StudioArchive
         Directory.CreateDirectory(root);
         var destination=Path.Combine(root,session+"-"+value.GetProperty("revision").GetInt32());
         if(Directory.Exists(destination)) {
-            if(File.ReadAllBytes(Path.Combine(destination,"作品.jshwx")).SequenceEqual(json)&&File.ReadAllBytes(Path.Combine(destination,"作品.png")).SequenceEqual(png))return destination;
+            if(File.ReadAllBytes(Path.Combine(destination,"作品.luoyex")).SequenceEqual(json)&&File.ReadAllBytes(Path.Combine(destination,"作品.png")).SequenceEqual(png))return destination;
             throw new IOException("保存编号重复，但内容不同，请重试。");
         }
         var staging=Path.Combine(root,".saving-"+Guid.NewGuid());Directory.CreateDirectory(staging);
         try {
-            File.WriteAllBytes(Path.Combine(staging,"作品.jshwx"),json);
+            File.WriteAllBytes(Path.Combine(staging,"作品.luoyex"),json);
             File.WriteAllBytes(Path.Combine(staging,"作品.png"),png);
             File.WriteAllText(Path.Combine(staging,"作品信息.json"),JsonSerializer.Serialize(new {title=project.GetProperty("title").GetString(),savedAt=DateTimeOffset.Now,sessionId=session,revision=value.GetProperty("revision").GetInt32()}));
             Directory.Move(staging,destination);return destination;

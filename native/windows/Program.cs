@@ -60,7 +60,7 @@ sealed class StudioWindow : Form
                 case "ready":
                     ready=true;
                     var fonts=new System.Drawing.Text.InstalledFontCollection().Families.Select(f=>f.Name).Order().ToArray();
-                    await web.ExecuteScriptAsync("window.JSHWSetFonts("+JsonSerializer.Serialize(fonts)+")");break;
+                    await web.ExecuteScriptAsync("window.LUOYESetFonts("+JsonSerializer.Serialize(fonts)+")");break;
                 case "files": await SaveFile(body,id);break;
                 case "display": SetDisplay(body.GetProperty("action").GetString());break;
                 case "music":
@@ -90,7 +90,7 @@ sealed class StudioWindow : Form
         if(mime=="application/json")bytes=System.Text.Encoding.UTF8.GetBytes(content);
         else if((mime=="image/png"||mime=="image/jpeg")&&content.StartsWith("data:"+mime+";base64,"))bytes=Convert.FromBase64String(content[(content.IndexOf(',')+1)..]);
         else throw new InvalidDataException("文件格式无效。");
-        using var dialog=new SaveFileDialog{FileName=Path.GetFileName(body.GetProperty("name").GetString()),Filter="作品文件|*.jshwx;*.jshwr;*.png;*.jpg|所有文件|*.*",OverwritePrompt=true};
+        using var dialog=new SaveFileDialog{FileName=Path.GetFileName(body.GetProperty("name").GetString()),Filter="作品文件|*.luoyex;*.luoyer;*.png;*.jpg|所有文件|*.*",OverwritePrompt=true};
         if(dialog.ShowDialog(this)!=DialogResult.OK){await Reply("native-file-result",new{id,saved=false});return;}
         var destination=dialog.FileName??throw new IOException("请选择保存位置。");
         var tmp=destination+"."+Guid.NewGuid()+".tmp";
@@ -122,7 +122,7 @@ sealed class StudioWindow : Form
             }
             web.CoreWebView2.WebMessageReceived+=Handler;
             try {
-                await web.ExecuteScriptAsync("(async()=>{try{const payload=await window.JSHWRequestClose();window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",payload});}catch(e){window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",error:e.message});}})()");
+                await web.ExecuteScriptAsync("(async()=>{try{const payload=await window.LUOYERequestClose();window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",payload});}catch(e){window.chrome.webview.postMessage({closeToken:"+JsonSerializer.Serialize(token)+",error:e.message});}})()");
                 var result=await completion.Task;
                 if(result.TryGetProperty("error",out var error))throw new IOException(error.GetString());
                 var decision=result.GetProperty("payload");var action=decision.GetProperty("action").GetString();

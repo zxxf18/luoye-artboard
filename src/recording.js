@@ -14,7 +14,8 @@ function bounded(value,depth=0){
   throw new Error('录像参数无效。');
 }
 export function validateRecording(raw){
-  if(!raw||raw.format!=='jshw-recording'||raw.version!==1||!Array.isArray(raw.slots)||raw.slots.length!==5)throw new Error('不是支持的五段绘画录像。');
+  if(raw&&typeof raw.format==='string'&&/^[a-z]+-recording$/.test(raw.format))raw={...raw,format:'luoye-recording',slots:raw.slots?.map(slot=>slot?{...slot,base:validateProject(slot.base)}:slot)};
+  if(!raw||raw.format!=='luoye-recording'||raw.version!==1||!Array.isArray(raw.slots)||raw.slots.length!==5)throw new Error('不是支持的五段绘画录像。');
   if(JSON.stringify(raw).length>MAX_BYTES)throw new Error('录像超过 64 MiB 上限。');
   for(const slot of raw.slots){if(slot===null)continue;validateProject(slot.base);let resourcePixels=0;
     const resource=item=>{if(!item||!Number.isInteger(item.width)||!Number.isInteger(item.height)||item.width<1||item.height<1||item.width>4096||item.height>4096||item.width*item.height>8388608||typeof item.image!=='string'||!item.image.startsWith('data:image/png;base64,'))throw new Error('录像图片资源无效。');resourcePixels+=item.width*item.height;if(resourcePixels>90000000)throw new Error('录像图片资源超过像素预算。');};
@@ -32,7 +33,7 @@ export function validateRecording(raw){
         if(extra.insertAt!==undefined&&(!Number.isInteger(extra.insertAt)||extra.insertAt<0||extra.insertAt>19))throw new Error('录像图层顺序无效。');
         if(extra.frames){if(!Array.isArray(extra.frames)||extra.frames.length>60)throw new Error('动画帧数量无效。');extra.frames.forEach(resource);}
         const layer={id:'resource',name:event.args[0],x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,...extra,width:item.width,height:item.height,image:item.image};if(extra.frames)layer.frames=extra.frames.map(frame=>frame.image);
-        validateProject({format:'jshw-studio',version:1,title:'录像资源',width:1,height:1,layers:[layer]});
+        validateProject({format:'luoye-studio',version:1,title:'录像资源',width:1,height:1,layers:[layer]});
       }
       if(event.resultIds&&(!Array.isArray(event.resultIds)||event.resultIds.length>20||event.resultIds.some(id=>typeof id!=='string'||id.length>256)))throw new Error('动画实例标识无效。');
       if(['setPaintTexture','setPaperTexture'].includes(event.method)&&event.args[0])resource(event.args[0]);
@@ -45,7 +46,7 @@ export function validateRecording(raw){
 }
 function imageRecord(image){const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return {width:c.width,height:c.height,image:c.toDataURL()};}
 async function imageFromRecord(item){
-  validateProject({format:'jshw-studio',version:1,title:'录像资源',width:1,height:1,layers:[{id:'resource',name:'resource',width:item.width,height:item.height,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image:item.image}]});
+  validateProject({format:'luoye-studio',version:1,title:'录像资源',width:1,height:1,layers:[{id:'resource',name:'resource',width:item.width,height:item.height,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image:item.image}]});
   const image=await loadImage(item.image);if(image.width!==item.width||image.height!==item.height)throw new Error('录像资源尺寸不一致。');const c=makeCanvas(item.width,item.height);c.getContext('2d').drawImage(image,0,0);return c;
 }
 
@@ -96,12 +97,12 @@ export class Recorder {
     // Undo/redo may reach before the recording boundary; stop rather than silently replaying a different document.
     for(const method of ['undo','redo','reset','restore']){const original=engine[method].bind(engine);engine[method]=function(...args){if(rec.recording)rec.stop('撤销、恢复或更换作品会结束当前录像段。');return original(...args);};}
   }
-  export(){return validateRecording({format:'jshw-recording',version:1,slots:this.slots});}
+  export(){return validateRecording({format:'luoye-recording',version:1,slots:this.slots});}
   import(raw){const value=validateRecording(raw);this.stop();this.slots=structuredClone(value.slots);this.onState();}
   truncate(index,count){const slot=this.slots[index];if(slot)slot.events=slot.events.slice(0,count);this.onState();}
   async replay(index,count,canvas,style={},onStep=()=>{},signal){
     const slot=this.slots[index];if(!slot)throw new Error('这段录像还是空的。');
-    validateRecording({format:'jshw-recording',version:1,slots:this.slots});
+    validateRecording({format:'luoye-recording',version:1,slots:this.slots});
     const renderer=new this.engine.constructor(canvas,()=>{});clearInterval(renderer.animationTimer);cancelAnimationFrame(renderer.renderFrame);clearTimeout(renderer.renderDeadline);renderer.drawQueued=false;renderer.render=()=>{};
     try{
       await renderer.restore(slot.base);renderer.paperMode=!!slot.paperMode;

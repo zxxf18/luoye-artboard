@@ -7,7 +7,7 @@ __pycache__/
 .env*
 *.pem
 *.p12
-jshw/
+local-only/reference/
 test-results/
 native/windows/bin/
 native/windows/obj/
@@ -22,8 +22,8 @@ local-only/
 *.exe
 *.dll
 *.pdb
-*.jshwx
-*.jshwr
+*.luoyex
+*.luoyer
 *.archive/
 design/**/evidence/*.png
 design/**/evidence/*.jpg

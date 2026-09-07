@@ -13,7 +13,7 @@ from PIL import Image
 from gir_format import parse_gir
 
 ROOT = Path(__file__).resolve().parents[1]
-LEGACY = ROOT / 'jshw'
+LEGACY = ROOT / 'local-only/reference'
 OUT = ROOT / 'public/assets'
 OUT.mkdir(parents=True, exist_ok=True)
 index = {p.relative_to(LEGACY).as_posix().lower(): p for p in LEGACY.rglob('*') if p.is_file()}
@@ -106,5 +106,5 @@ for asset in assets:
         asset['thumbnail'] = frames[len(frames)//2]
 (OUT / 'catalog.json').write_text(json.dumps(assets, ensure_ascii=False, indent=2)+'\n')
 # JS wrapper also works in a sandboxed file:// macOS WebView without a local server.
-(OUT / 'catalog.js').write_text('window.JSHW_ASSETS = '+json.dumps(assets, ensure_ascii=False)+';\n')
+(OUT / 'catalog.js').write_text('window.LUOYE_ASSETS = '+json.dumps(assets, ensure_ascii=False)+';\n')
 print(f'Prepared {len(assets)} sample entries in {OUT}; no HD claim and no original changed.')

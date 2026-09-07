@@ -6,10 +6,10 @@ import Foundation
         let music = StudioMusic(observeOutput: true)
         var tracks: [[String: Any]] = []
         for index in 0..<20 {
-            try music.load(Data(contentsOf: root.appendingPathComponent("jshw/media/bmusic/back\(index).mid")), name: "背景音乐 \(index + 1)")
+            try music.load(Data(contentsOf: root.appendingPathComponent("local-only/reference/media/bmusic/back\(index).mid")), name: "背景音乐 \(index + 1)")
             tracks.append(music.state())
         }
-        try music.load(Data(contentsOf: root.appendingPathComponent("jshw/media/bmusic/back0.mid")), name: "背景音乐 1")
+        try music.load(Data(contentsOf: root.appendingPathComponent("local-only/reference/media/bmusic/back0.mid")), name: "背景音乐 1")
         music.setVolume(0.15)
         try music.play()
         try await Task.sleep(for: .seconds(3))

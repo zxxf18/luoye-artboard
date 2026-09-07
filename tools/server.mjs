@@ -8,7 +8,7 @@ const server = http.createServer(async (request, response) => {
   try {
     if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); response.end(); return; }
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-    if (pathname === '/canvas-assets.js') { response.writeHead(200, { 'Content-Type':mime['.js'] }); response.end('window.JSHW_IMAGE_DATA = {};'); return; }
+    if (pathname === '/canvas-assets.js') { response.writeHead(200, { 'Content-Type':mime['.js'] }); response.end('window.LUOYE_IMAGE_DATA = {};'); return; }
     if (pathname === '/app.js') { response.writeHead(200, { 'Content-Type': mime['.js'], 'Cache-Control':'no-store' }); response.end(await bundle()); return; }
     if (pathname === '/health') { response.writeHead(200, { 'Content-Type':'application/json' }); response.end(JSON.stringify({ ok:true, app:'luoye-artboard' })); return; }
     if (pathname.includes('\0')) throw new Error('Invalid path');

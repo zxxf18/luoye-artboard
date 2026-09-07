@@ -16,7 +16,7 @@ for(const [i,item] of items.entries()){
  records.push({id:item.id,name,master:item.masterSource,referenceImageUsed:false});
 }
 await writeFile(path.join(root,'public/assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
-await writeFile(path.join(root,'public/assets/catalog.js'),'window.JSHW_ASSETS = '+JSON.stringify(catalog)+';\n');
+await writeFile(path.join(root,'public/assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
 await mkdir(path.join(root,'design/versions/v1.6.2/evidence'),{recursive:true});
 await writeFile(path.join(root,'design/versions/v1.6.2/evidence/backgrounds.json'),JSON.stringify(records,null,2)+'\n');
 console.log('Published '+items.length+' independently composed 2K backgrounds.');

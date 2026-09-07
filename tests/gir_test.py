@@ -11,14 +11,14 @@ class GirTests(unittest.TestCase):
         for kind in range(3):
             for number in range(2):
                 with self.subTest(kind=kind,number=number):
-                    raw=(ROOT/f'jshw/glib/girl/{kind}/{number:02}.gir').read_bytes()
+                    raw=(ROOT/f'local-only/reference/glib/girl/{kind}/{number:02}.gir').read_bytes()
                     value=module.parse_gir(raw)
                     self.assertGreater(len(value['groups']),0)
                     for group in value['groups']:
                         self.assertGreater(len(group['frames']),0)
                         self.assertTrue(all(frame['x']+frame['width']<=group['width'] for frame in group['frames']))
     def test_truncation_and_invalid_alpha(self):
-        raw=(ROOT/'jshw/glib/girl/0/00.gir').read_bytes()
+        raw=(ROOT/'local-only/reference/glib/girl/0/00.gir').read_bytes()
         with self.assertRaises(ValueError):module.parse_gir(raw[:-1])
         changed=bytearray(raw);changed[0]=0
         with self.assertRaises(ValueError):module.parse_gir(changed)

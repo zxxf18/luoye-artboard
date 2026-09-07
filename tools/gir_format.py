@@ -74,10 +74,10 @@ def parse_gir(raw):
 
 if __name__=='__main__':
     root=Path(__file__).resolve().parents[1];items=[]
-    for path in sorted((root/'jshw/glib/girl').rglob('*.gir')):
+    for path in sorted((root/'local-only/reference/glib/girl').rglob('*.gir')):
         try:
-            value=parse_gir(path.read_bytes());items.append(dict(path=path.relative_to(root/'jshw').as_posix(),ok=True,groups=len(value['groups']),frames=sum(len(g['frames']) for g in value['groups']),flags=sorted({g['flag'] for g in value['groups']})))
-        except (ValueError,struct.error) as error:items.append(dict(path=path.relative_to(root/'jshw').as_posix(),ok=False,error=str(error)))
+            value=parse_gir(path.read_bytes());items.append(dict(path=path.relative_to(root/'local-only/reference').as_posix(),ok=True,groups=len(value['groups']),frames=sum(len(g['frames']) for g in value['groups']),flags=sorted({g['flag'] for g in value['groups']})))
+        except (ValueError,struct.error) as error:items.append(dict(path=path.relative_to(root/'local-only/reference').as_posix(),ok=False,error=str(error)))
     report=dict(files=len(items),passed=sum(i['ok'] for i in items),frames=sum(i.get('frames',0) for i in items),items=items)
     (root/'design/evidence/gir-structure-validation.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print({k:v for k,v in report.items() if k!='items'});print([i for i in items if not i['ok']][:10])

@@ -5,7 +5,7 @@ try{
  const idle=async()=>{for(let i=0;i<200&&document.body.hasAttribute('aria-busy');i++)await pause(30);await pause(100);};
  const paper=$('painting'),view=$('viewport'),rect=view.getBoundingClientRect();
  const pixel=(canvas,x,y)=>canvas.getContext('2d').getImageData(x,y,1,1).data;
- const snapshot=async()=> (await window.JSHWFlushBeforeClose()).project;
+ const snapshot=async()=> (await window.LUOYEFlushBeforeClose()).project;
  $('mode-library').click();document.querySelector('[data-category="coloring"]').click();
  check($('library-pagination').textContent.includes('36 个'),'涂色本独立分类包含 36 张底稿');
  check(view.getBoundingClientRect().height===rect.height,'打开底部素材不改变画纸框');

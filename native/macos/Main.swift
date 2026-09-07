@@ -10,8 +10,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private var terminationPending = false
     private var interfaceReady = false
     private var pendingWindowSize: String?
-    private let logger = Logger(subsystem: "local.jshw.studio", category: "desktop")
-    private let smokePath = ProcessInfo.processInfo.environment["JSHW_SMOKE_OUTPUT"]
+    private let logger = Logger(subsystem: "local.luoye.studio", category: "desktop")
+    private let smokePath = ProcessInfo.processInfo.environment["LUOYE_SMOKE_OUTPUT"]
     private lazy var music = StudioMusic(observeOutput: true)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -53,8 +53,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         self.window = window
         self.webView = view
         if smokePath != nil,
-           let width = Double(ProcessInfo.processInfo.environment["JSHW_SMOKE_WIDTH"] ?? ""),
-           let height = Double(ProcessInfo.processInfo.environment["JSHW_SMOKE_HEIGHT"] ?? ""),
+           let width = Double(ProcessInfo.processInfo.environment["LUOYE_SMOKE_WIDTH"] ?? ""),
+           let height = Double(ProcessInfo.processInfo.environment["LUOYE_SMOKE_HEIGHT"] ?? ""),
            (900...2560).contains(width), (650...1440).contains(height) {
             // Isolated UI checks can inspect a workspace larger than this display.
             window.setContentSize(NSSize(width: width, height: height))
@@ -79,7 +79,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         guard let webView else { return .terminateNow }
         if terminationPending { return .terminateCancel }
         terminationPending = true
-        webView.callAsyncJavaScript("return await window.JSHWRequestClose();",
+        webView.callAsyncJavaScript("return await window.LUOYERequestClose();",
                                    arguments: [:], in: nil, in: .page) { result in
             self.terminationPending = false
             switch result {
@@ -151,19 +151,19 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             logger.notice("Painting interface loaded")
             if let data = try? JSONSerialization.data(withJSONObject: NSFontManager.shared.availableFontFamilies.sorted()),
                let json = String(data: data, encoding: .utf8) {
-                webView?.evaluateJavaScript("window.JSHWSetFonts(\(json))")
+                webView?.evaluateJavaScript("window.LUOYESetFonts(\(json))")
             }
             if let smokePath, let view = webView {
                 do {
                     let data = try JSONSerialization.data(withJSONObject: message.body, options: [.prettyPrinted, .sortedKeys])
                     try data.write(to: URL(fileURLWithPath: smokePath), options: .atomic)
                 } catch { logger.error("Smoke report failed: \(error.localizedDescription)") }
-                if let scriptPath = ProcessInfo.processInfo.environment["JSHW_SMOKE_SCRIPT"],
+                if let scriptPath = ProcessInfo.processInfo.environment["LUOYE_SMOKE_SCRIPT"],
                    let script = try? String(contentsOfFile: scriptPath, encoding: .utf8) {
-                    view.callAsyncJavaScript(script, arguments: ["fileChecks": ProcessInfo.processInfo.environment["JSHW_SMOKE_FILES"] == "1"], in: nil, in: .page) { result in
+                    view.callAsyncJavaScript(script, arguments: ["fileChecks": ProcessInfo.processInfo.environment["LUOYE_SMOKE_FILES"] == "1"], in: nil, in: .page) { result in
                         if case .success(let payload) = result,
                            let report = payload as? [String: Any], report["reloadForTest"] as? Bool == true,
-                           ProcessInfo.processInfo.environment["JSHW_SMOKE_RELOAD"] == "1" {
+                           ProcessInfo.processInfo.environment["LUOYE_SMOKE_RELOAD"] == "1" {
                             view.reload()
                             return
                         }
@@ -176,8 +176,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                         catch { self.logger.error("UI check report failed: \(error.localizedDescription)") }
                         self.finishSmoke(view: view, path: smokePath)
                     }
-                } else if ProcessInfo.processInfo.environment["JSHW_SMOKE_MUSIC"] == "1" {
-                    view.callAsyncJavaScript("return await window.JSHWMusicSmoke();", arguments: [:], in: nil, in: .page) { result in
+                } else if ProcessInfo.processInfo.environment["LUOYE_SMOKE_MUSIC"] == "1" {
+                    view.callAsyncJavaScript("return await window.LUOYEMusicSmoke();", arguments: [:], in: nil, in: .page) { result in
                         let value: [String: Any]
                         switch result {
                         case .success(let payload): value = ["ok": true, "result": payload]
@@ -206,7 +206,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         } else if mime == "application/json" { data = content.data(using: .utf8) }
         else { data = nil }
         guard let data else { reply(id: id, error: "文件内容无法识别。"); return }
-        if let smokePath, ProcessInfo.processInfo.environment["JSHW_SMOKE_FILES"] == "1" {
+        if let smokePath, ProcessInfo.processInfo.environment["LUOYE_SMOKE_FILES"] == "1" {
             // Only the explicitly launched isolated smoke process bypasses the save panel.
             let filename = String(name.split(separator: "/").last ?? "我的画")
             do { try data.write(to: URL(fileURLWithPath: smokePath + "." + filename), options: .atomic); reply(id: id, saved: true) }
@@ -218,7 +218,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let extensionName = (name as NSString).pathExtension.lowercased()
         if mime == "image/png" { panel.allowedContentTypes = [.png] }
         else if mime == "image/jpeg" { panel.allowedContentTypes = [.jpeg] }
-        else { panel.allowedContentTypes = [UTType(filenameExtension: extensionName == "jshwr" ? "jshwr" : "jshwx") ?? .data] }
+        else { panel.allowedContentTypes = [UTType(filenameExtension: extensionName == "luoyer" ? "luoyer" : "luoyex") ?? .data] }
         guard let window else { reply(id: id, error: "窗口不可用。"); return }
         panel.beginSheetModal(for: window) { response in
             guard response == .OK, let url = panel.url else { self.reply(id: id, saved: false); return }
@@ -234,7 +234,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                   let png = bitmap.representation(using: .png, properties: [:]) else { return }
             do { try png.write(to: URL(fileURLWithPath: path + ".png"), options: .atomic) }
             catch { self.logger.error("Snapshot write failed: \(error.localizedDescription)") }
-            if ProcessInfo.processInfo.environment["JSHW_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
+            if ProcessInfo.processInfo.environment["LUOYE_SMOKE_EXIT"] == "1" { NSApp.terminate(nil) }
         }
     }
 

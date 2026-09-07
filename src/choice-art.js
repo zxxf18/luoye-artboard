@@ -7,7 +7,7 @@ export function choiceArt(select, option) {
   const view=document.createElement('span');view.className='choice-picture';view.setAttribute('aria-hidden','true');
   const key=select.id,value=option.value;
   if(['paint-source','paper-grain'].includes(key)&&!['color','custom','none'].includes(value)) {
-    const image=document.createElement('img');image.src=(window.JSHW_ASSETS||[]).find(a=>a.id===value)?.thumbnail||'assets/'+value+'.png';image.alt='';view.append(image);return view;
+    const image=document.createElement('img');image.src=(window.LUOYE_ASSETS||[]).find(a=>a.id===value)?.thumbnail||'assets/'+value+'.png';image.alt='';view.append(image);return view;
   }
   if(key==='effect-kind'){
     const canvas=makeCanvas(96,64),ctx=canvas.getContext('2d');ctx.fillStyle='#aad7dc';ctx.fillRect(0,0,96,64);ctx.fillStyle='#f7cd74';ctx.beginPath();ctx.arc(76,15,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#91b89b';ctx.fillRect(0,45,96,19);ctx.fillStyle='#f4c2a4';ctx.fillRect(28,29,34,29);ctx.fillStyle='#b9624a';ctx.beginPath();ctx.moveTo(21,30);ctx.lineTo(45,10);ctx.lineTo(70,30);ctx.fill();ctx.fillStyle='#714d3b';ctx.fillRect(40,40,11,18);ctx.fillStyle='#fff4d5';ctx.fillRect(31,35,6,7);ctx.fillRect(54,35,6,7);

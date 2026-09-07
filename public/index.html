@@ -25,7 +25,7 @@
     </aside>
   </main>
   <div id="toast" role="status" aria-live="polite"></div>
-  <input id="file-input" type="file" accept=".jshwx,.json,.fly" hidden><input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" hidden>
+  <input id="file-input" type="file" hidden><input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp" hidden>
   <dialog id="export-dialog"><form method="dialog"><h2>导出图片</h2><label>文件格式 <select id="export-format"><option value="png">PNG · 无损图片</option><option value="jpeg">JPEG · 适合分享</option></select></label><p>按当前画纸尺寸导出，透明画纸区域以白色呈现。</p><div class="dialog-actions"><button value="cancel">取消</button><button value="export" class="primary">导出</button></div></form></dialog>
   <dialog id="new-dialog"><form method="dialog"><span class="dialog-art">✳</span><h2>打开一张新画纸</h2><p>这张画值得留下。开始新画前，可以先保存当前作品。</p><label for="preset">画纸尺寸</label><select id="preset"><option value="1920,1080">横向 · 1920 × 1080</option><option value="2560,1440">2K 横向 · 2560 × 1440</option><option value="1920,1440">经典 4:3 · 1920 × 1440</option><option value="1440,1920">竖向 · 1440 × 1920</option><option value="1080,1080">正方形 · 1080 × 1080</option></select><div class="dialog-actions"><button value="cancel">再画一会儿</button><button value="create" class="primary">开始新画</button></div></form></dialog>
   <dialog id="text-dialog"><form method="dialog"><h2>把心里话写在画里</h2><label for="text-content">文字内容</label><input id="text-content" placeholder="你好，奇妙世界！" maxlength="100"><label for="text-size">文字大小</label><input id="text-size" type="number" min="12" max="240" value="72"><div class="dialog-actions"><button value="cancel">取消</button><button value="add" class="primary">放进画里</button></div></form></dialog>
