@@ -1,7 +1,7 @@
 import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp, endPaperWarp } from './paper-tools.js';
 import { EditorEngine } from './editor.js';
 import { makeCanvas } from './engine.js';
-import { toLayerPoint } from './core.js';
+import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
 import { shapePath } from './geometry.js';
 import { brushSegment } from './brushes.js';
 import { warpPixels } from './warps.js';
@@ -32,11 +32,12 @@ export class DrawingEngine extends EditorEngine {
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
     if(g.limitNotice)return;
+    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 50,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
     try {
-      if(!g.layer||g.layer.sprites.length>=2000){
+      if(!g.layer||g.layer.sprites.length>=MAX_SPRITES_PER_LAYER){
         const top=this.layers.at(-1);
-        const reusable=!g.layer&&!this.selectionCanvas&&top?.sprites&&top.sprites.length<2000&&top.spriteGroups===this.fairyGroups&&top.visible&&top.opacity===1&&!top.eraseMask&&!top.spriteClip&&top.scale===1&&top.rotation===0&&top.width===this.width&&top.height===this.height&&top.x===this.width/2&&top.y===this.height/2;
+        const reusable=!g.layer&&!this.selectionCanvas&&top?.sprites&&top.sprites.length<MAX_SPRITES_PER_LAYER&&top.spriteGroups===this.fairyGroups&&top.visible&&top.opacity===1&&!top.eraseMask&&!top.spriteClip&&top.scale===1&&top.rotation===0&&top.width===this.width&&top.height===this.height&&top.x===this.width/2&&top.y===this.height/2;
         if(reusable){g.layer=top;this.activeId=top.id;}
         else {
         const extra={spriteGroups:this.fairyGroups,sprites:[]};
@@ -134,6 +135,7 @@ export class DrawingEngine extends EditorEngine {
   }
   specialDab(p){
     const g=this.gesture,o=g.options,ctx=g.layer.canvas.getContext('2d'),size=o.size/g.layer.scale;
+    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 50,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
     this.captureTiles(g.layer,{x:p.x-size*2,y:p.y-size*2,width:size*4,height:size*4},g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
     if(g.kind==='clone'){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(g.source,-g.offset.x,-g.offset.y);}

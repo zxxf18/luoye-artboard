@@ -1,7 +1,7 @@
 import { validateProject } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){

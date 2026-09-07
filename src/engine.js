@@ -25,6 +25,22 @@ function canvasPNG(canvas){
 // Animation frame resources are immutable; edits replace frames. A weak cache
 // avoids encoding the same resource on every autosave without retaining old art.
 const animationFrameExports=new WeakMap();
+// Small stamps reuse a prescaled frame. Bound the cache independently of the
+// document; original frames remain the source for large/zoomed/exported art.
+const stampFrames=new WeakMap(),stampLRU=new Set();let stampCachePixels=0;
+function sizedStampFrame(frame,size){
+  if(size>=Math.max(frame.width,frame.height))return frame;
+  const width=Math.max(1,Math.ceil(frame.width*size/Math.max(frame.width,frame.height))),height=Math.max(1,Math.ceil(frame.height*size/Math.max(frame.width,frame.height))),key=width+'x'+height;
+  let sizes=stampFrames.get(frame);if(!sizes){sizes=new Map();stampFrames.set(frame,sizes);}
+  let entry=sizes.get(key);
+  if(!entry){
+    const pixels=width*height;if(pixels>4_000_000)return frame;
+    while(stampCachePixels+pixels>8_000_000&&stampLRU.size){const old=stampLRU.values().next().value;stampLRU.delete(old);old.sizes.delete(old.key);stampCachePixels-=old.pixels;}
+    const canvas=makeCanvas(width,height,false),ctx=canvas.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(frame,0,0,width,height);
+    entry={canvas,pixels,sizes,key};sizes.set(key,entry);stampCachePixels+=pixels;
+  }
+  stampLRU.delete(entry);stampLRU.add(entry);return entry.canvas;
+}
 function framePNG(frame,width=frame.width,height=frame.height){
   let sizes=animationFrameExports.get(frame);if(!sizes){sizes=new Map();animationFrameExports.set(frame,sizes);}
   const key=width+'x'+height;let value=sizes.get(key);
@@ -52,9 +68,14 @@ export class PaintEngine {
   layerPixels(layer) {
     return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
+  scenePixels(layers=this.layers){
+    const frames=new Set();let pixels=0;
+    for(const l of layers){pixels+=l.width*l.height*(1+(l.spriteClip?1:0)+(l.eraseMask?1:0));for(const f of [...(l.frames||[]),...(l.spriteGroups||[]).flatMap(g=>g.frames)])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}}
+    return pixels;
+  }
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
-    const existingPixels=this.layers.reduce((sum,layer)=>sum+this.layerPixels(layer),0);
-    if(existingPixels+this.layerPixels({width:canvas.width,height:canvas.height,...extra})>90000000)throw new Error('图层和动画超过像素预算，请先合并或删除部分图层。');
+    const planned=[...this.layers,{width:canvas.width,height:canvas.height,...extra}],eraseReserve=planned.reduce((n,l)=>n+(l.role!=='background'&&!l.eraseMask?l.width*l.height:0),0);
+    if(this.scenePixels(planned)+eraseReserve>90000000)throw new Error('图层和动画已接近内存预算，请先擦除或移走一些内容。已为橡皮保留空间。');
     if (this.layers.length >= 20) throw new Error('当前版本最多支持 20 个图层。');
     const previous = this.activeId;
     const { insertAt = this.layers.length, ...properties } = extra;
@@ -75,6 +96,15 @@ export class PaintEngine {
       undo: () => { this.layers.splice(position, 0, layer); this.activeId = layer.id; },
       redo: () => { this.layers = this.layers.filter(l => l.id !== layer.id); this.activeId = this.layers.at(-1).id; } });
     this.changed();
+  }
+  clearAnimated(){
+    this.end();const before=this.layers.slice(),previous=this.activeId;
+    const removed=before.filter(l=>l.role!=='background'&&(l.sprites||l.frames?.length));if(!removed.length)return;
+    this.layers=before.filter(l=>!removed.includes(l));
+    if(!this.layers.length)this.addLayer('我的画笔',makeCanvas(this.width,this.height),false);
+    this.activeId=this.layers.some(l=>l.id===previous)?previous:this.layers.at(-1).id;
+    const after=this.layers.slice(),active=this.activeId;
+    this.history.push({bytes:this.scenePixels(removed)*4,undo:()=>{this.layers=before;this.activeId=previous;},redo:()=>{this.layers=after;this.activeId=active;}});this.changed();
   }
   reorder(delta) {
     const layer = this.active, from = this.layers.indexOf(layer), to = from + delta;
@@ -123,7 +153,8 @@ export class PaintEngine {
       if(layer.spriteClip){clipCanvas=this.compositeSurface(layer,'clip');target=clipCanvas.getContext('2d');}
       for(const item of layer.sprites){
         const group=layer.spriteGroups[item.group],elapsed=Math.max(0,time-(item._birth||0)),frame=group.frames[Math.floor(elapsed/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
-        target.save();target.globalAlpha*=item.opacity;target.drawImage(frame,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.restore();
+        const source=sizedStampFrame(frame,item.size*Math.max(1,layer.scale));
+        const alpha=target.globalAlpha;target.globalAlpha=alpha*item.opacity;target.drawImage(source,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.globalAlpha=alpha;
       }
       if(clipCanvas){target.globalCompositeOperation='destination-in';target.drawImage(layer.spriteClip,0,0);ctx.drawImage(clipCanvas,0,0);}
     }else{
@@ -272,7 +303,7 @@ export class PaintEngine {
       const inset=Math.min(image.width,image.height)*.28,corner=Math.min(this.width,this.height)*.28;
       const sx=[0,inset,image.width-inset,image.width],sy=[0,inset,image.height-inset,image.height];
       const dx=[0,corner,this.width-corner,this.width],dy=[0,corner,this.height-corner,this.height];
-      for(let y=0;y<3;y++)for(let x=0;x<3;x++)ctx.drawImage(image,sx[x],sy[y],sx[x+1]-sx[x],sy[y+1]-sy[y],dx[x],dy[y],dx[x+1]-dx[x],dy[y+1]-dy[y]);
+      for(let y=0;y<3;y++)for(let x=0;x<3;x++){if(x===1&&y===1)continue;ctx.drawImage(image,sx[x],sy[y],sx[x+1]-sx[x],sy[y+1]-sy[y],dx[x],dy[y],dx[x+1]-dx[x],dy[y+1]-dy[y]);}
       return this.addLayer(asset.name,canvas,true,{sourceId:asset.id});
     }
     const image = await loadImage(asset.src), canvas = makeCanvas(image.width, image.height);
@@ -333,6 +364,7 @@ export class PaintEngine {
   }
   async restore(raw) {
     const value = validateProject(raw), layers = [];
+    const resources=new Map(),resource=src=>{if(!resources.has(src))resources.set(src,loadImage(src));return resources.get(src);};
     // Decode and validate the entire incoming document before replacing the current one.
     for (const info of value.layers) {
       const image = await loadImage(info.image);
@@ -344,12 +376,12 @@ export class PaintEngine {
       if (info.frames) {
         Object.defineProperty(layer,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
         layer.frames = [];
-        for (const data of info.frames) { const frame = await loadImage(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }
+        for (const data of info.frames) { const frame = await resource(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }
       }
       if(info.sprites){
         for(const sprite of layer.sprites)Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
         layer.spriteGroups=[];
-        for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await loadImage(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('魔法袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
+        for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await resource(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('魔法袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
         if(info.spriteMask)layer.spriteClip=await loadImage(info.spriteMask);
       }
       layers.push(layer);

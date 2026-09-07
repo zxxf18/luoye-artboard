@@ -1,3 +1,5 @@
+export const MAX_SPRITES_PER_LAYER=10000;
+export const MAX_PROJECT_SPRITES=50000;
 export function fitInside(width, height, maxWidth, maxHeight) {
   const scale = Math.min(maxWidth / width, maxHeight / height);
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
@@ -55,7 +57,8 @@ export function validateProject(value) {
   if (!size(value.width, value.height)) fail('画布尺寸超出当前版本支持范围。');
   if (typeof value.title !== 'string' || value.title.length > 120) fail('作品名称无效。');
   if (!Array.isArray(value.layers) || value.layers.length < 1 || value.layers.length > 20) fail('工程需要 1–20 个图层。');
-  const ids = new Set(); let bytes = 0, pixels = 0;
+  const ids = new Set(),resources=new Set(); let bytes = 0, pixels = 0,sprites=0;
+  const resourcePixels=(image,width,height)=>{if(resources.has(image))return;resources.add(image);pixels+=width*height;};
   const png = (image, width, height) => {
     if (typeof image !== 'string' || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(image)) fail('工程只能包含内嵌 PNG 图片。');
     let header;
@@ -82,14 +85,15 @@ export function validateProject(value) {
       if (!Array.isArray(layer.frames) || layer.frames.length > 60 || !Number.isFinite(layer.frameDuration) || layer.frameDuration < 30 || layer.frameDuration > 10000) fail('动画参数无效。');
       for (const frame of layer.frames) {
         png(frame, layer.width, layer.height);
-        bytes += frame.length; pixels += layer.width * layer.height;
+        bytes += frame.length; resourcePixels(frame,layer.width,layer.height);
       }
     }
     if(layer.sprites!==undefined){
-      if(!Array.isArray(layer.sprites)||layer.sprites.length>2000||!Array.isArray(layer.spriteGroups)||!layer.spriteGroups.length||layer.spriteGroups.length>200)fail('魔法袋组合无效。');
+      if(!Array.isArray(layer.sprites)||layer.sprites.length>MAX_SPRITES_PER_LAYER||!Array.isArray(layer.spriteGroups)||!layer.spriteGroups.length||layer.spriteGroups.length>200)fail('魔法袋组合无效。');
+      sprites+=layer.sprites.length;if(sprites>MAX_PROJECT_SPRITES)fail('一幅画最多支持 50,000 个动态图案。');
       for(const group of layer.spriteGroups){
         if(!group||!Array.isArray(group.frames)||!group.frames.length||group.frames.length>60||!Number.isFinite(group.frameDuration)||group.frameDuration<30||group.frameDuration>10000)fail('魔法袋动画无效。');
-        for(const frame of group.frames){if(!size(frame.width,frame.height))fail('魔法袋图片尺寸无效。');png(frame.image,frame.width,frame.height);bytes+=frame.image.length;pixels+=frame.width*frame.height;}
+        for(const frame of group.frames){if(!size(frame.width,frame.height))fail('魔法袋图片尺寸无效。');png(frame.image,frame.width,frame.height);bytes+=frame.image.length;resourcePixels(frame.image,frame.width,frame.height);}
       }
       for(const sprite of layer.sprites)if(!sprite||!Number.isInteger(sprite.group)||!layer.spriteGroups[sprite.group]||![sprite.x,sprite.y,sprite.size,sprite.opacity].every(Number.isFinite)||Math.abs(sprite.x)>100000||Math.abs(sprite.y)>100000||sprite.size<=0||sprite.size>4096||sprite.opacity<0||sprite.opacity>1)fail('魔法袋位置或大小无效。');
       if(layer.spriteMask){png(layer.spriteMask,layer.width,layer.height);bytes+=layer.spriteMask.length;pixels+=layer.width*layer.height;}

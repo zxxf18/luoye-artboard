@@ -7,7 +7,7 @@ import { brushSegment } from './brushes.js';
 export function beginPaperErase(engine, point, options) {
   options={...options,color:'#000000'}; // Only alpha matters; erasers do not depend on the paint color.
   const editable=engine.layers.filter(l=>l.visible&&l.opacity>0&&l.role!=='background');
-  if(engine.layers.reduce((n,l)=>n+engine.layerPixels(l),0)+editable.filter(l=>!l.eraseMask).reduce((n,l)=>n+l.width*l.height,0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用橡皮。');
+  if(engine.scenePixels()+editable.filter(l=>!l.eraseMask).reduce((n,l)=>n+l.width*l.height,0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用橡皮。');
   const targets=editable.map(layer=>{
     const canvas=makeCanvas(layer.width,layer.height),ctx=canvas.getContext('2d');
     if(layer.eraseMask)ctx.drawImage(layer.eraseMask,0,0);else{ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);}
@@ -39,10 +39,22 @@ export function endPaperErase(engine,cancel) {
     }
   }
   const modified=g.targets.filter(t=>t.tiles.size);
-  const restore=()=>{for(const t of g.targets)t.layer.eraseMask=t.before;};
+  // A fully covered animated stamp has no visible pixels left. Remove that
+  // instance as well as masking partial overlaps, so erasing frees capacity.
+  if(!cancel&&g.options.eraserMode==='rect'&&!engine.selectionCanvas){
+    const left=Math.min(g.start.x,g.end.x),right=Math.max(g.start.x,g.end.x),top=Math.min(g.start.y,g.end.y),bottom=Math.max(g.start.y,g.end.y);
+    for(const t of modified)if(t.layer.sprites){
+      const l=t.layer,angle=l.rotation*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);
+      t.beforeSprites=l.sprites;t.afterSprites=l.sprites.filter(item=>{
+        const dx=(item.x-l.width/2)*l.scale,dy=(item.y-l.height/2)*l.scale,x=l.x+dx*c-dy*s,y=l.y+dx*s+dy*c,r=item.size*l.scale*(Math.abs(c)+Math.abs(s))/2;
+        return x-r<left||x+r>right||y-r<top||y+r>bottom;
+      });l.sprites=t.afterSprites;
+    }
+  }
+  const restore=()=>{for(const t of g.targets){t.layer.eraseMask=t.before;if(t.beforeSprites)t.layer.sprites=t.beforeSprites;}};
   if(cancel)restore();else{
     for(const t of g.targets)if(!t.tiles.size)t.layer.eraseMask=t.before;
-    if(modified.length)engine.history.push({bytes:modified.reduce((n,t)=>n+t.canvas.width*t.canvas.height*4,0),undo:restore,redo:()=>{for(const t of modified)t.layer.eraseMask=t.canvas;}});
+    if(modified.length)engine.history.push({bytes:modified.reduce((n,t)=>n+t.canvas.width*t.canvas.height*4+(t.beforeSprites?.length||0)*48,0),undo:restore,redo:()=>{for(const t of modified){t.layer.eraseMask=t.canvas;if(t.afterSprites)t.layer.sprites=t.afterSprites;}}});
   }
   engine.gesture=null;engine.changed();
 }

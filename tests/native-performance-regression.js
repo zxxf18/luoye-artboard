@@ -18,7 +18,7 @@ await pause(150);const first=canvas.toDataURL();await pause(200);const animates=
 const checks=[],check=(ok,name)=>{checks.push({passed:!!ok,name});if(!ok)throw Error(name);};
 const snapshot=async()=>(await window.LUOYEFlushBeforeClose()).project;
 const spriteCount=p=>p.layers.reduce((n,l)=>n+(l.sprites?.length||0),0);
-const full=await snapshot();check(spriteCount(full)===2880,'30 strokes retain all 2880 stamps');check(full.layers.filter(l=>l.sprites).length===2,'rollover at 2000 retains bounded layer count');
+const full=await snapshot();check(spriteCount(full)===2880,'30 strokes retain all 2880 stamps');check(full.layers.filter(l=>l.sprites).length===1,'2880 stamps share a layer below the 10000 rollover');
 $('undo').click();await pause(50);check(spriteCount(await snapshot())===2784,'undo removes only last stroke');
 $('redo').click();await pause(50);check(spriteCount(await snapshot())===2880,'redo restores last stroke');
 send('pointerdown',.2,.2);send('pointermove',.5,.3);send('pointercancel',.5,.3);await pause(50);check(spriteCount(await snapshot())===2880,'cancelled stroke leaves no stamps');
@@ -36,7 +36,7 @@ allocations=0;document.createElement=function(name,...args){if(name==='canvas')a
 for(let i=0;i<10;i++){send('pointermove',.4+i*.025,.85);await pause(20);}
 document.createElement=create;check(allocations===0,'line preview reuses buffers throughout drag');send('pointerup',.7,.85);await pause(50);
 const serialized=await snapshot(),transfer=new DataTransfer();transfer.items.add(new File([JSON.stringify(serialized)],'performance.luoyex',{type:'application/json'}));$('file-input').files=transfer.files;$('file-input').dispatchEvent(new Event('change'));await idle();
-check(spriteCount(await snapshot())===2880,'saved large animated project reopens with all stamps');
+check(spriteCount(await snapshot())===spriteCount(serialized),'saved large animated project reopens with all remaining stamps');
 const serializeStart=performance.now(),project=(await window.LUOYEFlushBeforeClose()).project,serializationMs=performance.now()-serializeStart;
 clearInterval(heartbeat);CanvasRenderingContext2D.prototype.drawImage=original;
 const result={checks,maskedIdle,metrics:window.LUOYEPerformance(),strokeMs:durations,drawCallsPerStroke:counts,maxEventLoopGapMs:maxGap,serializationMs,layerCount:project.layers.length,sprites:project.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),animates,penAvailable:!project.layers.at(-1).sprites,notice:$('tool-hint').textContent};
