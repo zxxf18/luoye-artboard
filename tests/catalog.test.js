@@ -10,7 +10,7 @@ test('entire installed legacy library is published with unique IDs and honest qu
 });
 test('coloring pages are separated and all thirty installed themes have actual redrawn files',()=>{
  const coloring=assets.filter(a=>a.coloring);
- assert.equal(coloring.length,36);
+ assert.equal(coloring.length,46);
  for(let i=0;i<30;i++){
    const item=assets.find(a=>a.id===`color0-${i}`);
    assert(item.coloring);assert.equal(item.quality,'preschool-natural-v16');assert.equal(item.referenceId,item.id);
@@ -41,11 +41,11 @@ test('all 154 fairy packs use preschool artwork while retaining modes and combin
 });
 
 test('v1.6 publishes the complete preschool-natural library without changing legacy behavior',()=>{
- assert.equal(assets.length,1132);
- assert(assets.every(a=>a.quality==='preschool-natural-v16'),new Set(assets.filter(a=>a.quality!=='preschool-natural-v16').map(a=>a.quality)));
+ assert.equal(assets.length,1502);
+ assert(assets.every(a=>a.quality===(a.id.startsWith('bg170-')?'original-background-v170':'preschool-natural-v16')),new Set(assets.filter(a=>a.quality!=='preschool-natural-v16').map(a=>a.quality)));
  for(const a of assets){
-   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162)\//.test(a.src),a.id);
-   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162)\//.test(a.thumbnail),a.id);
+   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162|backgrounds-v170)\//.test(a.src),a.id);
+   assert(/^assets\/(library-v16|motion-v162|backgrounds-v162|backgrounds-v170)\//.test(a.thumbnail),a.id);
  }
  const transparent=assets.filter(a=>['sticker','animation','fairy','frame'].includes(a.category));
  assert(transparent.every(a=>a.alphaRequired===true));
@@ -56,4 +56,13 @@ test('v1.6 publishes the complete preschool-natural library without changing leg
    assert.equal(new Set(a.frames).size,a.frames.length,a.id);
    assert(a.frames.every(p=>p.startsWith('assets/library-v16/')||p.startsWith('assets/motion-v162/')),a.id);
  }
+});
+
+
+test('360 new backgrounds cover every theme and style with independent scene descriptions',()=>{
+ const plan=JSON.parse(readFileSync(new URL('../design/versions/v1.7.0/background-production-plan.json',import.meta.url)));
+ const backgrounds=assets.filter(a=>a.id.startsWith('bg170-')&&!a.coloring);
+ assert.equal(backgrounds.length,360);assert.equal(new Set(plan.map(p=>p.scene)).size,360);
+ for(const theme of ['space','countryside','underwater','city','farm','forest','rivers','ocean','animals','weather'])for(const style of ['comic','oil','watercolor','pencil','realistic','papercut'])assert.equal(backgrounds.filter(a=>a.theme===theme&&a.style===style).length,6,theme+' '+style);
+ const boat=assets.find(a=>a.id==='legacy-sailboat-variant');assert.equal(boat.name,'帆船');assert.equal(boat.collection,'role6');
 });

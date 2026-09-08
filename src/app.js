@@ -108,7 +108,7 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='';
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={frame:'经典相框',paper:'经典纸样',texture:'经典纹理',file:'图片纹理',color0:'黑白涂色',color1:'漫画风景',color2:'水彩风景',color3:'油画风景',color4:'矢量风景',role0:'陆地动物',role1:'海洋动物',role2:'飞行伙伴',role3:'花草果蔬',role4:'人物朋友',role5:'生活物品',role6:'交通与其他',illustrated:'新绘插画',redrawn:'童话新相框',coloring:'经典主题新绘',newcoloring:'想象力新主题',anim0:'陆地动物动画',anim1:'海洋动物动画',anim2:'飞行伙伴动画',anim3:'人物动画',anim4:'其他动画'};
+const collectionNames={'bg-space':'太空系列','bg-countryside':'田园系列','bg-underwater':'海底世界','bg-city':'城市系列','bg-farm':'农场系列','bg-forest':'森林系列','bg-rivers':'河流湖泊','bg-ocean':'海洋系列','bg-animals':'自然动物','bg-weather':'各种天气','simple-coloring':'大块涂色',frame:'经典相框',paper:'经典纸样',texture:'经典纹理',file:'图片纹理',color0:'黑白涂色',color1:'漫画风景',color2:'水彩风景',color3:'油画风景',color4:'矢量风景',role0:'陆地动物',role1:'海洋动物',role2:'飞行伙伴',role3:'花草果蔬',role4:'人物朋友',role5:'生活物品',role6:'交通工具',illustrated:'新绘插画',redrawn:'童话新相框',coloring:'经典主题新绘',newcoloring:'想象力新主题',anim0:'陆地动物动画',anim1:'海洋动物动画',anim2:'飞行伙伴动画',anim3:'人物动画',anim4:'其他动画'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -144,7 +144,7 @@ function chooseCategory(category,collection='',page=0) {
       if(asset.fairyGroups){
         let groups=fairyCache.get(asset.id);
         if(!groups){groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(asset.id,groups);while(fairyCache.size>2)fairyCache.delete(fairyCache.keys().next().value);}
-        engine.setFairyGroups(groups,asset.fairyMode);engine.stampName=asset.name;
+        engine.setFairyGroups(groups,asset.fairyMode,asset.fairyBehavior);engine.stampName=asset.name;
         setTool('stamp');
         toast(asset.name+'：调好大小，再到画纸上按住鼠标画');
       } else {
