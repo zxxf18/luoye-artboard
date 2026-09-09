@@ -54,7 +54,10 @@ export class PaintEngine {
     this.history = new History(); this.layers = []; this.activeId = ''; this.playing = true;
     this.gesture = null; this.drawQueued = false; this.animationStart = performance.now();
     this.compositeSurfaces=new WeakMap();
-    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0};
+    // The common case is a document with many unchanged raster layers. Keep a
+    // single paper composite for those frames and invalidate it on mutations.
+    this.staticComposite=null;
+    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0};
     this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
@@ -64,7 +67,7 @@ export class PaintEngine {
     this.addLayer('我的画笔', makeCanvas(width, height), false); this.changed();
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
-  changed() { this.render(); this.onChange?.(); }
+  changed() { this.staticComposite=null; this.render(); this.onChange?.(); }
   layerPixels(layer) {
     return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
@@ -166,16 +169,28 @@ export class PaintEngine {
   paint(ctx, guides = false) {
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0, 0, this.width, this.height);
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, this.width, this.height);
-    for (const layer of this.layers) {
-      if (!layer.visible) continue;
-      ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
-      this.drawLayer(ctx,layer); ctx.restore();
-    }
+    const hasPlayingDynamic=this.playing&&this.layers.some(layer=>layer.visible&&(layer.frames?.length||layer.sprites?.length));
+    if (!this.gesture&&!hasPlayingDynamic) {
+      if (!this.staticComposite || this.staticComposite.width!==this.width || this.staticComposite.height!==this.height) {
+        const cached=makeCanvas(this.width,this.height),cachedCtx=cached.getContext('2d');
+        cachedCtx.fillStyle='#ffffff';cachedCtx.fillRect(0,0,this.width,this.height);
+        this.drawLayers(cachedCtx);
+        this.staticComposite=cached;
+      } else this.metrics.staticCacheHits++;
+      ctx.drawImage(this.staticComposite,0,0);
+    } else this.drawLayers(ctx);
     const g = this.gesture;
     if (guides && g && ['line', 'rect', 'ellipse'].includes(g.options.tool)) {
       ctx.save(); this.transform(ctx, g.layer); this.drawShape(ctx, g); ctx.restore();
     }
     ctx.restore();
+  }
+  drawLayers(ctx) {
+    for (const layer of this.layers) {
+      if (!layer.visible) continue;
+      ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
+      this.drawLayer(ctx,layer); ctx.restore();
+    }
   }
   point(event) {
     const r = this.canvas.getBoundingClientRect();

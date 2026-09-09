@@ -114,7 +114,7 @@ export class EditorEngine extends PaintEngine {
     freeze();this.history.push({bytes:c.width*c.height*4,undo:()=>Object.assign(layer,before),redo:freeze});this.changed();
   }
   frameIndex(layer){return Math.floor((this.playing?performance.now()-this.animationStart:this.animationTime||0)/layer.frameDuration)%layer.frames.length;}
-  toggleAnimation(){if(this.playing){this.animationTime=performance.now()-this.animationStart;this.playing=false;}else{this.animationStart=performance.now()-(this.animationTime||0);this.playing=true;}this.render();}
+  toggleAnimation(){if(this.playing){this.animationTime=performance.now()-this.animationStart;this.playing=false;}else{this.animationStart=performance.now()-(this.animationTime||0);this.playing=true;}this.staticComposite=null;this.render();}
   begin(point,options){
     if(options.tool==='select'){this.gesture={kind:'select',options:{...options},start:point,end:point,points:[point]};return;}
     if(options.tool==='magic'){this.magicSelect(point,options.tolerance,options.selectionMode);return;}
