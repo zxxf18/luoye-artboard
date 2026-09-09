@@ -1,7 +1,7 @@
 import { validateProject } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){
@@ -59,7 +59,7 @@ export class Recorder {
     this.slots[index].paintTexture=this.engine.paintTexture?imageRecord(this.engine.paintTexture.canvas):null;this.slots[index].paperTexture=this.engine.paperTexture?imageRecord(this.engine.paperTexture.canvas):null;
     this.slots[index].selection=this.engine.selectionCanvas?imageRecord(this.engine.selectionCanvas):null;
     this.slots[index].cloneSource=this.engine.cloneSource?{point:{...this.engine.cloneSource.point},layerId:this.engine.cloneSource.layerId,image:this.engine.cloneSource.canvas?imageRecord(this.engine.cloneSource.canvas):undefined}:null;
-    this.slots[index].fairyGroups=this.engine.fairyGroups?.map(group=>({...group,frames:group.frames.map(imageRecord)}))||null;this.slots[index].fairyMode=this.engine.fairyMode||null;
+    this.slots[index].fairyGroups=this.engine.fairyGroups?.map(group=>({...group,frames:group.frames.map(imageRecord)}))||null;this.slots[index].fairyMode=this.engine.fairyMode||null;this.slots[index].fairyBehavior=this.engine.fairyBehavior||null;
     this.slots[index].stampImages=this.engine.stampImages?.map(imageRecord)||[];
     this.bytes=JSON.stringify(this.slots[index]).length;this.onState();
   }
@@ -73,7 +73,7 @@ export class Recorder {
   attach(){
     const engine=this.engine,rec=this;
     const begin=engine.begin.bind(engine),update=engine.update.bind(engine),end=engine.end.bind(engine);
-    engine.begin=function(point,options){const o={...options,seed:options.seed??(Date.now()>>>0)};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
+    engine.begin=function(point,options){const o={...options,seed:options.seed??crypto.getRandomValues(new Uint32Array(1))[0]};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
     engine.update=function(point){if(rec.pending){if(rec.pending.args[0].length>=20000){rec.pending=null;rec.recording=false;rec.onState('单笔超过采样上限，本段录制已结束。');}else rec.pending.args[0].push({...point});}rec.depth++;try{return update(point);}finally{rec.depth--;}};
     const repeat=engine.repeatStamp.bind(engine);
     engine.repeatStamp=function(force=false){rec.depth++;let result;try{result=repeat(force);}finally{rec.depth--;}if(result&&rec.pending){const point=rec.pending.args[0].at(-1);if(rec.pending.args[0].length<20000)rec.pending.args[0].push({...point,repeat:true});else rec.stop('单笔超过采样上限，本段录制已结束。');}return result;};
@@ -82,7 +82,7 @@ export class Recorder {
       engine[method]=function(...args){if(!rec.recording||rec.depth)return original(...args);
         let encoded=args;
         if(method==='setProperty')encoded=[args[0].id,args[1],args[2]];
-        if(method==='setFairyGroups')encoded=[args[0].map(group=>({...group,frames:group.frames.map(imageRecord)})),args[1]];
+        if(method==='setFairyGroups')encoded=[args[0].map(group=>({...group,frames:group.frames.map(imageRecord)})),args[1],args[2]??null];
         if(['setPaintTexture','setPaperTexture'].includes(method))encoded=[args[0]?imageRecord(args[0]):null];
         if(method==='setStampImages')encoded=[args[0].map(imageRecord)];
         if(method==='addLayer'){
@@ -109,7 +109,7 @@ export class Recorder {
       if(slot.selection){const image=await imageFromRecord(slot.selection),data=image.getContext('2d').getImageData(0,0,image.width,image.height).data;if(image.width!==renderer.width||image.height!==renderer.height)throw new Error('录像选区尺寸无效。');const mask=new Uint8ClampedArray(renderer.width*renderer.height);for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3];renderer.setSelection(mask);}
       renderer.setPaintTexture(slot.paintTexture?await imageFromRecord(slot.paintTexture):null);renderer.setPaperTexture(slot.paperTexture?await imageFromRecord(slot.paperTexture):null);
       renderer.cloneSource=slot.cloneSource?{...slot.cloneSource,canvas:slot.cloneSource.image?await imageFromRecord(slot.cloneSource.image):undefined}:null;if(slot.stampImages)renderer.setStampImages(await Promise.all(slot.stampImages.map(imageFromRecord)));
-      if(slot.fairyGroups)renderer.setFairyGroups(await Promise.all(slot.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))}))),slot.fairyMode);
+      if(slot.fairyGroups)renderer.setFairyGroups(await Promise.all(slot.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))}))),slot.fairyMode,slot.fairyBehavior);
       const limit=Math.min(count,slot.events.length);let previous=0;
       for(let i=0;i<limit;i++){
         if(signal?.aborted)break;const event=slot.events[i],args=structuredClone(event.args);

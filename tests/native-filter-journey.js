@@ -7,7 +7,7 @@ try{
  const tool=id=>{if(!document.querySelector(`#tools [data-tool="${id}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${id}"]`).click();};
  const library=category=>{if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector(`[data-category="${category}"]`).click();};
  const add=async(category,id)=>{library(category);const b=document.querySelector(`[data-asset-id="${id}"]`);check(b,'素材可选 '+id);b.click();await idle();};
- await add('background','background-garden');
+ await add('background','bg170-space-comic-01');
  await add('sticker','role0-1');
  await add('animation','animation-0');
  let p=await project(),object=p.layers.at(-1),scale=object.scale;

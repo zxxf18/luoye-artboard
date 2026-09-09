@@ -27,7 +27,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed})
     <label data-option="fill">填色 <select id="fill-mode" aria-label="填色模式"><option value="region">区域填色</option><option value="all">完全填色</option><option value="gradient">前景／背景渐变</option><option value="region-gradient">区域渐变</option><option value="ellipse">圆形填色</option><option value="rect">矩形填色</option></select></label>
     <label data-option="fill"><input id="fill-gradient" type="checkbox">圆／矩形渐变</label>
     <label data-option="fill magic">公差 <input id="tolerance" type="number" min="0" max="255" value="20" aria-label="颜色公差"></label>
-    <label data-option="select">形状 <select id="selection-shape" aria-label="选区形状"><option value="rect">矩形</option><option value="ellipse">圆形</option><option value="triangle">三角形</option><option value="pentagon">五角形</option><option value="hexagon">六角形</option><option value="roundrect">圆矩形</option><option value="free">自由套索</option><option value="bezier">Bezier 选区</option></select></label>
+    <label data-option="select">圈选 <span class="selection-mode-buttons"><button type="button" id="selection-rect" title="矩形圈选">▣ 矩形</button><button type="button" id="selection-free" title="自由圈选">⌁ 自由</button></span><select id="selection-shape" aria-label="选区形状"><option value="rect">矩形</option><option value="ellipse">圆形</option><option value="triangle">三角形</option><option value="pentagon">五角形</option><option value="hexagon">六角形</option><option value="roundrect">圆矩形</option><option value="free">自由套索</option><option value="bezier">Bezier 选区</option></select></label>
     <label data-option="select magic">组合 <select id="selection-mode" aria-label="选区组合"><option value="replace">重新选择</option><option value="union">再加一块</option><option value="subtract">减掉一块</option><option value="intersect">只留重叠</option></select></label>
     <label data-option="line rect ellipse triangle pentagon hexagon roundrect star polygon bezier">几何 <select id="geometry" aria-label="几何形状"><option value="line">直线</option><option value="triangle">三角形</option><option value="rect">矩形</option><option value="pentagon">五角形</option><option value="hexagon">六角形</option><option value="roundrect">圆矩形</option><option value="ellipse">椭圆</option><option value="star">星形</option><option value="polygon">多边形</option><option value="bezier">Bezier 曲线</option></select></label>
     <label data-option="line rect ellipse triangle pentagon hexagon roundrect star polygon bezier"><input id="shape-filled" type="checkbox">实心</label><label data-option="line rect ellipse triangle pentagon hexagon roundrect star polygon bezier"><input id="shape-dashed" type="checkbox">虚线</label>
@@ -42,9 +42,9 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed})
   const show=id=>el(id).showModal();
   const action=(id,fn)=>el(id).onclick=()=>run(fn);
   for(const button of dialogs.querySelectorAll('[data-close]'))button.onclick=()=>el(button.dataset.close).close();
-  action('copy',()=>{engine.copySelection();toast('已复制当前层中的画面');});action('cut',()=>{engine.copySelection(true);toast('已剪切，可以粘贴为新图层');});action('paste',()=>{engine.paste();setTool('move');});
+  action('copy',()=>{engine.copySelection();toast(engine.paperMode?'已复制圈选的画面':'已复制当前层中的画面');});action('cut',()=>{engine.copySelection(true);toast('已剪切，可以粘贴为新图层');});action('paste',()=>{engine.paste();setTool('move');});
   action('selection-menu',()=>show('selection-dialog'));
-  for(const [id,fn] of [['select-all',()=>engine.selectAll()],['select-none',()=>engine.clearSelection()],['select-inverse',()=>engine.invertSelection()],['clear-selection-pixels',()=>engine.clearPixels()]])action(id,()=>{fn();el('selection-dialog').close();});
+  for(const [id,fn] of [['select-all',()=>engine.selectAll()],['select-none',()=>engine.clearSelection()],['select-inverse',()=>engine.invertSelection()],['clear-selection-pixels',()=>engine.deleteSelection()]])action(id,()=>{fn();el('selection-dialog').close();});
   let clonePicking=false;action('clone-source',()=>{clonePicking=true;toast('请点击画布上的仿制源点');});
   action('use-stamp',()=>{engine.useLayerAsStamp();engine.addLayer('连续印章');setTool('stamp');el('size').value=100;el('size-value').textContent='100';el('layer-dialog').close();toast('拖动画布连续盖章；动画素材将依次使用各帧');});
   action('layer-menu',()=>{el('current-layer-name').textContent='正在调整：'+engine.active.name;el('layer-opacity').value=engine.active.opacity*100;show('layer-dialog');});
@@ -69,11 +69,12 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed})
   action('darkroom',()=>{engine.end();if(!engine.paperMode)engine.assertRaster();parameters();show('darkroom-dialog');});
   action('apply-effect',async()=>{await engine.applyDarkroom(el('effect-kind').value,effectOptions());el('darkroom-dialog').close();toast('暗房效果已应用，可以撤销');});
   el('geometry').onchange=()=>setTool(el('geometry').value);
+  for(const [id,shape] of [['selection-rect','rect'],['selection-free','free']])el(id).onclick=()=>{el('selection-shape').value=shape;setTool('select');};
   action('mode-board',()=>setTool('pen'));action('mode-library',()=>{document.querySelector('.categories button').focus();toast('在右侧图库选择素材加入作品');});
   document.addEventListener('keydown',event=>{
     if(document.body.hasAttribute('aria-busy')||event.target.matches('input,textarea,select')||document.querySelector('dialog[open]'))return;
     if(event.ctrlKey||event.metaKey){const keys={c:'copy',x:'cut',v:'paste',a:'select-all',d:'select-none',i:'select-inverse',n:'new'};const id=keys[event.key.toLowerCase()];if(id){event.preventDefault();el(id).click();}}
-    else if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();run(()=>engine.clearPixels());}
+    else if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();run(()=>engine.deleteSelection());}
   });
   function toolChanged(tool){for(const item of document.querySelectorAll('.detail-bar [data-option],.primary-brush-options [data-option]'))item.hidden=!item.dataset.option.split(' ').includes(tool);if([...el('geometry').options].some(o=>o.value===tool))el('geometry').value=tool;}
   toolChanged('pen');
