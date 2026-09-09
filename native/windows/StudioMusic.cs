@@ -12,7 +12,7 @@ sealed class StudioMusic : ISampleProvider, IDisposable
     private readonly WaveOutEvent output = new();
     private MidiFile? midi;
     private bool playing;
-    private float volume = .35f, peak;
+    private float volume = .35f, gain = 1, peak;
     private string name = "尚未选择音乐";
     public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
 
@@ -22,15 +22,16 @@ sealed class StudioMusic : ISampleProvider, IDisposable
         sequencer = new MidiFileSequencer(synth);
         output.Init(this); output.Play();
     }
-    public void Load(byte[] data, string title)
+    public void Load(byte[] data, string title, double trackGain = 1)
     {
+        if(!double.IsFinite(trackGain)||trackGain<.1||trackGain>16)throw new InvalidDataException("音乐响度无效。");
         if (data.Length < 14 || data.Length > 8 * 1024 * 1024 || !data.AsSpan(0, 4).SequenceEqual("MThd"u8))
             throw new InvalidDataException("请选择 8 MiB 以内的标准 MIDI 文件。");
         // Parse before mutating playback, preserving the previous track on a bad import.
         var next = new MidiFile(new MemoryStream(data, false));
         if (next.Length.TotalSeconds <= 0 || next.Length.TotalSeconds > 86400)
             throw new InvalidDataException("音乐时长超出范围。");
-        lock (mutex) { sequencer.Stop(); synth.Reset(); midi = next; name = title[..Math.Min(title.Length,120)]; peak = 0; playing = false; }
+        lock (mutex) { sequencer.Stop(); synth.Reset(); midi = next; name = title[..Math.Min(title.Length,120)]; gain=(float)trackGain; peak = 0; playing = false; }
     }
     public void Play() { lock (mutex) { if(midi is null)return; sequencer.Play(midi, true); playing = true; } }
     public void Stop() { lock (mutex) { playing = false; sequencer.Stop(); synth.Reset(); } }
@@ -42,7 +43,7 @@ sealed class StudioMusic : ISampleProvider, IDisposable
             var span = buffer.AsSpan(offset,count);
             if(!playing){span.Clear();return count;}
             sequencer.RenderInterleaved(span);
-            for(var i=0;i<span.Length;i++){span[i]*=volume;peak=Math.Max(peak,Math.Abs(span[i]));}
+            for(var i=0;i<span.Length;i++){span[i]=Math.Clamp(span[i]*volume*gain,-1,1);peak=Math.Max(peak,Math.Abs(span[i]));}
         }
         return count;
     }

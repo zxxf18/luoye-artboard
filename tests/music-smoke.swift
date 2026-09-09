@@ -5,11 +5,12 @@ import Foundation
         let root = URL(fileURLWithPath: CommandLine.arguments[1])
         let music = StudioMusic(observeOutput: true)
         var tracks: [[String: Any]] = []
-        for index in 0..<20 {
-            try music.load(Data(contentsOf: root.appendingPathComponent("local-only/reference/media/bmusic/back\(index).mid")), name: "背景音乐 \(index + 1)")
+        let catalog = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("public/music/tracks.json"))) as! [[String: Any]]
+        for track in catalog {
+            try music.load(Data(contentsOf: root.appendingPathComponent("public/music/" + (track["file"] as! String))), name: track["label"] as! String, gain: Float(track["gain"] as! Double))
             tracks.append(music.state())
         }
-        try music.load(Data(contentsOf: root.appendingPathComponent("local-only/reference/media/bmusic/back0.mid")), name: "背景音乐 1")
+        try music.load(Data(contentsOf: root.appendingPathComponent("public/music/" + (catalog[0]["file"] as! String))), name: catalog[0]["label"] as! String, gain: Float(catalog[0]["gain"] as! Double))
         music.setVolume(0.15)
         try music.play()
         try await Task.sleep(for: .seconds(3))
@@ -23,8 +24,9 @@ import Foundation
         let stopped = music.state()
         do { try music.load(Data("invalid".utf8), name: "bad"); fatalError("Malformed MIDI accepted") }
         catch { }
-        let result: [String: Any] = ["tracks": tracks, "playing": playing, "muted": muted, "stopped": stopped, "peak": music.observedPeak, "invalidImportPreservedName": music.name == "背景音乐 1"]
-        try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]).write(to: root.appendingPathComponent("design/evidence/music-validation.json"), options: .atomic)
+        let result: [String: Any] = ["tracks": tracks, "playing": playing, "muted": muted, "stopped": stopped, "peak": music.observedPeak, "invalidImportPreservedName": music.name == (catalog[0]["label"] as! String)]
+        try FileManager.default.createDirectory(at: root.appendingPathComponent("build"), withIntermediateDirectories: true)
+        try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]).write(to: root.appendingPathComponent("build/music-validation.json"), options: .atomic)
         print("PASS 20 MIDI files, audible PCM, transport, mixer volume, malformed import")
     }
 }

@@ -8,5 +8,6 @@ export async function bundle() {
   files.splice(files.indexOf('app.js'),0,'close-flow.js');
   const contents = await Promise.all(files.map(name => readFile(path.join(root, 'src', name), 'utf8')));
   const { version } = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-  return `'use strict';\n(() => {\nwindow.LUOYE_VERSION=${JSON.stringify(version)};\n${contents.map((text, i) => `// ${files[i]}\n` + text.replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')).join('\n')}\n})();\n`;
+  const music = JSON.parse(await readFile(path.join(root, 'public/music/tracks.json'), 'utf8'));
+  return `'use strict';\n(() => {\nwindow.LUOYE_VERSION=${JSON.stringify(version)};\nwindow.LUOYE_MUSIC_TRACKS=${JSON.stringify(music)};\n${contents.map((text, i) => `// ${files[i]}\n` + text.replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '')).join('\n')}\n})();\n`;
 }
