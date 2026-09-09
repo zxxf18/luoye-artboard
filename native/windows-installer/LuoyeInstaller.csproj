@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <AssemblyName>落叶画板安装程序</AssemblyName><RootNamespace>LuoyeInstaller</RootNamespace>
+    <PublishSingleFile>false</PublishSingleFile><SelfContained>false</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <ItemGroup><EmbeddedResource Include="installer-payload.zip" LogicalName="LuoyeInstaller.payload.zip" /></ItemGroup>
+</Project>
