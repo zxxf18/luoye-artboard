@@ -12,7 +12,7 @@ const checks=[];try{
   tool('eraser');$('eraser-mode').value=mode;$('eraser-mode').dispatchEvent(new Event('change',{bubbles:true}));$('size').value=140;$('size').dispatchEvent(new Event('input'));
   if(mode==='rect')stroke(.3,.42,.55,.58);else stroke(.32,.5,.52,.5);await idle();const erased=pixels();check(changed(painted,erased),mode+' 橡皮在屏幕上擦除了笔迹');
   document.querySelector('[data-brush="crayon"]')?.click();tool('pen');document.querySelector('[data-brush="tube"]').click();document.querySelector('[data-color="#285b49"]').click();stroke(.33,.5,.50,.5);await idle();check(changed(erased,pixels()),mode+' 擦过的位置能重新画');
-  if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector('[data-category="background"]').click();[...document.querySelectorAll('#library-groups button')].find(b=>b.textContent==='漫画风景').click();document.querySelector('[data-asset-id="'+(mode==='soft'?'color1-1':'color1-0')+'"]').click();await idle();
+  if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector('[data-category="background"]').click();[...document.querySelectorAll('#library-groups button')].find(b=>b.textContent==='太空').click();document.querySelector('[data-asset-id="'+(mode==='soft'?'bg170-space-oil-01':'bg170-space-comic-01')+'"]').click();await idle();
   const project=(await window.LUOYEFlushBeforeClose()).project;check(project.layers.filter(l=>l.role==='background').length===1,mode+' 擦过之后切换背景不堆叠旧背景');
   const corner=paper.getContext('2d').getImageData(5,5,1,1).data;check(corner[0]<250||corner[1]<250||corner[2]<250,mode+' 新背景在屏幕上铺满而非白板');
  }

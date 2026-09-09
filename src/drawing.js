@@ -6,6 +6,7 @@ import { shapePath } from './geometry.js';
 import { brushSegment } from './brushes.js';
 import { warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
+import { seededRandom } from './pixels.js';
 
 export class DrawingEngine extends EditorEngine {
   setPaintTexture(image){this.paintTexture=textureData(image);}
@@ -27,8 +28,8 @@ export class DrawingEngine extends EditorEngine {
   async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;return title;}
   clearLayer(){const selection=this.selection,canvas=this.selectionCanvas,bounds=this.selectionBounds;this.clearSelection();try{this.clearPixels();}finally{this.selection=selection;this.selectionCanvas=canvas;this.selectionBounds=bounds;this.onSelectionChange?.();this.render();}}
   setCloneSource(point){if(this.paperMode){const canvas=makeCanvas(this.width,this.height);this.paint(canvas.getContext('2d'));this.cloneSource={point,canvas};}else this.cloneSource={point:toLayerPoint(point,this.active),layerId:this.activeId};}
-  setStampImages(images){this.fairyGroups=null;this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
-  setFairyGroups(groups,mode){this.setStampImages(groups.map(group=>group.frames[0]));this.fairyGroups=groups;this.fairyMode=mode;}
+  setStampImages(images){this.fairyGroups=null;this.fairyBehavior=null;this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
+  setFairyGroups(groups,mode,behavior=null){this.setStampImages(groups.map(group=>group.frames[0]));this.fairyGroups=groups;this.fairyMode=mode;this.fairyBehavior=behavior;}
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
     if(g.limitNotice)return;
@@ -73,7 +74,7 @@ export class DrawingEngine extends EditorEngine {
       target.drawImage(line.layer.canvas,0,0);
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
       if(texture||paper)materialSegment(stroke.getContext('2d'),preview,line.start,line.end,texture,paper,{x:0,y:0,width:c.width,height:c.height});else brushSegment(stroke.getContext('2d'),preview,line.start,line.end);
-      if(this.selectionCanvas){const mask=makeCanvas(c.width,c.height),mc=mask.getContext('2d');mc.translate(c.width/2,c.height/2);mc.scale(1/line.layer.scale,1/line.layer.scale);mc.rotate(-line.layer.rotation*Math.PI/180);mc.translate(-line.layer.x,-line.layer.y);mc.drawImage(this.selectionCanvas,0,0);const sc=stroke.getContext('2d');sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);}
+      if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);const sc=stroke.getContext('2d');sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);}
       target.drawImage(stroke,0,0);this.strokePreview={...line.layer,canvas:c};
     }
     try{super.paint(ctx,guides);}finally{this.strokePreview=null;}if(!guides)return;
@@ -135,12 +136,14 @@ export class DrawingEngine extends EditorEngine {
   }
   specialDab(p){
     const g=this.gesture,o=g.options,ctx=g.layer.canvas.getContext('2d'),size=o.size/g.layer.scale;
-    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 50,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
-    this.captureTiles(g.layer,{x:p.x-size*2,y:p.y-size*2,width:size*4,height:size*4},g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
+    const bounds={x:p.x-size*2,y:p.y-size*2,width:size*4,height:size*4};
+    this.captureTiles(g.layer,bounds,g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
     if(g.kind==='clone'){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(g.source,-g.offset.x,-g.offset.y);}
-    else{const image=this.stampImages[g.stampIndex++%this.stampImages.length],scale=size/Math.max(image.width,image.height);ctx.drawImage(image,p.x-image.width*scale/2,p.y-image.height*scale/2,image.width*scale,image.height*scale);}
-    ctx.restore();if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask);this.render();
+    else{const behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1),index=behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length;g.stampIndex++;
+      const image=this.stampImages[index],scale=size/Math.max(image.width,image.height),rotation=(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180;
+      ctx.translate(p.x,p.y);ctx.rotate(rotation);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);}
+    ctx.restore();if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
   }
   update(point){
     const g=this.gesture;if(!g){super.update(point);return;}

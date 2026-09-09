@@ -39,11 +39,15 @@ export class EditorEngine extends PaintEngine {
     const c=this.paperMode?makeCanvas(this.width,this.height):this.layerOnPaper(this.active);if(this.paperMode)this.paint(c.getContext('2d'));const data=c.getContext('2d').getImageData(0,0,this.width,this.height).data;
     this.setSelection(regionMask(data,this.width,this.height,point.x,point.y,tolerance),operation);
   }
-  layerMask(layer) {
+  selectionInLayer(layer) {
     if(!this.selectionCanvas)return null;
     const c=makeCanvas(layer.width,layer.height),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;
     ctx.translate(layer.width/2,layer.height/2);ctx.scale(1/layer.scale,1/layer.scale);ctx.rotate(-layer.rotation*Math.PI/180);ctx.translate(-layer.x,-layer.y);ctx.drawImage(this.selectionCanvas,0,0);
-    const data=ctx.getImageData(0,0,layer.width,layer.height).data,mask=new Uint8ClampedArray(layer.width*layer.height);
+    return c;
+  }
+  layerMask(layer) {
+    const c=this.selectionInLayer(layer);if(!c)return null;
+    const data=c.getContext('2d').getImageData(0,0,layer.width,layer.height).data,mask=new Uint8ClampedArray(layer.width*layer.height);
     for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3]>=128?255:0;return mask;
   }
   maskTiles(layer,tiles,mask=this.layerMask(layer),bounds=null) {
@@ -74,7 +78,16 @@ export class EditorEngine extends PaintEngine {
   copySelection(cut=false){
     if(!this.paperMode)this.assertRaster();const bounds=this.selection?this.selectionBounds:{x:0,y:0,width:this.width,height:this.height};if(!bounds)throw new Error('选区是空的。');
     const paper=this.paperMode?makeCanvas(this.width,this.height):this.layerOnPaper(this.active),ctx=paper.getContext('2d');if(this.paperMode)this.paint(ctx);if(this.selectionCanvas){ctx.globalCompositeOperation='destination-in';ctx.drawImage(this.selectionCanvas,0,0);}
-    const c=makeCanvas(bounds.width,bounds.height);c.getContext('2d').drawImage(paper,bounds.x,bounds.y,bounds.width,bounds.height,0,0,bounds.width,bounds.height);this.clipboard={canvas:c,bounds};if(cut){if(this.paperMode){this.begin({x:bounds.x,y:bounds.y},{tool:'eraser',eraserMode:'rect',size:12,opacity:1});this.update({x:bounds.x+bounds.width,y:bounds.y+bounds.height});this.end();}else this.clearPixels();}return this.clipboard;
+    const c=makeCanvas(bounds.width,bounds.height);c.getContext('2d').drawImage(paper,bounds.x,bounds.y,bounds.width,bounds.height,0,0,bounds.width,bounds.height);this.clipboard={canvas:c,bounds};if(cut)this.deleteSelection();return this.clipboard;
+  }
+  deleteSelection(){
+    this.end();
+    if(!this.paperMode){this.clearPixels();return;}
+    const bounds=this.selection?this.selectionBounds:{x:0,y:0,width:this.width,height:this.height};
+    if(!bounds)throw new Error('选区是空的。');
+    // Share the paper eraser's masks, animation support and single undo entry.
+    this.begin({x:bounds.x,y:bounds.y},{tool:'eraser',eraserMode:'rect',size:12,opacity:1});
+    this.update({x:bounds.x+bounds.width,y:bounds.y+bounds.height});this.end();
   }
   paste(){if(!this.clipboard)throw new Error('请先复制或剪切一块画面。');const {canvas,bounds}=this.clipboard,c=makeCanvas(canvas.width,canvas.height);c.getContext('2d').drawImage(canvas,0,0);const layer=this.addLayer('粘贴的画',c,true,{x:bounds.x+bounds.width/2,y:bounds.y+bounds.height/2});this.clearSelection();return layer;}
   duplicateLayer(){const layer=this.active,c=makeCanvas(layer.width,layer.height);c.getContext('2d').drawImage(layer.canvas,0,0);const {id,canvas,role,...props}=layer;if(role==='background')delete props.sourceId;return this.addLayer(layer.name.slice(0,116)+' 副本',c,true,{...props,name:layer.name.slice(0,116)+' 副本'});}

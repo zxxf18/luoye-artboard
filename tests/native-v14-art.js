@@ -7,10 +7,10 @@ try{
  const pixel=(canvas,x,y)=>canvas.getContext('2d').getImageData(x,y,1,1).data;
  const snapshot=async()=> (await window.LUOYEFlushBeforeClose()).project;
  $('mode-library').click();document.querySelector('[data-category="coloring"]').click();
- check($('library-pagination').textContent.includes('36 个'),'涂色本独立分类包含 36 张底稿');
+ check($('library-pagination').textContent.includes('60 个'),'涂色本独立分类包含 60 张底稿');
  check(view.getBoundingClientRect().height===rect.height,'打开底部素材不改变画纸框');
- document.querySelector('[data-asset-id="coloring-train"]').click();await idle();
- let project=await snapshot();check(project.layers.some(l=>l.sourceId==='coloring-train'&&l.role==='background'),'新绘小火车底稿能在原生客户端加载');
+ const coloringButton=document.querySelector('#asset-grid [data-asset-id]');const coloringId=coloringButton.dataset.assetId;coloringButton.click();await idle();
+ let project=await snapshot();check(project.layers.some(l=>l.sourceId===coloringId&&l.role==='background'),'新绘涂色底稿能在原生客户端加载');
  check(document.querySelector('.classic-left>h2').textContent==='找一找图案','选好底稿仍显示正确分类标题');
  document.querySelector('[data-category="background"]').click();check(![...$('asset-grid').children].some(b=>b.dataset.assetId.startsWith('color0-')||b.dataset.assetId.startsWith('coloring-')),'彩色背景入口不混入涂色底稿');
  document.querySelector('[data-category="frame"]').click();

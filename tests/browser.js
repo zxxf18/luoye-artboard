@@ -50,7 +50,7 @@ await check('坏工程加载失败仍保留原有作品', async () => {
 });
 await check('透明素材合成且工程内嵌资源', async () => {
   engine.reset(1920,1080);
-  await engine.addAsset({ id:'role0-0',name:'陆地伙伴',src:'/assets/role0-0.png',category:'sticker' });
+  await engine.addAsset({ id:'role0-0',name:'陆地伙伴',src:'/assets/library-v16/sprites/role0-0.webp',category:'sticker' });
   assert(pixel(engine.active.canvas,0,0)[3] === 0, '角色角落不透明');
   const project = await engine.serialize('角色作品'); assert(project.layers[1].image.startsWith('data:image/png;base64,'), '资源未嵌入');
   await engine.restore(project); assert(engine.layers.length === 2, '重开层数错误');
@@ -61,7 +61,7 @@ await check('2K导出是真实2560×1440 PNG', async () => {
   assert(view.getUint32(16) === 2560 && view.getUint32(20) === 1440, '导出尺寸错误');
 });
 await check('动画帧、时长、变换随工程保存重开', async () => {
-  const frames = ['/assets/animation-0-0.png','/assets/animation-0-1.png'];
+  const frames = ['/assets/motion-v162/sprites/animation-0-f0.webp','/assets/motion-v162/sprites/animation-0-f1.webp'];
   await engine.addAsset({ id:'animation-0',name:'动画测试',src:frames[0],frames,frameDuration:160,category:'animation' });
   const data = await engine.serialize('动画作品'); await engine.restore(data);
   assert(engine.active.frames.length === 2 && engine.active.frameDuration === 160, '动画状态丢失');

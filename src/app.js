@@ -108,7 +108,7 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='';
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={'bg-space':'太空系列','bg-countryside':'田园系列','bg-underwater':'海底世界','bg-city':'城市系列','bg-farm':'农场系列','bg-forest':'森林系列','bg-rivers':'河流湖泊','bg-ocean':'海洋系列','bg-animals':'自然动物','bg-weather':'各种天气','simple-coloring':'大块涂色',frame:'经典相框',paper:'经典纸样',texture:'经典纹理',file:'图片纹理',color0:'黑白涂色',color1:'漫画风景',color2:'水彩风景',color3:'油画风景',color4:'矢量风景',role0:'陆地动物',role1:'海洋动物',role2:'飞行伙伴',role3:'花草果蔬',role4:'人物朋友',role5:'生活物品',role6:'交通工具',illustrated:'新绘插画',redrawn:'童话新相框',coloring:'经典主题新绘',newcoloring:'想象力新主题',anim0:'陆地动物动画',anim1:'海洋动物动画',anim2:'飞行伙伴动画',anim3:'人物动画',anim4:'其他动画'};
+const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -117,7 +117,7 @@ function chooseCategory(category,collection='',page=0) {
   $('asset-grid').replaceChildren();
   const all = catalog.filter(asset => (category==='coloring'?asset.coloring:asset.category === category&&!asset.coloring) && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
   const items=all.filter(asset=>!collection||asset.collection===collection);
-  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))];if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key]||'其他图案'):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
+  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))];if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key] || key):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
   if(groupBox&&category==='fairy'){
     for(const [mode,label,picture] of [['single','单张图案','stamp'],['static','组合图案','friend'],['dynamic','会动图案','butterfly']]){
       const button=document.createElement('button');button.className='subtool-card';button.dataset.fairyMode=mode;
@@ -306,7 +306,7 @@ async function initialize() {
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.6.6',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:'1.7.0',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 
