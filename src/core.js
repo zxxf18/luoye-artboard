@@ -52,7 +52,7 @@ export function validateProject(value) {
   // Earlier editions used the same bounded document schema with another prefix.
   if(value&&typeof value.format==='string'&&/^[a-z]+-studio$/.test(value.format))value={...value,format:'luoye-studio'};
   const fail = (message) => { throw new Error(message); };
-  if (!value || value.format !== 'luoye-studio' || ![1,2].includes(value.version)) fail('不是支持的画王工程，或版本过新。');
+  if (!value || value.format !== 'luoye-studio' || ![1,2].includes(value.version)) fail('不是支持的落叶画板工程，或版本过新。');
   const size = (w, h) => Number.isInteger(w) && Number.isInteger(h) && w > 0 && h > 0 && w <= 4096 && h <= 4096 && w * h <= 8_388_608;
   if (!size(value.width, value.height)) fail('画布尺寸超出当前版本支持范围。');
   if (typeof value.title !== 'string' || value.title.length > 120) fail('作品名称无效。');
