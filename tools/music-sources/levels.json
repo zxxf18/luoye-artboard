@@ -1,0 +1,147 @@
+{
+  "reference": "Original v1.7.1 back0.mid at unchanged default volume",
+  "method": "RMS of nonsilent 4096-sample blocks, first 60 seconds, GeneralUser GS / MeltySynth at 44100 Hz; retain 10% peak headroom",
+  "targetRms": 0.0790824490252854,
+  "tracks": [
+    {
+      "source": "mozart-complete.mid",
+      "start": 368,
+      "end": 416,
+      "gain": 5.365834,
+      "measuredRms": 0.014738147997889342
+    },
+    {
+      "source": "mozart-var5.mid",
+      "start": 0,
+      "end": 48,
+      "gain": 5.675118,
+      "measuredRms": 0.013934942607013907
+    },
+    {
+      "source": "petzold-minuet.mid",
+      "start": 0,
+      "end": 96,
+      "gain": 5.613818,
+      "measuredRms": 0.014087104814932009
+    },
+    {
+      "source": "bach-prelude.mid",
+      "start": 0,
+      "end": 140,
+      "gain": 6.263011,
+      "measuredRms": 0.01262690545244933
+    },
+    {
+      "source": "brahms/Wiegenlied.mid",
+      "start": 0,
+      "end": 53.5,
+      "gain": 3.61051,
+      "measuredRms": 0.021903403553190284
+    },
+    {
+      "source": "tchaikovsky-soldiers.mid",
+      "start": 0,
+      "end": 94.5,
+      "gain": 4.834087,
+      "measuredRms": 0.016359336556734088
+    },
+    {
+      "source": "tchaikovsky-prayer.mid",
+      "start": 0,
+      "end": 72,
+      "gain": 5.132636,
+      "measuredRms": 0.01540776438552232
+    },
+    {
+      "source": "tchaikovsky-french.mid",
+      "start": 0,
+      "end": 64.5,
+      "gain": 5.431846,
+      "measuredRms": 0.01455903839901473
+    },
+    {
+      "source": "beethoven-elise.mid",
+      "start": 0,
+      "end": 156.5,
+      "gain": 9.735394,
+      "measuredRms": 0.008123189317418091
+    },
+    {
+      "source": "joplin-entertainer.mid",
+      "start": 0,
+      "end": 303.5,
+      "gain": 3.327501,
+      "measuredRms": 0.023766318883892332
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 0,
+      "end": 32,
+      "gain": 4.83716,
+      "measuredRms": 0.016348942894702928
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 36,
+      "end": 68,
+      "gain": 4.752549,
+      "measuredRms": 0.016640007352600607
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 124,
+      "end": 156,
+      "gain": 4.603725,
+      "measuredRms": 0.01717792710461009
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 160,
+      "end": 208,
+      "gain": 4.467205,
+      "measuredRms": 0.017702893900835372
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 212,
+      "end": 276,
+      "gain": 5.055338,
+      "measuredRms": 0.01564335404956106
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 280,
+      "end": 312,
+      "gain": 3.891406,
+      "measuredRms": 0.020322330509033242
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 420,
+      "end": 452,
+      "gain": 4.170573,
+      "measuredRms": 0.01896201157517037
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 456,
+      "end": 504,
+      "gain": 4.619219,
+      "measuredRms": 0.017120308838239253
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 508,
+      "end": 572,
+      "gain": 6.175502,
+      "measuredRms": 0.012805832643370402
+    },
+    {
+      "source": "mozart-complete.mid",
+      "start": 576,
+      "end": 660,
+      "gain": 4.53328,
+      "measuredRms": 0.017444864282232787
+    }
+  ]
+}

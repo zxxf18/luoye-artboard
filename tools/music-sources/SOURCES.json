@@ -1,0 +1,92 @@
+[
+  {
+    "file": "mozart-complete.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2236",
+    "download": "https://www.mutopiaproject.org/ftp/MozartWA/KV265/guitar-duo-complete/guitar-duo-complete.mid",
+    "editor": "J. J. Olson",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "f6c92ab2c25184bc848fb47b4235c27fb4616b91124aec2bd7129b63b9350969"
+  },
+  {
+    "file": "mozart-var5.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2238",
+    "download": "https://www.mutopiaproject.org/ftp/MozartWA/KV265/guitar-duo-varV/guitar-duo-varV.mid",
+    "editor": "J. J. Olson",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "b58d0f6431939d337528b381b6a4fbc35622a0116eee717a378e8adade523c48"
+  },
+  {
+    "file": "petzold-minuet.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=102",
+    "download": "https://www.mutopiaproject.org/ftp/BachJS/BWVAnh114/anna-magdalena-04-guitar/anna-magdalena-04-guitar.mid",
+    "editor": "Emre Akbas",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "415598a84e162fa5555d7e49dcc9c8b0e356b0ad03fcc027bfd1e42dd10c5a45"
+  },
+  {
+    "file": "bach-prelude.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2206",
+    "download": "https://www.mutopiaproject.org/ftp/BachJS/BWV846/wtk1-prelude1-guitar-duo/wtk1-prelude1-guitar-duo.mid",
+    "editor": "Jeffrey Olson",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "2db550fce127de3dd625ddc5335c3330acfc80bd920e272a92da69a8209d9db2"
+  },
+  {
+    "file": "brahms/Wiegenlied.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1037",
+    "download": "https://www.mutopiaproject.org/ftp/BrahmsJ/O49/Wiegenlied/Wiegenlied-mids.zip",
+    "editor": "森章吾",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "0ca12af297a5b55228dff2428a157b2811ff3f4e88098ad4f9edce1e3964aef1"
+  },
+  {
+    "file": "tchaikovsky-soldiers.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1806",
+    "download": "https://www.mutopiaproject.org/ftp/TchaikovskyPI/O39/05MarchOfTheWoodenSoldiers/05MarchOfTheWoodenSoldiers.mid",
+    "editor": "Anonymous",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "a9717d793785c3c702d85e20f99a81de60faedd29fc4e7dcb240fbc99a9b0d2b"
+  },
+  {
+    "file": "tchaikovsky-prayer.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2032",
+    "download": "https://www.mutopiaproject.org/ftp/TchaikovskyPI/O39/01MorningPrayer/01MorningPrayer.mid",
+    "editor": "Rem Zolotykh",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "7ec37d25e8ea12d0b2053a5916140f7d03b4cdf1357c01171fd8a3c1d8c6e50f"
+  },
+  {
+    "file": "tchaikovsky-french.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2080",
+    "download": "https://www.mutopiaproject.org/ftp/TchaikovskyPI/O39/16OldFrenchSong/16OldFrenchSong.mid",
+    "editor": "David McNamara",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "112c3b61dab55f58bc44d9f3522ef21b3479ffa1953097783ff8c4f10e40175d"
+  },
+  {
+    "file": "beethoven-elise.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931",
+    "download": "https://www.mutopiaproject.org/ftp/BeethovenLv/WoO59/fur_Elise_WoO59/fur_Elise_WoO59.mid",
+    "editor": "Stelios Samelis",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "1c12c21c7bbf4cf163896732672648a69d497636059837abd153c71abe50215a"
+  },
+  {
+    "file": "joplin-entertainer.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=263",
+    "download": "https://www.mutopiaproject.org/ftp/JoplinS/entertainer/entertainer.mid",
+    "editor": "Chris Sawer",
+    "license": "Public Domain",
+    "checked": "2026-09-09",
+    "sha256": "33e4e81ee64ffb2edf90d1c6a1ddee7276507296bfb915c2bb775231a467f066"
+  }
+]
