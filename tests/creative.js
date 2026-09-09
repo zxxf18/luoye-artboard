@@ -6,7 +6,7 @@ const results=[];
 const assert=(v,m)=>{if(!v)throw new Error(m);};
 async function check(name,fn){try{await fn();results.push({name,ok:true});}catch(e){results.push({name,ok:false,error:e.message});}const r=results.at(-1),li=document.createElement('li');li.textContent=`${r.ok?'PASS':'FAIL'} ${name}${r.error?': '+r.error:''}`;document.querySelector('ol').append(li);}
 await check('文字十种样式产生不同输出，组合样式和多行不截断',()=>{
- const spec={text:'Hello\n画王',size:48,font:'sans-serif',color:'#ff0000',background:'#0000ff',antialias:true};const base=renderStyledText(spec);const images=new Set([base.toDataURL()]);for(const key of ['bold','italic','underline','strike','shadow','outline','flipX','flipY','gradient'])images.add(renderStyledText({...spec,[key]:true}).toDataURL());assert(images.size===10,'样式没有生效');
+ const spec={text:'Hello\n落叶画板',size:48,font:'sans-serif',color:'#ff0000',background:'#0000ff',antialias:true};const base=renderStyledText(spec);const images=new Set([base.toDataURL()]);for(const key of ['bold','italic','underline','strike','shadow','outline','flipX','flipY','gradient'])images.add(renderStyledText({...spec,[key]:true}).toDataURL());assert(images.size===10,'样式没有生效');
  const hard=renderStyledText({...spec,antialias:false}),a=hard.getContext('2d').getImageData(0,0,hard.width,hard.height).data;assert(a.every((v,i)=>i%4!==3||v===0||v===255),'关闭反走样后仍有部分透明');assert(base.height>100,'多行被裁切');
  const texture=makeCanvas(2,2),ctx=texture.getContext('2d');ctx.fillStyle='#00ff00';ctx.fillRect(0,0,2,2);const patterned=renderStyledText(spec,texture);assert(patterned.toDataURL()!==base.toDataURL(),'纹理文字没有生效');let refused=false;try{renderStyledText({...spec,size:99999});}catch{refused=true;}assert(refused,'无界文字尺寸未拒绝');
 });
