@@ -6,6 +6,7 @@ import Foundation
 final class StudioMusic {
     private let engine = AVAudioEngine()
     private let instrument: AVAudioUnitMIDIInstrument
+    private let level = AVAudioUnitEQ(numberOfBands: 0)
     private var sequencer: AVAudioSequencer?
     private(set) var name = "尚未选择音乐"
     private(set) var duration: Double = 0
@@ -17,7 +18,9 @@ final class StudioMusic {
             componentFlags: 0, componentFlagsMask: 0)
         instrument = AVAudioUnitMIDIInstrument(audioComponentDescription: component)
         engine.attach(instrument)
-        engine.connect(instrument, to: engine.mainMixerNode, format: nil)
+        engine.attach(level)
+        engine.connect(instrument, to: level, format: nil)
+        engine.connect(level, to: engine.mainMixerNode, format: nil)
         engine.mainMixerNode.outputVolume = 0.5
         if observeOutput {
             // Audio taps execute off the main actor; only the measured scalar crosses back.
@@ -31,7 +34,10 @@ final class StudioMusic {
         }
     }
 
-    func load(_ data: Data, name: String) throws {
+    func load(_ data: Data, name: String, gain: Float = 1) throws {
+        guard gain.isFinite, gain >= 0.1, gain <= 16 else {
+            throw NSError(domain: "StudioMusic", code: 3, userInfo: [NSLocalizedDescriptionKey: "音乐响度无效。"])
+        }
         guard data.count >= 14, data.count <= 8 * 1024 * 1024, data.prefix(4) == Data("MThd".utf8) else {
             throw NSError(domain: "StudioMusic", code: 1, userInfo: [NSLocalizedDescriptionKey: "请选择 8 MiB 以内的标准 MIDI 文件。"])
         }
@@ -46,9 +52,17 @@ final class StudioMusic {
         // Keep one sequencer per engine: destroying a replaced sequencer invalidates engine MIDI rendering.
         let next = sequencer ?? AVAudioSequencer(audioEngine: engine)
         try next.load(from: data, options: [])
-        for track in next.tracks { track.destinationAudioUnit = instrument }
+        // Use one shared loop range so melody and accompaniment stay synchronized.
+        let beats = next.tracks.map(\.lengthInBeats).max() ?? 0
+        for track in next.tracks {
+            track.destinationAudioUnit = instrument
+            track.loopRange = AVBeatRange(start: 0, length: beats)
+            track.numberOfLoops = AVMusicTrackLoopCount.forever.rawValue
+            track.isLoopingEnabled = true
+        }
         sequencer = next
         duration = length
+        level.globalGain = 20 * log10(gain)
         self.name = String(name.prefix(120))
     }
 
@@ -78,8 +92,7 @@ final class StudioMusic {
 
     func state() -> [String: Any] {
         let position = sequencer?.currentPositionInSeconds ?? 0
-        if position >= duration, sequencer?.isPlaying == true { stop() }
-        return ["name": name, "duration": duration, "position": sequencer?.currentPositionInSeconds ?? 0,
+        return ["name": name, "duration": duration, "position": duration > 0 ? position.truncatingRemainder(dividingBy: duration) : 0,
                 "playing": sequencer?.isPlaying ?? false, "volume": engine.mainMixerNode.outputVolume, "peak": observedPeak]
     }
 }

@@ -20,7 +20,9 @@ check(e.layers.some(l=>l.sprites?.length>1),'移除预览框仍连续绘制动�
 e.reset(90,160);const coloring=await e.addAsset({id:'coloring-test',category:'background',coloring:true,name:'涂色底稿',src:frame.toDataURL()});
 check(coloring.width===90&&coloring.height===160&&coloring.scale===1,'竖向画纸上的涂色页保留完整构图');
 check(coloring.canvas.getContext('2d').getImageData(45,1,1,1).data[0]===255,'涂色页空余区域补白而非裁掉内容');
-e.reset(320,180);await e.addAsset({id:'real-coloring',category:'background',coloring:true,name:'小火车',src:'/assets/redrawn-v14/coloring-train.png'});
+const catalog=await fetch('/assets/catalog.json').then(response=>response.json());
+const realColoring=catalog.find(asset=>asset.category==='background'&&asset.coloring);
+e.reset(320,180);await e.addAsset({...realColoring,src:'/'+realColoring.src});
 const before=makeCanvas(320,180);e.paint(before.getContext('2d'));const pixels=before.getContext('2d').getImageData(0,0,320,180).data;
 let seed=0;for(let y=50;y<150;y++)for(let x=70;x<250;x++){const i=(y*320+x)*4;if(pixels[i]>250&&pixels[i+1]>250&&pixels[i+2]>250)seed=y*320+x;}
 e.begin({x:seed%320,y:Math.floor(seed/320)},{tool:'fill',fillMode:'region',color:'#ef9944',opacity:1,tolerance:15});e.end();

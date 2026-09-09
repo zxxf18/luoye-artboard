@@ -1,0 +1,60 @@
+name: Desktop build
+
+on:
+  push:
+    branches: [main, 'verify/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Test shared code and music
+        run: node --test tests/*.test.js
+      - name: Verify reproducible music assets
+        run: |
+          node tools/prepare-music.mjs
+          git diff --exit-code -- public/music
+      - name: Compile macOS arm64 client
+        run: node tools/build-mac.mjs
+      - name: Compile native music validation
+        run: xcrun swiftc -swift-version 6 -framework AVFoundation -framework AudioToolbox native/macos/Music.swift tests/music-smoke.swift -o build/music-smoke
+
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test shared code and music
+        run: node --test tests/*.test.js
+      - name: Download official WebView2 redistributable
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/tooling | Out-Null
+          curl.exe --fail --location --retry 3 'https://go.microsoft.com/fwlink/?linkid=2124701' -o build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $signature = Get-AuthenticodeSignature build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') { throw 'Invalid Microsoft signature' }
+      - name: Compile Windows x64 client
+        run: node tools/build-windows.mjs
+      - name: Verify all music loops with the Windows synthesizer
+        run: dotnet run --project tests/windows-music-smoke.csproj -c Release -- "$pwd"

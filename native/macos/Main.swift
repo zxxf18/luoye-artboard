@@ -302,10 +302,14 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         do {
             switch action {
             case "track":
-                guard let index = body["index"] as? Int, (0..<20).contains(index),
+                guard let index = body["index"] as? Int,
                       let root = Bundle.main.resourceURL else { throw MusicMessageError.invalid }
-                let url = root.appendingPathComponent("site/music/back\(index).mid")
-                try music.load(Data(contentsOf: url), name: "背景音乐 \(index + 1)")
+                let directory = root.appendingPathComponent("site/music")
+                guard let tracks = try JSONSerialization.jsonObject(with: Data(contentsOf: directory.appendingPathComponent("tracks.json"))) as? [[String: Any]],
+                      tracks.indices.contains(index), let file = tracks[index]["file"] as? String,
+                      let gain = tracks[index]["gain"] as? Double,
+                      (file as NSString).lastPathComponent == file, file.hasSuffix(".mid") else { throw MusicMessageError.invalid }
+                try music.load(Data(contentsOf: directory.appendingPathComponent(file)), name: tracks[index]["label"] as? String ?? "音乐\(index + 1)", gain: Float(gain))
                 try music.play()
             case "import":
                 guard let base64 = body["data"] as? String, base64.count <= 12 * 1024 * 1024,

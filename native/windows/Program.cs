@@ -66,7 +66,15 @@ sealed class StudioWindow : Form
                 case "music":
                     music??=new StudioMusic(Path.Combine(AppContext.BaseDirectory,"audio","GeneralUser-GS.sf2"));
                     switch(body.GetProperty("action").GetString()) {
-                        case "track":var index=body.GetProperty("index").GetInt32();if(index<0||index>=20)throw new InvalidDataException("歌曲编号无效。");music.Load(File.ReadAllBytes(Path.Combine(site,"music",$"back{index}.mid")),"背景音乐 "+(index+1));music.Play();break;
+                        case "track":
+                            using(var tracks=JsonDocument.Parse(File.ReadAllText(Path.Combine(site,"music","tracks.json")))) {
+                                var index=body.GetProperty("index").GetInt32();
+                                if(index<0||index>=tracks.RootElement.GetArrayLength())throw new InvalidDataException("歌曲编号无效。");
+                                var track=tracks.RootElement[index];var file=track.GetProperty("file").GetString()??"";
+                                if(Path.GetFileName(file)!=file||!file.EndsWith(".mid",StringComparison.Ordinal))throw new InvalidDataException("音乐文件名无效。");
+                                music.Load(File.ReadAllBytes(Path.Combine(site,"music",file)),track.GetProperty("label").GetString()??$"音乐{index+1}",track.GetProperty("gain").GetDouble());music.Play();
+                            }
+                            break;
                         case "import":var data=body.GetProperty("data").GetString()??"";if(data.Length>12*1024*1024)throw new InvalidDataException("音乐过大。");music.Load(Convert.FromBase64String(data),body.GetProperty("name").GetString()??"我的音乐");music.Play();break;
                         case "play":music.Play();break;
                         case "stop":music.Stop();break;
