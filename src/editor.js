@@ -140,7 +140,7 @@ export class EditorEngine extends PaintEngine {
       if(g.kind==='shape'){this.captureTiles(g.layer,{x:0,y:0,width:g.layer.width,height:g.layer.height},g.tiles);const ctx=g.layer.canvas.getContext('2d');ctx.save();this.drawShape(ctx,g);ctx.restore();this.recordPixels(g.layer,g.tiles);this.changed();}}
     this.render();
   }
-  drawShape(ctx,g){const o=g.options,paint=o.fillSource==='texture'&&this.paintTexture?ctx.createPattern(this.paintTexture.canvas,'repeat'):o.color;ctx.strokeStyle=paint;ctx.fillStyle=paint;ctx.lineWidth=o.size/g.layer.scale;ctx.globalAlpha*=o.opacity;ctx.lineCap='round';if(o.dashed)ctx.setLineDash([ctx.lineWidth*3,ctx.lineWidth*2]);const path=shapePath(o.tool,g.start,g.end,g.points);if(o.filled)ctx.fill(path);else ctx.stroke(path);}
+  drawShape(ctx,g){const o=g.options,paint=o.fillSource==='texture'&&this.paintTexture?ctx.createPattern(this.paintTexture.canvas,'repeat'):o.color;ctx.strokeStyle=paint;ctx.fillStyle=paint;ctx.lineWidth=o.size/g.layer.scale;ctx.globalAlpha*=o.opacity;ctx.lineCap='round';ctx.setLineDash(o.dashed?[ctx.lineWidth*3,ctx.lineWidth*2]:[]);const path=shapePath(o.tool,g.start,g.end,g.points);if(o.filled&&!['line','bezier'].includes(o.tool))ctx.fill(path);else ctx.stroke(path);}
   fillAt(point,options,end=point){
     const layer=this.active,start=toLayerPoint(point,layer),finish=toLayerPoint(end,layer),mode=options.fillMode||'region';
     const composite=this.paperMode?makeCanvas(this.width,this.height):null;if(composite)this.paint(composite.getContext('2d'));

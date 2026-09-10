@@ -11,7 +11,7 @@ await mkdir(path.join(app, 'Contents/Resources'), { recursive:true });
 await mkdir(path.join(root, 'build/swift-cache'), { recursive:true });
 await rm(path.join(app, 'Contents/Resources/site'), { recursive:true, force:true });
 await cp(path.join(root, 'dist'), path.join(app, 'Contents/Resources/site'), { recursive:true });
-for(const name of ['index.html','app.js','playroom.css','assets/catalog.json']){
+for(const name of ['index.html','app.js','playroom.css','tool-shelf.css','assets/catalog.json']){
  const actual=await readFile(path.join(app,'Contents/Resources/site',name));
  const expected=await readFile(path.join(root,'dist',name));
  if(!actual.equals(expected))throw new Error('Mac 资源复制不完整：'+name);

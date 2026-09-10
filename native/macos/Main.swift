@@ -41,7 +41,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.uiDelegate = self
         view.navigationDelegate = self
-        if #available(macOS 13.3, *) { view.isInspectable = true }
+        if #available(macOS 13.3, *) { view.isInspectable = smokePath != nil }
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1380, height: 900),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self

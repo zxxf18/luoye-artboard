@@ -16,6 +16,7 @@ tests/obj/
 
 # Local archives and generated deliveries
 local-only/
+/design/
 *.app/
 *.zip
 *.dmg

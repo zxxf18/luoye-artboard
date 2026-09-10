@@ -76,9 +76,12 @@ export class PaintEngine {
     for(const l of layers){pixels+=l.width*l.height*(1+(l.spriteClip?1:0)+(l.eraseMask?1:0));for(const f of [...(l.frames||[]),...(l.spriteGroups||[]).flatMap(g=>g.frames)])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}}
     return pixels;
   }
-  addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
-    const planned=[...this.layers,{width:canvas.width,height:canvas.height,...extra}],eraseReserve=planned.reduce((n,l)=>n+(l.role!=='background'&&!l.eraseMask?l.width*l.height:0),0);
+  assertSceneCapacity(planned){
+    const eraseReserve=planned.reduce((n,l)=>n+(!l.eraseMask?l.width*l.height:0),0);
     if(this.scenePixels(planned)+eraseReserve>90000000)throw new Error('图层和动画已接近内存预算，请先擦除或移走一些内容。已为橡皮保留空间。');
+  }
+  addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
+    this.assertSceneCapacity([...this.layers,{width:canvas.width,height:canvas.height,...extra}]);
     if (this.layers.length >= MAX_LAYERS) throw new Error(`当前版本最多支持 ${MAX_LAYERS} 个图层。`);
     const previous = this.activeId;
     const { insertAt = this.layers.length, ...properties } = extra;

@@ -7,56 +7,46 @@
 .playroom .tool-rail{grid-column:3;grid-row:1;background:#edcca9;border:2px solid #cc9d73;border-radius:24px;padding:10px 8px;gap:10px;min-height:0;display:flex;flex-direction:column;box-shadow:0 5px 0 #b8835733}.playroom .tool-rail #tools{display:flex;flex-direction:column;gap:8px;min-height:0;width:100%;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#bd8d69 #edcca9;padding:3px}.playroom .tool-button{width:100%;flex:1;min-height:calc(62px*var(--u));height:auto;max-height:calc(108px*var(--u));display:flex;flex-direction:column;gap:1px;border-radius:18px;padding:4px;background:#fff1dd;border:2px solid #ddb58e;color:var(--ink);font-size:calc(14px*var(--u))}.playroom .tool-button .playful-icon{width:calc(40px*var(--u));height:calc(40px*var(--u))}.playroom .tool-button[aria-pressed=true]:before{display:none}.playroom .tool-page{flex:none;width:100%;padding:8px 3px;display:flex;flex-direction:column;gap:2px;font-size:calc(14px*var(--u));background:#fff2d1}.playroom .tool-page small{font-size:12px;color:#896443}
 .playroom .studio{grid-column:2;grid-row:1;min-height:0;min-width:0;display:flex;flex-direction:column;gap:8px;background:transparent}.playroom .canvas-topbar{display:flex;align-items:center;gap:10px;flex:none;min-height:48px}.playroom .workspace-tabs{display:flex;gap:6px;flex:none}.playroom .workspace-tabs button{font-size:calc(14px*var(--u));padding:8px 14px;border-color:#d6b185;background:#fff4df}.playroom .canvas-welcome{flex:1;text-align:center;font-size:14px;color:#966944;white-space:nowrap}.playroom .zoom-controls{margin-left:auto;gap:3px}.playroom .zoom-controls button{width:44px;height:44px;font-size:18px;padding:0;border:1px solid #d7b790;background:#fff2d9}.playroom .zoom-controls #fit{font-size:14px;width:52px}.playroom #zoom-value{font-size:12px;min-width:36px}.playroom .viewport{flex:1;min-height:100px!important;min-width:0;max-height:none;height:auto;margin:0;padding:14px;background:#ead1ab;background-image:none;border:3px solid #fff9ed;border-radius:20px;box-shadow:0 0 0 2px #d1a36e,inset 0 2px 8px #9e704626;overflow:auto}.playroom .canvas-sheet{box-shadow:0 4px 12px #86573226}.playroom .canvas-footer{height:24px;flex:none;margin:0;padding:0 4px;font-size:12px;color:#78573e;gap:12px;overflow:hidden}.playroom #tool-hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.playroom .muted{color:#8d6e50}.playroom .status-dot{background:#b1763b}
 .playroom .quick-palette{display:flex;gap:8px;align-items:center;flex:none;min-width:0;height:64px;padding:2px 4px;background:#fff0d5;border:2px solid #dfbd8e;border-radius:20px}.playroom .swatches{display:flex;flex-wrap:nowrap;justify-content:flex-start;min-width:0;overflow-x:auto;gap:4px;padding:5px 3px;scrollbar-width:thin;scrollbar-color:#c5976d transparent}.playroom .swatch{width:44px;height:44px;min-width:44px;min-height:44px;flex:none;border:5px solid #fff7e8;border-radius:50%;padding:0;box-shadow:0 1px 3px #6a483933}.playroom .swatch[aria-pressed=true]{box-shadow:0 0 0 2px #874b30;outline:2px solid #fff8e7;outline-offset:-6px;transform:none}.playroom .swatch:hover{transform:none;filter:brightness(1.07)}.playroom .more-colors{border:0;background:#fff0d5;box-shadow:none;gap:4px;min-width:76px;font-size:12px;padding:2px;display:flex;flex-direction:column;flex:none}.playroom .more-colors .playful-icon{width:28px;height:28px}
-.playroom .classic-parameters{display:flex;align-items:center;gap:12px;flex:none;min-height:94px;padding:10px 12px;background:#fff8e9;border:2px solid #ddba8b;border-radius:20px;min-width:0}.playroom .brush-inspector{display:flex;align-items:center;gap:8px;min-width:0;flex:1}.playroom #active-brush-preview{width:90px;flex:none}.playroom #active-brush-preview canvas{width:100%;height:48px;object-fit:contain}.playroom #active-brush-preview .playful-icon{width:48px;height:48px}.playroom .brush-inspector strong{display:block;font-size:calc(17px*var(--u))}.playroom .brush-inspector span{display:block;font-size:12px;color:#8f674c}.playroom .options-bar{height:auto;min-height:0;flex:none;background:transparent;border:0;padding:0;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:14px}.playroom #brush-options,.playroom .opacity-control{display:grid;grid-template-columns:1fr auto;gap:4px;align-items:center}.playroom #brush-options>label,.playroom .opacity-control>label{grid-row:1;grid-column:1}.playroom #brush-options>input,.playroom .opacity-control>input{grid-row:2;grid-column:1/-1;width:100px}.playroom #brush-options>output,.playroom .opacity-control>output{grid-row:1;grid-column:2;color:#8e573e;font-size:13px}.playroom #brush-choose,.playroom .divider{display:none}.playroom .settings-button{font-size:14px;flex:none;flex-direction:column;padding:5px 8px;gap:0}.playroom .settings-button .playful-icon{width:30px;height:30px}
+.playroom .brush-inspector{display:flex;align-items:center;gap:8px;min-width:0;flex:1}.playroom #active-brush-preview{width:90px;flex:none}.playroom #active-brush-preview canvas{width:100%;height:48px;object-fit:contain}.playroom #active-brush-preview .playful-icon{width:48px;height:48px}.playroom .brush-inspector strong{display:block;font-size:calc(17px*var(--u))}.playroom .brush-inspector span{display:block;font-size:12px;color:#8f674c}.playroom #brush-choose,.playroom .divider{display:none}
 .playroom input[type=range]{appearance:none;-webkit-appearance:none;background:transparent;min-width:80px;min-height:44px;height:44px;cursor:pointer;margin:0;accent-color:#c47143}.playroom input[type=range]::-webkit-slider-runnable-track{height:12px;background:#efd4a6;border:2px solid #d2a775;border-radius:12px}.playroom input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:28px;height:28px;margin-top:-10px;border:3px solid #9f5835;border-radius:50%;background:#f6bb65;box-shadow:inset 0 0 0 3px #ffe9ae,0 2px 1px #98623544}.playroom input[type=range]::-moz-range-track{height:10px;background:#efd4a6;border:2px solid #d2a775;border-radius:12px}.playroom input[type=range]::-moz-range-thumb{width:24px;height:24px;border:3px solid #9f5835;border-radius:50%;background:#f6bb65}
 .playroom dialog{color:var(--ink);background:#fff6e2;border:3px solid #c79460;border-radius:28px;padding:24px;width:min(660px,calc(100vw - 36px));max-height:calc(100dvh - 36px);overflow:auto;box-shadow:0 9px 0 #89583c33,0 20px 80px #6a493744;font-size:calc(15px*var(--u))}.playroom dialog::backdrop{background:#65493466;backdrop-filter:blur(3px)}.playroom dialog h2{font-size:calc(24px*var(--u));color:#8b4d31;margin:0 0 18px}.playroom dialog p{font-size:14px;color:#835e46;line-height:1.7;margin:10px 0 18px}.playroom dialog label{font-size:calc(15px*var(--u));color:var(--ink);margin:10px 0;display:block}.playroom .wide-dialog{width:min(980px,calc(100vw - 36px))}.playroom .dialog-actions{position:sticky;bottom:-24px;background:#fff6e2;z-index:2;padding:14px 0 0;display:flex;justify-content:flex-end;gap:12px;margin-top:18px;flex:none}.playroom dialog input:not([type=checkbox]):not([type=range]):not([type=file]):not([type=color]),.playroom textarea{border:2px solid #d9b78d;border-radius:12px;background:#fffdf6;color:var(--ink);font:inherit;padding:10px 12px;min-height:44px}.playroom input[type=checkbox]{appearance:none;-webkit-appearance:none;width:28px;height:28px;min-width:28px;min-height:28px;border:2px solid #ba8e5f;border-radius:8px;background:#fffaf0;vertical-align:middle;margin:0 7px 0 0;display:inline-grid;place-content:center}.playroom input[type=checkbox]:checked{background:#c97c44;border-color:#955330}.playroom input[type=checkbox]:checked:after{content:'✓';color:#fff;font-size:22px;font-weight:bold}.playroom label:has(input[type=checkbox]){min-height:44px;display:flex;align-items:center;cursor:pointer}.playroom .choice-source{display:none!important}.playroom .choice-button{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;min-width:120px;border-color:#d9ad7a;background:#fff0d0;text-align:left;font-size:calc(15px*var(--u));max-width:100%;font-weight:650}.playroom .choice-arrow{font-size:20px;color:#a2673d}.playroom .choice-dialog{width:min(860px,calc(100vw - 36px))}.playroom .choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(144px,1fr));gap:12px;max-height:60vh;overflow:auto;padding:5px}.playroom .choice-card{display:flex;flex-direction:column;gap:8px;min-height:132px;min-width:0;background:#fffaf0;padding:14px}.playroom .choice-card>span:last-child{overflow-wrap:anywhere}.playroom .choice-picture,.playroom .choice-card>img{height:64px;width:72px;object-fit:cover;display:grid;place-items:center;border-radius:12px}.playroom .choice-picture svg{width:64px;height:64px}.playroom .font-sample{font-size:32px;line-height:1;color:#9c563b;max-width:100%;max-height:100%;overflow:hidden;display:grid;place-items:center}.playroom #choice-search{width:100%;margin-bottom:16px}.playroom .number-stepper{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:6px}.playroom .number-stepper button{width:44px;padding:0;font-size:24px;background:#ffe6b9}.playroom .number-stepper input[type=number]{width:72px;text-align:center;appearance:textfield;-moz-appearance:textfield;padding:6px}.playroom input[type=number]::-webkit-inner-spin-button,.playroom input[type=number]::-webkit-outer-spin-button{appearance:none;margin:0}.playroom .tool-settings .detail-bar{display:flex;flex-wrap:wrap;gap:16px;padding:0;background:transparent;min-height:0;overflow:visible;white-space:normal;align-items:flex-start}.playroom .detail-bar>label,.playroom .creative-options>label{min-height:76px;background:#ffefd1;border:2px solid #e3c298;border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0;font-size:15px}.playroom .detail-bar input[type=range]{width:170px}.playroom .creative-options{display:contents}.playroom .detail-bar select{max-width:none}.playroom #option-help{display:none}.playroom .dialog-grid,.playroom .more-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.playroom .dialog-grid button,.playroom .more-actions button{min-height:58px;background:#fff0d1;border:2px solid #dfb580;font-size:15px}.playroom .document-name input{width:100%;max-width:none}.playroom .document-name{display:flex}.playroom #save-state{font-size:13px}
 .playroom .palette-editor{display:grid;grid-template-columns:256px 1fr;gap:24px}.playroom #color-plane{width:256px;height:192px;border:3px solid #c39462;border-radius:16px;touch-action:none;cursor:crosshair}.playroom .palette-editor label{display:flex;align-items:center;gap:8px}.playroom .palette-editor .number-stepper{margin-left:auto}.playroom #color-preview{height:50px;border:4px solid #fff;border-radius:14px;box-shadow:0 0 0 2px #d3b38c}.playroom #color-alpha-value{min-width:40px}.playroom .palette-editor input[type=range]{width:100%}.playroom #color-value{max-width:190px}
 .playroom .text-layout{display:grid;grid-template-columns:minmax(310px,1fr) 1fr;gap:24px}.playroom .text-layout textarea{width:100%;resize:vertical;min-height:90px}.playroom .text-style-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.playroom .text-style{padding:8px;border:2px solid #dec299;border-radius:12px;margin:0;gap:6px;background:#fffaf0;font-size:14px;min-height:54px}.playroom .text-style:has(input:checked){background:#ffdda3;border-color:#c88449}.playroom .text-style-icon{width:28px;height:28px;display:grid;place-items:center;font:bold 24px Georgia;background:none!important}.playroom .text-texture-actions{display:flex;gap:8px;flex-wrap:wrap}.playroom .text-texture-actions button{font-size:14px}.playroom .effect-preview{background:repeating-conic-gradient(#f1eadb 0% 25%,#fffdf6 0% 50%) 50%/16px 16px;border:2px solid #d8b58e;border-radius:18px;min-height:260px;align-self:start;padding:16px;max-width:100%;color:#82614a}.playroom .effect-preview canvas{max-width:100%;max-height:320px;object-fit:contain}.playroom #text-preview canvas{max-width:100%;height:auto}.playroom #text-error{color:#a24532}.playroom .effect-layout{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:24px}.playroom .darkroom-categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.playroom .darkroom-categories button{font-size:14px;padding:10px}.playroom #effect-parameters label{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.playroom #effect-parameters input{width:170px}.playroom #function-modes fieldset{border:2px solid #e0bd91;border-radius:14px;margin:10px 0;padding:12px}.playroom #function-modes label{display:flex;align-items:center;gap:12px;font-size:14px}.playroom #function-modes input{width:150px}.playroom #fractal-bounds{display:grid;grid-template-columns:1fr 1fr;gap:8px}.playroom #fractal-bounds label{display:flex;flex-direction:column}.playroom #fractal-bounds .number-stepper{margin:0}.playroom #fractal-bounds .number-stepper input{width:54px}.playroom .fractal-style{display:flex;gap:6px;margin:12px 0}.playroom #fractal-preview canvas{max-width:100%;height:auto}.playroom #fractal-note{font-size:14px}.playroom #fractal-style{font-size:14px}
-.playroom .right-panel{display:none}.playroom.library-open .right-panel{display:flex;flex-direction:column;position:absolute;z-index:4;left:calc(var(--left) + 24px);right:calc(var(--right) + 24px);top:72px;bottom:18px;background:#fff3d8;border:3px solid #ce9d69;border-radius:24px;padding:16px;min-height:0;box-shadow:0 12px 32px #95632d33}.playroom .library-close{align-self:flex-end;flex:none;margin-bottom:8px;background:#f7cf91}.playroom .library{padding:0;min-height:0;flex:1;overflow:hidden}.playroom .panel-heading h2{font-size:20px}.playroom .panel-heading>span{font-size:13px}.playroom .panel-description{font-size:14px;margin-top:8px}.playroom .categories{gap:6px;margin:14px 0;flex:none}.playroom .categories button{font-size:14px;min-height:44px;padding:8px 12px;color:var(--ink);border:2px solid #dfb884;background:#fffaf0}.playroom .asset-grid{grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:12px;min-height:100px;max-height:none;overflow-y:auto;flex:1;padding:4px}.playroom .asset{min-height:144px;background:#fffaf1;border:2px solid #e3c596;border-radius:18px;padding:12px 8px;gap:6px}.playroom .asset img{height:90px;width:105px}.playroom .asset span{font-size:14px;color:#714d38}.playroom .asset .asset-add{opacity:1;width:24px;height:24px;background:#f2c779;color:#7f482d}.playroom .library-tip{display:none}.playroom .layers-panel{padding:0;min-height:0;max-height:none;border:0}.playroom #layer-list{max-height:200px;overflow:auto;margin:12px 0;gap:8px}.playroom .layer-row{min-height:58px;border:2px solid #e3c397;border-radius:14px;background:#fff8e9}.playroom .layer-row.active{background:#ffe3b1;border-color:#c4844e}.playroom .layer-name{font-size:15px;min-height:44px;box-shadow:none;border:0;background:transparent}.playroom .layer-thumb{width:66px;height:44px;border-radius:8px}.playroom .eye-button{min-height:44px;min-width:44px}.playroom .layer-actions{gap:8px;margin-bottom:18px}.playroom .layer-actions button{min-height:44px;min-width:44px;font-size:14px}.playroom #layer-dialog{width:min(860px,calc(100vw - 36px))}.playroom #current-layer-name{font-weight:bold}.playroom .music-dialog{width:min(520px,calc(100vw - 36px))}.playroom .music-tracks,.playroom .music-transport{display:flex;gap:10px;justify-content:center;align-items:center;margin:14px 0}.playroom .music-transport button{min-height:64px;flex:1;background:#fbd694;font-size:18px}.playroom .music-dialog input[type=range]{width:220px}.playroom #music-volume-value{margin-left:12px}.playroom #toast{font-size:16px;background:#70462f;color:#fff8eb;max-width:calc(100vw - 40px);bottom:32px;padding:14px 22px;border:2px solid #e3b67f;border-radius:18px;z-index:30}.playroom .display-options{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}.playroom .display-options button{min-height:68px;min-width:120px}.playroom #display-note{font-size:14px}.playroom .display-dialog h3{font-size:17px;margin-top:22px}
-@media(min-width:1850px){.playroom .brush-card{min-height:calc(98px*var(--u))}.playroom .brush-card>.playful-icon{width:calc(46px*var(--u));height:calc(46px*var(--u))}.playroom .brush-inspector span{font-size:14px}.playroom .classic-parameters{min-height:110px}.playroom .tool-button .playful-icon{width:calc(52px*var(--u));height:calc(52px*var(--u))}}
-@media(max-width:1250px){.playroom .brand{min-width:102px}.playroom .brand>.playful-icon{width:42px;height:42px}.playroom .brand small{display:none}.playroom .header-actions{gap:5px}.playroom .header-actions button{min-width:58px;padding:3px 5px;font-size:14px}.playroom .canvas-welcome{display:none}.playroom .canvas-topbar{gap:4px}.playroom .workspace-tabs button{padding:8px 10px}.playroom .brush-inspector{min-width:100px}.playroom #active-brush-preview{display:none}.playroom .brush-inspector span{display:none}.playroom .options-bar{gap:10px}.playroom .settings-button{font-size:13px}.playroom .classic-parameters{padding:8px;gap:8px}.playroom #zoom-value{display:none}.playroom .brush-card{grid-template-columns:1fr;justify-items:center;min-height:84px}.playroom .brush-card>.playful-icon{height:32px;width:32px}.playroom .brush-card>span:not(.brush-sample){text-align:center}.playroom .brush-card .brush-sample{height:18px;width:100%}}
-@media(max-width:980px){.playroom .app-header{padding:8px}.playroom .header-actions button{min-width:50px;font-size:12px}.playroom .brand{min-width:84px}.playroom .brand>.playful-icon{display:none}.playroom .workspace{gap:8px;padding:8px}.playroom .classic-left{padding:8px}.playroom .canvas-topbar .zoom-controls{gap:2px}.playroom .workspace-tabs{gap:3px}.playroom .workspace-tabs button{font-size:14px;padding:7px}.playroom .zoom-controls #fit{display:none}.playroom .brush-inspector strong{font-size:15px}.playroom .options-bar input[type=range]{width:80px!important}.playroom.library-open .right-panel{left:calc(var(--left) + 16px);right:calc(var(--right) + 16px)}.playroom .text-layout{grid-template-columns:minmax(280px,1fr) 1fr;gap:16px}}
-@media(max-height:740px){.playroom{--header:72px}.playroom .app-header{height:72px}.playroom .header-actions button{height:58px}.playroom .tool-button{min-height:54px}.playroom .tool-button .playful-icon{width:32px;height:32px}.playroom .classic-parameters{min-height:78px;padding:6px 10px}.playroom .quick-palette{height:58px}.playroom .workspace{padding-top:8px;padding-bottom:8px}.playroom .canvas-topbar{min-height:44px}.playroom .classic-left{gap:8px}.playroom .brush-card{min-height:78px}.playroom .viewport{padding:8px}.playroom dialog{padding:20px}.playroom .dialog-actions{bottom:-20px}.playroom dialog h2{font-size:22px;margin-bottom:12px}}
+.playroom .right-panel{display:none}.playroom.library-open .right-panel{display:flex;flex-direction:column;position:absolute;z-index:4;left:calc(var(--left) + 24px);right:calc(var(--right) + 24px);top:72px;bottom:18px;background:#fff3d8;border:3px solid #ce9d69;border-radius:24px;padding:16px;min-height:0;box-shadow:0 12px 32px #95632d33}.playroom .library{padding:0;min-height:0;flex:1;overflow:hidden}.playroom .panel-heading h2{font-size:20px}.playroom .panel-heading>span{font-size:13px}.playroom .panel-description{font-size:14px;margin-top:8px}.playroom .categories{gap:6px;margin:14px 0;flex:none}.playroom .categories button{font-size:14px;min-height:44px;padding:8px 12px;color:var(--ink);border:2px solid #dfb884;background:#fffaf0}.playroom .asset-grid{grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:12px;min-height:100px;max-height:none;overflow-y:auto;flex:1;padding:4px}.playroom .asset{min-height:144px;background:#fffaf1;border:2px solid #e3c596;border-radius:18px;padding:12px 8px;gap:6px}.playroom .asset img{height:90px;width:105px}.playroom .asset span{font-size:14px;color:#714d38}.playroom .asset .asset-add{opacity:1;width:24px;height:24px;background:#f2c779;color:#7f482d}.playroom .library-tip{display:none}.playroom .layers-panel{padding:0;min-height:0;max-height:none;border:0}.playroom #layer-list{max-height:200px;overflow:auto;margin:12px 0;gap:8px}.playroom .layer-row{min-height:58px;border:2px solid #e3c397;border-radius:14px;background:#fff8e9}.playroom .layer-row.active{background:#ffe3b1;border-color:#c4844e}.playroom .layer-name{font-size:15px;min-height:44px;box-shadow:none;border:0;background:transparent}.playroom .layer-thumb{width:66px;height:44px;border-radius:8px}.playroom .eye-button{min-height:44px;min-width:44px}.playroom .layer-actions{gap:8px;margin-bottom:18px}.playroom .layer-actions button{min-height:44px;min-width:44px;font-size:14px}.playroom #layer-dialog{width:min(860px,calc(100vw - 36px))}.playroom #current-layer-name{font-weight:bold}.playroom .music-dialog{width:min(520px,calc(100vw - 36px))}.playroom .music-tracks,.playroom .music-transport{display:flex;gap:10px;justify-content:center;align-items:center;margin:14px 0}.playroom .music-transport button{min-height:64px;flex:1;background:#fbd694;font-size:18px}.playroom .music-dialog input[type=range]{width:220px}.playroom #music-volume-value{margin-left:12px}.playroom #toast{font-size:16px;background:#70462f;color:#fff8eb;max-width:calc(100vw - 40px);bottom:32px;padding:14px 22px;border:2px solid #e3b67f;border-radius:18px;z-index:30}.playroom .display-options{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}.playroom .display-options button{min-height:68px;min-width:120px}.playroom #display-note{font-size:14px}.playroom .display-dialog h3{font-size:17px;margin-top:22px}
+@media(min-width:1850px){.playroom .brush-card{min-height:calc(98px*var(--u))}.playroom .brush-card>.playful-icon{width:calc(46px*var(--u));height:calc(46px*var(--u))}.playroom .brush-inspector span{font-size:14px}.playroom .tool-button .playful-icon{width:calc(52px*var(--u));height:calc(52px*var(--u))}}
+@media(max-width:1250px){.playroom .brand{min-width:102px}.playroom .brand>.playful-icon{width:42px;height:42px}.playroom .brand small{display:none}.playroom .header-actions{gap:5px}.playroom .header-actions button{min-width:58px;padding:3px 5px;font-size:14px}.playroom .canvas-welcome{display:none}.playroom .canvas-topbar{gap:4px}.playroom .workspace-tabs button{padding:8px 10px}.playroom .brush-inspector{min-width:100px}.playroom #active-brush-preview{display:none}.playroom .brush-inspector span{display:none}.playroom #zoom-value{display:none}.playroom .brush-card{grid-template-columns:1fr;justify-items:center;min-height:84px}.playroom .brush-card>.playful-icon{height:32px;width:32px}.playroom .brush-card>span:not(.brush-sample){text-align:center}.playroom .brush-card .brush-sample{height:18px;width:100%}}
+@media(max-width:980px){.playroom .app-header{padding:8px}.playroom .header-actions button{min-width:50px;font-size:12px}.playroom .brand{min-width:84px}.playroom .brand>.playful-icon{display:none}.playroom .workspace{gap:8px;padding:8px}.playroom .classic-left{padding:8px}.playroom .canvas-topbar .zoom-controls{gap:2px}.playroom .workspace-tabs{gap:3px}.playroom .workspace-tabs button{font-size:14px;padding:7px}.playroom .zoom-controls #fit{display:none}.playroom .brush-inspector strong{font-size:15px}.playroom.library-open .right-panel{left:calc(var(--left) + 16px);right:calc(var(--right) + 16px)}.playroom .text-layout{grid-template-columns:minmax(280px,1fr) 1fr;gap:16px}}
+@media(max-height:740px){.playroom{--header:72px}.playroom .app-header{height:72px}.playroom .header-actions button{height:58px}.playroom .tool-button{min-height:54px}.playroom .tool-button .playful-icon{width:32px;height:32px}.playroom .quick-palette{height:58px}.playroom .workspace{padding-top:8px;padding-bottom:8px}.playroom .canvas-topbar{min-height:44px}.playroom .classic-left{gap:8px}.playroom .brush-card{min-height:78px}.playroom .viewport{padding:8px}.playroom dialog{padding:20px}.playroom .dialog-actions{bottom:-20px}.playroom dialog h2{font-size:22px;margin-bottom:12px}}
 @media(prefers-reduced-motion:reduce){.playroom *{transition:none!important;scroll-behavior:auto!important}}
 .playroom{--left:calc(clamp(200px,16vw,248px)*var(--u))}.playroom #background-picker-open{min-height:48px}.playroom .choice-picture .playful-icon{width:64px;height:64px}
 @media(max-width:980px){.playroom .header-actions button{font-size:14px;min-width:58px}.playroom .header-actions #display-open{min-width:70px}.playroom .header-actions{gap:4px}.playroom .brand{min-width:64px}.playroom .brand strong{font-size:22px}}
 @media(max-height:740px){.playroom{--header:80px}.playroom .app-header{height:80px}.playroom .header-actions button{height:64px}.playroom .brush-box{gap:6px}.playroom .brush-card{grid-template-columns:auto 1fr;grid-template-rows:auto auto;min-height:60px;padding:3px;gap:0}.playroom .brush-card>.playful-icon{width:32px;height:32px}.playroom .brush-card>span:not(.brush-sample){font-size:14px;word-break:normal}.playroom .brush-card .brush-sample{height:16px}.playroom #palette-open{display:none}.playroom .classic-colors{padding:6px}.playroom .classic-colors:after{content:'点颜色，调一调';display:block;text-align:center;font-size:12px;color:#865b3c;margin-top:4px}.playroom .left-actions{gap:6px}}
 
 .playroom .choice-card{position:relative}.playroom .choice-card[aria-pressed=true]:after{content:"✓";position:absolute;right:12px;top:8px;color:#8a4e2d;font-size:22px}.playroom .text-result{min-width:0}.playroom .text-result .effect-preview{min-height:220px}.playroom .text-result .text-texture-actions{margin-top:12px}.playroom .detail-bar>label:has(#paint-on-layer){flex-direction:row;align-items:center}
-.playroom{--left:calc(clamp(216px,16vw,248px)*var(--u))}.playroom .all-brushes{flex:none;min-height:44px;font-size:14px;background:#ffdeaa}.playroom .expanded-brushes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.playroom .expanded-brushes button{display:flex;flex-direction:column;gap:3px;min-height:132px;padding:8px}.playroom .expanded-brushes .playful-icon{width:44px;height:44px}.playroom .expanded-brushes strong{font-size:17px}.playroom .expanded-brushes span{font-size:13px}.playroom .expanded-brushes canvas{width:100%;height:32px;object-fit:contain}
+.playroom{--left:calc(clamp(216px,16vw,248px)*var(--u))}
 .playroom canvas:focus-visible{outline:3px solid #b87b48;outline-offset:1px}
 /* The library is a shelf in the layout: it never overlaps the drawing surface. */
 .playroom .workspace-tabs button{display:flex;align-items:center;gap:5px;padding:5px 9px}.playroom .workspace-tabs .playful-icon{width:30px;height:30px}
 .playroom .subtool-card{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-height:76px;text-align:left;flex:none}.playroom .subtool-card .choice-picture{width:64px;height:54px;flex:none}.playroom .subtool-card svg{width:100%;height:100%}.playroom .subtool-card[aria-pressed=true]:after{content:'✓';margin-left:auto}
 .playroom .choice-button>.choice-picture{width:32px;height:32px;flex:none}.playroom .choice-button>.choice-picture svg,.playroom .choice-button>.choice-picture img{width:100%;height:100%;object-fit:contain}
 .playroom.library-open .right-panel{position:static;inset:auto;z-index:auto;display:flex;flex:none;width:100%;height:clamp(190px,24vh,290px);padding:8px 10px;border-width:2px;border-radius:18px;box-shadow:0 3px 0 #bd875433;gap:4px;overflow:hidden}
-.playroom .right-panel .library-close{position:absolute;right:8px;top:6px;margin:0;min-height:44px;padding:3px 8px;font-size:13px;gap:4px}.playroom .library-close .playful-icon{width:24px;height:24px}.playroom .right-panel{position:relative!important}
+.playroom .right-panel{position:relative!important}
 .playroom .library{display:flex;flex-direction:column;position:static}.playroom .library .panel-heading{display:none}.playroom .panel-description{display:none}.playroom .categories{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;margin:0 110px 4px 0;min-height:48px;max-height:48px;padding:0 0 4px}.playroom .categories button{white-space:nowrap;flex:none;padding:5px 8px;font-size:13px}.playroom .categories .playful-icon{width:25px;height:25px}
 .playroom .asset-grid{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:116px;grid-template-rows:1fr;gap:8px;overflow-x:auto;overflow-y:hidden;min-height:90px;align-items:stretch;padding:2px 2px 8px}.playroom .asset{min-height:0;padding:4px;display:flex;flex-direction:column;justify-content:center}.playroom .asset img{height:clamp(58px,9vh,120px);width:100%;object-fit:contain}.playroom .asset span{font-size:12px}.playroom .asset .asset-add{display:none}.playroom .asset[aria-pressed=true]{background:#ffe1a8;border-color:#b26c40}
-@media(max-height:760px){.playroom.library-open .right-panel{height:180px}.playroom.library-open .brush-inspector{display:none}.playroom.library-open .classic-parameters{min-height:54px;padding:4px}.playroom.library-open .quick-palette{gap:3px}.playroom.library-open .quick-palette button{min-width:36px}.playroom.library-open .canvas-welcome{display:none}}
+@media(max-height:760px){.playroom.library-open .right-panel{height:180px}.playroom.library-open .brush-inspector{display:none}.playroom.library-open .quick-palette{gap:3px}.playroom.library-open .quick-palette button{min-width:36px}.playroom.library-open .canvas-welcome{display:none}}
 @media(max-width:1100px){.playroom .canvas-welcome{display:none}.playroom .workspace-tabs button{padding:4px;gap:2px}.playroom .workspace-tabs .playful-icon{width:25px;height:25px}}
 
 .playroom .brand strong{font-size:calc(21px*var(--u));letter-spacing:1px}
 
 .playroom .picture-action{gap:8px}.playroom .picture-action .playful-icon{width:32px;height:32px}.playroom .choice-picture canvas{width:100%;height:100%;object-fit:contain;border-radius:9px}.playroom .darkroom-categories .picture-action{flex-direction:column;gap:3px}
 /* One reserved bottom shelf; changing tools or opening assets never resizes paper. */
-.playroom .tool-dock{height:220px;flex:none;min-width:0;display:grid;grid-template-rows:58px minmax(0,1fr);gap:6px}
+
 .playroom .tool-dock .quick-palette{height:58px;min-height:0}
-.playroom .tool-dock .classic-parameters{display:grid;grid-template-columns:minmax(0,1fr) 68px;grid-template-rows:1fr 1fr;gap:4px 8px;min-height:0;padding:6px 10px;overflow:hidden}
-.playroom .tool-dock .brush-inspector{display:none}
-.playroom .tool-dock .options-bar{grid-column:1;min-width:0;min-height:0;display:flex;justify-content:space-around;flex-wrap:nowrap;gap:12px;font-size:14px}
-.playroom .tool-dock .settings-button{grid-column:2;grid-row:1/3;align-self:center;min-width:0;padding:4px;font-size:13px}
-.playroom .primary-brush-options{grid-column:1;grid-row:2;min-width:0;display:flex;align-items:center;justify-content:space-around;gap:10px}
-.playroom .primary-brush-options label{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px;margin:0}
-.playroom .primary-brush-options .choice-button{min-width:124px;padding:4px 8px;gap:5px;font-size:14px}
-.playroom .primary-brush-options input[type=range]{width:100px;min-width:65px}
+
 .playroom #ratio-value{font-size:12px;font-variant-numeric:tabular-nums;min-width:28px}
-.playroom .tool-dock .options-bar input[type=range]{width:clamp(80px,12vw,190px)!important;min-width:70px}
-.playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 68px}
+
 .playroom.library-open .tool-dock .quick-palette{display:none}
-.playroom.library-open .tool-dock .classic-parameters{grid-template-rows:1fr}
-.playroom.library-open .primary-brush-options{display:none}
-.playroom.library-open .tool-dock .settings-button{grid-row:1}
+
 .playroom.library-open .tool-dock .right-panel{height:auto;width:100%;min-height:0;inset:auto;padding:4px 8px;gap:2px}
 .playroom .tool-dock .categories{min-height:44px;max-height:44px;margin-bottom:1px}
 .playroom .tool-dock .asset-grid{min-height:0;grid-auto-columns:110px;padding-bottom:5px;gap:6px}
@@ -82,91 +72,41 @@
 .playroom .layer-advanced{border-top:2px solid #e6c79c;margin-top:12px;padding-top:8px}
 .playroom .layer-advanced summary{cursor:pointer;min-height:44px;padding:10px;color:#805735;font-weight:650}
 .playroom .layer-advanced .dialog-grid{margin-top:10px}
-@media(max-height:740px){.playroom .tool-dock{height:202px}.playroom .tool-dock .asset img{height:48px}}
-@media(max-width:1100px){.playroom .primary-brush-options label{gap:3px}.playroom .primary-brush-options{gap:6px}.playroom .primary-brush-options .choice-button{min-width:110px}.playroom .primary-brush-options .choice-picture{display:none}.playroom .tool-dock .classic-parameters{padding:4px;column-gap:4px;grid-template-columns:minmax(0,1fr) 60px}.playroom .tool-dock .options-bar{gap:6px}.playroom .primary-brush-options input[type=range]{width:72px}.playroom #ratio-value{display:none}}
+@media(max-height:740px){.playroom .tool-dock .asset img{height:48px}}
+@media(max-width:1100px){.playroom #ratio-value{display:none}}
 .playroom .subtool-card>.playful-icon{width:58px;height:52px;flex:none}
 .playroom .subtool-card>span{min-width:0}
 .playroom .subtool-box{overflow-x:hidden}
 .playroom .tool-dock .categories{overflow-y:hidden}
-.playroom .tool-dock .options-bar{width:100%;justify-content:flex-start}
-.playroom .tool-dock .options-bar #brush-options,.playroom .tool-dock .options-bar .opacity-control{flex:1;max-width:260px}
-.playroom .tool-dock .options-bar input[type=range]{width:100%!important}
+
 .playroom #selection-reset{background:#ffe0a2;border-color:#b46f38;font-size:13px}
 .playroom #selection-reset span{text-align:left}
 
 /* Direct paper controls: two mutually exclusive illustrated stroke buttons. */
 #toast{display:none!important}
-.playroom #stroke-buttons{display:flex;gap:6px;flex:none}
-.playroom #stroke-buttons button{min-height:52px;min-width:88px;padding:3px 6px;display:flex;gap:3px;font-size:13px}
-.playroom #stroke-buttons .choice-picture{display:block;width:38px;height:38px}
-.playroom #stroke-buttons .choice-picture svg{width:100%;height:100%}
-.playroom #stroke-buttons [aria-pressed=true]{background:#ffd68e;border-color:#ac683e;box-shadow:inset 0 0 0 2px #fff2ce}
-.playroom .primary-brush-options{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:2px 0 5px;scrollbar-width:thin}
-.playroom .primary-brush-options>label{flex:none;flex-direction:column;gap:2px;font-size:12px}
-.playroom .primary-brush-options .choice-button{min-width:112px;min-height:44px;font-size:12px}
-.playroom .options-bar>label[data-option=pen]{display:grid;font-size:14px;grid-template-columns:1fr auto;gap:4px;flex:1;max-width:200px}
-.playroom .options-bar #brush-ratio{grid-column:1/-1;grid-row:2}
-.playroom .options-bar #ratio-value{grid-row:1;grid-column:2;font-size:13px;color:#8e573e}
-#library-pagination{display:none}
-.playroom.library-open #library-pagination{display:flex;align-items:center;gap:6px;grid-row:1;grid-column:1;justify-self:end;background:#fff8e9}
-.playroom #library-pagination button{min-height:46px;min-width:50px;gap:3px;padding:3px;font-size:12px}
-.playroom #library-pagination .playful-icon{width:25px;height:25px}
-.playroom #library-pagination>span{font-size:12px;white-space:nowrap}
-.playroom.library-open .tool-dock .options-bar{padding-right:250px}
-.playroom.library-open .tool-dock .opacity-control{display:none}
+
 #library-groups{display:none}
 .playroom.library-open #library-groups:not(:empty){display:flex;flex-direction:column;gap:7px;min-height:0;overflow:auto;flex:1}
-.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .brush-box,.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .subtool-box,.playroom.library-open .classic-left:has(#library-groups:not(:empty)) #all-brushes-open{display:none}
+.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .brush-box,.playroom.library-open .classic-left:has(#library-groups:not(:empty)) .subtool-box{display:none}
 .playroom #library-groups img{width:58px;height:46px;object-fit:contain;border-radius:9px}
 .playroom #library-groups .subtool-card{min-height:64px;display:flex;flex-direction:row;flex:none}
-@media(max-width:1100px){.playroom #stroke-buttons button{min-width:72px}.playroom #library-pagination button span{display:none}.playroom.library-open .tool-dock .options-bar{padding-right:165px}.playroom #library-pagination{gap:2px}.playroom #library-pagination .playful-icon{width:24px;height:24px}}
-.playroom .tool-dock .options-bar{grid-row:1}
-.playroom.library-open .options-bar>label[data-option=pen]{display:none}
 
 .deprecated-stroke-control{display:none!important}
 .playroom .canvas-footer #tool-hint{display:block;flex:1;min-width:0;text-align:right}
 
 /* A single responsive dock reserves the same space for painting and browsing. */
-.playroom .tool-dock{height:clamp(230px,25dvh,350px);container-type:inline-size;grid-template-rows:clamp(58px,5dvh,72px) minmax(0,1fr)}
+
 .playroom .tool-dock .quick-palette{height:100%}
-.playroom .tool-dock .classic-parameters{grid-template-columns:minmax(0,1fr) clamp(60px,5vw,90px);gap:6px 10px;padding:8px 10px}
-.playroom .tool-dock .options-bar #brush-options,.playroom .tool-dock .options-bar .opacity-control,.playroom .options-bar>label[data-option=pen]{max-width:none;min-width:0}
-.playroom .primary-brush-options{gap:clamp(8px,1vw,24px);justify-content:space-between}
-.playroom .primary-brush-options>label{flex:1}
-.playroom .primary-brush-options .choice-button{width:100%;max-width:230px}
-.playroom .primary-brush-options input[type=range]{width:100%;max-width:230px}
-.playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) clamp(84px,8dvh,110px)}
+
 .playroom .tool-dock .asset-grid{grid-auto-flow:row;grid-template-columns:repeat(var(--shelf-columns,4),minmax(0,1fr));grid-auto-columns:auto;grid-template-rows:minmax(0,1fr);overflow:hidden;gap:clamp(6px,.7vw,12px)}
 .playroom .tool-dock .asset{min-width:0;padding:4px;overflow:hidden}
 .playroom .tool-dock .asset img{height:0;width:100%;flex:1;min-height:32px;object-fit:contain}
 .playroom .tool-dock .asset span{white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25;font-size:clamp(12px,.8vw,16px);max-width:100%}
-.playroom .tool-dock .categories{margin-right:80px}
+.playroom .tool-dock .categories{margin-right:0}
 .playroom .tool-dock .categories button{font-size:clamp(12px,.85vw,16px)}
-.playroom.library-open .tool-dock .classic-parameters{grid-template-columns:minmax(90px,1fr) auto clamp(60px,5vw,90px);grid-template-rows:1fr}
-.playroom.library-open .tool-dock .options-bar{padding-right:0;grid-column:1}
-.playroom.library-open #library-pagination{grid-column:2;gap:6px}
-.playroom.library-open .tool-dock .settings-button{grid-column:3}
-@media(min-width:1800px){.playroom .tool-dock .options-bar,.playroom .primary-brush-options>label{font-size:16px}.playroom #stroke-buttons button,.playroom .primary-brush-options .choice-button{font-size:15px;min-height:54px}.playroom #stroke-buttons .choice-picture{width:46px;height:46px}}
-@media(max-width:1200px){.playroom .tool-dock{height:270px}.playroom .tool-dock .classic-parameters{grid-template-rows:64px minmax(0,1fr)}.playroom.library-open .tool-dock .classic-parameters{grid-template-rows:1fr}}
-@container(max-width:680px){
- .playroom .primary-brush-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:44px minmax(0,1fr);overflow:hidden;gap:4px 6px;padding:0}
- .playroom #stroke-buttons{grid-column:1/-1;justify-content:flex-start;gap:8px}
- .playroom #stroke-buttons button{min-height:44px;flex:1;max-width:180px}
- .playroom #stroke-buttons .choice-picture{width:32px;height:32px}
- .playroom .primary-brush-options>label{min-width:0;font-size:11px;align-self:center}
- .playroom .primary-brush-options .choice-button{min-width:0;min-height:44px;padding:2px 5px;font-size:12px}
- .playroom .primary-brush-options input[type=range]{min-width:44px}
- .playroom .primary-brush-options .choice-picture{display:none}
- .playroom #library-pagination button span{display:none}
- .playroom #library-pagination button{min-width:44px}
- .playroom #library-pagination{gap:3px}
- .playroom .tool-dock .classic-parameters{padding:4px;gap:4px}
-}
 
 .playroom .tool-dock .asset .asset-add{display:none}
-#library-instruction{display:none}
-.playroom.library-open .classic-parameters:has(#brush-options[hidden]) #library-instruction{display:flex;align-items:center;gap:8px;min-width:0;grid-column:1;grid-row:1;font-size:clamp(12px,1vw,16px);color:#8c623f}
-.playroom #library-instruction .playful-icon{width:36px;height:36px}
+
 .playroom #effect-progress{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;min-width:0}
 .playroom #effect-progress button{font-size:13px;white-space:nowrap}
 .playroom.processing-effect .canvas-welcome,.playroom.processing-effect .zoom-controls{display:none}
@@ -192,13 +132,6 @@
 .playroom .color-numbers summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:13px}
 .playroom .color-numbers label{margin:4px 0}
 @media(max-height:740px){.playroom .classic-palette-dialog{padding:16px}.playroom .palette-presets{gap:5px;margin-bottom:12px}.playroom .preset-color{min-height:48px}.playroom .classic-palette-dialog h2{margin-bottom:12px}.playroom .classic-palette-dialog .dialog-actions{bottom:-16px}.playroom #color-plane{max-height:170px;object-fit:fill}}
-.playroom #object-controls{grid-column:1;grid-row:1/3;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff8e9;z-index:1;min-width:0;height:100%}
-.playroom.library-open #object-controls{grid-row:1}
-.playroom #object-controls>div{min-width:0;flex:1}
-.playroom #object-controls strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
-.playroom #object-controls>div>span{display:block;font-size:12px;color:#8d6b52}
-.playroom #object-controls button{flex-direction:column;font-size:13px;flex:none;min-width:54px;padding:4px}
-.playroom #object-controls .playful-icon{width:30px;height:30px}
 
 .playroom .fairy-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 .playroom .fairy-modes .subtool-card{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:5px 2px;min-height:70px;font-size:12px;min-width:0}
@@ -222,74 +155,26 @@
 .playroom .workspace-tabs .playful-icon{width:27px;height:27px}
 .playroom .viewport{padding:8px;border-radius:16px}
 .playroom .canvas-footer{height:20px;font-size:11px}
-.playroom .tool-dock{height:clamp(184px,20dvh,250px);grid-template-rows:52px minmax(0,1fr);gap:4px}
+
 .playroom .tool-dock .quick-palette{height:52px;padding-block:0}
-.playroom .tool-dock .classic-parameters{padding:4px 8px;gap:3px 8px}
-.playroom .tool-dock .options-bar{gap:8px}
-.playroom .primary-brush-options{gap:clamp(5px,.7vw,14px);padding-bottom:1px}
-.playroom #stroke-buttons button{min-height:44px}
-.playroom.library-open .tool-dock{grid-template-rows:minmax(0,1fr) 64px}
-@media(max-width:1200px){.playroom .tool-dock{height:clamp(184px,20dvh,224px)}.playroom .tool-dock .classic-parameters{grid-template-rows:54px minmax(0,1fr)}}
-@media(max-height:760px){.playroom .canvas-welcome{display:none}.playroom .tool-dock{height:184px}.playroom .tool-dock .asset img{height:42px}}
+
+@media(max-height:760px){.playroom .canvas-welcome{display:none}.playroom .tool-dock .asset img{height:42px}}
 
 /* v1.6.2: preserve the v1.6.0 paper area; controls scroll sideways as one row. */
 .playroom #layer-dialog .layer-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
 .playroom #layer-dialog .layer-actions button{flex-direction:column;white-space:normal;line-height:1.25;padding:4px;gap:2px;min-width:0}
-.playroom .tool-dock .options-bar{height:auto;min-height:0}
-.playroom .tool-dock .settings-button{min-height:44px;height:auto;max-height:100%;gap:1px}
-.playroom .tool-dock .settings-button .playful-icon{width:26px;height:26px}
-.playroom .primary-brush-options{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;min-height:0;align-items:center;justify-content:flex-start}
-.playroom .primary-brush-options>label{flex:1 0 108px;flex-direction:row;white-space:nowrap;gap:4px}
-.playroom .primary-brush-options .choice-button{min-height:44px;height:44px;max-width:150px}
-.playroom #stroke-buttons{grid-column:auto;flex:none}
-.playroom #stroke-buttons button{height:44px;min-height:44px;font-size:12px}
-.playroom #stroke-buttons .choice-picture{width:30px;height:30px}
+
 .playroom #library-groups .subtool-card{white-space:normal;line-height:1.3}
 .playroom[data-library-surface=fairy] .categories button{display:none}
 .playroom[data-library-surface=fairy] .categories button[data-category=fairy]{display:flex}
-.playroom.library-open .tool-dock .classic-parameters{grid-template-rows:minmax(0,1fr)}
+
 .playroom .tool-dock .asset-grid{align-content:stretch}
 .playroom .tool-dock .asset img{min-height:16px}
 .playroom .tool-dock .asset span{flex-shrink:0;font-size:12px;line-height:15px}
-.playroom #object-controls button{min-height:44px;height:auto;gap:2px}
-.playroom #object-controls>div>span{line-height:1.2}
+
 /* Close choices remain legible on the smallest supported window. */
 #close-dialog{max-width:min(540px,90vw)}
 #close-dialog .dialog-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 #close-dialog button{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;white-space:normal}
 #close-dialog .playful-icon{width:38px;height:38px}
 .playroom .about-dialog{width:min(420px,calc(100vw - 36px));text-align:center;padding:30px 28px 22px}.playroom .about-dialog h2{margin:8px 0 6px;font-size:30px}.playroom .about-mark{width:82px;height:82px;margin:0 auto 6px;display:grid;place-items:center;border:3px solid #d29a64;border-radius:28px;background:#ffe2a8;box-shadow:0 5px 0 #b9764d33;overflow:hidden}.playroom .about-mark img{width:100%;height:100%;object-fit:cover}.playroom .about-mark svg{width:60px;height:60px}.playroom .about-version{margin:0 0 22px;color:#936b4b}.playroom .about-credit{margin:8px 0;color:#8b4d31;font-size:16px;font-weight:650;letter-spacing:.04em}.playroom .about-dialog .dialog-actions{justify-content:center;margin-top:24px}
-/* Friendly rounded labels in the bottom tool shelf stay clear of its edges. */
-.playroom .tool-dock .classic-parameters,.playroom .tool-dock .classic-parameters label,.playroom .tool-dock .classic-parameters output{font-family:'Hiragino Maru Gothic ProN','Arial Rounded MT Bold','Comic Sans MS',ui-rounded,sans-serif;line-height:1.35}
-.playroom .tool-dock .classic-parameters label{padding:4px 6px;box-sizing:border-box;align-items:center}
-.playroom .tool-dock .classic-parameters .brush-inspector{padding:3px 6px;line-height:1.35}
-.playroom .tool-dock .classic-parameters .brush-inspector span{padding-inline:2px}
-/* Keep contextual controls in the shelf and give their labels a little air. */
-.playroom .primary-brush-options>.detail-bar{display:contents}
-.playroom .tool-dock .classic-parameters .options-bar>label,
-.playroom .tool-dock .classic-parameters .options-bar output{transform:translateY(3px)}
-.playroom .tool-dock .classic-parameters .detail-bar>label{margin:0;min-width:0;min-height:40px;padding:3px 5px;line-height:1.25}
-.playroom .tool-dock .classic-parameters .primary-brush-options>label{min-height:40px}
-.playroom .tool-dock .classic-parameters .detail-bar select{max-width:150px}
-.playroom .tool-dock .classic-parameters .detail-bar input[type=number]{max-width:72px}
-.playroom .tool-dock .classic-parameters .detail-bar #option-help{display:none}
-.playroom .primary-brush-options>label{min-width:0;overflow:hidden}
-.playroom .primary-brush-options input[type=range]{min-width:0;max-width:100%}
-.playroom .primary-brush-options .choice-button{min-width:0;max-width:100%}
-.playroom.library-open .tool-dock .classic-parameters .options-bar{min-width:0;overflow:hidden}
-
-/* Final shelf layout: labels and controls share a bounded, scrollable row. */
-.playroom .tool-dock .classic-parameters{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px;overflow:hidden}
-.playroom .tool-dock .classic-parameters .options-bar{order:1;display:flex;align-items:center;flex:0 0 auto;min-height:52px;overflow-x:auto;overflow-y:hidden;gap:10px;padding:4px 4px 8px;scrollbar-width:thin}
-.playroom .tool-dock .classic-parameters .options-bar>label{flex:0 0 auto;min-height:44px;margin:0;padding:6px 10px;line-height:1.35;white-space:nowrap}
-.playroom .tool-dock .classic-parameters .options-bar input[type=range]{min-width:90px;width:clamp(90px,14vw,210px)!important}
-.playroom .tool-dock .classic-parameters .primary-brush-options{order:2;display:flex;flex:1 1 auto;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;justify-content:flex-start;min-height:0;overflow-x:hidden;overflow-y:auto;gap:8px 10px;padding:6px 6px 14px;scrollbar-width:thin}
-.playroom .tool-dock .classic-parameters .primary-brush-options>label{flex:1 1 128px;min-width:112px;min-height:52px;margin:0;padding:7px 10px;line-height:1.4;white-space:normal}
-.playroom .tool-dock .classic-parameters .primary-brush-options .detail-bar>label{min-height:52px;padding:7px 10px;line-height:1.4}
-.playroom .tool-dock .classic-parameters .primary-brush-options select,.playroom .tool-dock .classic-parameters .primary-brush-options input{max-width:180px}
-.playroom .tool-dock .settings-button{display:none!important}
-.playroom.library-open .tool-dock .classic-parameters{display:block;padding:8px 12px;overflow:hidden}
-.playroom.library-open .tool-dock .classic-parameters .options-bar{display:none}
-.playroom.library-open .tool-dock .classic-parameters .primary-brush-options{display:none}
-.playroom.library-open .tool-dock .classic-parameters>.right-panel{display:flex;position:static;inset:auto;width:auto;height:100%;padding:0;min-height:0}
-@media(max-width:680px){.playroom .tool-dock .classic-parameters{padding:8px}.playroom .tool-dock .classic-parameters .options-bar{gap:6px}.playroom .tool-dock .classic-parameters .options-bar>label,.playroom .tool-dock .classic-parameters .primary-brush-options>label{padding-inline:8px;font-size:12px}.playroom .tool-dock .classic-parameters .primary-brush-options{gap:6px}.playroom .tool-dock .classic-parameters .primary-brush-options>label{flex-basis:110px;min-width:96px}}
