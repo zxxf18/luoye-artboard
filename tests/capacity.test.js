@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateProject} from '../src/core.js';
+import {validateProject, MAX_LAYERS} from '../src/core.js';
 import {PaintEngine} from '../src/engine.js';
 
 test('shared immutable frames count once, independent layer masks count separately',()=>{
@@ -17,4 +17,12 @@ test('100000 instances per layer and 500000 per project have explicit validated 
   assert.doesNotThrow(()=>validateProject(project));
   assert.throws(()=>validateProject({...project,layers:[{...layer,sprites:[...layer.sprites,layer.sprites[0]]}]}),/组合/);
   assert.throws(()=>validateProject({...project,layers:[...project.layers,{...layer,id:'extra',sprites:[layer.sprites[0]]}]}),/500,000/);
+});
+
+test('projects may keep 200 small layers without the old artificial 20-layer stop',()=>{
+  const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
+  const layer=i=>({id:String(i),name:`层${i}`,width:1,height:1,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image});
+  assert.equal(MAX_LAYERS,200);
+  assert.doesNotThrow(()=>validateProject({format:'luoye-studio',version:1,width:1,height:1,title:'多层测试',layers:Array.from({length:200},(_,i)=>layer(i))}));
+  assert.throws(()=>validateProject({format:'luoye-studio',version:1,width:1,height:1,title:'多层测试',layers:Array.from({length:201},(_,i)=>layer(i))}),/200/);
 });

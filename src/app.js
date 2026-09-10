@@ -187,8 +187,8 @@ mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>en
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
-const styledText=mountText({engine,run,toast,getColor:()=>color,setTool});
-const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool});
+const styledText=mountText({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
+const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
 mountMusic({run,toast});
 const materials=mountMaterials({engine,run,toast});
 mountDisplay();
@@ -222,8 +222,9 @@ $('file-input').onchange = event => run(async () => {
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 30 * 1024 * 1024 || !['image/png','image/jpeg','image/webp','image/bmp','image/x-ms-bmp'].includes(file.type)) throw new Error('请选择 30 MiB 以内的 PNG、JPG、WebP 或 BMP 图片。');
+  const previousTool=tool;
   const url = URL.createObjectURL(file);
-  try { const image = await loadImage(url); if (image.width > 4096 || image.height > 4096 || image.width * image.height > 8_388_608) throw new Error('图片过大，请先缩小到 4096 边长／8 百万像素以内。'); await engine.addAsset({ name: file.name.slice(0, 100), src: url, category: 'sticker' }); setTool('move'); }
+  try { const image = await loadImage(url); if (image.width > 4096 || image.height > 4096 || image.width * image.height > 8_388_608) throw new Error('图片过大，请先缩小到 4096 边长／8 百万像素以内。'); await engine.addAsset({ name: file.name.slice(0, 100), src: url, category: 'sticker' }); setTool(previousTool); }
   finally { URL.revokeObjectURL(url); }
 });
 $('painting').addEventListener('pointerdown', event => {

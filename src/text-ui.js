@@ -1,7 +1,7 @@
 import { renderStyledText } from './text.js';
 import { loadImage } from './engine.js';
 
-export function mountText({engine,run,toast,getColor,setTool}) {
+export function mountText({engine,run,toast,getColor,setTool,getTool}) {
   const el=id=>document.getElementById(id),dialog=el('text-dialog');dialog.className='wide-dialog';let point,texture=null;
   const flags=[['bold','粗体'],['italic','斜体'],['underline','下划线'],['strike','删除线'],['antialias','柔和边缘'],['shadow','阴影'],['outline','中空'],['flipX','水平翻转'],['flipY','垂直翻转'],['gradient','渐变']];
   const glyphs=['B','I','U','S','柔','影','空','↔','↕','彩'];
@@ -14,10 +14,11 @@ export function mountText({engine,run,toast,getColor,setTool}) {
   function render(){if(el('text-fill').value==='texture'&&!texture)throw new Error('请先输入一张底纹图片。');return renderStyledText(spec(),el('text-fill').value==='texture'?texture:null);}
   function preview(){try{el('text-preview').replaceChildren(render());el('text-error').textContent='';el('text-add').disabled=false;}catch(e){el('text-error').textContent=e.message;el('text-add').disabled=true;}}
   for(const input of dialog.querySelectorAll('input,select,textarea'))input.addEventListener('input',preview);
-  el('text-cancel').onclick=()=>dialog.close();el('text-add').onclick=()=>run(()=>{const c=render();if(!spec().text.trim())throw new Error('请先输入文字。');engine.addLayer(spec().text.slice(0,24),c,true,{x:point.x+c.width/2,y:point.y+c.height/2,opacity:Number(el('opacity').value)/100});dialog.close();setTool('move');toast('文字已放入独立图层，可移动、旋转和撤销');});
+  let returnTool='pen';
+  el('text-cancel').onclick=()=>dialog.close();el('text-add').onclick=()=>run(()=>{const c=render();if(!spec().text.trim())throw new Error('请先输入文字。');engine.addLayer(spec().text.slice(0,24),c,true,{x:point.x+c.width/2,y:point.y+c.height/2,opacity:Number(el('opacity').value)/100});dialog.close();setTool(returnTool);toast('文字已放入独立图层，可继续当前操作；移动图层请使用移动工具');});
   el('text-import-texture').onclick=()=>el('text-texture-file').click();el('text-clear-texture').onclick=()=>{texture=null;el('text-fill').value='color';preview();document.dispatchEvent(new Event('controlschange'));};
   el('text-texture-file').onchange=()=>run(async()=>{const file=el('text-texture-file').files[0];el('text-texture-file').value='';if(!file)return;if(file.size>10*1024*1024)throw new Error('底纹图片需在 10 MiB 以内。');const url=URL.createObjectURL(file);try{const image=await loadImage(url);if(image.width*image.height>8388608)throw new Error('底纹超过 8 百万像素。');texture=image;el('text-fill').value='texture';preview();}finally{URL.revokeObjectURL(url);document.dispatchEvent(new Event('controlschange'));}});
   const options=document.createElement('button');options.dataset.option='text';options.textContent='字体与样式';options.onclick=()=>open({x:engine.width*.2,y:engine.height*.2});document.querySelector('.detail-bar').append(options);options.hidden=true;
-  function open(p){point=p;preview();dialog.showModal();el('text-content').focus();}
+  function open(p){point=p;returnTool=getTool?.()||'pen';preview();dialog.showModal();el('text-content').focus();}
   return {open};
 }

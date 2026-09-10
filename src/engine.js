@@ -1,5 +1,5 @@
 import { bundledImageSource } from './bundled-images.js';
-import { History, fitInside, floodFill, toLayerPoint, validateProject } from './core.js';
+import { History, fitInside, floodFill, toLayerPoint, validateProject, MAX_LAYERS } from './core.js';
 
 export function makeCanvas(width, height, readback = true) {
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
@@ -79,7 +79,7 @@ export class PaintEngine {
   addLayer(name = '新的图层', canvas = makeCanvas(this.width, this.height), record = true, extra = {}) {
     const planned=[...this.layers,{width:canvas.width,height:canvas.height,...extra}],eraseReserve=planned.reduce((n,l)=>n+(l.role!=='background'&&!l.eraseMask?l.width*l.height:0),0);
     if(this.scenePixels(planned)+eraseReserve>90000000)throw new Error('图层和动画已接近内存预算，请先擦除或移走一些内容。已为橡皮保留空间。');
-    if (this.layers.length >= 20) throw new Error('当前版本最多支持 20 个图层。');
+    if (this.layers.length >= MAX_LAYERS) throw new Error(`当前版本最多支持 ${MAX_LAYERS} 个图层。`);
     const previous = this.activeId;
     const { insertAt = this.layers.length, ...properties } = extra;
     const layer = { id: crypto.randomUUID(), name, canvas, width: canvas.width, height: canvas.height,

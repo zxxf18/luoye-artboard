@@ -2,7 +2,7 @@ import { makeCanvas, loadImage } from './engine.js';
 import { generateFractal } from './fractals.js';
 import { warpPixels } from './warps.js';
 
-export function mountCreative({engine,run,toast,getColor,setTool}) {
+export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
   const el=id=>document.getElementById(id),detail=document.querySelector('.detail-bar');
   const extra=document.createElement('div');extra.className='creative-options';extra.innerHTML=`
     <label data-option="warp">变形 <select id="warp-kind"><option value="push">推拉变形</option><option value="zoom">缩放变形</option></select></label><label data-option="warp">速度 <input id="warp-speed" type="range" min="-100" max="100" value="50"></label>
@@ -32,8 +32,9 @@ export function mountCreative({engine,run,toast,getColor,setTool}) {
   function selected(){const kind=el('fractal-kind').value;preset%=counts[kind];el('fractal-style').textContent='样式 '+(preset+1)+' / '+counts[kind];el('fractal-density-row').hidden=kind!=='ifs';el('fractal-bounds').hidden=!['mandel','julia'].includes(kind);el('fractal-note').textContent=kind==='norton'?'原版 60×40 样式预览素材，放大会模糊；高清分形计算仍待核实。':'';preview();}
   function step(delta){if(rendering)return;preset=(preset+delta+counts[el('fractal-kind').value])%counts[el('fractal-kind').value];selected();}
   el('fractal-prev').onclick=()=>step(-1);el('fractal-next').onclick=el('fractal-style').onclick=()=>step(1);el('fractal-style').oncontextmenu=e=>{e.preventDefault();if(rendering)return;preset=0;selected();};el('fractal-kind').onchange=()=>{preset=0;const julia=el('fractal-kind').value==='julia';el('fractal-left').value=julia?-1.8:-2.3;el('fractal-right').value=julia?1.8:1;selected();};el('fractal-refresh').onclick=preview;
-  function open(){if(rendering)return;selected();dialog.showModal();}el('fractal-open').onclick=open;
+  function open(){if(rendering)return;returnTool=getTool?.()||'pen';selected();dialog.showModal();}el('fractal-open').onclick=open;
   function cancel(){controller?.abort();dialog.close();}el('fractal-cancel').onclick=cancel;dialog.addEventListener('cancel',cancel);
-  el('fractal-add').onclick=()=>run(async()=>{rendering=true;for(const control of dialog.querySelectorAll('input,select,button'))if(control.id!=='fractal-cancel')control.disabled=true;try{const c=await generate(false);const paper=makeCanvas(engine.width,engine.height),pctx=paper.getContext('2d');pctx.fillStyle='#fff';pctx.fillRect(0,0,paper.width,paper.height);const fit=Math.min(engine.width/c.width,engine.height/c.height),w=Math.round(c.width*fit),h=Math.round(c.height*fit);pctx.drawImage(c,(engine.width-w)/2,(engine.height-h)/2,w,h);engine.addLayer('分形 · '+el('fractal-kind').selectedOptions[0].textContent,paper);dialog.close();setTool('pen');}catch(e){if(e.name!=='AbortError')throw e;}finally{rendering=false;for(const control of dialog.querySelectorAll('input,select,button'))control.disabled=false;}});
+  let returnTool='pen';
+  el('fractal-add').onclick=()=>run(async()=>{rendering=true;for(const control of dialog.querySelectorAll('input,select,button'))if(control.id!=='fractal-cancel')control.disabled=true;try{const c=await generate(false);const paper=makeCanvas(engine.width,engine.height),pctx=paper.getContext('2d');pctx.fillStyle='#fff';pctx.fillRect(0,0,paper.width,paper.height);const fit=Math.min(engine.width/c.width,engine.height/c.height),w=Math.round(c.width*fit),h=Math.round(c.height*fit);pctx.drawImage(c,(engine.width-w)/2,(engine.height-h)/2,w,h);engine.addLayer('分形 · '+el('fractal-kind').selectedOptions[0].textContent,paper);dialog.close();setTool(returnTool);}catch(e){if(e.name!=='AbortError')throw e;}finally{rendering=false;for(const control of dialog.querySelectorAll('input,select,button'))control.disabled=false;}});
   return {options,open};
 }

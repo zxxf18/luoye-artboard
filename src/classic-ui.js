@@ -17,10 +17,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const heading=document.createElement('div');heading.className='canvas-topbar';const tabs=document.querySelector('.workspace-tabs');heading.append(tabs);const tip=document.createElement('span');tip.className='canvas-welcome';tip.textContent='每一笔，都是新发现';heading.append(tip);studio.prepend(heading);
   const parameter=document.createElement('section');parameter.className='classic-parameters';parameter.setAttribute('aria-label','当前工具参数');parameter.innerHTML='<div class="brush-inspector"><div id="active-brush-preview"></div><div><strong id="active-tool-name">铅笔</strong><span id="active-tool-description">细细的线，勾轮廓</span></div></div>';
   const options=document.querySelector('.options-bar');parameter.append(options);studio.append(parameter);
-  // Contextual controls are visible in the bottom shelf instead of a hidden
-  // “more玩法” dialog. Keep the id for compatibility with accessibility tools.
   const detailBar=document.querySelector('.detail-bar');
-  const settingsButton=document.createElement('button');settingsButton.id='tool-settings-open';settingsButton.className='settings-button';settingsButton.type='button';settingsButton.innerHTML=playfulIcon('more')+'<span>工具选项</span>';settingsButton.disabled=true;parameter.append(settingsButton);
   const palette=document.querySelector('.palette');palette.className='quick-palette';parameter.before(palette);palette.querySelector('.palette-label').remove();palette.querySelector('.custom-color').hidden=true;
   const dock=document.createElement('section');dock.className='tool-dock';dock.setAttribute('aria-label','底部工具区');parameter.before(dock);dock.append(palette,parameter);
   const primary=document.createElement('div');primary.className='primary-brush-options';parameter.append(primary);if(detailBar)primary.append(detailBar);
@@ -58,7 +55,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
     if(getColor()!==lastColor){lastColor=getColor();for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,24));}
     const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,getColor(),140,50,Math.min(36,Number(el('size').value))):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
-    primary.hidden=tool!=='pen';
+    primary.hidden=false;modes.hidden=tool!=='pen';
     el('brush-options').hidden=!['pen','eraser','stamp','clone',...geometries].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal'].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');
     document.querySelector('label[for="size"]').textContent=tool==='stamp'?'图案大小':'笔尖粗细';
     const map={eraser:'eraser-mode',fill:'fill-mode',select:'selection-shape',warp:'warp-kind','board-filter':'board-filter-kind'};const config=geometries.includes(tool)?'geometry':map[tool],select=config&&el(config);
