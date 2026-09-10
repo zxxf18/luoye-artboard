@@ -46,7 +46,12 @@ export class EditorEngine extends PaintEngine {
     return c;
   }
   layerMask(layer) {
-    const c=this.selectionInLayer(layer);if(!c)return null;
+    if(!this.selection)return null;
+    // Full paper layers share the selection's pixel coordinates. Reusing the
+    // mask avoids allocating and reading a full-size temporary canvas for
+    // every spray or watercolor segment.
+    if(layer.width===this.width&&layer.height===this.height&&layer.scale===1&&layer.rotation===0&&layer.x===this.width/2&&layer.y===this.height/2)return this.selection;
+    const c=this.selectionInLayer(layer);
     const data=c.getContext('2d').getImageData(0,0,layer.width,layer.height).data,mask=new Uint8ClampedArray(layer.width*layer.height);
     for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3]>=128?255:0;return mask;
   }

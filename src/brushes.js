@@ -3,14 +3,14 @@ import { legacyBrushSegment } from './brushes-legacy.js';
 
 export const BRUSHES=[
   {id:'pencil',name:'铅笔',hint:'细细的线，勾轮廓',size:14,color:'#eca73b'},
-  {id:'spray',name:'喷笔',hint:'点点雾气，轻轻喷',size:76,color:'#69abc1'},
-  {id:'watercolor',name:'水彩',hint:'透明水色，叠着画',size:64,color:'#7b9cce'},
-  {id:'brush',name:'刷子',hint:'一束笔毛，刷出纹路',size:42,color:'#b97c50'},
-  {id:'marker',name:'麦克笔',hint:'扁扁笔头，涂大块',size:38,color:'#b287c8'},
-  {id:'crayon',name:'蜡笔',hint:'厚厚蜡粒，沙沙画',size:36,color:'#ee8573'},
-  {id:'chalk',name:'粉笔',hint:'软软粉末，毛茸茸',size:44,color:'#91b982'},
-  {id:'tube',name:'颜料管',hint:'挤出颜料，亮亮的',size:32,color:'#f4ac59'},
-  {id:'effect',name:'星光笔',hint:'拖一拖，撒下星星',size:48,color:'#df91b7'},
+  {id:'spray',name:'喷笔',hint:'点点雾气，轻轻喷',size:34,color:'#69abc1'},
+  {id:'watercolor',name:'水彩',hint:'透明水色，叠着画',size:30,color:'#7b9cce'},
+  {id:'brush',name:'刷子',hint:'一束笔毛，刷出纹路',size:26,color:'#b97c50'},
+  {id:'marker',name:'麦克笔',hint:'扁扁笔头，涂大块',size:24,color:'#b287c8'},
+  {id:'crayon',name:'蜡笔',hint:'厚厚蜡粒，沙沙画',size:22,color:'#ee8573'},
+  {id:'chalk',name:'粉笔',hint:'软软粉末，毛茸茸',size:24,color:'#91b982'},
+  {id:'tube',name:'颜料管',hint:'挤出颜料，亮亮的',size:20,color:'#f4ac59'},
+  {id:'effect',name:'星光笔',hint:'拖一拖，撒下星星',size:28,color:'#df91b7'},
 ];
 const brushTau=Math.PI*2;
 function tint(hex,amount){return '#'+hex.slice(1).match(/../g).map(n=>{const c=parseInt(n,16);return Math.round(amount>0?c+(255-c)*amount:c*(1+amount)).toString(16).padStart(2,'0');}).join('');}
