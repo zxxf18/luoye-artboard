@@ -3,6 +3,7 @@
 // strokes with animated Magic Bag assets.
 export const MAX_SPRITES_PER_LAYER=100000;
 export const MAX_PROJECT_SPRITES=500000;
+export const MAX_LAYERS=200;
 export function fitInside(width, height, maxWidth, maxHeight) {
   const scale = Math.min(maxWidth / width, maxHeight / height);
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
@@ -59,7 +60,7 @@ export function validateProject(value) {
   const size = (w, h) => Number.isInteger(w) && Number.isInteger(h) && w > 0 && h > 0 && w <= 4096 && h <= 4096 && w * h <= 8_388_608;
   if (!size(value.width, value.height)) fail('画布尺寸超出当前版本支持范围。');
   if (typeof value.title !== 'string' || value.title.length > 120) fail('作品名称无效。');
-  if (!Array.isArray(value.layers) || value.layers.length < 1 || value.layers.length > 20) fail('工程需要 1–20 个图层。');
+  if (!Array.isArray(value.layers) || value.layers.length < 1 || value.layers.length > MAX_LAYERS) fail(`工程需要 1–${MAX_LAYERS} 个图层。`);
   const ids = new Set(),resources=new Set(); let bytes = 0, pixels = 0,sprites=0;
   const resourcePixels=(image,width,height)=>{if(resources.has(image))return;resources.add(image);pixels+=width*height;};
   const png = (image, width, height) => {

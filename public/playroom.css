@@ -277,3 +277,19 @@
 .playroom .primary-brush-options input[type=range]{min-width:0;max-width:100%}
 .playroom .primary-brush-options .choice-button{min-width:0;max-width:100%}
 .playroom.library-open .tool-dock .classic-parameters .options-bar{min-width:0;overflow:hidden}
+
+/* Final shelf layout: labels and controls share a bounded, scrollable row. */
+.playroom .tool-dock .classic-parameters{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px;overflow:hidden}
+.playroom .tool-dock .classic-parameters .options-bar{order:1;display:flex;align-items:center;flex:0 0 auto;min-height:52px;overflow-x:auto;overflow-y:hidden;gap:10px;padding:4px 4px 8px;scrollbar-width:thin}
+.playroom .tool-dock .classic-parameters .options-bar>label{flex:0 0 auto;min-height:44px;margin:0;padding:6px 10px;line-height:1.35;white-space:nowrap}
+.playroom .tool-dock .classic-parameters .options-bar input[type=range]{min-width:90px;width:clamp(90px,14vw,210px)!important}
+.playroom .tool-dock .classic-parameters .primary-brush-options{order:2;display:flex;flex:1 1 auto;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;justify-content:flex-start;min-height:0;overflow-x:hidden;overflow-y:auto;gap:8px 10px;padding:6px 6px 14px;scrollbar-width:thin}
+.playroom .tool-dock .classic-parameters .primary-brush-options>label{flex:1 1 128px;min-width:112px;min-height:52px;margin:0;padding:7px 10px;line-height:1.4;white-space:normal}
+.playroom .tool-dock .classic-parameters .primary-brush-options .detail-bar>label{min-height:52px;padding:7px 10px;line-height:1.4}
+.playroom .tool-dock .classic-parameters .primary-brush-options select,.playroom .tool-dock .classic-parameters .primary-brush-options input{max-width:180px}
+.playroom .tool-dock .settings-button{display:none!important}
+.playroom.library-open .tool-dock .classic-parameters{display:block;padding:8px 12px;overflow:hidden}
+.playroom.library-open .tool-dock .classic-parameters .options-bar{display:none}
+.playroom.library-open .tool-dock .classic-parameters .primary-brush-options{display:none}
+.playroom.library-open .tool-dock .classic-parameters>.right-panel{display:flex;position:static;inset:auto;width:auto;height:100%;padding:0;min-height:0}
+@media(max-width:680px){.playroom .tool-dock .classic-parameters{padding:8px}.playroom .tool-dock .classic-parameters .options-bar{gap:6px}.playroom .tool-dock .classic-parameters .options-bar>label,.playroom .tool-dock .classic-parameters .primary-brush-options>label{padding-inline:8px;font-size:12px}.playroom .tool-dock .classic-parameters .primary-brush-options{gap:6px}.playroom .tool-dock .classic-parameters .primary-brush-options>label{flex-basis:110px;min-width:96px}}

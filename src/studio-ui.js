@@ -42,7 +42,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed})
   const show=id=>el(id).showModal();
   const action=(id,fn)=>el(id).onclick=()=>run(fn);
   for(const button of dialogs.querySelectorAll('[data-close]'))button.onclick=()=>el(button.dataset.close).close();
-  action('copy',()=>{engine.copySelection();toast(engine.paperMode?'已复制圈选的画面':'已复制当前层中的画面');});action('cut',()=>{engine.copySelection(true);toast('已剪切，可以粘贴为新图层');});action('paste',()=>{engine.paste();setTool('move');});
+  action('copy',()=>{engine.copySelection();toast(engine.paperMode?'已复制圈选的画面':'已复制当前层中的画面');});action('cut',()=>{engine.copySelection(true);toast('已剪切，可以粘贴为新图层');});action('paste',()=>{const previous=getTool?.()||'pen';engine.paste();setTool(previous);});
   action('selection-menu',()=>show('selection-dialog'));
   for(const [id,fn] of [['select-all',()=>engine.selectAll()],['select-none',()=>engine.clearSelection()],['select-inverse',()=>engine.invertSelection()],['clear-selection-pixels',()=>engine.deleteSelection()]])action(id,()=>{fn();el('selection-dialog').close();});
   let clonePicking=false;action('clone-source',()=>{clonePicking=true;toast('请点击画布上的仿制源点');});
