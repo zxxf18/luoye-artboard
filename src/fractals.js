@@ -8,7 +8,10 @@ export async function generateFractal(options,{signal,onProgress=()=>{}}={}) {
   const check=()=>{if(signal?.aborted)throw new DOMException('已取消生成','AbortError');};check();
   const data=new Uint8ClampedArray(width*height*4),preset=Math.floor(value('preset',0,0,19)),random=seededRandom(value('seed',1,0,0xffffffff));
   if(kind==='ifs'){
-    const density=value('density',50,1,100),count=Math.round(width*height*density/10),color=rgb(options.color||'#ff40b5');let x=0,y=0;
+    // A dense IFS used to execute tens of millions of points on the UI
+    // thread.  Eight percent at the default setting is visually equivalent
+    // while leaving time for painting and animation.
+    const density=value('density',50,1,100),count=Math.round(width*height*(.02+density*.0012)),color=rgb(options.color||'#ff40b5');let x=0,y=0;
     for(let i=0;i<count;i++){
       const r=random(),oldX=x,oldY=y;let px,py;
       if(preset%3===0){if(r<.01){x=0;y=.16*oldY;}else if(r<.86){x=.85*oldX+.04*oldY;y=-.04*oldX+.85*oldY+1.6;}else if(r<.93){x=.2*oldX-.26*oldY;y=.23*oldX+.22*oldY+1.6;}else{x=-.15*oldX+.28*oldY;y=.26*oldX+.24*oldY+.44;}px=(x+2.5)/5;py=1-y/10;}

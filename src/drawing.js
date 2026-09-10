@@ -33,7 +33,7 @@ export class DrawingEngine extends EditorEngine {
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
     if(g.limitNotice)return;
-    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 50,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
+    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 500,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
     try {
       if(!g.layer||g.layer.sprites.length>=MAX_SPRITES_PER_LAYER){

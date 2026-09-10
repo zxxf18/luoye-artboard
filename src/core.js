@@ -1,5 +1,8 @@
-export const MAX_SPRITES_PER_LAYER=10000;
-export const MAX_PROJECT_SPRITES=50000;
+// Dynamic stamps are kept as compact sprite records and rendered through the
+// coalesced frame scheduler.  The old limits were reached after only a few
+// strokes with animated Magic Bag assets.
+export const MAX_SPRITES_PER_LAYER=100000;
+export const MAX_PROJECT_SPRITES=500000;
 export function fitInside(width, height, maxWidth, maxHeight) {
   const scale = Math.min(maxWidth / width, maxHeight / height);
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
@@ -90,7 +93,7 @@ export function validateProject(value) {
     }
     if(layer.sprites!==undefined){
       if(!Array.isArray(layer.sprites)||layer.sprites.length>MAX_SPRITES_PER_LAYER||!Array.isArray(layer.spriteGroups)||!layer.spriteGroups.length||layer.spriteGroups.length>200)fail('魔法袋组合无效。');
-      sprites+=layer.sprites.length;if(sprites>MAX_PROJECT_SPRITES)fail('一幅画最多支持 50,000 个动态图案。');
+      sprites+=layer.sprites.length;if(sprites>MAX_PROJECT_SPRITES)fail('一幅画最多支持 500,000 个动态图案。');
       for(const group of layer.spriteGroups){
         if(!group||!Array.isArray(group.frames)||!group.frames.length||group.frames.length>60||!Number.isFinite(group.frameDuration)||group.frameDuration<30||group.frameDuration>10000)fail('魔法袋动画无效。');
         for(const frame of group.frames){if(!size(frame.width,frame.height))fail('魔法袋图片尺寸无效。');png(frame.image,frame.width,frame.height);bytes+=frame.image.length;resourcePixels(frame.image,frame.width,frame.height);}

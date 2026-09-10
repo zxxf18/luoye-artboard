@@ -105,7 +105,7 @@ function changed() {
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
   })();}, 900);
 }
-let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='';
+let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
 const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
@@ -142,13 +142,14 @@ function chooseCategory(category,collection='',page=0) {
     button.append(img, label, plus); button.onclick = () => run(async () => {
       engine.end();
       if(asset.fairyGroups){
+        if(asset.fairyMode==='dynamic')selectedFairyAsset=asset;
         let groups=fairyCache.get(asset.id);
         if(!groups){groups=await Promise.all(asset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(asset.id,groups);while(fairyCache.size>2)fairyCache.delete(fairyCache.keys().next().value);}
         engine.setFairyGroups(groups,asset.fairyMode,asset.fairyBehavior);engine.stampName=asset.name;
         setTool('stamp');
         toast(asset.name+'：调好大小，再到画纸上按住鼠标画');
       } else {
-        await engine.addAsset(asset); setTool(['background','paper','texture','frame'].includes(asset.category)?'pen':'move');
+        selectedFairyAsset=null; await engine.addAsset(asset); setTool(['background','paper','texture','frame'].includes(asset.category)?'pen':'move');
         toast(`${asset.name} ${['background','paper','texture'].includes(asset.category)?'已换好，画里的小伙伴都还在':'来到画里了'}`);
       }
       selectedAssetId=asset.id;for(const item of $('asset-grid').children)item.setAttribute('aria-pressed',item.dataset.assetId===asset.id);
@@ -207,7 +208,7 @@ bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });
 bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
 bind('new', () => { engine.end(); showDialog('new-dialog'); });
-$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; setTool('pen'); changed(); } }));
+$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; if(selectedFairyAsset?.fairyMode==='dynamic'){let groups=fairyCache.get(selectedFairyAsset.id);if(!groups){groups=await Promise.all(selectedFairyAsset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(selectedFairyAsset.id,groups);}engine.setFairyGroups(groups,'dynamic',selectedFairyAsset.fairyBehavior);engine.stampName=selectedFairyAsset.name;setTool('stamp');chooseCategory('fairy');}else setTool('pen'); changed(); } }));
 bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
 $('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()||'我的画')+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
