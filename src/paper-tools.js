@@ -6,7 +6,7 @@ import { brushSegment } from './brushes.js';
 // erase future strokes and replacement backgrounds as well (a permanent hole).
 export function beginPaperErase(engine, point, options) {
   options={...options,color:'#000000'}; // Only alpha matters; erasers do not depend on the paint color.
-  const editable=engine.layers.filter(l=>l.visible&&l.opacity>0&&l.role!=='background');
+  const editable=engine.layers.filter(l=>l.visible&&l.opacity>0);
   if(engine.scenePixels()+editable.filter(l=>!l.eraseMask).reduce((n,l)=>n+l.width*l.height,0)>90000000)throw new Error('画面太复杂，请先减少部分图层，再使用橡皮。');
   const targets=editable.map(layer=>{
     const canvas=makeCanvas(layer.width,layer.height),ctx=canvas.getContext('2d');

@@ -15,7 +15,7 @@ for(const name of tests){
   const cleanup=name.startsWith('native-close-')?'':"setInterval(()=>{const d=document.getElementById('close-dialog');if(d?.open)d.querySelector('[value=discard]').click();},100);\n";
   await writeFile(script,cleanup+source);
   const status=await new Promise(resolve=>{
-    const child=spawn(path.join(root,'build/releases','v'+version,'落叶画板.app/Contents/MacOS/LUOYEStudio'),[],{env:{...process.env,LUOYE_SMOKE_OUTPUT:base,LUOYE_SMOKE_EXIT:'1',LUOYE_SMOKE_WIDTH:'1440',LUOYE_SMOKE_HEIGHT:'900',LUOYE_SMOKE_SCRIPT:script},stdio:['ignore','ignore','pipe']});
+    const child=spawn(path.join(root,'build/releases','v'+version,'落叶画板.app/Contents/MacOS/LUOYEStudio'),[],{env:{...process.env,LUOYE_SMOKE_OUTPUT:base,LUOYE_SMOKE_EXIT:'1',LUOYE_SMOKE_WIDTH:process.env.LUOYE_SMOKE_WIDTH||'1440',LUOYE_SMOKE_HEIGHT:process.env.LUOYE_SMOKE_HEIGHT||'900',LUOYE_SMOKE_SCRIPT:script},stdio:['ignore','ignore','pipe']});
     let stderr='';child.stderr.on('data',b=>{stderr+=b;});
     const timeout=setTimeout(()=>child.kill('SIGTERM'),120000);
     child.on('error',e=>{clearTimeout(timeout);resolve({error:e.message});});

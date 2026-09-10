@@ -24,6 +24,8 @@ const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
+const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
+let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 
@@ -37,14 +39,20 @@ async function run(action) {
 function bind(id, action) { $(id).addEventListener('click', () => run(action)); }
 function setTool(next) {
   clearInterval(stampTimer); pointerId = undefined;
+  if(shapeTools.has(tool)&&!shapeTools.has(next))shapeStyle={size:Number($('size').value),opacity:Number($('opacity').value)};
   if(tool === 'stamp') stampSize = Number($('size').value);
   if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
   engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
   if(engine?.path&&next!==tool)engine.finishPath(true);
+  if(next!==tool)engine?.clearSelection();
+  if(!shapeTools.has(tool)&&shapeTools.has(next)){
+    $('size').value=shapeStyle.size;$('size-value').textContent=$('size').value;
+    $('opacity').value=shapeStyle.opacity;$('opacity-value').textContent=$('opacity').value+'%';
+  }
   tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
-  if (tool === 'select') $('tool-hint').textContent = '拖动圈选区域；画笔、填色和暗房只修改选中部分';
-  if (tool === 'magic') $('tool-hint').textContent = '点击颜色相连的区域，再调整公差与选区组合';
+  if (tool === 'select') $('tool-hint').textContent = '拖动圈选，可直接复制、剪切；切换工具会取消圈选';
+  if (tool === 'magic') $('tool-hint').textContent = '设置公差，点击选择颜色相连的区域';
   if(tool==='stamp') $('tool-hint').textContent='先选图案、调大小，再移到画纸上按住鼠标画';
   if(tool==='clone') $('tool-hint').textContent='Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点';
   if(['polygon','bezier'].includes(tool)) $('tool-hint').textContent='点击添加顶点／控制点，Enter 或双击完成，Esc 取消';
@@ -54,7 +62,7 @@ function setTool(next) {
   studio?.toolChanged(tool);
   document.dispatchEvent(new Event('toolchange'));
 }
-function setColor(next) { color = next; $('color').value = next; for (const button of document.querySelectorAll('.swatch')) button.setAttribute('aria-pressed', button.dataset.color === next); document.dispatchEvent(new Event('palettechange')); }
+function setColor(next) { engine?.end(); color = next; $('color').value = next; for (const button of document.querySelectorAll('.swatch')) button.setAttribute('aria-pressed', button.dataset.color === next); document.dispatchEvent(new Event('palettechange')); }
 function layoutCanvas() {
   const viewport = $('viewport'), style = getComputedStyle(viewport);
   const availableWidth = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
@@ -169,7 +177,7 @@ for (const [name, label] of Object.entries(toolNames)) {
   button.setAttribute('aria-label', label); button.title = label; button.innerHTML = `${icon(name)}<span>${label}</span>`;
   button.onclick = () => { if (!busy) { engine.end(); setTool(name); } }; $('tools').append(button);
 }
-const palette = ['#283b35','#285b49','#759667','#aeca96','#e0b24a','#ed9448','#d9715f','#cf6f83','#b398b7','#7694b9','#68a9ae','#ffffff'];
+const palette = ['#000000','#285b49','#759667','#aeca96','#e0b24a','#ed9448','#d9715f','#cf6f83','#b398b7','#7694b9','#68a9ae','#ffffff'];
 for (const swatch of palette) {
   const button = document.createElement('button'); button.className = 'swatch'; button.dataset.color = swatch;
   button.style.background = swatch; button.style.setProperty('--swatch', swatch); button.setAttribute('aria-label', `颜色 ${swatch}`);
@@ -184,13 +192,13 @@ studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:(
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});chooseCategory(libraryCategory);
-const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>只在圈内画<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
+const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
 const styledText=mountText({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
 const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
 mountMusic({run,toast});
-const materials=mountMaterials({engine,run,toast});
+const materials=mountMaterials({engine,run,toast,getColor:()=>color});
 mountDisplay();
 mountPlayfulControls();
 let canvasLayoutFrame;new ResizeObserver(()=>{cancelAnimationFrame(canvasLayoutFrame);canvasLayoutFrame=requestAnimationFrame(layoutCanvas);}).observe($('viewport'));
@@ -252,6 +260,8 @@ $('painting').addEventListener('pointerdown', event => {
   } catch (error) { toast(error.message); }
 });
 $('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
+// Keep drawing gestures, but suppress the embedded browser's reload menu.
+document.addEventListener('contextmenu',event=>event.preventDefault());
 function previewStamp(point) {
   hoverPoint=point;engine.stampPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;engine.render();
 }
@@ -307,6 +317,7 @@ async function initialize() {
     await preserveDraft();
   } catch { $('save-state').textContent = '可手动保存作品'; }
   ready = true;
+  document.body.dataset.appReady='true';
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
   if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }

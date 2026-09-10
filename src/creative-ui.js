@@ -11,7 +11,12 @@ export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
     <label data-option="board-filter" data-filter="twist">曲度 <input id="filter-curvature" type="range" min="-360" max="360" value="120"></label><label data-option="board-filter" data-filter="waterfall point-light direction-light">密度 <input id="filter-density" type="range" min="0" max="100" value="50"></label>
     <label data-option="board-filter" data-filter="waterfall">扩展度 <input id="filter-spread" type="range" min="0" max="100" value="30"></label><label data-option="board-filter" data-filter="waterfall">高度 <input id="filter-height" type="range" min="0" max="100" value="50"></label><label data-option="board-filter" data-filter="waterfall">方向 <select id="filter-direction"><option value="right">向右</option><option value="left">向左</option></select></label>
     <label data-option="board-filter" data-filter="direction-light">角度 <input id="filter-angle" type="range" min="0" max="360" value="45"></label><button id="filter-preview-button" data-option="board-filter">预览／确定</button><button id="fractal-open" data-option="fractal">分形样式与参数</button>`;
-  detail.append(extra);for(const input of extra.querySelectorAll('input[type=range]')){const output=document.createElement('output');output.textContent=input.value;input.after(output);input.oninput=()=>output.textContent=input.value;}
+  detail.append(extra);
+  for(const id of ['warp-kind','board-filter-kind']){
+    const control=el(id);control.dataset.directChoice='true';control.hidden=true;
+    control.closest('label').classList.add('sidebar-choice-source');
+  }
+  for(const input of extra.querySelectorAll('input[type=range]')){const output=document.createElement('output');output.textContent=input.value;input.after(output);input.oninput=()=>output.textContent=input.value;}
   function options(){return {warpKind:el('warp-kind').value,speed:Number(el('warp-speed').value),radius:Number(el('creative-radius').value),filterKind:el('board-filter-kind').value,curvature:Number(el('filter-curvature').value),density:Number(el('filter-density').value),spread:Number(el('filter-spread').value),height:Number(el('filter-height').value),direction:el('filter-direction').value,angle:Number(el('filter-angle').value)};}
   function showOptions(){const tool=el('painting').dataset.tool;for(const item of extra.querySelectorAll('[data-option]'))item.hidden=!item.dataset.option.split(' ').includes(tool)||(item.dataset.filter&&!item.dataset.filter.split(' ').includes(el('board-filter-kind').value));}
   document.addEventListener('toolchange',showOptions);el('board-filter-kind').onchange=showOptions;showOptions();

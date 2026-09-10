@@ -8,6 +8,22 @@ import { warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
 import { seededRandom } from './pixels.js';
 
+// Store immutable animation frames at the stamp's drawing resolution. Large
+// stamps keep the originals; small stamps do not each retain 480px frames.
+const fairyResolutions=new WeakMap(),fairyFrameResolutions=new WeakMap();
+function stampGroup(group,size){
+  const edge=Math.max(...group.frames.map(f=>Math.max(f.width,f.height)));
+  const target=Math.min(edge,Math.max(128,Math.ceil(size/32)*32));
+  if(target===edge)return group;
+  let sizes=fairyResolutions.get(group);if(!sizes){sizes=new Map();fairyResolutions.set(group,sizes);}
+  if(!sizes.has(target))sizes.set(target,{frameDuration:group.frameDuration,frames:group.frames.map(frame=>{
+    const scale=target/edge,width=Math.max(1,Math.round(frame.width*scale)),height=Math.max(1,Math.round(frame.height*scale)),key=width+'x'+height;
+    let frames=fairyFrameResolutions.get(frame);if(!frames){frames=new Map();fairyFrameResolutions.set(frame,frames);}
+    if(!frames.has(key)){const c=makeCanvas(width,height,false),ctx=c.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(frame,0,0,width,height);frames.set(key,c);}return frames.get(key);
+  })});
+  return sizes.get(target);
+}
+
 export class DrawingEngine extends EditorEngine {
   setPaintTexture(image){this.paintTexture=textureData(image);}
   setPaperTexture(image){this.paperTexture=textureData(image);}
@@ -25,7 +41,15 @@ export class DrawingEngine extends EditorEngine {
     const bounds={x,y,width:w,height:h};this.captureTiles(l,bounds,g.tiles);const before=ctx.getImageData(x,y,w,h);before.data.set(warpPixels(before.data,w,h,{...g.options,kind:g.options.warpKind||'push',x:point.x-x,y:point.y-y,dx,dy,radius}));ctx.putImageData(before,x,y);if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);this.maskTiles(l,g.tiles,g.selectionMask,bounds);g.last=point;this.render();
   }
   reset(w,h){this.path=null;this.cloneSource=null;super.reset(w,h);}
-  async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;return title;}
+  async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;
+    // Old projects may already be near the budget. Keep every sprite and its
+    // timing/position, but release oversized immutable frame resources.
+    for(const layer of this.layers){if(!layer.sprites)continue;
+      const sizes=new Map();for(const sprite of layer.sprites)sizes.set(sprite.group,Math.max(sizes.get(sprite.group)||0,sprite.size*layer.scale));
+      layer.spriteGroups=layer.spriteGroups.map((group,index)=>stampGroup(group,sizes.get(index)||128));
+    }
+    this.changed();return title;
+  }
   clearLayer(){const selection=this.selection,canvas=this.selectionCanvas,bounds=this.selectionBounds;this.clearSelection();try{this.clearPixels();}finally{this.selection=selection;this.selectionCanvas=canvas;this.selectionBounds=bounds;this.onSelectionChange?.();this.render();}}
   setCloneSource(point){if(this.paperMode){const canvas=makeCanvas(this.width,this.height);this.paint(canvas.getContext('2d'));this.cloneSource={point,canvas};}else this.cloneSource={point:toLayerPoint(point,this.active),layerId:this.activeId};}
   setStampImages(images){this.fairyGroups=null;this.fairyBehavior=null;this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
@@ -36,23 +60,30 @@ export class DrawingEngine extends EditorEngine {
     if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 500,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
     try {
-      if(!g.layer||g.layer.sprites.length>=MAX_SPRITES_PER_LAYER){
+      const group=stampGroup(this.fairyGroups[index],g.options.size);
+      if(!g.layer||g.layer.sprites.length>=MAX_SPRITES_PER_LAYER||(g.layer.spriteGroups.length>=200&&!g.layer.spriteGroups.includes(group))){
         const top=this.layers.at(-1);
-        const reusable=!g.layer&&!this.selectionCanvas&&top?.sprites&&top.sprites.length<MAX_SPRITES_PER_LAYER&&top.spriteGroups===this.fairyGroups&&top.visible&&top.opacity===1&&!top.eraseMask&&!top.spriteClip&&top.scale===1&&top.rotation===0&&top.width===this.width&&top.height===this.height&&top.x===this.width/2&&top.y===this.height/2;
+        const reusable=!g.layer&&!this.selectionCanvas&&top?.sprites&&top.sprites.length<MAX_SPRITES_PER_LAYER&&(top.spriteGroups.length<200||top.spriteGroups.includes(group))&&top.visible&&top.opacity===1&&!top.eraseMask&&!top.spriteClip&&top.scale===1&&top.rotation===0&&top.width===this.width&&top.height===this.height&&top.x===this.width/2&&top.y===this.height/2;
         if(reusable){g.layer=top;this.activeId=top.id;}
         else {
-        const extra={spriteGroups:this.fairyGroups,sprites:[]};
+        const extra={spriteGroups:[],sprites:[]};
         if(this.selectionCanvas){extra.spriteMask=this.selectionCanvas.toDataURL('image/png');extra.spriteClip=makeCanvas(this.width,this.height);extra.spriteClip.getContext('2d').drawImage(this.selectionCanvas,0,0);}
         g.layer=this.addLayer(this.stampName||'动态魔法袋',makeCanvas(this.width,this.height),false,extra);
         }
-        (g.touched??=[]).push({layer:g.layer,start:g.layer.sprites.length});
+        (g.touched??=[]).push({layer:g.layer,start:g.layer.sprites.length,beforeGroups:g.layer.spriteGroups});
       }
-      const sprite={group:index,x:point.x,y:point.y,size:g.options.size,opacity:g.options.opacity};
+      let groupIndex=g.layer.spriteGroups.indexOf(group);
+      if(groupIndex<0){
+        const groups=[...g.layer.spriteGroups,group];
+        this.assertSceneCapacity(this.layers.map(l=>l===g.layer?{...l,spriteGroups:groups}:l));
+        g.layer.spriteGroups=groups;groupIndex=groups.length-1;
+      }
+      const sprite={group:groupIndex,x:point.x,y:point.y,size:g.options.size,opacity:g.options.opacity};
       Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
       g.layer.sprites.push(sprite);g.stampIndex++;
       // This canvas is the static fallback/thumbnail, not the live animation.
       // Append one first-frame stamp instead of redrawing the whole stroke.
-      const context=g.layer.canvas.getContext('2d'),frame=this.fairyGroups[index].frames[0],scale=sprite.size/Math.max(frame.width,frame.height);
+      const context=g.layer.canvas.getContext('2d'),frame=group.frames[0],scale=sprite.size/Math.max(frame.width,frame.height);
       context.save();context.globalAlpha=sprite.opacity;context.drawImage(frame,point.x-frame.width*scale/2,point.y-frame.height*scale/2,frame.width*scale,frame.height*scale);context.restore();
       this.render();
     }catch(error){if(!g.limitNotice){this.notice?.(error.message);g.limitNotice=true;}}
@@ -165,11 +196,14 @@ export class DrawingEngine extends EditorEngine {
     if(g?.kind==='paper-warp'){endPaperWarp(this,cancel);return;}
     if(g?.kind==='warp'){if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}else this.recordPixels(g.layer,g.tiles);this.gesture=null;this.changed();return;}
     if(g?.kind==='fairy-dynamic'){
-      const after=this.layers.slice(),active=this.activeId,touched=(g.touched||[]).map(t=>({...t,added:t.layer.sprites.slice(t.start)}));
+      // A failed first dab must not leave an empty layer behind.
+      this.layers=this.layers.filter(l=>g.beforeLayers.includes(l)||l.sprites?.length);
+      if(!this.layers.some(l=>l.id===this.activeId))this.activeId=g.beforeActive;
+      const after=this.layers.slice(),active=this.activeId,touched=(g.touched||[]).map(t=>({...t,afterGroups:t.layer.spriteGroups,added:t.layer.sprites.slice(t.start)}));
       const refresh=layer=>{const c=layer.canvas.getContext('2d');c.clearRect(0,0,layer.width,layer.height);this.drawLayer(c,layer,0);};
-      const undo=()=>{for(const t of touched){t.layer.sprites.length=t.start;refresh(t.layer);}this.layers=g.beforeLayers;this.activeId=g.beforeActive;};
+      const undo=()=>{for(const t of touched){t.layer.sprites.length=t.start;t.layer.spriteGroups=t.beforeGroups;refresh(t.layer);}this.layers=g.beforeLayers;this.activeId=g.beforeActive;};
       if(cancel)undo();
-      else if(touched.some(t=>t.added.length))this.history.push({bytes:touched.reduce((sum,t)=>sum+t.added.length*48+(g.beforeLayers.includes(t.layer)?0:this.layerPixels(t.layer)*4),0),undo,redo:()=>{for(const t of touched){t.layer.sprites.length=t.start;t.layer.sprites.push(...t.added);refresh(t.layer);}this.layers=after;this.activeId=active;}});
+      else if(touched.some(t=>t.added.length))this.history.push({bytes:touched.reduce((sum,t)=>sum+t.added.length*48+(g.beforeLayers.includes(t.layer)?t.afterGroups.filter(group=>!t.beforeGroups.includes(group)).reduce((n,group)=>n+group.frames.reduce((s,f)=>s+f.width*f.height*4,0),0):this.layerPixels(t.layer)*4),0),undo,redo:()=>{for(const t of touched){t.layer.sprites.length=t.start;t.layer.spriteGroups=t.afterGroups;for(const sprite of t.added)t.layer.sprites.push(sprite);refresh(t.layer);}this.layers=after;this.activeId=active;}});
       if(!cancel)for(const t of touched)if(t.layer.spriteClip)refresh(t.layer);
       this.gesture=null;this.changed();return;
     }

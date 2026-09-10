@@ -4,7 +4,7 @@
     <UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <AssemblyName>落叶画板</AssemblyName><RootNamespace>Luoye</RootNamespace>
-    <Version>1.7.2</Version><ApplicationIcon>../../public/branding/AppIcon.ico</ApplicationIcon>
+    <Version>1.7.6</Version><ApplicationIcon>../../public/branding/AppIcon.ico</ApplicationIcon>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>

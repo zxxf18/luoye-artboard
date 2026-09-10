@@ -1,0 +1,105 @@
+/* One compact shelf for painting and browsing, with no paper resize on tool changes. */
+.playroom .tool-dock {
+  height: clamp(164px, 17dvh, 190px); flex: none; min-width: 0;
+  display: grid; grid-template-rows: 48px minmax(0, 1fr); gap: 4px;
+  container-type: inline-size;
+}
+.playroom .classic-parameters {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-auto-rows: minmax(40px, 1fr); align-items: stretch; gap: 6px;
+  min-width: 0; min-height: 0; padding: 8px 10px;
+  border: 2px solid #ddba8b; border-radius: 16px; background: #fff8e9;
+  font: clamp(14px, calc(14px * var(--u)), 17px)/1.35 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: auto; scrollbar-width: thin;
+}
+.playroom .classic-parameters:has(.options-bar > label[data-option=pen]:not([hidden])) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.playroom .brush-inspector, .playroom .sidebar-choice-source, .playroom .deprecated-stroke-control,
+.playroom .options-bar .history-buttons, .playroom .options-bar .divider { display: none !important; }
+.playroom .classic-parameters .options-bar,
+.playroom .primary-brush-options,
+.playroom .primary-brush-options .detail-bar,
+.playroom .primary-brush-options .creative-options { display: contents; }
+.playroom .parameter-slider, .playroom #brush-options,
+.playroom .primary-brush-options label {
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  gap: 6px; min-width: 0; min-height: 40px; margin: 0; padding: 4px 8px;
+  border: 1px solid #e8c69c; border-radius: 10px; background: #fff2db;
+  font: inherit; white-space: nowrap;
+}
+.playroom .parameter-slider > label { margin: 0; padding: 0; white-space: nowrap; font: inherit; }
+.playroom .parameter-slider > output, .playroom .primary-brush-options label > output { font-size: 13px; color: #8e573e; }
+.playroom .parameter-slider > input[type=range], .playroom .primary-brush-options input[type=range] { flex: 1; width: 60px; min-width: 25px; max-width: 220px; margin: 0; }
+.playroom .primary-brush-options .choice-button,
+.playroom #paint-color-open { min-width: 0; flex: 1; max-width: 230px; height: 34px; min-height: 34px; padding: 3px 6px; gap: 4px; font: inherit; }
+.playroom .primary-brush-options .choice-button > span:not(.choice-picture):not(.choice-arrow) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playroom .primary-brush-options .choice-picture { width: 22px; height: 22px; flex: none; }
+.playroom .primary-brush-options .choice-picture svg { width: 100%; height: 100%; }
+.playroom .primary-brush-options .number-stepper { flex: 1; min-width: 0; max-width: 200px; margin: 0; gap: 2px; }
+.playroom .primary-brush-options .number-stepper button { width: 32px; min-width: 32px; min-height: 32px; height: 32px; padding: 0; flex: none; }
+.playroom .primary-brush-options .number-stepper input { min-width: 0; width: 100%; padding: 2px 0; border: 0; background: transparent; font: inherit; }
+.playroom .primary-brush-options label:has(input[type=checkbox]) input { margin: 0; width: 24px; min-width: 24px; height: 24px; min-height: 24px; }
+.playroom .primary-brush-options :is(.detail-bar, .creative-options) > button { min-height: 40px; align-self: stretch; padding: 6px 12px; font: inherit; }
+.playroom #text-options-open { font-size: 18px; font-weight: 650; }
+.playroom #paint-color-open i { width: 22px; height: 22px; border: 2px solid #fff; border-radius: 50%; background: var(--paint-color); box-shadow: 0 0 0 1px #c79e77; }
+.playroom #stroke-buttons { display: flex; flex: none; gap: 6px; padding: 4px 2px; }
+.playroom #stroke-buttons button { flex: 1; min-width: 0; min-height: 48px; gap: 4px; padding: 4px; font-size: 12px; }
+.playroom #stroke-buttons .choice-picture { width: 26px; height: 26px; flex: none; }
+.playroom #stroke-buttons .choice-picture svg { width: 100%; height: 100%; }
+.playroom.library-open #stroke-buttons { display: none; }
+.playroom .tool-dock .quick-palette { height: 48px; min-height: 0; padding: 2px 6px; align-items: center; }
+.playroom .tool-dock .more-colors { flex-direction: row; height: 40px; min-height: 40px; padding: 4px 8px; font-size: 14px; }
+.playroom .more-colors .playful-icon { width: 24px; height: 24px; }
+
+/* Thumbnails must fit their picture box, including images inside a span. */
+.playroom .choice-picture { overflow: hidden; flex: none; }
+.playroom .choice-picture > :is(img, canvas, svg) { display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: cover; }
+.playroom .choice-card { align-items: center; justify-content: center; overflow: hidden; }
+.playroom .choice-card > .choice-picture { width: 88px; height: 64px; }
+.playroom .choice-card > span:last-child { line-height: 1.4; }
+.playroom .paint-texture-option { display: flex; align-items: center; gap: 12px; }
+
+#library-pagination, #library-instruction { display: none; }
+.playroom.library-open .tool-dock { grid-template-rows: minmax(0, 1fr) 58px; }
+.playroom.library-open .tool-dock .quick-palette, .playroom.library-open .primary-brush-options { display: none; }
+.playroom.library-open .tool-dock .right-panel { width: 100%; height: auto; min-height: 0; inset: auto; }
+.playroom.library-open .classic-parameters { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr); padding: 4px 8px; }
+.playroom.library-open .options-bar > :not(#brush-options) { display: none; }
+.playroom.library-open #library-pagination { display: flex; align-items: center; gap: 6px; }
+.playroom #library-pagination button { min-width: 38px; min-height: 38px; padding: 4px; font-size: 12px; gap: 4px; }
+.playroom #library-pagination .playful-icon { width: 22px; height: 22px; }
+.playroom #library-pagination > span { font-size: 12px; white-space: nowrap; }
+.playroom.library-open .classic-parameters:has(#brush-options[hidden]) #library-instruction { display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 14px; }
+.playroom #library-instruction .playful-icon { width: 26px; height: 26px; }
+.playroom #object-controls { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; min-width: 0; padding: 4px 10px; }
+.playroom #object-controls > div { min-width: 0; flex: 1; }
+.playroom #object-controls strong { display: block; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playroom #object-controls > div > span { display: block; font-size: 15px; line-height: 1.5; }
+.playroom #object-controls button { flex: none; flex-direction: row; padding: 6px 10px; gap: 6px; font-size: 15px; min-height: 44px; }
+.playroom #object-controls .playful-icon { width: 28px; height: 28px; }
+.playroom.library-open #object-controls { display: none; }
+@container (max-width: 640px) {
+  .playroom #library-pagination button span { display: none; }
+  .playroom #library-pagination { gap: 4px; }
+  .playroom .primary-brush-options .choice-picture { display: none; }
+  .playroom .classic-parameters { grid-template-columns: repeat(3, minmax(0, 1fr)); font-size: 14px; }
+  .playroom .parameter-slider, .playroom #brush-options { flex-wrap: wrap; gap: 0 5px; }
+  .playroom .parameter-slider > input[type=range] { min-width: 40%; }
+  .playroom .primary-brush-options label { gap: 3px; padding-inline: 4px; }
+}
+/* Leave enough room for thumbnails in the shorter library shelf. */
+.playroom .tool-dock .categories { min-height: 32px; max-height: 32px; padding-bottom: 0; }
+.playroom .tool-dock .categories button { min-height: 30px; padding: 2px 6px; }
+.playroom .tool-dock .categories .playful-icon { width: 20px; height: 20px; }
+.playroom .tool-dock .asset-grid { padding: 0 2px 2px; }
+.playroom .tool-dock .asset img { min-height: 24px; }
+.playroom .tool-dock .asset span { font-size: 12px; line-height: 1.2; }
+
+/* Selection choices and common actions remain directly on the shelf. */
+.playroom .classic-parameters:has(#selection-combination:not([hidden])) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.playroom #selection-combination, .playroom #selection-actions { display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 40px; padding: 4px 6px; border: 1px solid #e8c69c; border-radius: 10px; background: #fff2db; }
+.playroom #selection-combination { grid-column: 1 / -1; order: 0; }
+.playroom #selection-combination strong { flex: none; font: inherit; }
+.playroom .selection-choices { display: flex; flex: 1; min-width: 0; gap: 6px; }
+.playroom #selection-actions { grid-column: 1 / -1; order: 2; }
+.playroom :is(#selection-combination, #selection-actions) button { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; font-size: 14px; white-space: nowrap; }
+.playroom #selection-combination button[aria-pressed=true] { background: #ffdf9e; border-color: #a4633c; box-shadow: inset 0 0 0 1px #a4633c; font-weight: 700; }
