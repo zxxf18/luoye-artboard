@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, openSync, readSync, closeSync } from 'node:fs';
 const root=new URL('../public/',import.meta.url),assets=JSON.parse(readFileSync(new URL('assets/catalog.json',root)));
 test('catalog has concise meaningful collections and no retired backgrounds',()=>{
- assert.equal(assets.length,1444);assert.equal(new Set(assets.map(a=>a.id)).size,assets.length);
- assert.equal(assets.filter(a=>a.category==='background').length,420);assert.equal(assets.filter(a=>a.category==='background'&&!a.id.startsWith('bg170-')).length,0);
+ assert.equal(assets.length,1451);assert.equal(new Set(assets.map(a=>a.id)).size,assets.length);
+ assert.equal(assets.filter(a=>a.category==='background').length,423);assert.equal(assets.filter(a=>a.category==='background'&&!a.id.startsWith('bg170-')).length,3);
  assert.equal(assets.find(a=>a.id==='illustrated-caterpillar').collection,'role0');assert.equal(assets.find(a=>a.id==='illustrated-caterpillar-stamp').collection,'girl');
  assert(!assets.some(a=>a.collection==='illustrated'||a.collection==='redrawn'||a.collection==='file'));
 });
@@ -14,7 +14,7 @@ test('sixty coloring pages are divided across ten meaningful themes',()=>{
 });
 test('every catalogue bitmap and animation frame ships locally',()=>{
  const paths=new Set();for(const a of assets){for(const p of [a.src,a.thumbnail,...a.frames||[],...(a.fairyGroups||[]).flatMap(g=>g.frames)])paths.add(p);}
- for(const path of paths){assert.match(path,/^assets\/[\w/-]+\.(png|webp)$/);const file=new URL(path,root);assert(existsSync(file),path);const fd=openSync(file,'r'),b=Buffer.alloc(24);try{assert.equal(readSync(fd,b,0,24,0),24);}finally{closeSync(fd);}if(path.endsWith('.png'))assert.equal(b.subarray(1,4).toString(),'PNG',path);else{assert.equal(b.subarray(0,4).toString(),'RIFF',path);assert.equal(b.subarray(8,12).toString(),'WEBP',path);}}
+ for(const path of paths){assert.match(path,/^assets\/[\w/-]+\.(png|webp|svg)$/);const file=new URL(path,root);assert(existsSync(file),path);const fd=openSync(file,'r'),b=Buffer.alloc(24);try{assert.equal(readSync(fd,b,0,24,0),24);}finally{closeSync(fd);}if(path.endsWith('.png'))assert.equal(b.subarray(1,4).toString(),'PNG',path);else if(path.endsWith('.svg'))assert.match(b.toString(),/^<svg /,path);else{assert.equal(b.subarray(0,4).toString(),'RIFF',path);assert.equal(b.subarray(8,12).toString(),'WEBP',path);}}
 });
 test('new backgrounds cover every theme and style',()=>{
  const b=assets.filter(a=>a.id.startsWith('bg170-')&&!a.coloring);assert.equal(b.length,360);

@@ -28,6 +28,12 @@ const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundre
 let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
+const DEFAULT_TITLE = '我的奇妙世界';
+const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
+function soundEnabled(){try{return localStorage.getItem('luoye-ui-sounds')!=='off';}catch{return true;}}
+function playToolSound(){if(!soundEnabled())return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=window.__luoyeAudio||(window.__luoyeAudio=new C());const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=tool==='pen'?520:tool==='fill'?330:tool==='stamp'?660:tool==='magic'?760:430;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.035,ctx.currentTime+.008);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.08);osc.connect(gain).connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.09);}catch{}}
+function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `落叶画板_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
+function setCanvasCursor(){const canvas=$('painting');canvas.dataset.tool=tool;canvas.dataset.brush=$('brush')?.value||'pencil';}
 
 function toast(message) { const status=$('tool-hint');status.textContent=message;status.title=message;status.setAttribute('role','status'); }
 async function run(action) {
@@ -49,7 +55,7 @@ function setTool(next) {
     $('size').value=shapeStyle.size;$('size-value').textContent=$('size').value;
     $('opacity').value=shapeStyle.opacity;$('opacity-value').textContent=$('opacity').value+'%';
   }
-  tool = next; $('painting').dataset.tool = tool; $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
+  const changedTool=next!==tool; tool = next; setCanvasCursor(); if(changedTool)playToolSound(); $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
   if (tool === 'select') $('tool-hint').textContent = '拖动圈选，可直接复制、剪切；切换工具会取消圈选';
   if (tool === 'magic') $('tool-hint').textContent = '设置公差，点击选择颜色相连的区域';
@@ -116,7 +122,7 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
+const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -191,7 +197,7 @@ engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engi
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
-mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});chooseCategory(libraryCategory);
+mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated()),quickNew:()=>newBlank(),resetSettings:()=>resetSettings()});chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
@@ -201,6 +207,8 @@ mountMusic({run,toast});
 const materials=mountMaterials({engine,run,toast,getColor:()=>color});
 mountDisplay();
 mountPlayfulControls();
+document.addEventListener('brushchange',playToolSound);
+setCanvasCursor();
 let canvasLayoutFrame;new ResizeObserver(()=>{cancelAnimationFrame(canvasLayoutFrame);canvasLayoutFrame=requestAnimationFrame(layoutCanvas);}).observe($('viewport'));
 $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
@@ -215,11 +223,19 @@ bind('bigger', () => engine.resizeActiveObject(1.15));
 bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });
 bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
+async function newBlank(){await gallery.backup();engine.reset(engine.width,engine.height);zoom=1;$('title').value=DEFAULT_TITLE;setTool('pen');changed();toast('已新建空白画纸');}
+function resetSettings(){
+  $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
+  for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
+  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);zoom=1;try{localStorage.removeItem('luoye-ui-size');localStorage.removeItem('luoye-ui-sounds');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
+}
 bind('new', () => { engine.end(); showDialog('new-dialog'); });
-$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = '新的奇妙世界'; if(selectedFairyAsset?.fairyMode==='dynamic'){let groups=fairyCache.get(selectedFairyAsset.id);if(!groups){groups=await Promise.all(selectedFairyAsset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(selectedFairyAsset.id,groups);}engine.setFairyGroups(groups,'dynamic',selectedFairyAsset.fairyBehavior);engine.stampName=selectedFairyAsset.name;setTool('stamp');chooseCategory('fairy');}else setTool('pen'); changed(); } }));
-bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
+if($('new-quick'))$('new-quick').onclick=()=>run(newBlank);
+if($('reset-settings'))$('reset-settings').onclick=()=>run(async()=>resetSettings());
+$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = DEFAULT_TITLE; if(selectedFairyAsset?.fairyMode==='dynamic'){let groups=fairyCache.get(selectedFairyAsset.id);if(!groups){groups=await Promise.all(selectedFairyAsset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(selectedFairyAsset.id,groups);}engine.setFairyGroups(groups,'dynamic',selectedFairyAsset.fairyBehavior);engine.stampName=selectedFairyAsset.name;setTool('stamp');chooseCategory('fairy');}else setTool('pen'); changed(); } }));
+bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(title===DEFAULT_TITLE||!title?timestampName('luoyex'):`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
-$('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()||'我的画')+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
+$('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()&&$('title').value.trim()!==DEFAULT_TITLE?$('title').value.trim()+'_':timestampName('').replace(/\.$/,''))+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
 bind('open', () => $('file-input').click()); bind('import-image', () => $('image-input').click());
 $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
