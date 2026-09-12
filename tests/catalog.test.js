@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, openSync, readSync, closeSync } from 'node:fs';
 const root=new URL('../public/',import.meta.url),assets=JSON.parse(readFileSync(new URL('assets/catalog.json',root)));
 test('catalog has concise meaningful collections and no retired backgrounds',()=>{
- assert.equal(assets.length,1451);assert.equal(new Set(assets.map(a=>a.id)).size,assets.length);
- assert.equal(assets.filter(a=>a.category==='background').length,423);assert.equal(assets.filter(a=>a.category==='background'&&!a.id.startsWith('bg170-')).length,3);
+ assert.equal(assets.length,1576);assert.equal(new Set(assets.map(a=>a.id)).size,assets.length);
+ assert.equal(assets.filter(a=>a.category==='background').length,516);assert.equal(assets.filter(a=>a.category==='background'&&!a.id.startsWith('bg170-')).length,96);
  assert.equal(assets.find(a=>a.id==='illustrated-caterpillar').collection,'role0');assert.equal(assets.find(a=>a.id==='illustrated-caterpillar-stamp').collection,'girl');
  assert(!assets.some(a=>a.collection==='illustrated'||a.collection==='redrawn'||a.collection==='file'));
 });
