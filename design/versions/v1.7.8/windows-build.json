@@ -1,0 +1,24 @@
+{
+  "version": "1.7.8",
+  "target": "win-x64",
+  "selfContained": true,
+  "windowsRuntimeTested": false,
+  "files": {
+    "落叶画板.exe": {
+      "bytes": 314880,
+      "sha256": "fceb12efad0cedcb69110fa3f1505e35a21e50ac96ef61b1c93712487bacedd4"
+    },
+    "WebView2Loader.dll": {
+      "bytes": 163680,
+      "sha256": "c66e4a92fdc7a216118e43b7a5024ea2200e8c43f9310bf20d96a0084f82c5bc"
+    },
+    "MicrosoftEdgeWebView2RuntimeInstallerX64.exe": {
+      "bytes": 189611216,
+      "sha256": "430f559f41531df149ff56a21a7fefcf29223173574e176ce207e07887fb6115"
+    },
+    "audio/GeneralUser-GS.sf2": {
+      "bytes": 32319396,
+      "sha256": "9575028c7a1f589f5770fccc8cff2734566af40cd26ed836944e9a5152688cfe"
+    }
+  }
+}

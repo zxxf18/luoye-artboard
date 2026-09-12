@@ -122,7 +122,7 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
+const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外游乐场','bg-indoor-play':'室内游乐场','bg-sports-pool':'健身游泳馆','bg-school':'学校','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -197,7 +197,7 @@ engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engi
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
-mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated()),quickNew:()=>newBlank(),resetSettings:()=>resetSettings()});chooseCategory(libraryCategory);
+mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
@@ -223,16 +223,23 @@ bind('bigger', () => engine.resizeActiveObject(1.15));
 bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });
 bind('zoom-in', () => { zoom = Math.min(4, zoom * 1.25); layoutCanvas(); });
 bind('fit', () => { zoom = 1; layoutCanvas(); });
-async function newBlank(){await gallery.backup();engine.reset(engine.width,engine.height);zoom=1;$('title').value=DEFAULT_TITLE;setTool('pen');changed();toast('已新建空白画纸');}
+async function newBlank(width=engine.width,height=engine.height){
+  clearInterval(stampTimer);pointerId=undefined;engine.end();
+  await gallery.backup();
+  engine.reset(width,height);zoom=1;selectedAssetId='';selectedFairyAsset=null;
+  $('title').value=DEFAULT_TITLE;setTool('pen');$('mode-board').click();
+  changed();toast('已新建空白画纸，旧作已保留在画夹');
+}
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
   for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);zoom=1;try{localStorage.removeItem('luoye-ui-size');localStorage.removeItem('luoye-ui-sounds');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
-bind('new', () => { engine.end(); showDialog('new-dialog'); });
-if($('new-quick'))$('new-quick').onclick=()=>run(newBlank);
+bind('new',()=>newBlank());
+bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${engine.height}`;if(!$('preset').value)$('preset').selectedIndex=0;document.dispatchEvent(new Event('controlschange'));showDialog('new-dialog');});
+bind('new-quick',()=>newBlank());
 if($('reset-settings'))$('reset-settings').onclick=()=>run(async()=>resetSettings());
-$('new-dialog').addEventListener('close', () => run(async () => { if ($('new-dialog').returnValue === 'create') { await gallery.backup();const [w, h] = $('preset').value.split(',').map(Number); zoom = 1; engine.reset(w, h); $('title').value = DEFAULT_TITLE; if(selectedFairyAsset?.fairyMode==='dynamic'){let groups=fairyCache.get(selectedFairyAsset.id);if(!groups){groups=await Promise.all(selectedFairyAsset.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(loadImage))})));fairyCache.set(selectedFairyAsset.id,groups);}engine.setFairyGroups(groups,'dynamic',selectedFairyAsset.fairyBehavior);engine.stampName=selectedFairyAsset.name;setTool('stamp');chooseCategory('fairy');}else setTool('pen'); changed(); } }));
+$('new-dialog').addEventListener('close',event=>{if(event.target!==$('new-dialog')||$('new-dialog').returnValue!=='create')return;const [w,h]=$('preset').value.split(',').map(Number);run(()=>newBlank(w,h));});
 bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(title===DEFAULT_TITLE||!title?timestampName('luoyex'):`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
 $('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()&&$('title').value.trim()!==DEFAULT_TITLE?$('title').value.trim()+'_':timestampName('').replace(/\.$/,''))+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));

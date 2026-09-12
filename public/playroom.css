@@ -194,3 +194,8 @@
 .playroom .header-command#new-quick, .playroom .header-command#reset-settings { font-size: 14px; }
 .playroom .sound-toggle { display:flex; align-items:center; gap:8px; margin:12px 0; }
 .playroom .palette-presets { user-select:none; }
+
+/* Keep document actions identifiable and reachable at compact window widths. */
+.playroom .header-actions{overflow-x:auto;justify-content:safe flex-end;padding-bottom:3px}
+.playroom .header-actions button{flex:none}
+.playroom .header-actions #new-quick{background:#e2eed5;border-color:#98b484;min-width:68px;font-size:13px;white-space:nowrap}
