@@ -178,3 +178,19 @@
 #close-dialog button{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;white-space:normal}
 #close-dialog .playful-icon{width:38px;height:38px}
 .playroom .about-dialog{width:min(420px,calc(100vw - 36px));text-align:center;padding:30px 28px 22px}.playroom .about-dialog h2{margin:8px 0 6px;font-size:30px}.playroom .about-mark{width:82px;height:82px;margin:0 auto 6px;display:grid;place-items:center;border:3px solid #d29a64;border-radius:28px;background:#ffe2a8;box-shadow:0 5px 0 #b9764d33;overflow:hidden}.playroom .about-mark img{width:100%;height:100%;object-fit:cover}.playroom .about-mark svg{width:60px;height:60px}.playroom .about-version{margin:0 0 22px;color:#936b4b}.playroom .about-credit{margin:8px 0;color:#8b4d31;font-size:16px;font-weight:650;letter-spacing:.04em}.playroom .about-dialog .dialog-actions{justify-content:center;margin-top:24px}
+
+/* Keep the canvas interaction model clear and prevent accidental page selection. */
+.playroom, .playroom * { user-select: none; -webkit-user-select: none; }
+.playroom input, .playroom textarea, .playroom select, .playroom [contenteditable="true"] { user-select: text; -webkit-user-select: text; }
+.playroom #painting { cursor: crosshair; }
+.playroom #painting[data-tool="pen"][data-brush="pencil"], .playroom #painting[data-tool="pen"][data-brush="crayon"], .playroom #painting[data-tool="pen"][data-brush="chalk"] { cursor: crosshair; }
+.playroom #painting[data-tool="fill"] { cursor: cell; }
+.playroom #painting[data-tool="stamp"] { cursor: copy; }
+.playroom #painting[data-tool="magic"], .playroom #painting[data-tool="picker"], .playroom #painting[data-tool="select"] { cursor: crosshair; }
+.playroom #painting[data-tool="move"] { cursor: grab; }
+.playroom #painting[data-tool="text"] { cursor: text; }
+.playroom #painting[data-tool="eraser"] { cursor: not-allowed; }
+.playroom #painting[data-tool="clone"] { cursor: copy; }
+.playroom .header-command#new-quick, .playroom .header-command#reset-settings { font-size: 14px; }
+.playroom .sound-toggle { display:flex; align-items:center; gap:8px; margin:12px 0; }
+.playroom .palette-presets { user-select:none; }
