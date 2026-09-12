@@ -1,6 +1,6 @@
 # luoye-artboard · 落叶画板
 
-面向儿童的离线绘画客户端，当前版本 **1.7.7**。macOS 使用 Swift / WKWebView，Windows 使用 .NET / WebView2，共用本地绘画引擎和界面；正式客户端不运行 HTTP 服务。
+面向儿童的离线绘画客户端，当前版本 **1.7.8**。macOS 使用 Swift / WKWebView，Windows 使用 .NET / WebView2，共用本地绘画引擎和界面；正式客户端不运行 HTTP 服务。
 
 支持九种画笔、图层、魔法袋、动画伙伴、背景与涂色页、文字、分形、滤镜和音乐。未保存修改退出时可选择保存并退出、不保存退出或继续画画。Mac 已完成原生验证；Windows 已交叉构建，尚未实机验收。
 
@@ -25,7 +25,7 @@ Windows 可通过 `LUOYE_DOTNET` 指定 SDK；需将官方 Microsoft Edge WebVie
 
 - `src/`：绘画引擎与界面。
 - `native/`：Mac、Windows 宿主和运行必需的音乐音色库及许可。
-- `public/`：当前运行资源，包含 1,132 个素材入口及新动画矢量源码。
+- `public/`：当前运行资源，包含 1,576 个素材入口及新动画矢量源码。
 - `tests/`、`tools/`：验证与构建工具。
 - `design/versions/`：分版本设计、变更和文本验证记录。
 

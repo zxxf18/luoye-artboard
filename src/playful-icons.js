@@ -1,4 +1,7 @@
 const art={
+ 'new-paper':'<path d="M12 5h28l12 12v42H12Z" fill="#fff3d5"/><path d="M40 5v13h12" fill="#e9c793"/><circle cx="46" cy="46" r="16" fill="#a5cbaa"/><path d="M38 46h16m-8-8v16" stroke-width="4"/>',
+ 'reset-settings':'<g data-reset-symbol="sliders"><rect x="8" y="8" width="48" height="48" rx="12" fill="#c5d9c4"/><path d="M18 19h29M18 32h29M18 45h29" stroke-width="3"/><circle cx="26" cy="19" r="5" fill="#fff4d6"/><circle cx="40" cy="32" r="5" fill="#edb58a"/><circle cx="26" cy="45" r="5" fill="#fff4d6"/></g>',
+
  pencil:'<path fill="#ffd66b" d="M15 45 43 9q3-3 6 0l7 6q3 3 0 6L28 55 11 60z"/><path fill="#ffe8bc" d="m15 45 13 10-17 5z"/><path fill="#695145" d="m12 54 5 4-6 2z"/><path d="m25 44 25-29"/><path fill="#ee9484" d="m43 9 13 12 3-4q2-3-1-6l-6-5q-3-2-6 1z"/>',
  spray:'<rect x="18" y="24" width="29" height="34" rx="8" fill="#8fc7c3"/><path fill="#fbe4a4" d="M22 24v-7h20v7"/><path d="M28 17V9h12v8" fill="#ed9274"/><path d="m43 9 8-3m-6 9h12m-11 5 7 4"/><circle cx="29" cy="34" r="3" fill="#fff" stroke="none"/><path d="M25 48h14"/>',
  watercolor:'<path fill="#a8b6dd" d="m34 39 17-31q3-5 8-1 4 3 0 7L39 44z"/><path fill="#f1d7a8" d="m29 40 5-7 10 7-5 9z"/><path fill="#6a9ecc" d="M30 40c-17-1-6 17-21 15 14 12 31 1 29-10z"/><path d="M20 53q9 0 12-9" stroke="#d4ebfb"/>',
