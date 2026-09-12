@@ -40,7 +40,7 @@ sealed class StudioWindow : Form
             core.NewWindowRequested+=(_,e)=>e.Handled=true;
             core.PermissionRequested+=(_,e)=>e.State=CoreWebView2PermissionState.Deny;
             core.WebMessageReceived+=Message;
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("window.webkit={messageHandlers:Object.fromEntries(['ready','files','music','display'].map(channel=>[channel,{postMessage:payload=>window.chrome.webview.postMessage({channel,payload})}]))};");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("window.LUOYE_PLATFORM='windows';window.webkit={messageHandlers:Object.fromEntries(['ready','files','music','display'].map(channel=>[channel,{postMessage:payload=>window.chrome.webview.postMessage({channel,payload})}]))};");
             core.Navigate("https://luoye.local/index.html");
         } catch(WebView2RuntimeNotFoundException) {
             MessageBox.Show(this,"请先运行安装包内的 MicrosoftEdgeWebView2RuntimeInstallerX64.exe，再打开落叶画板。",Text);approved=true;Close();
