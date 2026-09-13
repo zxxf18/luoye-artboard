@@ -45,6 +45,8 @@ Object.assign(art,{
  stop:'<circle cx="32" cy="32" r="26" fill="#edb4a1"/><rect x="21" y="21" width="22" height="22" rx="4" fill="#fff7df"/>',
 });
 Object.assign(art,{
+ 'mirror-x':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M32 9v44M10 29h14m-7-7 7 7-7 7m37-7H40m7-7-7 7 7 7" fill="none"/>',
+ 'mirror-y':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M9 29h46M32 9v14m-7-7 7 7 7-7m-7 37V39m-7 7 7-7 7 7" fill="none"/>',
  forest:'<path d="M8 53Q32 40 59 53V61H8Z" fill="#aad3a0"/><path d="M27 26h10v31H27Z" fill="#c79764"/><path d="M10 29C0 14 19 7 26 11 32-3 51 5 49 17 67 21 60 40 44 38 32 48 15 41 10 29Z" fill="#aacd83"/><circle cx="25" cy="26" r="2" fill="#705142"/><circle cx="40" cy="26" r="2" fill="#705142"/><path d="M28 33q5 5 10 0" fill="none"/><circle cx="20" cy="32" r="3" fill="#f1b0a1" stroke="none"/>',
  friend:'<path d="M16 25 10 6 29 16 44 8 54 25" fill="#efbc7b"/><ellipse cx="33" cy="37" rx="26" ry="23" fill="#efbc7b"/><ellipse cx="32" cy="43" rx="15" ry="12" fill="#ffe7bd"/><circle cx="23" cy="31" r="3" fill="#705142"/><circle cx="43" cy="31" r="3" fill="#705142"/><path d="m28 40 5 4 5-4z" fill="#b77668"/><path d="M24 48q9 8 18 0" fill="none"/><path d="M7 39h10M6 47l11-3m31-5h12m-12 5 12 3"/>',
  butterfly:'<path d="M30 29C13-9-11 15 12 37-10 61 28 68 31 43 34 70 69 63 54 39 78 11 43-8 35 29" fill="#f0acbc"/><path d="M31 25q7-4 6 7l-3 21q-4 7-7-1Z" fill="#e7b167"/><circle cx="33" cy="24" r="8" fill="#ffdfa0"/><circle cx="30" cy="23" r="1.5" fill="#705142"/><circle cx="36" cy="23" r="1.5" fill="#705142"/><path d="M30 28q3 3 6 0M29 17 24 9m12 8 6-8"/><path d="m9 24 10 6m28-6 8-6" stroke="#fff0db" stroke-width="5"/>',

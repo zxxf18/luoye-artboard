@@ -86,7 +86,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const advanced=document.createElement('details');advanced.className='layer-advanced';advanced.innerHTML='<summary>翻转、清空与更多操作</summary>';advanced.append(layerDialog.querySelector('.dialog-grid'),el('layer-opacity').closest('label'));layerDialog.querySelector('.dialog-actions').before(advanced);
   const layerActions=document.querySelector('.layer-actions');
   for(const [id,label,picture] of [['layer-up','往前一层','layers'],['layer-down','往后一层','layers'],['duplicate-layer','复制一份','copy'],['delete-layer','移走它','eraser']]){const b=el(id);b.innerHTML=playfulIcon(picture)+'<span>'+label+'</span>';b.setAttribute('aria-label',label);layerActions.append(b);}
-  advanced.querySelector('.dialog-grid').prepend(el('rotate'));for(const [id,label] of [['smaller','变小'],['bigger','变大']]){el(id).innerHTML=playfulIcon('move')+'<span>'+label+'</span>';layerActions.append(el(id));}
+  advanced.querySelector('.dialog-grid').prepend(el('rotate'));for(const [id,label,picture] of [['mirror-x','水平镜像','mirror-x'],['mirror-y','垂直镜像','mirror-y'],['smaller','变小','move'],['bigger','变大','move']]){el(id).innerHTML=playfulIcon(picture)+'<span>'+label+'</span>';layerActions.append(el(id));}
   const moveSelected=document.createElement('button');moveSelected.id='move-selected-layer';moveSelected.innerHTML=playfulIcon('move')+'<span>移动</span>';moveSelected.onclick=()=>{setTool('move');layerDialog.close();};layerActions.prepend(moveSelected);
   el('add-layer').innerHTML=playfulIcon('paper')+'<span>加一张透明画纸</span>';el('add-layer').setAttribute('aria-label','加一张透明画纸');
   layerDialog.querySelector('[data-close]').textContent='选好了，返回画纸';

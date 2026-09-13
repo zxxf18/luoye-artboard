@@ -52,8 +52,9 @@ export class DrawingEngine extends EditorEngine {
   }
   clearLayer(){const selection=this.selection,canvas=this.selectionCanvas,bounds=this.selectionBounds;this.clearSelection();try{this.clearPixels();}finally{this.selection=selection;this.selectionCanvas=canvas;this.selectionBounds=bounds;this.onSelectionChange?.();this.render();}}
   setCloneSource(point){if(this.paperMode){const canvas=makeCanvas(this.width,this.height);this.paint(canvas.getContext('2d'));this.cloneSource={point,canvas};}else this.cloneSource={point:toLayerPoint(point,this.active),layerId:this.activeId};}
-  setStampImages(images){this.fairyGroups=null;this.fairyBehavior=null;this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
-  setFairyGroups(groups,mode,behavior=null){this.setStampImages(groups.map(group=>group.frames[0]));this.fairyGroups=groups;this.fairyMode=mode;this.fairyBehavior=behavior;}
+  resetStampProgress(){this.fairyStampIndex=0;}
+  setStampImages(images,reset=true){this.fairyGroups=null;this.fairyBehavior=null;if(reset)this.resetStampProgress();this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
+  setFairyGroups(groups,mode,behavior=null){const same=this.fairyGroups===groups&&this.fairyMode===mode;this.setStampImages(groups.map(group=>group.frames[0]),!same);this.fairyGroups=groups;this.fairyMode=mode;this.fairyBehavior=behavior;}
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
     if(g.limitNotice)return;
@@ -151,7 +152,7 @@ export class DrawingEngine extends EditorEngine {
       this.assertRaster();const layer=this.active,local=toLayerPoint(point,layer);
       if(options.tool==='stamp'&&!this.stampImages?.length)throw new Error('先从图层操作中选择「用作印章」。');
       if(options.tool==='clone'&&!this.cloneSource?.canvas&&this.cloneSource?.layerId!==layer.id)throw new Error('请先按住 Ctrl 点击当前层上的仿制源点。');
-      const g={kind:options.tool,layer,options,start:local,end:local,last:local,tiles:new Map(),stampIndex:0,travel:0};
+      const g={kind:options.tool,layer,options,start:local,end:local,last:local,tiles:new Map(),stampIndex:options.tool==='stamp'&&this.fairyMode==='static'?(this.fairyStampIndex||0):0,travel:0};
       if(options.tool==='clone'){g.source=makeCanvas(layer.width,layer.height);g.source.getContext('2d').drawImage(this.cloneSource.canvas||layer.canvas,0,0);g.offset={x:this.cloneSource.point.x-local.x,y:this.cloneSource.point.y-local.y};}
       this.gesture=g;this.specialDab(local);return;
     }
@@ -174,7 +175,7 @@ export class DrawingEngine extends EditorEngine {
     else{const behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1),index=behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length;g.stampIndex++;
       const image=this.stampImages[index],scale=size/Math.max(image.width,image.height),rotation=(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180;
       ctx.translate(p.x,p.y);ctx.rotate(rotation);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);}
-    ctx.restore();if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
+    ctx.restore();if(g.kind==='stamp'&&this.fairyMode==='static')this.fairyStampIndex=g.stampIndex;if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
   }
   update(point){
     const g=this.gesture;if(!g){super.update(point);return;}

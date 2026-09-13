@@ -13,8 +13,8 @@ export function toLayerPoint(point, layer) {
   const angle = -layer.rotation * Math.PI / 180;
   const x = point.x - layer.x, y = point.y - layer.y;
   return {
-    x: (x * Math.cos(angle) - y * Math.sin(angle)) / layer.scale + layer.width / 2,
-    y: (x * Math.sin(angle) + y * Math.cos(angle)) / layer.scale + layer.height / 2,
+    x: ((x * Math.cos(angle) - y * Math.sin(angle)) / layer.scale) * (layer.flipX ? -1 : 1) + layer.width / 2,
+    y: ((x * Math.sin(angle) + y * Math.cos(angle)) / layer.scale) * (layer.flipY ? -1 : 1) + layer.height / 2,
   };
 }
 
@@ -81,6 +81,8 @@ export function validateProject(value) {
     if (![layer.x, layer.y, layer.rotation, layer.scale, layer.opacity].every(Number.isFinite)) fail('图层参数无效。');
     if (layer.scale <= 0 || layer.scale > 100 || layer.opacity < 0 || layer.opacity > 1 || Math.abs(layer.x) > 100_000 || Math.abs(layer.y) > 100_000) fail('图层参数超出范围。');
     if (typeof layer.visible !== 'boolean') fail('图层可见性无效。');
+    if (layer.flipX !== undefined && typeof layer.flipX !== 'boolean') fail('图层镜像参数无效。');
+    if (layer.flipY !== undefined && typeof layer.flipY !== 'boolean') fail('图层镜像参数无效。');
     if (layer.role !== undefined && layer.role !== 'background') fail('图层类型无效。');
     png(layer.image, layer.width, layer.height);
     bytes += layer.image.length;

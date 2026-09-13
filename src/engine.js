@@ -144,7 +144,8 @@ export class PaintEngine {
     this.renderFrame=requestAnimationFrame(draw);this.renderDeadline=setTimeout(draw,16);
   }
   transform(ctx, layer) {
-    ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180); ctx.scale(layer.scale, layer.scale);
+    ctx.translate(layer.x, layer.y); ctx.rotate(layer.rotation * Math.PI / 180);
+    ctx.scale(layer.scale * (layer.flipX ? -1 : 1), layer.scale * (layer.flipY ? -1 : 1));
     ctx.translate(-layer.width / 2, -layer.height / 2);
   }
   compositeSurface(layer,kind){
@@ -360,8 +361,8 @@ export class PaintEngine {
   async serialize(title) {
     const widthAtStart=this.width,heightAtStart=this.height;
     const jobs = this.layers.map(layer => {
-      const { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role } = layer;
-      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, sourceId, role };
+      const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role } = layer;
+      const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX: !!flipX, flipY: !!flipY, sourceId, role };
       // Start every mutable-canvas snapshot before yielding, so drawing can
       // continue while PNG encoding completes without mixing document revisions.
       const jobs=[canvasPNG(layer.canvas).then(value=>{item.image=value;})];

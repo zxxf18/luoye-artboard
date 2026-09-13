@@ -12,6 +12,12 @@ test('pointer coordinates invert scaled and rotated layer transforms', () => {
   assert.ok(Math.abs(p.y - 20) < 0.001);
 });
 
+test('pointer coordinates invert mirrored layer transforms', () => {
+  const p = toLayerPoint({ x: 110, y: 90 }, { x: 100, y: 100, scale: 2, rotation: 0, flipX: true, flipY: true, width: 30, height: 40 });
+  assert.ok(Math.abs(p.x - 10) < 0.001);
+  assert.ok(Math.abs(p.y - 25) < 0.001);
+});
+
 test('fill stops at opaque borders and counts changed pixels', () => {
   const data = new Uint8ClampedArray(5 * 5 * 4).fill(255);
   for (let y = 0; y < 5; y++) data.set([0, 0, 0, 255], (y * 5 + 2) * 4);
