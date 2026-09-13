@@ -46,7 +46,7 @@ function bind(id, action) { $(id).addEventListener('click', () => run(action)); 
 function setTool(next) {
   clearInterval(stampTimer); pointerId = undefined;
   if(shapeTools.has(tool)&&!shapeTools.has(next))shapeStyle={size:Number($('size').value),opacity:Number($('opacity').value)};
-  if(tool === 'stamp') stampSize = Number($('size').value);
+  if(tool === 'stamp') { stampSize = Number($('size').value); if(next!==tool) engine?.resetStampProgress?.(); }
   if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
   engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
   if(engine?.path&&next!==tool)engine.finishPath(true);
@@ -98,6 +98,7 @@ function renderLayers() {
   }
   document.dispatchEvent(new Event('objectchange'));
   $('smaller').disabled=$('bigger').disabled=engine.active.role==='background';
+  for(const id of ['rotate','mirror-x','mirror-y']) if($(id)) $(id).disabled=engine.active.role==='background';
   $('undo').disabled = !engine.history.past.length; $('redo').disabled = !engine.history.future.length;
   $('delete-layer').disabled = engine.layers.length < 2;
   $('layer-up').disabled = engine.active === engine.layers.at(-1) || engine.active.role === 'background';
@@ -122,7 +123,7 @@ function changed() {
 let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'sticker',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外','bg-indoor-play':'室内','bg-sports-pool':'健身','bg-school':'学校','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
+const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外','bg-indoor-play':'室内','bg-sports-pool':'健身','bg-school':'学校','vehicles':'交通工具','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -131,7 +132,7 @@ function chooseCategory(category,collection='',page=0) {
   $('asset-grid').replaceChildren();
   const all = catalog.filter(asset => (category==='coloring'?asset.coloring:asset.category === category&&!asset.coloring) && (category !== 'fairy' || asset.fairyMode === (document.body.dataset.fairyMode || 'single')));
   const items=all.filter(asset=>!collection||asset.collection===collection);
-  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))];if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key] || key):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
+  const groupBox=$('library-groups');if(groupBox){groupBox.replaceChildren();const collections=[...new Set(all.map(a=>a.collection))].sort((a,b)=>a==='road-signs'?1:b==='road-signs'?-1:0);if(category!=='fairy'&&collections.length>1){for(const key of ['',...collections]){const b=document.createElement('button');b.className='subtool-card';const sample=all.find(a=>!key||a.collection===key),img=document.createElement('img');img.src=sample.thumbnail;img.alt='';b.append(img,Object.assign(document.createElement('span'),{textContent:key?(collectionNames[key] || key):'全部图案'}));b.setAttribute('aria-pressed',key===collection);b.onclick=()=>chooseCategory(category,key);groupBox.append(b);}}}
   if(groupBox&&category==='fairy'){
     for(const [mode,label,picture] of [['single','单张图案','stamp'],['static','组合图案','friend'],['dynamic','会动图案','butterfly']]){
       const button=document.createElement('button');button.className='subtool-card';button.dataset.fairyMode=mode;
@@ -218,6 +219,8 @@ bind('undo', () => engine.undo()); bind('redo', () => engine.redo());
 bind('add-layer', () => engine.addLayer(`画笔图层 ${engine.layers.length + 1}`));
 bind('delete-layer', () => engine.removeActive()); bind('layer-up', () => engine.reorder(1)); bind('layer-down', () => engine.reorder(-1));
 bind('rotate', () => engine.setProperty(engine.active, 'rotation', (engine.active.rotation + 15) % 360));
+bind('mirror-x', () => engine.setProperty(engine.active, 'flipX', !engine.active.flipX));
+bind('mirror-y', () => engine.setProperty(engine.active, 'flipY', !engine.active.flipY));
 bind('smaller', () => engine.resizeActiveObject(1/1.15));
 bind('bigger', () => engine.resizeActiveObject(1.15));
 bind('zoom-out', () => { zoom = Math.max(.5, zoom / 1.25); layoutCanvas(); });

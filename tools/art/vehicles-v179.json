@@ -1,0 +1,14 @@
+[
+{"id":"car-v179-sport-red","name":"红色跑车","kind":"跑车"},
+{"id":"car-v179-sport-blue","name":"蓝色跑车","kind":"跑车"},
+{"id":"car-v179-race-yellow","name":"黄色赛车","kind":"赛车"},
+{"id":"car-v179-race-green","name":"绿色赛车","kind":"赛车"},
+{"id":"car-v179-rally-orange","name":"橙色拉力赛车","kind":"赛车"},
+{"id":"car-v179-roadster-cream","name":"奶油色敞篷车","kind":"汽车"},
+{"id":"car-v179-city-teal","name":"青绿色小汽车","kind":"汽车"},
+{"id":"car-v179-suv-purple","name":"紫色越野车","kind":"汽车"},
+{"id":"car-v179-electric-white","name":"白色电动汽车","kind":"汽车"},
+{"id":"car-v179-vintage-brown","name":"棕色复古汽车","kind":"汽车"},
+{"id":"car-v179-police-blue","name":"蓝白巡逻车","kind":"交通车辆"},
+{"id":"car-v179-fire-red","name":"红色消防车","kind":"交通车辆"}
+]
