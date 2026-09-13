@@ -1,0 +1,23 @@
+{
+  "version": "1.7.9",
+  "assetCount": 1570,
+  "roadBackgrounds": 18,
+  "trafficStickers": 33,
+  "removedFiles": [
+    "highway.svg",
+    "parking-lot.svg",
+    "delivery-center.svg",
+    "traffic-light.svg",
+    "road-cone.svg",
+    "road-arrow.svg"
+  ],
+  "sitesVerified": [
+    "dist",
+    "build/releases/v1.7.9/落叶画板.app/Contents/Resources/site",
+    "build/releases/v1.7.9/windows-amd64/site"
+  ],
+  "codeTestsPassed": 45,
+  "archiveChecks": "Mac ZIP and Windows payload CRC and retired asset absence passed",
+  "nativeUIRetested": false,
+  "windowsRuntimeTested": false
+}
