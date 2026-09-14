@@ -310,7 +310,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                       let gain = tracks[index]["gain"] as? Double,
                       (file as NSString).lastPathComponent == file, file.hasSuffix(".mid") else { throw MusicMessageError.invalid }
                 try music.load(Data(contentsOf: directory.appendingPathComponent(file)), name: tracks[index]["label"] as? String ?? "音乐\(index + 1)", gain: Float(gain))
-                try music.play()
+                if body["autoplay"] as? Bool ?? true { try music.play() }
             case "import":
                 guard let base64 = body["data"] as? String, base64.count <= 12 * 1024 * 1024,
                       let data = Data(base64Encoded: base64), let name = body["name"] as? String else { throw MusicMessageError.invalid }
