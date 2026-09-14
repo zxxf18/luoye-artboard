@@ -12,6 +12,8 @@ import { mountClassic } from './classic-ui.js';
 import { mountText } from './text-ui.js';
 import { mountCreative } from './creative-ui.js';
 import { mountMusic } from './music-ui.js';
+import { createAudioPreferences } from './audio-preferences.js';
+import { mountToolFeedback } from './tool-feedback.js';
 import { mountDisplay } from './display-ui.js';
 import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
@@ -30,8 +32,6 @@ let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
-function soundEnabled(){try{return localStorage.getItem('luoye-ui-sounds')!=='off';}catch{return true;}}
-function playToolSound(){if(!soundEnabled())return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=window.__luoyeAudio||(window.__luoyeAudio=new C());const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=tool==='pen'?520:tool==='fill'?330:tool==='stamp'?660:tool==='magic'?760:430;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.035,ctx.currentTime+.008);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.08);osc.connect(gain).connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.09);}catch{}}
 function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `落叶画板_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
 function setCanvasCursor(){const canvas=$('painting');canvas.dataset.tool=tool;canvas.dataset.brush=$('brush')?.value||'pencil';}
 
@@ -55,7 +55,7 @@ function setTool(next) {
     $('size').value=shapeStyle.size;$('size-value').textContent=$('size').value;
     $('opacity').value=shapeStyle.opacity;$('opacity-value').textContent=$('opacity').value+'%';
   }
-  const changedTool=next!==tool; tool = next; setCanvasCursor(); if(changedTool)playToolSound(); $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
+  tool = next; setCanvasCursor(); $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
   if (tool === 'select') $('tool-hint').textContent = '拖动圈选，可直接复制、剪切；切换工具会取消圈选';
   if (tool === 'magic') $('tool-hint').textContent = '设置公差，点击选择颜色相连的区域';
@@ -204,11 +204,12 @@ engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
 const styledText=mountText({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
 const creative=mountCreative({engine,run,toast,getColor:()=>color,setTool,getTool:()=>tool});
-mountMusic({run,toast});
+const audioPreferences=createAudioPreferences(window.LUOYE_MUSIC_TRACKS.length);
+mountMusic({run,toast,preferences:audioPreferences});
 const materials=mountMaterials({engine,run,toast,getColor:()=>color});
 mountDisplay();
 mountPlayfulControls();
-document.addEventListener('brushchange',playToolSound);
+mountToolFeedback(audioPreferences);
 setCanvasCursor();
 let canvasLayoutFrame;new ResizeObserver(()=>{cancelAnimationFrame(canvasLayoutFrame);canvasLayoutFrame=requestAnimationFrame(layoutCanvas);}).observe($('viewport'));
 $('color').oninput = event => setColor(event.target.value);
@@ -236,7 +237,7 @@ async function newBlank(width=engine.width,height=engine.height){
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
-  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);zoom=1;try{localStorage.removeItem('luoye-ui-size');localStorage.removeItem('luoye-ui-sounds');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
+  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
 bind('new',()=>newBlank());
 bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${engine.height}`;if(!$('preset').value)$('preset').selectedIndex=0;document.dispatchEvent(new Event('controlschange'));showDialog('new-dialog');});

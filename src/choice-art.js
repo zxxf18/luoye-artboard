@@ -2,6 +2,7 @@ import { applyEffect } from './pixels.js';
 import { makeCanvas } from './engine.js';
 import { playfulIcon } from './playful-icons.js';
 
+let choiceArtSequence=0;
 // Vector teaching pictures remain sharp at every display scale.
 export function choiceArt(select, option) {
   const view=document.createElement('span');view.className='choice-picture';view.setAttribute('aria-hidden','true');
@@ -30,9 +31,9 @@ export function choiceArt(select, option) {
   }
   if(key==='eraser-mode') drawing=`<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/>${value==='rect'?'<rect x="14" y="20" width="35" height="26" rx="2" fill="#fffaf0" stroke="#8d6c55" stroke-dasharray="4 3"/>':`<path d="M15 44 44 19" stroke="#fffaf0" stroke-width="${value==='soft'?22:13}" stroke-linecap="round" opacity="${value==='soft'?.55:1}"/>`}<path d="m30 35 15-17 12 10-15 17Z" fill="#f1a396" stroke="#875944" stroke-width="2"/><path d="m30 35 6-7 12 10-6 7Z" fill="#ffe7bf"/>`;
   if(key==='fill-mode') {
-    const gradient=value.includes('gradient'),base=value==='all'||value==='gradient';
-    drawing='<defs><linearGradient id="fill-'+value+'"><stop stop-color="#f2b560"/><stop offset="1" stop-color="#e69aab"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="9" fill="#fff7e5" stroke="#d9bb8d" stroke-width="2"/>';
-    drawing+=`<path d="${value==='ellipse'?'M7 48a24 10 0 1 0 48 0 24 10 0 1 0-48 0':base?'M7 9H57V56H7Z':value==='rect'?'M9 39H54V56H9Z':'M8 54V39L21 28 34 39V54Z'}" fill="${gradient?'url(#fill-'+value+')':'#eeb46b'}" stroke="#a76e4d" stroke-width="2"/>`;
+    const gradient=value.includes('gradient'),base=value==='all'||value==='gradient',gradientId='choice-fill-'+(++choiceArtSequence);
+    drawing='<defs><linearGradient id="'+gradientId+'"><stop stop-color="#f2b560"/><stop offset="1" stop-color="#e69aab"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="9" fill="#fff7e5" stroke="#d9bb8d" stroke-width="2"/>';
+    drawing+=`<path d="${value==='ellipse'?'M7 48a24 10 0 1 0 48 0 24 10 0 1 0-48 0':base?'M7 9H57V56H7Z':value==='rect'?'M9 39H54V56H9Z':'M8 54V39L21 28 34 39V54Z'}" fill="${gradient?'url(#'+gradientId+')':'#eeb46b'}" stroke="#a76e4d" stroke-width="2"/>`;
     drawing+='<g transform="translate(28 4) rotate(14 12 17)"><path d="M1 12Q1-5 24 12" stroke="#886348" fill="none" stroke-width="3"/><path d="M0 12h25l-3 25H4Z" fill="#f3b994" stroke="#88583e" stroke-width="2"/><ellipse cx="12" cy="12" rx="13" ry="5" fill="#fff4d8" stroke="#88583e" stroke-width="2"/><ellipse cx="12" cy="12" rx="9" ry="2" fill="#eaa343"/><circle cx="9" cy="23" r="1.5" fill="#79523d"/><circle cx="17" cy="23" r="1.5" fill="#79523d"/><path d="M10 28q3 4 6 0" stroke="#79523d" stroke-width="2" fill="none"/><path d="M-1 14q-10 11-8 19" stroke="#eaa343" stroke-width="5" fill="none"/></g>';
     if(gradient)drawing+='<path d="M8 57h43m-5-4 5 4-5 4" stroke="#97624a" stroke-width="2"/>';
   }
