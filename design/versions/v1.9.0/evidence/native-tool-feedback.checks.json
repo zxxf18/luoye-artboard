@@ -1,0 +1,81 @@
+{
+  "ok" : true,
+  "result" : {
+    "checks" : [
+      {
+        "name" : "tool effects default on",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor crayon",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor pencil",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor spray",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "contexts" : [
+            "running"
+          ],
+          "oscillators" : 7
+        },
+        "name" : "distinct brush sounds reuse one AudioContext",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "peak" : 0.044043831527233124
+        },
+        "name" : "real Web Audio graph produces nonzero tool sound samples",
+        "passed" : true
+      },
+      {
+        "name" : "music switch silences tool feedback; fill mode updates cursor",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView decodes actual cursor SVG",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "duration" : 24.75,
+          "name" : "音乐17",
+          "peak" : 0.24393977224826813,
+          "playing" : false,
+          "position" : 0,
+          "volume" : 0.23000000417232513
+        },
+        "name" : "actual native MIDI volume and stop commands succeed",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView reload remembers muted tool effects",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView reload restores music 17 in both selectors",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "duration" : 24.75,
+          "name" : "音乐17",
+          "peak" : 0.24393977224826813,
+          "playing" : false,
+          "position" : 0,
+          "volume" : 0.23000000417232513
+        },
+        "name" : "actual native MIDI reload restores selected track, stopped state and volume",
+        "passed" : true
+      }
+    ],
+    "passed" : true
+  }
+}

@@ -1,0 +1,421 @@
+{
+  "checks": [
+    {
+      "name": "all 54 brush/tool variants use illustrated cursors",
+      "passed": true
+    },
+    {
+      "name": "one sound per changed brush; reselecting the same brush stays quiet",
+      "passed": true
+    },
+    {
+      "name": "music switch mutes all brush/tool feedback",
+      "passed": true
+    },
+    {
+      "name": "54 actual rasterized icons and PCM sounds are distinct; sound peaks are bounded",
+      "passed": true
+    },
+    {
+      "name": "full browser restart restores music 17, volume 2%, stopped state and muted effects",
+      "passed": true
+    },
+    {
+      "name": "900x650 music dialog fits; sound toggle works with keyboard",
+      "passed": true
+    },
+    {
+      "name": "enabled effects and playing state also survive restart",
+      "passed": true
+    },
+    {
+      "name": "sound toggle works even without desktop MIDI bridge",
+      "passed": true
+    },
+    {
+      "name": "no uncaught browser errors",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "renders": [
+    {
+      "key": "pen:pencil",
+      "label": "铅笔",
+      "imageHash": "88ff129cd637df93f5d9e053279f59185a488c79998a1f6c40ec5f2e3d0f1a05",
+      "soundHash": "691fb300989f5c3a3503333ed56252256c2a96e4ee2a8740dc3fb19be2d16e11",
+      "peak": 0.04229544475674629
+    },
+    {
+      "key": "pen:spray",
+      "label": "喷笔",
+      "imageHash": "dee6cbf89c7ad8ef7edb5ba4e7b73c8a1cfa07d0a7a134ebc7632e97b753412f",
+      "soundHash": "100a4ede42a9c5c78380e0ff9e870d1a956bbdae34d099344670611acd4b5de1",
+      "peak": 0.04152895510196686
+    },
+    {
+      "key": "pen:watercolor",
+      "label": "水彩",
+      "imageHash": "895d2e67d0253ca4942a72b099488847fd6584fd93f5c9b97b3a9c43615b6a52",
+      "soundHash": "9018c26d903e4e03cfefd5188e81b739cb2f291c7a807642df665c27d21de383",
+      "peak": 0.04435809701681137
+    },
+    {
+      "key": "pen:brush",
+      "label": "刷子",
+      "imageHash": "4279c194db29edc69b858f20f9303cf1b8d68f59bdbb28257b6c39d31417a98c",
+      "soundHash": "fb63d4d4823526a010c753b0ae61c704dadfe28cd4c3c69bbd4c1e0ce786cdb0",
+      "peak": 0.04451960325241089
+    },
+    {
+      "key": "pen:marker",
+      "label": "麦克笔",
+      "imageHash": "46cd06da6e1cd8918470c17e1acce6bd30b647c28eb5b4d4fc145b7d8dc7a85a",
+      "soundHash": "d35fb0faf632ca26e1d31492f542bab2515a71c19c1f629142a3bc2645aa1b75",
+      "peak": 0.042027898132801056
+    },
+    {
+      "key": "pen:crayon",
+      "label": "蜡笔",
+      "imageHash": "16fe33a72d2945c43a6334acb4f087d90b54f8f1692e1311c216cbb8db88a61d",
+      "soundHash": "06a711e627aafa2a48baadc30fced027cd6409db24267733d2257cc197b9dd34",
+      "peak": 0.0428643561899662
+    },
+    {
+      "key": "pen:chalk",
+      "label": "粉笔",
+      "imageHash": "e3dbde93ecaefb5bffa4942e339f5d5f02eda357bdec48792d48ae65ebad6796",
+      "soundHash": "1ee9bd393dcd8487cb01d1b7e988c5fe6835300f7aebe274ff49c97e74fc5602",
+      "peak": 0.043545689433813095
+    },
+    {
+      "key": "pen:tube",
+      "label": "颜料管",
+      "imageHash": "7a1fdf40da1b675c59ef9fed44122ef9b2434323b065b0c2535bd0186eb1ba7c",
+      "soundHash": "e759a842b2180180c1b0e138a2d433a8335f77d142fba011681d1af377d62b2c",
+      "peak": 0.04168856889009476
+    },
+    {
+      "key": "pen:effect",
+      "label": "星光笔",
+      "imageHash": "c5a15b8736efe92155738693bf65594c27e286e947a6077427a195b1f5bea65f",
+      "soundHash": "b100b68977c55824395f53db9dd22c9803442c714f5f9be4a34ac4dbb3b21295",
+      "peak": 0.04443350061774254
+    },
+    {
+      "key": "eraser:hard",
+      "label": "硬橡皮",
+      "imageHash": "daaf12d05c1183f5ef31d4c226a1dc1cd36bdadb4eaf4895d9ce36ab59d8c541",
+      "soundHash": "4eac9a83800f2af471f17d356fa70fb118951c895986c6631e62e73d2d231af8",
+      "peak": 0.043233077973127365
+    },
+    {
+      "key": "eraser:soft",
+      "label": "软橡皮",
+      "imageHash": "d045c0ace7ba458ef80e558a10727b5e98e07cd3e498b8ca686b70577169d53e",
+      "soundHash": "4345f9eea5dfea17a3526ff073873a14ee5246987cf6c05618fd84d2d8d1d114",
+      "peak": 0.044263049960136414
+    },
+    {
+      "key": "eraser:rect",
+      "label": "矩形清除",
+      "imageHash": "6aa4df137387504fa9ec3fd013d8ace74c624dec95f0e7987b9dcfb67b86c070",
+      "soundHash": "4388a13b45c4f157f6f39571dfad0d4455dbbb53aadbaf8a3406b0d64266bd46",
+      "peak": 0.044161006808280945
+    },
+    {
+      "key": "fill:region",
+      "label": "区域填色",
+      "imageHash": "223d4fb3a7aad088fe0aa362b3c1394b4eed653f642ba423ecd30063974cad3e",
+      "soundHash": "f4c8133c4d3da51d5f187a42d305fb5eb8eed90cca7934d90fa1afaecd9f4e52",
+      "peak": 0.04050420969724655
+    },
+    {
+      "key": "fill:all",
+      "label": "完全填色",
+      "imageHash": "fa9bd3ac2f4f517ee2fa61a6d368849c6a39388b562e14899136e066711dd045",
+      "soundHash": "e3a00ebb2ce10dd5258e295e42654d6f0ddf34ed97a0febf51a0e56349d33601",
+      "peak": 0.044862378388643265
+    },
+    {
+      "key": "fill:gradient",
+      "label": "前景／背景渐变",
+      "imageHash": "3b6a12f295fd1dc5713109857ca764e0bea127fea0cb529c59542da4ed1e9328",
+      "soundHash": "fb6d8e398051c6ba11b0077a7c472782cefebed45a382287da36206db5df0afa",
+      "peak": 0.04415961354970932
+    },
+    {
+      "key": "fill:region-gradient",
+      "label": "区域渐变",
+      "imageHash": "21c405818e5000cea5e46e510ecac669af54529a28c57196e6afd3d2a7abc698",
+      "soundHash": "a9e7cb175eb86de0f4cba5717f80c9f9a249f8822fc4366a6bcfe6c2af44d53e",
+      "peak": 0.04482702910900116
+    },
+    {
+      "key": "fill:ellipse",
+      "label": "圆形填色",
+      "imageHash": "254e7f15a60e87ea6109ed3494759f178aaf620293e056829aef9a75ea31778a",
+      "soundHash": "ce6e84f7844fead76cb7464721619518dab4d204e1a63179b690fcd785b72e34",
+      "peak": 0.04492342472076416
+    },
+    {
+      "key": "fill:rect",
+      "label": "矩形填色",
+      "imageHash": "51417be0a703c408e7cb8875c0cd9012cae283c0ab581b40283807b456f31e36",
+      "soundHash": "d576724c21ceb13ba256a8422d44161aae80de4e10e5e3d6fae56040464a1b73",
+      "peak": 0.04346286505460739
+    },
+    {
+      "key": "fill:ellipse-gradient",
+      "label": "圆形渐变",
+      "imageHash": "4e57add56724abcb3a70058a0f1f289f761e286b12ef3ecc21827308b1d2c23f",
+      "soundHash": "830ad9dda29073f249e171e31c3f4a51a99f26a476462facb8bb2c2a6dd819bf",
+      "peak": 0.04478795826435089
+    },
+    {
+      "key": "fill:rect-gradient",
+      "label": "矩形渐变",
+      "imageHash": "1438da3810284fc245c42906e4da8076f9cf2f57ee12b995295a50bf4999f5d4",
+      "soundHash": "cd8951c1c55192f7161768d25909864ea6f75552b01796b234197825fe1bffbe",
+      "peak": 0.04463103413581848
+    },
+    {
+      "key": "stamp:single",
+      "label": "单张图案",
+      "imageHash": "76bb5aacdfd335ec2e40bbff355d94dbf63efd5e56b3f1408edfd35a25d4fdae",
+      "soundHash": "ffadeed1a3b656a744ef1bb81212327d29bed2987f92ea63a01e46014c865e71",
+      "peak": 0.044931311160326004
+    },
+    {
+      "key": "stamp:static",
+      "label": "组合图案",
+      "imageHash": "ce35616b9a6d65509963a04753bf81ae25aed7aa53756a1bbe6aa8d3cbdc897a",
+      "soundHash": "3f3031c354b57914383dfba6d5cfe13cbbcf474433c849b9c2e5457860064351",
+      "peak": 0.044292282313108444
+    },
+    {
+      "key": "stamp:dynamic",
+      "label": "会动图案",
+      "imageHash": "2f9ec20e30606e20fa0223ff999e8471a45faaba0da12b72978756ca171c91dd",
+      "soundHash": "3fff6b16d2d767f69577d8ea01243efdcdb03bc254f9c205e08d3544552ede3d",
+      "peak": 0.044264860451221466
+    },
+    {
+      "key": "select:rect",
+      "label": "矩形圈选",
+      "imageHash": "fc71d45b1c909c36fb9848b3bee907ef8d7944c97e88d407c66798a1bc973a38",
+      "soundHash": "52175e64e4c232093ecfcb885c170ece89f0e6921289ac65435c72ec265081b4",
+      "peak": 0.04405229538679123
+    },
+    {
+      "key": "select:ellipse",
+      "label": "圆形圈选",
+      "imageHash": "88ceda9af853a6ca381a62673b2e28d441a66edb2fc4b0d8b4d8c20f3763da5d",
+      "soundHash": "2789598a7ba7804e94a1211938a49d9b8ae4ca7ffa4c3241daebdc790c08dda3",
+      "peak": 0.04323166608810425
+    },
+    {
+      "key": "select:triangle",
+      "label": "三角形圈选",
+      "imageHash": "cfa9701026ff0d0530f970866793bdef8b90b99d9147d41b15b4284cc834908c",
+      "soundHash": "f24240dff506b26a8827b3495fded5858f5d3aa58e61f36049bc65a769700d8a",
+      "peak": 0.04358479753136635
+    },
+    {
+      "key": "select:pentagon",
+      "label": "五角形圈选",
+      "imageHash": "a2678682c4e0729baba8b226e298fa4aa3dd366860d28be711a082d03094bc24",
+      "soundHash": "ce6c446100eb10a6f8d380e86eef598d5054e2be6e6255c0d2bf0a4c0e6839d4",
+      "peak": 0.043234411627054214
+    },
+    {
+      "key": "select:hexagon",
+      "label": "六角形圈选",
+      "imageHash": "8a28dd647ed85eb4a12f0aa0f3f7a77699bcfdfebaa0ae59fab5c99e8bb83927",
+      "soundHash": "85e7a2b976ef51ae8e726d3c63dec76f29e23d14e86dfcf4059ab20d0be16b2e",
+      "peak": 0.04369889572262764
+    },
+    {
+      "key": "select:roundrect",
+      "label": "圆矩形圈选",
+      "imageHash": "d32561ac386d9db1734a06a262573eeb75f536d9477aa86d6074f77e98dab910",
+      "soundHash": "d34c42604b3bd34541953a2ad3ad0e3e9575e2e2afc7d7a039ed78318269b2b0",
+      "peak": 0.04373358190059662
+    },
+    {
+      "key": "select:free",
+      "label": "自由套索",
+      "imageHash": "30591a4ab805aa80a45158cfd804671166ac31f5b7f44ee4fa466d67b5490669",
+      "soundHash": "c8c34479e126d3940c416430e906440389b9fff02d87789bb8685d9a1dfb0e93",
+      "peak": 0.04274092614650726
+    },
+    {
+      "key": "select:bezier",
+      "label": "曲线圈选",
+      "imageHash": "8c38af8b6c3f087531233f7ae88db23381922ad456d1999d45676fc0404aa9c4",
+      "soundHash": "33e9b68bfc003d82ac7738d83633eb35abc470f9b774bb0f17eb0b939488d143",
+      "peak": 0.04342738538980484
+    },
+    {
+      "key": "geometry:line",
+      "label": "直线",
+      "imageHash": "9d2ed84350d4e16813a8296df9858fe1d20bf30d6b9dee4728d3bdd9fa4f050c",
+      "soundHash": "f276115139a87400ad49f5d4f311a8c85191b341ec806e4dcd3d62d26fc0204c",
+      "peak": 0.04246067628264427
+    },
+    {
+      "key": "geometry:triangle",
+      "label": "三角形",
+      "imageHash": "4e3b4556d2e5465f0aa2774b6a00672a5002fb9bf516b42fcd87d8694b0e3579",
+      "soundHash": "1f3f2af263725a9d0ae0a0e9ed6ceaeab38e26bb0a62e55c21e26dd4ebb9e550",
+      "peak": 0.044018909335136414
+    },
+    {
+      "key": "geometry:rect",
+      "label": "矩形",
+      "imageHash": "07b1365d94fc528b580863f138d01b8e7c5e97a048494628c694215f9b475673",
+      "soundHash": "cf870b9274cbfc860fd29fca205f34bb564670b77d9b0e54e7cc57534d88aefd",
+      "peak": 0.042532678693532944
+    },
+    {
+      "key": "geometry:pentagon",
+      "label": "五角形",
+      "imageHash": "d29448efa0953fe0d3fbc317882de3372e1b9ec887c2f25facf1cf6ea737b3cd",
+      "soundHash": "2cddaf415a291bd5507730b1da7dbc7b4aec323bb19d67b71746db5b007dba9d",
+      "peak": 0.042939964681863785
+    },
+    {
+      "key": "geometry:hexagon",
+      "label": "六角形",
+      "imageHash": "cb6668fc3856d205a06b1f4cbb436fd90ea978795c9fa72b4e56c14948781932",
+      "soundHash": "7aafb978209b901a55b86260abbea0780bf10fc8a5d07024d2c4517db977a9bd",
+      "peak": 0.04374542459845543
+    },
+    {
+      "key": "geometry:roundrect",
+      "label": "圆矩形",
+      "imageHash": "c7cdc36af252981bc718e18a6c0c0f2affbdc26b4a117f683415516b3d5cb240",
+      "soundHash": "9d700d3c8c7eaa4a0c1aa334d69fab58c50b0798e598deea2dbf9c526051469e",
+      "peak": 0.043059393763542175
+    },
+    {
+      "key": "geometry:ellipse",
+      "label": "圆形",
+      "imageHash": "7d5128afe02881580924bcb8740f58d859f1bb2026bcc07c31922b5091a4524c",
+      "soundHash": "f93d4a92000e69837580387f18c1c1a89e6d8fab7e67ce3b91a0ad7d99c9bcc1",
+      "peak": 0.04419654607772827
+    },
+    {
+      "key": "geometry:star",
+      "label": "星形",
+      "imageHash": "e10fac22e79b1cdf46918630da2be2e22e8398c7cdf2029b06859c4fceeb3ea3",
+      "soundHash": "72dcaf95f9c0ca5afe55f6c75aa2f256f36ecf856f385710c96608ea422ad56f",
+      "peak": 0.04314048960804939
+    },
+    {
+      "key": "geometry:polygon",
+      "label": "多边形",
+      "imageHash": "ec7fe1db00d2f1ac7ede14ccf7ee4b7080976cae78612d55951e37d1c71abea6",
+      "soundHash": "d9639a43dfade199c1d05ea7ae8cd580683d0d64bb73718aab73a3f9da274ce4",
+      "peak": 0.043314289301633835
+    },
+    {
+      "key": "geometry:bezier",
+      "label": "曲线",
+      "imageHash": "b6c3cb8f26af437af7e18360f45efba4d1926d3e025a1478fa5f5f4486c300f1",
+      "soundHash": "c540f3d1bd09f4d948fadd6ae0d337ef2feba120398207358a51946b9844ba6f",
+      "peak": 0.04375077411532402
+    },
+    {
+      "key": "warp:push",
+      "label": "推拉变形",
+      "imageHash": "176fc05b34b8c8427ea10dd686178babb1c48506980ece586a0db9158e4414c9",
+      "soundHash": "b6308f1224f829916251c95712447a4e49c0f55dfcef9453591fd18b2cd75acf",
+      "peak": 0.0442083366215229
+    },
+    {
+      "key": "warp:zoom",
+      "label": "缩放变形",
+      "imageHash": "48c9dd493c35d7d06e9da5d9ca4dc4e9a3614c14ab83ae9df2db79b5b35b7307",
+      "soundHash": "fbd3033ab93de937118498ef9f06799d8025d5b1962954ae0174d1ec3c772c49",
+      "peak": 0.04307348281145096
+    },
+    {
+      "key": "board-filter:ripple",
+      "label": "水纹滤镜",
+      "imageHash": "2d790112033909e861005f4db5ebaee07bc10658e121d80d8fc41f304386dbbb",
+      "soundHash": "bc9191eed33574bd5a219e7274ad2807186bb3d086266cbc10149b81a58db47f",
+      "peak": 0.04442869499325752
+    },
+    {
+      "key": "board-filter:twist",
+      "label": "扭曲滤镜",
+      "imageHash": "12cd8fd13c3e4ebb6875d4b256d8ccfd1575af8c55b5e0d374e14abe5cc78b9c",
+      "soundHash": "4474433ab068021494410d6e1daad8a99db194d69b6e299539584b199c90388f",
+      "peak": 0.044929925352334976
+    },
+    {
+      "key": "board-filter:waterfall",
+      "label": "瀑布滤镜",
+      "imageHash": "33349af81214163f9d013312f57a24c3a47d2b3a9ada221b0e00e34770c850d5",
+      "soundHash": "deb6c2435fe9df47edb729baede34cb51cbceacd3325a3355356591fd9718b09",
+      "peak": 0.0446389839053154
+    },
+    {
+      "key": "board-filter:point-light",
+      "label": "点光源滤镜",
+      "imageHash": "5a7e6f901b94e2852626baf4552395bea1eea364be5674279b767a366317a6ef",
+      "soundHash": "7855c2facdf4256240e4c3ff4fa7b49a2abf9bb24d23bb2e0f988f698b552c67",
+      "peak": 0.04453015699982643
+    },
+    {
+      "key": "board-filter:direction-light",
+      "label": "方向光源滤镜",
+      "imageHash": "227e6a13d70d22b4dd709f451464200add210e837a68d94b98542db77eaa2d3a",
+      "soundHash": "8c310760123964f18e93c79983d166764ff2c73343fc68f0ac2664cc8aa1d0c3",
+      "peak": 0.044877517968416214
+    },
+    {
+      "key": "picker:default",
+      "label": "取色器",
+      "imageHash": "86b2b015d316ee790deeee14f4c0259d853ce03a913c032fef6f79689ef0dafb",
+      "soundHash": "13de752d0c5cfb29a88b1729f31853390bbf686add654ade44d5cb3dfe19cd0d",
+      "peak": 0.04473085701465607
+    },
+    {
+      "key": "magic:default",
+      "label": "魔法棒",
+      "imageHash": "31347faa7e3d0ca3a4e458ec9697b50abc0193c91f4a784773ac63f71b40c644",
+      "soundHash": "abd2f89a21e397b75bd1e9e3d57207499de484a5cc4a76b065275e0213f1d878",
+      "peak": 0.044753119349479675
+    },
+    {
+      "key": "move:default",
+      "label": "移动",
+      "imageHash": "45cec03655079fe0bdc9230ea85ef84cb5d381f10f53f3bf20b68390318906ad",
+      "soundHash": "9381201424d2810bdc2d98f8d17b593096a049804633d95a6df9981c9b76ae57",
+      "peak": 0.04454268515110016
+    },
+    {
+      "key": "text:default",
+      "label": "文字",
+      "imageHash": "9e35cf0cfdfe31e4e55d05dd95dae7047b3f866fcbda0accf0e60249f25216a6",
+      "soundHash": "4abc157dab363fc70167ab7ef49240a11657dff4d5b13af9834a7c08e7604133",
+      "peak": 0.043677739799022675
+    },
+    {
+      "key": "clone:default",
+      "label": "仿制印章",
+      "imageHash": "80f2a89d598445e09ba9cafa9e887c249fea6c825060c2072cf66db3e0af04d3",
+      "soundHash": "382b1b451074f70a064951745bcfa330a03cb8bb70833407ab7f1fa6272a795b",
+      "peak": 0.04352838546037674
+    },
+    {
+      "key": "fractal:default",
+      "label": "分形",
+      "imageHash": "11072c6449d85cb8b5b44688a9c5b88981b74a5bd87387317c01e7a9e07f75b3",
+      "soundHash": "68de9dfc0f96c3d7a742bec5a160fc23923f66ad884d0ff256d110530ecdbbbb",
+      "peak": 0.044983673840761185
+    }
+  ]
+}
