@@ -72,7 +72,8 @@ sealed class StudioWindow : Form
                                 if(index<0||index>=tracks.RootElement.GetArrayLength())throw new InvalidDataException("歌曲编号无效。");
                                 var track=tracks.RootElement[index];var file=track.GetProperty("file").GetString()??"";
                                 if(Path.GetFileName(file)!=file||!file.EndsWith(".mid",StringComparison.Ordinal))throw new InvalidDataException("音乐文件名无效。");
-                                music.Load(File.ReadAllBytes(Path.Combine(site,"music",file)),track.GetProperty("label").GetString()??$"音乐{index+1}",track.GetProperty("gain").GetDouble());music.Play();
+                                music.Load(File.ReadAllBytes(Path.Combine(site,"music",file)),track.GetProperty("label").GetString()??$"音乐{index+1}",track.GetProperty("gain").GetDouble());
+                                if(!body.TryGetProperty("autoplay",out var autoplay)||autoplay.GetBoolean())music.Play();
                             }
                             break;
                         case "import":var data=body.GetProperty("data").GetString()??"";if(data.Length>12*1024*1024)throw new InvalidDataException("音乐过大。");music.Load(Convert.FromBase64String(data),body.GetProperty("name").GetString()??"我的音乐");music.Play();break;

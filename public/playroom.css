@@ -182,15 +182,7 @@
 /* Keep the canvas interaction model clear and prevent accidental page selection. */
 .playroom, .playroom * { user-select: none; -webkit-user-select: none; }
 .playroom input, .playroom textarea, .playroom select, .playroom [contenteditable="true"] { user-select: text; -webkit-user-select: text; }
-.playroom #painting { cursor: crosshair; }
-.playroom #painting[data-tool="pen"][data-brush="pencil"], .playroom #painting[data-tool="pen"][data-brush="crayon"], .playroom #painting[data-tool="pen"][data-brush="chalk"] { cursor: crosshair; }
-.playroom #painting[data-tool="fill"] { cursor: cell; }
-.playroom #painting[data-tool="stamp"] { cursor: copy; }
-.playroom #painting[data-tool="magic"], .playroom #painting[data-tool="picker"], .playroom #painting[data-tool="select"] { cursor: crosshair; }
-.playroom #painting[data-tool="move"] { cursor: grab; }
-.playroom #painting[data-tool="text"] { cursor: text; }
-.playroom #painting[data-tool="eraser"] { cursor: not-allowed; }
-.playroom #painting[data-tool="clone"] { cursor: copy; }
+.playroom #painting { cursor: var(--drawing-cursor, crosshair); }
 .playroom .header-command#new-quick, .playroom .header-command#reset-settings { font-size: 14px; }
 .playroom .sound-toggle { display:flex; align-items:center; gap:8px; margin:12px 0; }
 .playroom .palette-presets { user-select:none; }
