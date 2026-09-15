@@ -46,7 +46,10 @@ try{
    if(entry.tool==='fill'&&['rect','ellipse'].includes(value))await page.locator('#fill-gradient').setChecked(entry.value.endsWith('-gradient'));
   }
   assert.equal(await page.locator('#painting').getAttribute('data-cursor'),entry.key);
-  assert.match(await page.locator('#painting').evaluate(e=>getComputedStyle(e).cursor),/^url\("data:image\/svg\+xml,/);
+  const cursor=await page.locator('#painting').evaluate(e=>getComputedStyle(e).cursor);
+  assert.match(cursor,/^url\("data:image\/svg\+xml,/);
+  const hotspot=await page.evaluate(async entry=>(await import('/src/tool-cursors.js')).toolCursor(entry).hotspot,entry);
+  assert(cursor.endsWith(hotspot.join(' ')+', crosshair'),entry.key+' contact matches CSS hotspot');
  }
  record('all '+entries.length+' brush/tool variants use illustrated cursors');
  await tool(page,'pen');await page.locator('.brush-box [data-brush="crayon"]').click();
@@ -55,39 +58,57 @@ try{
  await page.locator('.brush-box [data-brush="pencil"]').click();assert.equal(await page.evaluate(()=>window.feedbackOscillators),once+2);
  record('one sound per changed brush; reselecting the same brush stays quiet');
  await page.locator('#music-open').click();assert.equal(await page.locator('#ui-sounds').isChecked(),true);
+ assert.equal(await page.locator('#ui-sound-volume').inputValue(),'60');
+ const beforeVolume=await page.evaluate(()=>window.feedbackOscillators);
+ await page.locator('#ui-sound-volume').focus();await page.keyboard.press('Home');
+ assert.equal(await page.locator('#ui-sound-volume-value').textContent(),'0%');
+ assert.equal(await page.evaluate(()=>window.feedbackOscillators),beforeVolume);
+ await page.locator('#music-close').click();await tool(page,'eraser');await tool(page,'pen');
+ assert.equal(await page.evaluate(()=>window.feedbackOscillators),beforeVolume);
+ await page.locator('#music-open').click();await page.locator('#ui-sound-volume').focus();await page.keyboard.press('ArrowRight');
+ assert((await page.evaluate(()=>window.feedbackOscillators))>beforeVolume);
+ assert.equal(await page.locator('#music-volume').inputValue(),'35');
+ record('effect slider defaults to 60%, zero is silent, adjustment previews sound without changing music volume');
  await page.locator('#ui-sounds').uncheck();await page.locator('#music-close').click();
  const muted=await page.evaluate(()=>window.feedbackOscillators);await tool(page,'eraser');await tool(page,'fill');assert.equal(await page.evaluate(()=>window.feedbackOscillators),muted);
  record('music switch mutes all brush/tool feedback');
  // Decode and rasterize the actual cursor SVGs, and render the actual sound graph.
  const rendered=await page.evaluate(async()=>{
-  const {TOOL_FEEDBACK,toolCursorSVG,scheduleToolSound}=await import('/src/tool-feedback.js');const result=[];
+  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/tool-feedback.js');const {toolCursor}=await import('/src/tool-cursors.js');const result=[];
   const hash=async data=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',data))].map(x=>x.toString(16).padStart(2,'0')).join('');
   for(const entry of TOOL_FEEDBACK){
-   const svg=toolCursorSVG(entry),image=new Image();image.src='data:image/svg+xml,'+encodeURIComponent(svg);await image.decode();
+   const {svg,hotspot}=toolCursor(entry),image=new Image();image.src='data:image/svg+xml,'+encodeURIComponent(svg);await image.decode();
    const c=document.createElement('canvas');c.width=c.height=40;const ctx=c.getContext('2d');ctx.drawImage(image,0,0);const rgba=ctx.getImageData(0,0,40,40).data;
    const audio=new OfflineAudioContext(1,Math.ceil(44100*.4),44100);scheduleToolSound(audio,entry.sound);const pcm=(await audio.startRendering()).getChannelData(0);
-   result.push({key:entry.key,label:entry.label,svg,png:c.toDataURL(),imageHash:await hash(rgba),soundHash:await hash(pcm),peak:Math.max(...pcm.map(Math.abs)),samples:Array.from(pcm)});
+   result.push({key:entry.key,label:entry.label,svg,hotspot,png:c.toDataURL(),imageHash:await hash(rgba),soundHash:await hash(pcm),peak:Math.max(...pcm.map(Math.abs)),samples:Array.from(pcm)});
   }return result;
  });
  assert.equal(new Set(rendered.map(r=>r.imageHash)).size,entries.length);assert.equal(new Set(rendered.map(r=>r.soundHash)).size,entries.length);assert(rendered.every(r=>r.peak>.005&&r.peak<.1));
  record('54 actual rasterized icons and PCM sounds are distinct; sound peaks are bounded');
+ const levels=await page.evaluate(async()=>{
+  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/tool-feedback.js');const levels=[];
+  for(const volume of [0,.3,.6,1]){const ctx=new OfflineAudioContext(1,17640,44100);scheduleToolSound(ctx,TOOL_FEEDBACK[0].sound,volume);const pcm=(await ctx.startRendering()).getChannelData(0);levels.push({volume,peak:Math.max(...pcm.map(Math.abs))});}return levels;
+ });
+ assert.equal(levels[0].peak,0);assert(Math.abs(levels[2].peak/levels[1].peak-2)<.02);assert(levels[2].peak>levels[1].peak*1.9&&levels[2].peak<.091);assert(levels[3].peak<.151);
+ record('rendered audio follows 0/30/60/100% volume; default peak doubles the old gain setting (30% reference)',levels);
  const sample=rendered.slice(0,20).flatMap(r=>[...r.samples,...Array(4410).fill(0)]),wav=Buffer.alloc(44+sample.length*2);
  wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(44100,24);wav.writeUInt32LE(88200,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(sample.length*2,40);sample.forEach((v,i)=>wav.writeInt16LE(Math.round(v*32767),44+i*2));await writeFile(path.join(output,'tool-sounds.wav'),wav);
  const gallery=await context.newPage();await gallery.setContent('<html><head><meta charset="utf-8"><style>body{font:15px system-ui;background:#fff6e2;color:#705142;padding:24px}main{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}article{background:#fffdf6;border:1px solid #dec6a1;border-radius:12px;padding:12px;text-align:center}img{width:40px;height:40px}p{margin:4px}</style></head><body><h1>画笔与工具光标 · 40 px 实际尺寸</h1><main>'+rendered.map(r=>`<article><img src="${r.png}"><p>${r.label}</p></article>`).join('')+'</main></body></html>');await gallery.screenshot({path:path.join(output,'cursor-gallery.png'),fullPage:true});await gallery.close();
  await page.locator('#music-open').click();await page.locator('#music-track-choose').click();await page.locator('#choice-grid [data-value="16"]').click();await idle(page);
  await page.locator('#music-volume').focus();await page.keyboard.press('Home');await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowRight');await idle(page);
  await page.locator('#music-stop').click();await idle(page);
+ await page.locator('#ui-sound-volume').focus();await page.keyboard.press('End');await page.keyboard.press('ArrowLeft');
  const before=await page.evaluate(()=>({music:JSON.parse(localStorage.getItem('luoye-music-settings')),sounds:localStorage.getItem('luoye-ui-sounds')}));assert.deepEqual(before,{music:{index:16,volume:.02,playing:false},sounds:'off'});
  await context.close();page=await launch();
- assert.equal(await page.locator('#music-track').inputValue(),'16');assert.equal(await page.locator('#music-volume').inputValue(),'2');assert.equal(await page.locator('#ui-sounds').isChecked(),false);
+ assert.equal(await page.locator('#music-track').inputValue(),'16');assert.equal(await page.locator('#music-volume').inputValue(),'2');assert.equal(await page.locator('#ui-sounds').isChecked(),false);assert.equal(await page.locator('#ui-sound-volume').inputValue(),'99');
  const restored=await page.evaluate(()=>({state:document.getElementById('music-state').textContent,requests:window.musicRequests}));assert(restored.state.includes('已停止'));assert.deepEqual(restored.requests.find(r=>r.action==='track').autoplay,false);
- record('full browser restart restores music 17, volume 2%, stopped state and muted effects');
+ record('full browser restart restores music 17, music volume 2%, stopped state, muted effects and effect volume 99%');
  await page.locator('#music-open').click();await page.locator('#ui-sounds').check();await page.locator('#music-play').click();await idle(page);
  await page.screenshot({path:path.join(output,'music-preferences.png')});
  await page.setViewportSize({width:900,height:650});await page.locator('#ui-sounds').focus();await page.keyboard.press('Space');assert.equal(await page.locator('#ui-sounds').isChecked(),false);await page.keyboard.press('Space');assert.equal(await page.locator('#ui-sounds').isChecked(),true);await page.locator('#music-close').scrollIntoViewIfNeeded();
  const bounds=await page.locator('#music-dialog').boundingBox();assert(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=900&&bounds.y+bounds.height<=650);await page.screenshot({path:path.join(output,'music-compact.png')});record('900x650 music dialog fits; sound toggle works with keyboard');await page.locator('#music-close').click();
  await context.close();page=await launch();assert(await page.locator('#ui-sounds').isChecked());assert((await page.evaluate(()=>window.LUOYEMusicState())).playing);record('enabled effects and playing state also survive restart');
- await context.close();page=await launch(false);await page.locator('#music-open').click();assert(await page.locator('#ui-sounds').isEnabled());await page.locator('#ui-sounds').uncheck();record('sound toggle works even without desktop MIDI bridge');
+ await context.close();page=await launch(false);await page.locator('#music-open').click();assert(await page.locator('#ui-sounds').isEnabled());assert(await page.locator('#ui-sound-volume').isEnabled());await page.locator('#ui-sounds').uncheck();record('sound toggle works even without desktop MIDI bridge');
  assert.deepEqual(errors,[]);record('no uncaught browser errors');
  await writeFile(path.join(output,'browser-report.json'),JSON.stringify({checks,errors,renders:rendered.map(({samples,svg,png,...r})=>r)},null,2)+'\n');
 }catch(error){await context?.pages()[0]?.screenshot({path:path.join(output,'failure.png')});throw error;}finally{await context?.close();await rm(profile,{recursive:true,force:true});}
