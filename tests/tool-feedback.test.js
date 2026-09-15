@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createAudioPreferences } from '../src/audio-preferences.js';
 import { TOOL_FEEDBACK, getToolFeedback, createToolSoundPlayer } from '../src/tool-feedback.js';
 import { BRUSHES } from '../src/brushes.js';
+import { toolCursor } from '../src/tool-cursors.js';
 const storage=()=>{const data=new Map();return {getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};};
 
 test('audio preferences remember music and legacy sound mute, including zero volume and stopped playback',()=>{
@@ -34,4 +35,25 @@ test('muting a suspended audio context cancels pending feedback without a delaye
   prefs.setSounds(false);await player.play(TOOL_FEEDBACK[0]);assert.equal(created,0);
   prefs.setSounds(true);const pending=player.play(TOOL_FEEDBACK[1]);prefs.setSounds(false);player.silence();resume();await pending;
   assert.equal(created,1);assert.equal(scheduled,0);
+});
+test('effect volume upgrades to a louder default and remembers zero independently of the mute switch',()=>{
+  const disk=storage();disk.setItem('luoye-ui-sounds','off');
+  const prefs=createAudioPreferences(20,disk);assert.equal(prefs.soundVolume,.6);assert.equal(prefs.sounds,false);
+  prefs.setSoundVolume(.23);assert.equal(createAudioPreferences(20,disk).soundVolume,.23);
+  prefs.setSoundVolume(0);prefs.setSounds(true);
+  const restored=createAudioPreferences(20,disk);assert.equal(restored.soundVolume,0);assert.equal(restored.sounds,true);
+  for(const invalid of ['null','"loud"','-1','2','NaN','']){disk.setItem('luoye-ui-sound-volume',invalid);assert.equal(createAudioPreferences(20,disk).soundVolume,.6);}
+  prefs.setSoundVolume(NaN);assert.equal(prefs.soundVolume,0);
+});
+test('zero-volume feedback does not create an audio context',async()=>{
+  const prefs=createAudioPreferences(20,storage());prefs.setSoundVolume(0);
+  let attempts=0;const silent=createToolSoundPlayer(prefs,()=>{attempts++;});
+  await silent.play(TOOL_FEEDBACK[0]);assert.equal(attempts,0);
+});
+test('all cursor contacts lie in the image with dedicated nib, paint and wand hotspots',()=>{
+  for(const entry of TOOL_FEEDBACK){const {svg,hotspot}=toolCursor(entry);assert.equal(hotspot.length,2);assert(hotspot.every(n=>Number.isInteger(n)&&n>=0&&n<40));assert(!svg.includes('cx="3" cy="3"'));}
+  const contact=key=>toolCursor(TOOL_FEEDBACK.find(e=>e.key===key)).hotspot;
+  assert.deepEqual(contact('pen:pencil'),[8,36]);assert.deepEqual(contact('pen:crayon'),[10,35]);
+  assert.deepEqual(contact('fill:region'),[33,38]);assert.deepEqual(contact('magic:default'),[26,4]);
+  assert.deepEqual(contact('picker:default'),[6,36]);
 });
