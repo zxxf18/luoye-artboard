@@ -1,6 +1,5 @@
 import { BRUSHES } from './brushes.js';
-import { playfulIcon } from './playful-icons.js';
-import { choiceArt } from './choice-art.js';
+import { toolCursor } from './tool-cursors.js';
 
 const feedbackShapes = {line:'直线',triangle:'三角形',rect:'矩形',pentagon:'五角形',hexagon:'六角形',roundrect:'圆矩形',ellipse:'圆形',star:'星形',polygon:'多边形',bezier:'曲线'};
 export const TOOL_FEEDBACK = [];
@@ -35,27 +34,16 @@ export function getToolFeedback(options) {
   return TOOL_FEEDBACK.find(entry=>entry.key===`${tool}:${value}`) || TOOL_FEEDBACK[0];
 }
 
-// Use the same illustrated artwork as the tool buttons. The small marker at
-// (3,3) is the drawing hotspot; the icon sits clear of the mark being painted.
-export function toolCursorSVG(entry, doc=document) {
-  let artwork;
-  if(entry.control) {
-    const control=doc.getElementById(entry.control),value=entry.value.replace(/^(ellipse|rect)-gradient$/,'$1');
-    const option=[...control.options].find(o=>o.value===value);
-    artwork=choiceArt(control,option).querySelector('svg')?.outerHTML;
-  }
-  artwork ||= playfulIcon(entry.icon);
-  artwork=artwork.replace('<svg ', '<svg x="7" y="7" width="32" height="32" ');
-  const gradientBadge=entry.value.endsWith('-gradient')&&['ellipse-gradient','rect-gradient'].includes(entry.value)?'<circle cx="34" cy="34" r="5" fill="#e99cab" stroke="#705142"/><path d="M31 34h6" stroke="#fff"/>':'';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="3" cy="3" r="2.5" fill="#fff" stroke="#49392f"/>${artwork}${gradientBadge}</svg>`;
-}
+export function toolCursorSVG(entry) { return toolCursor(entry).svg; }
 
-export function scheduleToolSound(context, profile) {
+export function scheduleToolSound(context, profile, volume=.6) {
+  const level=.15*Math.max(0,Math.min(1,volume));
+  if(!level)return ()=>{};
   const nodes=[],at=context.currentTime,step=profile.duration/profile.frequencies.length;
   for(const [i,frequency] of profile.frequencies.entries()) {
     const oscillator=context.createOscillator(),gain=context.createGain(),start=at+i*step,end=start+step;
     oscillator.type=profile.wave;oscillator.frequency.setValueAtTime(frequency,start);
-    gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.045,start+Math.min(.008,step/4));gain.gain.exponentialRampToValueAtTime(.0001,end);
+    gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(level,start+Math.min(.008,step/4));gain.gain.exponentialRampToValueAtTime(.0001,end);
     oscillator.connect(gain);gain.connect(context.destination);oscillator.start(start);oscillator.stop(end+.005);
     oscillator.onended=()=>{oscillator.disconnect();gain.disconnect();};nodes.push({oscillator,gain});
   }
@@ -68,12 +56,12 @@ export function createToolSoundPlayer(preferences, makeContext=()=>new (window.A
   return {
     silence,
     async play(entry) {
-      silence();if(!preferences.sounds)return;
+      silence();if(!preferences.sounds||!preferences.soundVolume)return;
       const own=revision;
       try {
         context ||= makeContext();
         if(context.state==='suspended')await context.resume();
-        if(own===revision&&preferences.sounds)stop=scheduleToolSound(context,entry.sound);
+        if(own===revision&&preferences.sounds)stop=scheduleToolSound(context,entry.sound,preferences.soundVolume);
       } catch { /* Audio unavailable: the illustrated cursor still identifies the tool. */ }
     },
   };
@@ -85,11 +73,18 @@ export function mountToolFeedback(preferences) {
   function sync(audible=true) {
     const entry=getToolFeedback({tool:canvas.dataset.tool,pen:value('brush'),eraser:value('eraser-mode'),fill:value('fill-mode'),gradient:document.getElementById('fill-gradient')?.checked,stamp:document.body.dataset.fairyMode||'single',select:value('selection-shape'),warp:value('warp-kind'),'board-filter':value('board-filter-kind')});
     if(entry.key===previous)return;
-    if(!cursors.has(entry.key))cursors.set(entry.key,`url("data:image/svg+xml,${encodeURIComponent(toolCursorSVG(entry))}") 3 3, crosshair`);
+    if(!cursors.has(entry.key)) {
+      const {svg,hotspot}=toolCursor(entry);
+      cursors.set(entry.key,`url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.join(' ')}, crosshair`);
+    }
     canvas.style.setProperty('--drawing-cursor',cursors.get(entry.key));canvas.dataset.cursor=entry.key;
     if(audible&&previous)player.play(entry);previous=entry.key;
   }
   for(const event of ['toolchange','change','controlschange','fairymodechange'])document.addEventListener(event,()=>sync());
   document.addEventListener('soundsettingchange',()=>{if(!preferences.sounds)player.silence();});
+  document.addEventListener('soundvolumechange',event=>{
+    player.silence();
+    if(event.detail?.preview)player.play(TOOL_FEEDBACK.find(entry=>entry.key===previous));
+  });
   sync(false);
 }

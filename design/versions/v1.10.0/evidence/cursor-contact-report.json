@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "name": "fit real mouse click lands at pencil tip",
+      "passed": true,
+      "x": 825,
+      "y": 496,
+      "screenX": 701.2732991536459,
+      "screenY": 387.14583333333337,
+      "scale": 0.5138834635416667
+    },
+    {
+      "name": "zoom real mouse click lands at pencil tip",
+      "passed": true,
+      "x": 825,
+      "y": 496,
+      "screenX": 787.6574829101562,
+      "screenY": 450.9322916666667,
+      "scale": 0.6423583984375
+    },
+    {
+      "name": "compact real mouse click lands at pencil tip",
+      "passed": true,
+      "x": 825,
+      "y": 496,
+      "screenX": 463.99322916666665,
+      "screenY": 272.8546875,
+      "scale": 0.2677083333333333
+    }
+  ],
+  "errors": []
+}

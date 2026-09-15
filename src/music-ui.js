@@ -2,7 +2,7 @@ import { playfulIcon } from './playful-icons.js';
 export function mountMusic({run,toast,preferences}) {
   const tracks=window.LUOYE_MUSIC_TRACKS;
   const el=id=>document.getElementById(id),button=document.createElement('button');button.id='music-open';button.className='header-command';button.innerHTML=playfulIcon('music')+'<span>音乐</span>';button.title='音乐盒';document.querySelector('.header-actions').append(button);
-  const dialog=document.createElement('dialog');dialog.id='music-dialog';dialog.className='music-dialog';dialog.innerHTML=`<h2>音乐盒</h2><label for="music-track">背景音乐</label><div class="music-tracks"><button id="music-prev" aria-label="上一首">◀</button><select id="music-track">${tracks.map((_,i)=>`<option value="${i}">音乐${i+1}</option>`).join('')}</select><button id="music-next" aria-label="下一首">▶</button></div><p id="music-state" role="status">点击播放，边听边画。每首音乐会重复播放。</p><div class="music-transport"><button id="music-play">▶ 播放</button><button id="music-stop">■ 停止</button></div><label>音量 <input id="music-volume" type="range" min="0" max="100" value="35"><output id="music-volume-value">35%</output></label><label class="sound-toggle"><input id="ui-sounds" type="checkbox" checked> 画笔与工具切换音效</label><p class="music-preference-hint">下次打开，沿用这次的音乐和音效设置。</p><button id="music-import">输入 MIDI 音乐</button><input id="music-file" type="file" accept=".mid,.midi,audio/midi" hidden><div class="dialog-actions"><button id="music-close" class="primary">确定</button></div>`;document.body.append(dialog);
+  const dialog=document.createElement('dialog');dialog.id='music-dialog';dialog.className='music-dialog';dialog.innerHTML=`<h2>音乐盒</h2><label for="music-track">背景音乐</label><div class="music-tracks"><button id="music-prev" aria-label="上一首">◀</button><select id="music-track">${tracks.map((_,i)=>`<option value="${i}">音乐${i+1}</option>`).join('')}</select><button id="music-next" aria-label="下一首">▶</button></div><p id="music-state" role="status">点击播放，边听边画。每首音乐会重复播放。</p><div class="music-transport"><button id="music-play">▶ 播放</button><button id="music-stop">■ 停止</button></div><label>背景音乐音量 <input id="music-volume" type="range" min="0" max="100" value="35"><output id="music-volume-value">35%</output></label><label class="sound-toggle"><input id="ui-sounds" type="checkbox" checked> 画笔与工具切换音效</label><label>工具音效音量 <input id="ui-sound-volume" type="range" min="0" max="100" value="60"><output id="ui-sound-volume-value">60%</output></label><p class="music-preference-hint">下次打开，沿用这次的音乐和音效设置。</p><button id="music-import">输入 MIDI 音乐</button><input id="music-file" type="file" accept=".mid,.midi,audio/midi" hidden><div class="dialog-actions"><button id="music-close" class="primary">确定</button></div>`;document.body.append(dialog);
   const pending=new Map(),soundToggle=el('ui-sounds'),bridge=window.webkit?.messageHandlers?.music;let loaded=false,poll=null;
   function request(action,args={}) {
     if(!bridge)return Promise.reject(new Error('请在桌面客户端中播放音乐。'));
@@ -31,6 +31,13 @@ export function mountMusic({run,toast,preferences}) {
   const saved=preferences.music;
   el('music-track').value=saved.index;el('music-volume').value=Math.round(saved.volume*100);el('music-volume-value').textContent=Math.round(saved.volume*100)+'%';
   soundToggle.checked=preferences.sounds;
+  const soundVolume=el('ui-sound-volume');
+  soundVolume.value=Math.round(preferences.soundVolume*100);el('ui-sound-volume-value').textContent=soundVolume.value+'%';
+  function changeSoundVolume(preview) {
+    preferences.setSoundVolume(Number(soundVolume.value)/100);el('ui-sound-volume-value').textContent=soundVolume.value+'%';
+    document.dispatchEvent(new CustomEvent('soundvolumechange',{detail:{preview}}));
+  }
+  soundVolume.oninput=()=>changeSoundVolume(false);soundVolume.onchange=()=>changeSoundVolume(true);
   soundToggle.onchange=()=>{preferences.setSounds(soundToggle.checked);document.dispatchEvent(new Event('soundsettingchange'));};
   const started=bridge?(async()=>{await request('volume',{volume:saved.volume});await track(saved.index,saved.playing);})().catch(e=>toast('音乐暂时没响起来：'+e.message)):Promise.resolve();
   // Wait for restoration before accepting playback commands, without blocking drawing.

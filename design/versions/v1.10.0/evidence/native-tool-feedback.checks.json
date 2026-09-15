@@ -1,0 +1,93 @@
+{
+  "ok" : true,
+  "result" : {
+    "checks" : [
+      {
+        "name" : "tool effects default on",
+        "passed" : true
+      },
+      {
+        "name" : "tool effect volume defaults to 60%",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor and contact crayon",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor and contact pencil",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView illustrated cursor and contact spray",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "contexts" : [
+            "running"
+          ],
+          "oscillators" : 7
+        },
+        "name" : "distinct brush sounds reuse one AudioContext",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "peak" : 0.084225192666053772
+        },
+        "name" : "real Web Audio graph produces nonzero tool sound samples",
+        "passed" : true
+      },
+      {
+        "name" : "native music panel adjusts and saves effect volume",
+        "passed" : true
+      },
+      {
+        "name" : "music switch silences tool feedback; fill mode updates cursor",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView decodes pouring bucket cursor with paint-end contact",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "duration" : 24.75,
+          "name" : "音乐17",
+          "peak" : 0.24397960305213928,
+          "playing" : false,
+          "position" : 0,
+          "volume" : 0.23000000417232513
+        },
+        "name" : "actual native MIDI volume and stop commands succeed",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView reload remembers independent effect volume",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView reload remembers muted tool effects",
+        "passed" : true
+      },
+      {
+        "name" : "WKWebView reload restores music 17 in both selectors",
+        "passed" : true
+      },
+      {
+        "detail" : {
+          "duration" : 24.75,
+          "name" : "音乐17",
+          "peak" : 0.24397960305213928,
+          "playing" : false,
+          "position" : 0,
+          "volume" : 0.23000000417232513
+        },
+        "name" : "actual native MIDI reload restores selected track, stopped state and volume",
+        "passed" : true
+      }
+    ],
+    "passed" : true
+  }
+}
