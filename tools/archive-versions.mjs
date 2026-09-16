@@ -23,7 +23,8 @@ for(const v of ['1.5','1.6']){
  await fs.symlink('../versions/v'+v+'.0/evidence',src);
  }
 }
-const changelog=await fs.readFile(path.join(root,'CHANGELOG.md'),'utf8');
+const hasChangelog=await exists(path.join(root,'CHANGELOG.md'));
+const changelog=hasChangelog?await fs.readFile(path.join(root,'CHANGELOG.md'),'utf8'):'';
 for(const section of changelog.split(/(?=^## )/m).slice(1)){
  const v=section.match(/^## (\d+\.\d+\.\d+)/)?.[1];if(!v)continue;
  const dir=path.join(root,'design/versions/v'+v);await fs.mkdir(dir,{recursive:true});
@@ -55,7 +56,7 @@ await fs.writeFile(path.join(rejected,'README.md'),'# 1.6.1（已被替代）\n\
 try{const log=execFileSync('git',['show','v1.6.1:CHANGELOG.md'],{cwd:root,encoding:'utf8'});await fs.writeFile(path.join(rejected,'CHANGELOG.md'),log.split(/(?=^## )/m).find(s=>s.startsWith('## 1.6.1'))||'');}catch{}
 const versions=(await fs.readdir(path.join(root,'design/versions'))).filter(v=>v.startsWith('v')).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
 for(const v of versions){const file=path.join(root,'design/versions',v,'CHANGELOG.md');if(await exists(file))await fs.writeFile(file,(await fs.readFile(file,'utf8')).trimEnd()+'\n');}
-await fs.writeFile(path.join(root,'CHANGELOG.md'),'# 变更记录索引\n\n每版完整记录保存在对应版本文件夹。\n\n'+versions.map(v=>'- ['+v+'](design/versions/'+v+'/)').join('\n')+'\n');
+if(hasChangelog)await fs.writeFile(path.join(root,'CHANGELOG.md'),'# 变更记录索引\n\n每版完整记录保存在对应版本文件夹。\n\n'+versions.map(v=>'- ['+v+'](design/versions/'+v+'/)').join('\n')+'\n');
 await fs.writeFile(path.join(root,'design/versions/README.md'),'# 版本索引\n\n每个版本的设计、修改记录、验证结果放在对应目录；客户端产物位于 `build/releases/<版本>/`。共享环境和原版研究资料保留在 design 根目录。历史 evidence 路径仅保留符号链接兼容旧生成脚本。\n\n'+versions.map(v=>'- ['+v+']('+v+'/) · [构建产物](../../build/releases/'+v+'/)').join('\n')+'\n');
 await fs.writeFile(path.join(root,'design/versions/v1.6.2/archive-manifest.json'),JSON.stringify(records,null,2)+'\n');
 console.log('Archived '+records.length+' historical paths.');
