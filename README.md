@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/branding/app-icon.png" alt="落叶画板 App 图标" width="128" height="128">
+  <img src="public/branding/app-icon-windows.png" alt="落叶画板 App 图标" width="128" height="128">
 </p>
 
 <h1 align="center">落叶画板 · Luoye Artboard</h1>
@@ -16,11 +16,11 @@
   <a href="#从源码构建">源码构建</a>
 </p>
 
-## 认识落叶画板
+## 关于落叶画板
 
-- **从白纸或一片风景开始。** 选个背景，放上喜欢的小伙伴，再添上自己的想象。
-- **按自己的节奏探索。** 图示工具、画笔预览和温暖的配色，帮助孩子找到想用的工具。
-- **离线也能安心创作。** 作品、草稿、素材库和音乐都保存在本机。
+- **从白纸或一片风景开始。** 选个背景，放上喜欢的小伙伴，再添上自己的想象
+- **按自己的节奏探索。** 图示工具、画笔预览和温暖的配色，帮助孩子找到想用的工具
+- **离线也能安心创作。** 作品、草稿、素材库和音乐都保存在本机
 
 ![落叶画板桌面应用：山间蓝湖背景与绘画工具](docs/images/interface.png)
 
@@ -38,34 +38,56 @@
 
 ## 开始画画
 
-1. 打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)，选择适合自己系统的安装包。
-2. 启动落叶画板，从白纸开始，或通过 **图库 → 彩色背景** 选一片风景。
-3. 拿起画笔或打开魔法袋。保存工程方便继续编辑，导出图片方便分享。
+1. 打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)，选择适合自己系统的安装包
+2. 启动落叶画板，从白纸开始，或通过 **图库 → 彩色背景** 选一片风景
+3. 拿起画笔或打开魔法袋。保存工程方便继续编辑，导出图片方便分享
 
-当前界面为简体中文。从源码运行编辑器的方式见[构建指南](docs/build.zh-CN.md)。
+当前界面为简体中文。从源码运行编辑器的方式见[构建指南](docs/build.zh-CN.md)
 
 ## 系统要求
 
-| 平台 | 要求 |
-| --- | --- |
-| **macOS** | macOS 13 或更高版本，Apple Silicon（arm64）。 |
-| **Windows** | Windows 10/11，x64，安装 Microsoft Edge WebView2 Runtime。应用自带 .NET 运行时；安装器需要 .NET 10 Desktop Runtime。 |
+### macOS
+
+- macOS 13 或更高版本
+- Apple Silicon（arm64）
+
+### Windows
+
+- Windows 10 或 Windows 11
+- x64 架构
+- Microsoft Edge WebView2 Runtime
+- 应用自带 .NET 运行时
+- 安装器需要 .NET 10 Desktop Runtime
 
 ## 从源码构建
 
-| 目标 | 所需工具 |
-| --- | --- |
-| **编辑器与测试** | Node.js 22 或更高版本。 |
-| **macOS 应用** | macOS、包含 Swift 6 的 Xcode Command Line Tools，以及 macOS SDK。 |
-| **Windows 应用** | .NET 10 SDK、WebView2 x64 离线安装器。 |
-| **Windows 安装器** | 已构建的 Windows 应用、.NET 10 SDK 和 7-Zip。 |
+### 编辑器与测试
+
+- Node.js 22 或更高版本
+
+### macOS 应用
+
+- macOS
+- 包含 Swift 6 的 Xcode Command Line Tools
+- macOS SDK
+
+### Windows 应用
+
+- .NET 10 SDK
+- WebView2 x64 离线安装器
+
+### Windows 安装器
+
+- 已构建的 Windows 应用
+- .NET 10 SDK
+- 7-Zip
 
 ```sh
 npm test
 npm run dev
 ```
 
-在浏览器中打开 `http://127.0.0.1:4173` 预览。打包桌面应用时，按目标平台运行：
+在浏览器中打开 `http://127.0.0.1:4173` 预览。打包桌面应用时，按目标平台运行
 
 ```sh
 npm run build:mac
@@ -73,10 +95,33 @@ npm run build:mac
 npm run build:windows
 ```
 
-工具路径和安装器打包步骤见[构建指南](docs/build.zh-CN.md)。
+工具路径和安装器打包步骤见[构建指南](docs/build.zh-CN.md)
+
+## macOS 安装提示
+
+如果 macOS 提示“安装包已损坏”，通常不是安装包内容损坏，而是本项目暂未申请 Apple Developer 年费开发者计划，应用没有完成 Apple 签名或公证，Gatekeeper 因此阻止了首次打开。从本项目发布页下载的官方构建包出现这个提示时，一般是系统安全策略拦截，不代表文件真的损坏
+
+安装前仍建议在发布页核对文件提供的 SHA-256 校验值，确认下载文件完整且来源正确
+
+```sh
+shasum -a 256 xxx
+```
+
+确认安装包来自可信来源后，在终端执行以下命令，将 `xxx` 替换为应用或安装包路径
+
+```sh
+sudo xattr -rd com.apple.quarantine xxx
+```
+
+然后重新打开应用
 
 ## 更多信息
 
-[文档](docs/README.md) · [反馈问题](https://github.com/zxxf18/luoye-artboard/issues) · [许可证](LICENSE)
-
-如果落叶画板对你有用，可以请我喝杯咖啡。
+- [项目文档](docs/README.md)
+  素材按业务分类，`catalog.json` 负责运行时索引，构建流程和本地开发入口见文档
+- [反馈问题](https://github.com/zxxf18/luoye-artboard/issues)
+  可以反馈功能、布局或 Bug，作者会及时查看并考虑
+- [许可证](LICENSE)
+  项目采用 GNU General Public License v3.0，传播和商用时需要保留许可证与版权声明，并按 GPL-3.0 条款提供对应源代码
+- [捐赠](docs/donate.md)
+  如果这个项目对你有所帮助，可以考虑请我喝杯咖啡。每一份支持都会变成继续修复问题、改进体验和分享新内容的动力
