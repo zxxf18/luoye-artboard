@@ -99,18 +99,18 @@ npm run build:windows
 
 ## macOS 安装提示
 
-如果 macOS 提示“安装包已损坏”，通常不是安装包内容损坏，而是本项目暂未申请 Apple Developer 年费开发者计划，应用没有完成 Apple 签名或公证，Gatekeeper 因此阻止了首次打开。从本项目发布页下载的官方构建包出现这个提示时，一般是系统安全策略拦截，不代表文件真的损坏
+项目暂未加入付费 Apple Developer 计划，macOS 应用未签名或公证，因此可能被 Gatekeeper 拦截并提示“已损坏”，该提示本身不代表文件损坏
 
-安装前仍建议在发布页核对文件提供的 SHA-256 校验值，确认下载文件完整且来源正确
+请从本项目发布页下载安装包，并核对发布页提供的 SHA-256 校验值，将 `{package_path}` 替换为下载文件的路径
 
 ```sh
-shasum -a 256 xxx
+shasum -a 256 "{package_path}"
 ```
 
-确认安装包来自可信来源后，在终端执行以下命令，将 `xxx` 替换为应用或安装包路径
+确认来源可信且校验值一致后，执行以下命令，将 `{app_path}` 替换为解压后的 `.app` 路径
 
 ```sh
-sudo xattr -rd com.apple.quarantine xxx
+sudo xattr -rd com.apple.quarantine "{app_path}"
 ```
 
 然后重新打开应用

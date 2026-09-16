@@ -11,12 +11,12 @@
 <td align="center" width="50%">
 <strong>微信支付</strong><br>
 <sub>扫码支持</sub><br><br>
-<img src="assets/wechat-qr.jpg" alt="微信支付二维码" width="280">
+<img src="donate/assets/wechat-qr.jpg" alt="微信支付二维码" width="280">
 </td>
 <td align="center" width="50%">
 <strong>支付宝</strong><br>
 <sub>扫码支持</sub><br><br>
-<img src="assets/alipay-qr.jpg" alt="支付宝二维码" width="280">
+<img src="donate/assets/alipay-qr.jpg" alt="支付宝二维码" width="280">
 </td>
 </tr>
 </table>
