@@ -14,3 +14,8 @@
 .gallery-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-height:440px;overflow:auto}.gallery-card{display:flex;flex-direction:column;gap:8px;padding:12px;background:#f4f6f2;border-radius:12px}.gallery-card img{width:100%;aspect-ratio:16/9;object-fit:contain}.gallery-card small{color:#68756d}.gallery-card button{padding:8px}
 
 .record-controls label{white-space:nowrap;flex:none;font-size:11px}.record-controls input[type=checkbox]{width:auto;min-width:16px;padding:0;flex:none}.record-controls select{width:auto}.record-controls #gallery-folder{width:170px}.record-controls input[type=range]{padding:0}#record-position{width:auto}.record-controls{row-gap:12px}
+
+/* The fractal renderer remains available to internal callers and compatibility tests,
+   while its experimental controls stay out of the public tool surface. */
+.tool-button[data-tool="fractal"],
+[data-option="fractal"] { display: none !important; }
