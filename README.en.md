@@ -99,18 +99,18 @@ See the [build guide](docs/build.md) for tool paths and installer packaging
 
 ## macOS installation note
 
-If macOS says that the app is damaged, the package is usually not corrupted. This project does not currently maintain a paid Apple Developer membership, so the app has not completed Apple signing or notarization and Gatekeeper blocks the first launch. For an official build downloaded from this project's release page, this message is generally the system security policy intervening rather than evidence that the file is damaged
+Without a paid Apple Developer membership, the macOS app is unsigned and unnotarized, so Gatekeeper may block it with a “damaged” message; that message alone does not establish file corruption
 
-Before installing, compare the downloaded file with the SHA-256 value published on the release page to confirm its integrity and source
+Download the package from this project's release page and compare its SHA-256 with the published value, replacing `{package_path}` with the downloaded file's path
 
 ```sh
-shasum -a 256 xxx
+shasum -a 256 "{package_path}"
 ```
 
-After confirming that the package came from a trusted source, run this command in Terminal and replace `xxx` with the app or installer path
+After confirming a trusted source and a matching checksum, run this command and replace `{app_path}` with the extracted `.app` path
 
 ```sh
-sudo xattr -rd com.apple.quarantine xxx
+sudo xattr -rd com.apple.quarantine "{app_path}"
 ```
 
 Then open the app again
