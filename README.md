@@ -115,6 +115,8 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 
 然后重新打开应用
 
+如果提示来自互联网、无法验证或不安全，先再点一次打开。随后到「系统设置 → 隐私与安全性」，在「安全性」里选择「仍要打开」
+
 ## 更多信息
 
 - [项目文档](docs/README.md)
