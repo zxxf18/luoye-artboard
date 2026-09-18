@@ -117,11 +117,7 @@ Then open the app again
 
 ## Learn more
 
-- [Documentation](docs/README.md)
-  Assets are organized by business category, with `catalog.json` as the runtime index; the build and local development flow are documented there
-- [Report an issue](https://github.com/zxxf18/luoye-artboard/issues)
-  Feature, layout, and bug reports are welcome, and the author will review them promptly
-- [License](LICENSE)
-  The project uses the GNU Affero General Public License v3.0 (AGPLv3); redistribution, network use, and commercial use must retain the license and copyright notices and provide corresponding source code under the AGPLv3 terms
-- [Donate](docs/donate.md)
-  If this project helps you, consider buying me a coffee. Every contribution supports continued bug fixes, improvements, and new content
+- [Documentation](docs/README.md) · Build, assets, and local development
+- [Report an issue](https://github.com/zxxf18/luoye-artboard/issues) · Features, layout, or bugs
+- [License](LICENSE) · AGPLv3
+- [Donate](docs/donate.md) · Buy the author a coffee
