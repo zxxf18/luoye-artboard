@@ -126,6 +126,14 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                  decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url,
               let resources = Bundle.main.resourceURL else { decisionHandler(.cancel); return }
+        let externalLinks = ["https://github.com/zxxf18/luoye-artboard", "https://index.yebuluo.com.cn/donate/"]
+        if navigationAction.navigationType == .linkActivated,
+           navigationAction.sourceFrame.isMainFrame,
+           externalLinks.contains(url.absoluteString) {
+            decisionHandler(.cancel)
+            if !NSWorkspace.shared.open(url) { showError("无法打开浏览器，请稍后重试") }
+            return
+        }
         let permitted = resources.appendingPathComponent("site", isDirectory: true).standardizedFileURL.path + "/"
         decisionHandler(url.isFileURL && url.standardizedFileURL.path.hasPrefix(permitted) ? .allow : .cancel)
     }
