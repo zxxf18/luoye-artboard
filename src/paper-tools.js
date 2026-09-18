@@ -34,7 +34,7 @@ export function endPaperErase(engine,cancel) {
       const layer={...t.layer,canvas:t.canvas},ctx=t.canvas.getContext('2d');
       engine.captureTiles(layer,{x:0,y:0,width:layer.width,height:layer.height},t.tiles);
       // Map a rectangle on the paper to each rotated/scaled layer.
-      ctx.save();ctx.translate(layer.width/2,layer.height/2);ctx.scale(1/layer.scale,1/layer.scale);ctx.rotate(-layer.rotation*Math.PI/180);ctx.translate(-layer.x,-layer.y);
+      ctx.save();ctx.translate(layer.width/2,layer.height/2);ctx.scale((layer.flipX?-1:1)/layer.scale,(layer.flipY?-1:1)/layer.scale);ctx.rotate(-layer.rotation*Math.PI/180);ctx.translate(-layer.x,-layer.y);
       ctx.globalCompositeOperation='destination-out';ctx.fillRect(Math.min(g.start.x,g.end.x),Math.min(g.start.y,g.end.y),Math.abs(g.end.x-g.start.x),Math.abs(g.end.y-g.start.y));ctx.restore();engine.maskTiles(layer,t.tiles);
     }
   }
@@ -46,7 +46,7 @@ export function endPaperErase(engine,cancel) {
     for(const t of modified)if(t.layer.sprites){
       const l=t.layer,angle=l.rotation*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);
       t.beforeSprites=l.sprites;t.afterSprites=l.sprites.filter(item=>{
-        const dx=(item.x-l.width/2)*l.scale,dy=(item.y-l.height/2)*l.scale,x=l.x+dx*c-dy*s,y=l.y+dx*s+dy*c,r=item.size*l.scale*(Math.abs(c)+Math.abs(s))/2;
+        const dx=(item.x-l.width/2)*l.scale*(l.flipX?-1:1),dy=(item.y-l.height/2)*l.scale*(l.flipY?-1:1),x=l.x+dx*c-dy*s,y=l.y+dx*s+dy*c,r=item.size*l.scale*(Math.abs(c)+Math.abs(s))/2;
         return x-r<left||x+r>right||y-r<top||y+r>bottom;
       });l.sprites=t.afterSprites;
     }

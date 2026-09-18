@@ -1,8 +1,8 @@
-import { validateProject } from './core.js';
+import { validateProject, MAX_LAYERS } from './core.js';
 import { makeCanvas, loadImage } from './engine.js';
 
-const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
-const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible']);
+const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','resetStampProgress','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
+const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible','flipX','flipY']);
 const MAX_BYTES=64*1024*1024,MAX_POINTS=100000;
 function bounded(value,depth=0){
   if(depth>16)throw new Error('录像参数嵌套过深。');
@@ -23,24 +23,25 @@ export function validateRecording(raw){
     if(slot.paintTexture)resource(slot.paintTexture);if(slot.paperTexture)resource(slot.paperTexture);
     if(slot.fairyGroups)groups(slot.fairyGroups);
     if(slot.selection)resource(slot.selection);if(slot.stampImages){if(!Array.isArray(slot.stampImages)||slot.stampImages.length>60)throw new Error('印章资源数量无效。');slot.stampImages.forEach(resource);}
+    if(slot.fairyStampIndex!==undefined&&(!Number.isSafeInteger(slot.fairyStampIndex)||slot.fairyStampIndex<0))throw new Error('组合图案位置无效。');
     if(slot.paperMode!==undefined&&typeof slot.paperMode!=='boolean')throw new Error('录像绘画范围无效。');if(slot.cloneSource?.image)resource(slot.cloneSource.image);
     if(slot.cloneSource&&(!slot.cloneSource.point||!Number.isFinite(slot.cloneSource.point.x)||!Number.isFinite(slot.cloneSource.point.y)||(!slot.cloneSource.image&&typeof slot.cloneSource.layerId!=='string')))throw new Error('仿制源点无效。');if(!Array.isArray(slot.events)||slot.events.length>5000)throw new Error('录像操作数量无效。');let points=0;
     for(const event of slot.events){if(!event||!COMMANDS.has(event.method)||!Array.isArray(event.args)||typeof event.activeId!=='string'||!Number.isFinite(event.time)||event.time<0)throw new Error('录像操作无效。');bounded(event.args);if(event.resultId!==undefined&&(typeof event.resultId!=='string'||event.resultId.length>256))throw new Error('录像图层标识无效。');
       if(event.method==='stroke'){const [path,o]=event.args;if(!Array.isArray(path)||!path.length||!o||typeof o!=='object')throw new Error('笔触无效。');points+=path.length;if(path.length>20000)throw new Error('单笔采样点过多。');if(o.size!==undefined&&(!Number.isFinite(o.size)||o.size<.1||o.size>1024))throw new Error('录像笔尖尺寸无效。');if(o.opacity!==undefined&&(!Number.isFinite(o.opacity)||o.opacity<0||o.opacity>1))throw new Error('录像透明度无效。');if(o.color!==undefined&&!/^#[a-f0-9]{6}$/i.test(o.color))throw new Error('录像颜色无效。');for(const p of path)if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>100000||Math.abs(p.y)>100000)throw new Error('笔触坐标无效。');if(!['pen','eraser','fill','move','line','rect','ellipse','triangle','pentagon','hexagon','roundrect','star','stamp','clone','select','magic','warp','board-filter'].includes(o.tool))throw new Error('笔触工具无效。');}
       if(['addLayer','replaceBackground'].includes(event.method)){
         const item=event.args[1],extra=event.args[event.method==='addLayer'?3:2]||{};resource(item);
-        const keys=new Set(['name','x','y','scale','rotation','opacity','visible','sourceId','role','insertAt','frames','frameDuration']);if(Object.keys(extra).some(key=>!keys.has(key)))throw new Error('录像图层参数不受支持。');
-        if(extra.insertAt!==undefined&&(!Number.isInteger(extra.insertAt)||extra.insertAt<0||extra.insertAt>19))throw new Error('录像图层顺序无效。');
+        const keys=new Set(['name','x','y','scale','rotation','opacity','visible','flipX','flipY','sourceId','role','insertAt','frames','frameDuration']);if(Object.keys(extra).some(key=>!keys.has(key)))throw new Error('录像图层参数不受支持。');
+        if(extra.insertAt!==undefined&&(!Number.isInteger(extra.insertAt)||extra.insertAt<0||extra.insertAt>=MAX_LAYERS))throw new Error('录像图层顺序无效。');
         if(extra.frames){if(!Array.isArray(extra.frames)||extra.frames.length>60)throw new Error('动画帧数量无效。');extra.frames.forEach(resource);}
         const layer={id:'resource',name:event.args[0],x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,...extra,width:item.width,height:item.height,image:item.image};if(extra.frames)layer.frames=extra.frames.map(frame=>frame.image);
         validateProject({format:'luoye-studio',version:1,title:'录像资源',width:1,height:1,layers:[layer]});
       }
-      if(event.resultIds&&(!Array.isArray(event.resultIds)||event.resultIds.length>20||event.resultIds.some(id=>typeof id!=='string'||id.length>256)))throw new Error('动画实例标识无效。');
+      if(event.resultIds&&(!Array.isArray(event.resultIds)||event.resultIds.length>MAX_LAYERS||event.resultIds.some(id=>typeof id!=='string'||id.length>256)))throw new Error('动画实例标识无效。');
       if(['setPaintTexture','setPaperTexture'].includes(event.method)&&event.args[0])resource(event.args[0]);
       if(event.method==='setFairyGroups')groups(event.args[0]);
       if(event.method==='setStampImages'){if(!Array.isArray(event.args[0])||event.args[0].length>60)throw new Error('印章资源数量无效。');event.args[0].forEach(resource);}
       if(event.method==='resizeActiveObject'&&(!Number.isFinite(event.args[0])||event.args[0]<=0||event.args[0]>10))throw new Error('缩放比例无效。');
-      if(event.method==='setProperty'){const [,key,value]=event.args;if(!PROPERTY_KEYS.has(key))throw new Error('图层属性不受支持。');if(key==='name'?(typeof value!=='string'||value.length>120):key==='visible'?typeof value!=='boolean':!Number.isFinite(value))throw new Error('图层属性值无效。');if(key==='scale'&&(value<=0||value>100)||key==='opacity'&&(value<0||value>1)||['x','y'].includes(key)&&Math.abs(value)>100000)throw new Error('图层属性值超出范围。');}
+      if(event.method==='setProperty'){const [,key,value]=event.args;if(!PROPERTY_KEYS.has(key))throw new Error('图层属性不受支持。');if(key==='name'?(typeof value!=='string'||value.length>120):['visible','flipX','flipY'].includes(key)?typeof value!=='boolean':!Number.isFinite(value))throw new Error('图层属性值无效。');if(key==='scale'&&(value<=0||value>100)||key==='opacity'&&(value<0||value>1)||['x','y'].includes(key)&&Math.abs(value)>100000)throw new Error('图层属性值超出范围。');}
     }if(points>MAX_POINTS)throw new Error('录像笔触采样点过多。');
   }return raw;
 }
@@ -60,6 +61,7 @@ export class Recorder {
     this.slots[index].selection=this.engine.selectionCanvas?imageRecord(this.engine.selectionCanvas):null;
     this.slots[index].cloneSource=this.engine.cloneSource?{point:{...this.engine.cloneSource.point},layerId:this.engine.cloneSource.layerId,image:this.engine.cloneSource.canvas?imageRecord(this.engine.cloneSource.canvas):undefined}:null;
     this.slots[index].fairyGroups=this.engine.fairyGroups?.map(group=>({...group,frames:group.frames.map(imageRecord)}))||null;this.slots[index].fairyMode=this.engine.fairyMode||null;this.slots[index].fairyBehavior=this.engine.fairyBehavior||null;
+    this.slots[index].fairyStampIndex=this.engine.fairyStampIndex||0;
     this.slots[index].stampImages=this.engine.stampImages?.map(imageRecord)||[];
     this.bytes=JSON.stringify(this.slots[index]).length;this.onState();
   }
@@ -110,6 +112,7 @@ export class Recorder {
       renderer.setPaintTexture(slot.paintTexture?await imageFromRecord(slot.paintTexture):null);renderer.setPaperTexture(slot.paperTexture?await imageFromRecord(slot.paperTexture):null);
       renderer.cloneSource=slot.cloneSource?{...slot.cloneSource,canvas:slot.cloneSource.image?await imageFromRecord(slot.cloneSource.image):undefined}:null;if(slot.stampImages)renderer.setStampImages(await Promise.all(slot.stampImages.map(imageFromRecord)));
       if(slot.fairyGroups)renderer.setFairyGroups(await Promise.all(slot.fairyGroups.map(async group=>({...group,frames:await Promise.all(group.frames.map(imageFromRecord))}))),slot.fairyMode,slot.fairyBehavior);
+      renderer.fairyStampIndex=slot.fairyStampIndex||0;
       const limit=Math.min(count,slot.events.length);let previous=0;
       for(let i=0;i<limit;i++){
         if(signal?.aborted)break;const event=slot.events[i],args=structuredClone(event.args);

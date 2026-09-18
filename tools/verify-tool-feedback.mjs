@@ -35,7 +35,7 @@ try{
  let page=await launch();
  const entries=await page.evaluate(async()=>{const {TOOL_FEEDBACK}=await import('/src/tool-feedback.js');return TOOL_FEEDBACK;});
  // Every visible tool and subtype drives the same cursor and sound identity.
- for(const entry of entries){
+ for(const entry of entries.filter(entry=>entry.tool!=='fractal')){
   await tool(page,entry.tool==='geometry'?'line':entry.tool);
   if(entry.tool==='pen')await page.locator(`.brush-box [data-brush="${entry.value}"]`).click();
   else if(entry.tool==='stamp')await page.locator(`#library-groups [data-fairy-mode="${entry.value}"]`).click();
@@ -51,7 +51,7 @@ try{
   const hotspot=await page.evaluate(async entry=>(await import('/src/tool-cursors.js')).toolCursor(entry).hotspot,entry);
   assert(cursor.endsWith(hotspot.join(' ')+', crosshair'),entry.key+' contact matches CSS hotspot');
  }
- record('all '+entries.length+' brush/tool variants use illustrated cursors');
+ record('all '+entries.filter(entry=>entry.tool!=='fractal').length+' public brush/tool variants use illustrated cursors; experimental fractal stays hidden');
  await tool(page,'pen');await page.locator('.brush-box [data-brush="crayon"]').click();
  const once=await page.evaluate(()=>window.feedbackOscillators);
  await page.locator('.brush-box [data-brush="crayon"]').click();assert.equal(await page.evaluate(()=>window.feedbackOscillators),once);

@@ -13,8 +13,8 @@ export function* paperEffectSteps(engine, callback) {
       const groups=[],sprites=[],keys=new Map();
       for(const [index,item] of layer.sprites.entries()){
         const group=layer.spriteGroups[item.group],base=group.frames[0],scale=item.size/Math.max(base.width,base.height),angle=layer.rotation*Math.PI/180;
-        const dx=(item.x-layer.width/2)*layer.scale,dy=(item.y-layer.height/2)*layer.scale;
-        const space={width:base.width,height:base.height,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle),rotation:layer.rotation,scale:layer.scale*scale};
+        const dx=(item.x-layer.width/2)*layer.scale*(layer.flipX?-1:1),dy=(item.y-layer.height/2)*layer.scale*(layer.flipY?-1:1);
+        const space={width:base.width,height:base.height,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle),rotation:layer.rotation,flipX:layer.flipX,flipY:layer.flipY,scale:layer.scale*scale};
         const process=affected(space),key=!process?'original-'+item.group:callback.spaceIndependent&&!engine.selection?'effect-'+item.group:'instance-'+index;
         if(!keys.has(key)){keys.set(key,groups.length);groups.push({group,space,process});}
         sprites.push({...item,group:keys.get(key)});
@@ -50,7 +50,7 @@ export function* paperEffectSteps(engine, callback) {
     }else{
       const c=makeCanvas(engine.width,engine.height),ctx=c.getContext('2d');ctx.save();engine.transform(ctx,layer);engine.drawLayer(ctx,layer);ctx.restore();
       process(c,null,engine.selection);yield;
-      const updated={...layer,canvas:c,width:engine.width,height:engine.height,x:engine.width/2,y:engine.height/2,scale:1,rotation:0};delete updated.eraseMask;next.push(updated);
+      const updated={...layer,canvas:c,width:engine.width,height:engine.height,x:engine.width/2,y:engine.height/2,scale:1,rotation:0,flipX:false,flipY:false};delete updated.eraseMask;next.push(updated);
     }
   }
   // Any unexpected concurrent edit invalidates the transaction rather than overwriting it.

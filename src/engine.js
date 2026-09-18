@@ -129,7 +129,7 @@ export class PaintEngine {
     const before={scale:layer.scale,x:layer.x,y:layer.y},scale=Math.max(.05,Math.min(40,layer.scale*factor));
     let cx=layer.width/2,cy=layer.height/2;
     if(layer.sprites?.length){const xs=layer.sprites.map(s=>s.x),ys=layer.sprites.map(s=>s.y);cx=(Math.min(...xs)+Math.max(...xs))/2;cy=(Math.min(...ys)+Math.max(...ys))/2;}
-    const dx=(cx-layer.width/2)*(layer.scale-scale),dy=(cy-layer.height/2)*(layer.scale-scale),angle=layer.rotation*Math.PI/180;
+    const dx=(cx-layer.width/2)*(layer.scale-scale)*(layer.flipX?-1:1),dy=(cy-layer.height/2)*(layer.scale-scale)*(layer.flipY?-1:1),angle=layer.rotation*Math.PI/180;
     const after={scale,x:layer.x+dx*Math.cos(angle)-dy*Math.sin(angle),y:layer.y+dx*Math.sin(angle)+dy*Math.cos(angle)};
     Object.assign(layer,after);this.history.push({bytes:0,undo:()=>Object.assign(layer,before),redo:()=>Object.assign(layer,after)});this.changed();
   }
@@ -409,5 +409,6 @@ export class PaintEngine {
     this.layers = layers; this.activeId = layers.at(-1).id; this.history.clear(); this.gesture = null; this.changed();
     return value.title;
   }
+  exportLayerPNG() { const layer=this.active,canvas=makeCanvas(layer.width,layer.height);this.drawLayer(canvas.getContext('2d'),layer);return canvas.toDataURL('image/png'); }
   exportPNG() { const canvas = makeCanvas(this.width, this.height); this.paint(canvas.getContext('2d')); return canvas.toDataURL('image/png'); }
 }
