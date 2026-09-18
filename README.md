@@ -122,6 +122,6 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 - [反馈问题](https://github.com/zxxf18/luoye-artboard/issues)
   可以反馈功能、布局或 Bug，作者会及时查看并考虑
 - [许可证](LICENSE)
-  项目采用 GNU General Public License v3.0，传播和商用时需要保留许可证与版权声明，并按 GPL-3.0 条款提供对应源代码
+  项目采用 GNU Affero General Public License v3.0（AGPLv3），传播、网络提供和商用时需要保留许可证与版权声明，并按 AGPLv3 条款提供对应源代码
 - [捐赠](docs/donate.md)
   如果这个项目对你有所帮助，可以考虑请我喝杯咖啡。每一份支持都会变成继续修复问题、改进体验和分享新内容的动力
