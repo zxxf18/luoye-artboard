@@ -115,6 +115,8 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 
 Then open the app again
 
+If macOS says the app is from the internet, cannot be verified, or is unsafe, try opening it once more. Then go to System Settings → Privacy & Security and choose Open Anyway under Security
+
 ## Learn more
 
 - [Documentation](docs/README.md)
