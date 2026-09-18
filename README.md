@@ -117,7 +117,7 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 
 ## 更多信息
 
-- [项目文档](docs/README.md) · 构建、素材与本地开发
-- [反馈问题](https://github.com/zxxf18/luoye-artboard/issues) · 功能、布局或缺陷
-- [许可证](LICENSE) · AGPLv3
-- [捐赠](docs/donate.md) · 请作者喝杯咖啡
+- [项目文档](docs/README.md)
+- [反馈问题](https://github.com/zxxf18/luoye-artboard/issues)
+- [许可证 AGPLv3](LICENSE)
+- [捐赠](docs/donate.md)

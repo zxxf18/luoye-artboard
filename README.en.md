@@ -117,7 +117,7 @@ Then open the app again
 
 ## Learn more
 
-- [Documentation](docs/README.md) · Build, assets, and local development
-- [Report an issue](https://github.com/zxxf18/luoye-artboard/issues) · Features, layout, or bugs
-- [License](LICENSE) · AGPLv3
-- [Donate](docs/donate.md) · Buy the author a coffee
+- [Documentation](docs/README.md)
+- [Report an issue](https://github.com/zxxf18/luoye-artboard/issues)
+- [License AGPLv3](LICENSE)
+- [Donate](docs/donate.md)
