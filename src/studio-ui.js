@@ -57,7 +57,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed})
   action('use-stamp',()=>{engine.useLayerAsStamp();engine.addLayer('连续印章');setTool('stamp');el('size').value=100;el('size-value').textContent='100';el('layer-dialog').close();toast('拖动画布连续盖章；动画素材将依次使用各帧');});
   action('layer-menu',()=>{el('current-layer-name').textContent='正在调整：'+engine.active.name;el('layer-opacity').value=engine.active.opacity*100;show('layer-dialog');});
   action('duplicate-layer',()=>engine.duplicateLayer());action('clear-layer',()=>engine.clearLayer());action('merge-bottom',()=>engine.mergeToBottom());action('flip-x',()=>engine.flipLayer('x'));action('flip-y',()=>engine.flipLayer('y'));action('rotate-90',()=>engine.setProperty(engine.active,'rotation',(engine.active.rotation+90)%360));
-  action('export-layer',async()=>{toast(await deliverFile(engine.active.name+'.png','image/png',engine.active.canvas.toDataURL()));});
+  action('export-layer',async()=>{toast(await deliverFile(engine.active.name+'.png','image/png',engine.exportLayerPNG()));});
   action('animation-toggle',()=>engine.toggleAnimation());action('freeze-animation',()=>engine.freezeAnimation());el('layer-opacity').onchange=()=>run(()=>engine.setProperty(engine.active,'opacity',Number(el('layer-opacity').value)/100));
   const effectGroups={
     '色彩调节':['brightness','hsl','balance','opacity','enhance','shift'],

@@ -153,7 +153,13 @@ export class DrawingEngine extends EditorEngine {
       if(options.tool==='stamp'&&!this.stampImages?.length)throw new Error('先从图层操作中选择「用作印章」。');
       if(options.tool==='clone'&&!this.cloneSource?.canvas&&this.cloneSource?.layerId!==layer.id)throw new Error('请先按住 Ctrl 点击当前层上的仿制源点。');
       const g={kind:options.tool,layer,options,start:local,end:local,last:local,tiles:new Map(),stampIndex:options.tool==='stamp'&&this.fairyMode==='static'?(this.fairyStampIndex||0):0,travel:0};
-      if(options.tool==='clone'){g.source=makeCanvas(layer.width,layer.height);g.source.getContext('2d').drawImage(this.cloneSource.canvas||layer.canvas,0,0);g.offset={x:this.cloneSource.point.x-local.x,y:this.cloneSource.point.y-local.y};}
+      if(options.tool==='clone'){
+        const source=this.cloneSource.canvas||layer.canvas;g.source=makeCanvas(layer.width,layer.height);
+        // Freeze pixels rather than replaying the source canvas's drawing list
+        // under each circular clip; recorded PNG sources are already rasterized.
+        g.source.getContext('2d').putImageData(source.getContext('2d').getImageData(0,0,source.width,source.height),0,0);
+        g.offset={x:this.cloneSource.point.x-local.x,y:this.cloneSource.point.y-local.y};
+      }
       this.gesture=g;this.specialDab(local);return;
     }
     super.begin(point,options);

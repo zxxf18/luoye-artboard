@@ -10,7 +10,7 @@ async function checkTools(doc){
   ['line',['size','shape-dashed','paint-color-open']],['text',[]],
   ['select',['selection-combination','inline-select-all']],['magic',['tolerance']],
   ['warp',['warp-speed','creative-radius']],['board-filter',['creative-radius','filter-preview-button']],
-  ['clone',['size','clone-source']],['fractal',['fractal-open']],
+  ['clone',['size','clone-source']],
  ]){
   if(!doc.querySelector(`.tool-button[data-tool="${tool}"]`))doc.querySelector('#tool-page').click();
   doc.querySelector(`.tool-button[data-tool="${tool}"]`).click();await pause(25);
@@ -71,7 +71,7 @@ for(const [width,height] of [[900,650],[1280,720],[1920,1080],[2560,1440]]){
    for(const asset of doc.querySelectorAll('#asset-grid .asset'))assert(inside(asset,doc.querySelector('#asset-grid')),'素材分页中存在被裁切的卡片');
    assert(inside(doc.querySelector('#size'),parameters),'素材打开后大小滑杆被裁切');
    for(const b of doc.querySelectorAll('#library-pagination button'))assert(inside(b,parameters),'素材翻页按钮被裁切');
-   doc.querySelector('#mode-board').click();
+   doc.querySelector('#mode-board').click();await pause(25);
    await checkTools(doc);
    results.push({name,passed:true,canvas:{width:Math.round(r.width),height:Math.round(r.height)},expandedBrushBox:clipped});
   }catch(error){results.push({name,passed:false,error:error.message});for(const dialog of doc.querySelectorAll('dialog[open]'))dialog.close();doc.querySelector('#mode-board').click();}

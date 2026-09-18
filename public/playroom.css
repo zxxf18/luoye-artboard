@@ -189,7 +189,8 @@
 
 /* Keep document actions identifiable and reachable at compact window widths. */
 .playroom .header-actions{overflow-x:auto;justify-content:safe flex-end;padding-bottom:3px}
-.playroom .header-actions button{flex:none}
+.playroom .header-actions button{flex:0 1 calc(60px*var(--u));min-width:44px;white-space:nowrap}
+.playroom .header-actions #display-open{flex-shrink:0;min-width:max(70px,calc(64px*var(--u)))}
 .playroom .header-actions #new-quick{background:#e2eed5;border-color:#98b484;min-width:68px;font-size:13px;white-space:nowrap}
 
 @media (hover:hover) and (pointer:fine){.playroom .about-links a:hover{color:#60301d;background:#ffe3b2}}

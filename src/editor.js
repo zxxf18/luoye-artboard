@@ -42,7 +42,7 @@ export class EditorEngine extends PaintEngine {
   selectionInLayer(layer) {
     if(!this.selectionCanvas)return null;
     const c=makeCanvas(layer.width,layer.height),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;
-    ctx.translate(layer.width/2,layer.height/2);ctx.scale(1/layer.scale,1/layer.scale);ctx.rotate(-layer.rotation*Math.PI/180);ctx.translate(-layer.x,-layer.y);ctx.drawImage(this.selectionCanvas,0,0);
+    ctx.translate(layer.width/2,layer.height/2);ctx.scale((layer.flipX?-1:1)/layer.scale,(layer.flipY?-1:1)/layer.scale);ctx.rotate(-layer.rotation*Math.PI/180);ctx.translate(-layer.x,-layer.y);ctx.drawImage(this.selectionCanvas,0,0);
     return c;
   }
   layerMask(layer) {
@@ -50,7 +50,7 @@ export class EditorEngine extends PaintEngine {
     // Full paper layers share the selection's pixel coordinates. Reusing the
     // mask avoids allocating and reading a full-size temporary canvas for
     // every spray or watercolor segment.
-    if(layer.width===this.width&&layer.height===this.height&&layer.scale===1&&layer.rotation===0&&layer.x===this.width/2&&layer.y===this.height/2)return this.selection;
+    if(layer.width===this.width&&layer.height===this.height&&layer.scale===1&&layer.rotation===0&&!layer.flipX&&!layer.flipY&&layer.x===this.width/2&&layer.y===this.height/2)return this.selection;
     const c=this.selectionInLayer(layer);
     const data=c.getContext('2d').getImageData(0,0,layer.width,layer.height).data,mask=new Uint8ClampedArray(layer.width*layer.height);
     for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3]>=128?255:0;return mask;
@@ -106,7 +106,7 @@ export class EditorEngine extends PaintEngine {
   mergeToBottom(){
     const layer=this.active,bottom=this.layers[0];if(layer===bottom)throw new Error('当前已经是最底层。');if(!layer.visible||!bottom.visible)throw new Error('合并前请先显示当前层和最底层。');if(layer.frames?.length||bottom.frames?.length||layer.sprites||bottom.sprites)throw new Error('合并前请先将动画层定格。');
     const before=this.layers.slice(),activeId=this.activeId,c=this.layerOnPaper(bottom),ctx=c.getContext('2d');ctx.globalAlpha=layer.opacity;this.transform(ctx,layer);this.drawLayer(ctx,layer);
-    const merged={...bottom,canvas:c,width:this.width,height:this.height,x:this.width/2,y:this.height/2,scale:1,rotation:0,opacity:1,visible:true};
+    const merged={...bottom,canvas:c,width:this.width,height:this.height,x:this.width/2,y:this.height/2,scale:1,rotation:0,flipX:false,flipY:false,opacity:1,visible:true};
     delete merged.eraseMask;
     const after=[merged,...this.layers.slice(1).filter(l=>l!==layer)];this.layers=after;this.activeId=merged.id;
     this.history.push({bytes:(c.width*c.height+bottom.width*bottom.height+layer.width*layer.height)*4,undo:()=>{this.layers=before;this.activeId=activeId;},redo:()=>{this.layers=after;this.activeId=merged.id;}});this.changed();

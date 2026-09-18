@@ -10,7 +10,7 @@ try {
  check(visible($('brush-ratio'))&&!$('brush-ratio').closest('dialog'),'宽窄在第一屏');
  const before=$('viewport').getBoundingClientRect();$('mode-library').click();await pause(250);const after=$('viewport').getBoundingClientRect();
  check(Math.abs(before.height-after.height)<1&&Math.abs(before.width-after.width)<1,'打开素材不缩小画板');
- document.querySelector('[data-category="background"]').click();document.querySelector('[data-asset-id="bg170-space-comic-01"]').click();await idle();document.querySelector('[data-asset-id="bg170-space-oil-01"]').click();await idle();
+ document.querySelector('[data-category="background"]').click();[...document.querySelectorAll('#library-groups button')].find(b=>b.textContent==='太空').click();document.querySelector('[data-asset-id="bg170-space-comic-01"]').click();await idle();document.querySelector('[data-asset-id="bg170-space-oil-01"]').click();await idle();
  let project=(await snapshot()).project;
  check(project.layers.filter(l=>l.role==='background').length===1&&project.layers[0].sourceId==='bg170-space-oil-01','新背景替换旧背景');
  $('undo').click();await idle();check((await snapshot()).project.layers[0].sourceId==='bg170-space-comic-01','背景替换撤销');$('redo').click();await idle();

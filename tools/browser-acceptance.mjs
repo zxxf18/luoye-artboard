@@ -10,7 +10,7 @@ try{
  const url=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Server startup timeout')),10000);server.on('error',reject);server.stdout.on('data',data=>{const match=String(data).match(/http:\/\/127.0.0.1:\d+/);if(match){clearTimeout(timer);resolve(match[0]);}});});
  browser=await chromium.launch({headless:true,...(process.env.LUOYE_BROWSER_EXECUTABLE?{executablePath:process.env.LUOYE_BROWSER_EXECUTABLE}:{})});
  const results=[];
- for(const name of (process.argv.slice(2).length?process.argv.slice(2):['browser','brushes','editor','creative','frames','interactions','layout','paper-scope','animated-filters','stamps'])){
+ for(const name of (process.argv.slice(2).length?process.argv.slice(2):['browser','brushes','editor','creative','frames','interactions','layout','paper-scope','animated-filters','stamps','ui-regressions'])){
   if(!/^[a-z-]+$/.test(name))throw Error('Invalid test name');
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
