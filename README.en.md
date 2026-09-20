@@ -123,3 +123,9 @@ If macOS says the app is from the internet, cannot be verified, or is unsafe, tr
 - [Report an issue](https://github.com/zxxf18/luoye-artboard/issues)
 - [License AGPLv3](LICENSE)
 - [Donate](docs/donate.md)
+
+
+## Link
+
+- [Yebuluo](https://index.yebuluo.com.cn)
+- [LinuxDo](https://linux.do)
