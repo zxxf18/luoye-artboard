@@ -124,8 +124,7 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 - [许可证 AGPLv3](LICENSE)
 - [捐赠](docs/donate.md)
 
-<p align="center">
-  <a href="https://index.yebuluo.com.cn"><img src="https://yebuluo.com.cn/assets/staff-core-20260825.png" alt="夜不洛" width="18" height="18"></a>
-  <span aria-hidden="true"> · </span>
-  <a href="https://linux.do">LinuxDo</a>
-</p>
+## 推广
+
+- [夜不洛](https://index.yebuluo.com.cn)
+- [LinuxDo](https://linux.do)
