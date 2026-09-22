@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'">
-  <title>落叶画板</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="playroom.css"><link rel="stylesheet" href="tool-shelf.css">
+  <title>落叶画板</title><link rel="stylesheet" href="styles.css?v=1.10.3"><link rel="stylesheet" href="playroom.css?v=1.10.3"><link rel="stylesheet" href="tool-shelf.css?v=1.10.3">
 </head>
 <body>
   <header class="app-header">
@@ -30,5 +30,5 @@
   <dialog id="new-dialog"><form method="dialog"><span class="dialog-art">✳</span><h2>打开一张新画纸</h2><p>这张画值得留下。开始新画前，可以先保存当前作品。</p><label for="preset">画纸尺寸</label><select id="preset"><option value="1920,1080">横向 · 1920 × 1080</option><option value="2560,1440">2K 横向 · 2560 × 1440</option><option value="1920,1440">经典 4:3 · 1920 × 1440</option><option value="1440,1920">竖向 · 1440 × 1920</option><option value="1080,1080">正方形 · 1080 × 1080</option></select><div class="dialog-actions"><button value="cancel">再画一会儿</button><button value="create" class="primary">开始新画</button></div></form></dialog>
   <dialog id="text-dialog"><form method="dialog"><h2>把心里话写在画里</h2><label for="text-content">文字内容</label><input id="text-content" placeholder="你好，奇妙世界！" maxlength="100"><label for="text-size">文字大小</label><input id="text-size" type="number" min="12" max="240" value="72"><div class="dialog-actions"><button value="cancel">取消</button><button value="add" class="primary">放进画里</button></div></form></dialog>
   <dialog id="recover-dialog"><form method="dialog"><h2>上次的想象，还在这里</h2><p>找到了保存在这台设备上的草稿，要接着画吗？</p><div class="dialog-actions"><button value="cancel">先看空白画纸</button><button value="recover" class="primary">继续上次的画</button></div></form></dialog>
-  <script src="canvas-assets.js"></script><script src="assets/catalog.js"></script><script src="app.js"></script>
+  <script src="android-bridge.js"></script><script src="canvas-assets.js"></script><script src="assets/catalog.js"></script><script src="app.js"></script>
 </body></html>

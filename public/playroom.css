@@ -194,3 +194,1321 @@
 .playroom .header-actions #new-quick{background:#e2eed5;border-color:#98b484;min-width:68px;font-size:13px;white-space:nowrap}
 
 @media (hover:hover) and (pointer:fine){.playroom .about-links a:hover{color:#60301d;background:#ffe3b2}}
+
+/* Landscape phones and split-screen windows: keep the canvas wide and make
+   both tool collections horizontally scrollable rows below it.  The old
+   three-column grid left only a few hundred pixels for a 16:9 canvas at
+   640px, which made drawing and touch panning needlessly cramped. */
+@media (max-width: 860px) {
+  .playroom {
+    --header: 64px;
+    overflow: hidden;
+  }
+  .playroom .app-header {
+    height: var(--header);
+    min-height: var(--header);
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .playroom .brand { min-width: 44px; flex: 0 0 auto; }
+  .playroom .brand > .playful-icon { display: none; }
+  .playroom .brand strong { font-size: 18px; letter-spacing: 1px; }
+  .playroom .brand small { display: none; }
+  .playroom .header-actions {
+    gap: 3px;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+  .playroom .header-actions::-webkit-scrollbar { display: none; }
+  .playroom .header-actions button {
+    flex: 0 0 auto;
+    min-width: 44px;
+    width: auto;
+    height: 52px;
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+  .playroom .header-actions button .playful-icon { width: 24px; height: 24px; }
+
+  .playroom .workspace {
+    height: calc(100dvh - var(--header));
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 8px;
+    padding: 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-content: start;
+    -webkit-overflow-scrolling: touch;
+  }
+  .playroom .studio {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+  }
+  .playroom .canvas-topbar { min-height: 44px; }
+  .playroom .canvas-welcome { display: none; }
+  .playroom .viewport {
+    flex: none;
+    width: 100%;
+    height: auto;
+    min-height: 190px !important;
+    max-height: none;
+    aspect-ratio: 16 / 9;
+    padding: 6px;
+    overflow: auto;
+  }
+  .playroom .canvas-sheet { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  .playroom .canvas-footer { min-height: 24px; height: 24px; }
+  .playroom .workspace .tool-dock { height: clamp(136px, 30dvh, 180px); }
+  .playroom .tool-dock .categories { min-height: 44px; max-height: 44px; }
+  .playroom .tool-dock .categories button { min-height: 44px; }
+  .playroom #library-pagination button { min-height: 44px; }
+
+  .playroom .classic-left {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-height: 112px;
+    min-height: 96px;
+    padding: 6px;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+  .playroom .classic-left h2 { display: none; }
+  .playroom .classic-left > * { flex: 0 0 auto; }
+  .playroom .classic-left .classic-colors { width: 120px; }
+  .playroom .classic-left .brush-box {
+    display: flex;
+    flex: 1 1 auto;
+    width: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    align-content: stretch;
+    gap: 6px;
+    padding: 2px;
+  }
+  .playroom .classic-left .brush-card {
+    width: 82px;
+    min-width: 82px;
+    min-height: 82px;
+    height: 100%;
+  }
+  .playroom .classic-left .left-actions {
+    width: 76px;
+    min-width: 76px;
+    margin-top: 0;
+    gap: 4px;
+  }
+  .playroom .classic-left .left-actions button { min-height: 44px; }
+  .playroom .classic-left .subtool-box {
+    width: 160px;
+    min-width: 160px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .playroom .classic-left .subtool-card { min-width: 112px; height: 100%; }
+
+  .playroom .tool-rail {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    min-height: 68px;
+    max-height: 76px;
+    padding: 5px 6px;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .playroom .tool-rail #tools {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    padding: 1px;
+  }
+  .playroom .tool-button {
+    flex: 0 0 64px;
+    width: 64px;
+    min-height: 58px;
+    max-height: none;
+    padding: 3px;
+    font-size: 12px;
+  }
+  .playroom .tool-button .playful-icon { width: 30px; height: 30px; }
+  .playroom .tool-page { width: 76px; min-width: 76px; padding: 3px; }
+  .playroom .rail-bottom { display: none; }
+}
+
+/* Very narrow split-screen widths: keep every action reachable without
+   letting a long label force the canvas or the controls off-screen. */
+@media (max-width: 640px) {
+  .playroom .workspace { padding: 6px; gap: 6px; }
+  .playroom .viewport { min-height: 180px !important; }
+  .playroom .workspace .tool-dock { height: clamp(128px, 34dvh, 164px); }
+  .playroom .classic-left { min-height: 92px; max-height: 104px; }
+  .playroom .classic-left .classic-colors { width: 108px; }
+  .playroom .classic-left .brush-card { width: 76px; min-width: 76px; }
+  .playroom .classic-left .left-actions { width: 68px; min-width: 68px; }
+  .playroom .tool-rail { min-height: 64px; max-height: 70px; }
+  .playroom .tool-button { flex-basis: 60px; width: 60px; min-height: 54px; }
+  .playroom .tool-page { width: 68px; min-width: 68px; }
+}
+
+/* Canvas-first mode for phones, split-screen windows and short laptop
+   windows. The complete tool groups remain available as three focused
+   drawers, while the default state leaves the largest possible paper area. */
+.playroom .mobile-commands,
+.playroom .mobile-scrim { display: none; }
+
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom .mobile-commands {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 2px;
+    scrollbar-width: none;
+  }
+  .playroom .mobile-commands::-webkit-scrollbar { display: none; }
+  .playroom .mobile-command {
+    flex: 0 0 auto;
+    min-width: 52px;
+    min-height: 44px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    background: #fff4df;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .playroom .mobile-command[aria-pressed="true"] {
+    background: #ffdb97;
+    border-color: #bb6b39;
+  }
+  .playroom .mobile-focus-command { background: #e2eed5; border-color: #98b484; }
+  .playroom .canvas-topbar { position: relative; z-index: 7; overflow-x: auto; scrollbar-width: none; }
+  .playroom .canvas-topbar::-webkit-scrollbar { display: none; }
+  .playroom .canvas-topbar .zoom-controls { display: none; }
+  .playroom .workspace { overflow: hidden; }
+  .playroom .mobile-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: rgba(79, 48, 29, .26);
+  }
+  .playroom .mobile-commands { position: relative; z-index: 8; }
+  .playroom[data-mobile-panel="brushes"] .mobile-scrim,
+  .playroom[data-mobile-panel="tools"] .mobile-scrim,
+  .playroom[data-mobile-panel="options"] .mobile-scrim,
+  .playroom[data-mobile-panel="library"] .mobile-scrim { display: block; }
+  .playroom[data-mobile-panel="focus"] .classic-left,
+  .playroom[data-mobile-panel="focus"] .tool-rail,
+  .playroom[data-mobile-panel="focus"] .tool-dock { display: none; }
+  .playroom[data-mobile-panel="brushes"] .tool-rail,
+  .playroom[data-mobile-panel="brushes"] .tool-dock,
+  .playroom[data-mobile-panel="tools"] .classic-left,
+  .playroom[data-mobile-panel="tools"] .tool-dock,
+  .playroom[data-mobile-panel="options"] .classic-left,
+  .playroom[data-mobile-panel="options"] .tool-rail,
+  .playroom[data-mobile-panel="library"] .classic-left,
+  .playroom[data-mobile-panel="library"] .tool-rail { display: none; }
+  .playroom[data-mobile-panel="focus"] .studio { grid-column: 1; grid-row: 1; height: 100%; }
+  .playroom[data-mobile-panel="focus"] .viewport {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    height: auto;
+    aspect-ratio: auto;
+  }
+  .playroom[data-mobile-panel="focus"] .canvas-sheet { max-width: 100%; max-height: 100%; }
+  .playroom[data-mobile-panel="brushes"] .classic-left,
+  .playroom[data-mobile-panel="tools"] .tool-rail,
+  .playroom[data-mobile-panel="options"] .tool-dock,
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    position: fixed;
+    z-index: 6;
+    display: flex;
+    box-sizing: border-box;
+    box-shadow: 0 14px 34px rgba(100, 59, 30, .28);
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left {
+    top: calc(var(--header) + 8px);
+    left: 8px;
+    bottom: 8px;
+    width: min(360px, calc(100vw - 16px));
+    max-height: none;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail {
+    top: calc(var(--header) + 8px);
+    right: 8px;
+    bottom: 8px;
+    width: min(320px, calc(100vw - 16px));
+    max-height: none;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock,
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    height: min(48dvh, 380px);
+    min-height: 180px;
+    max-height: calc(100dvh - var(--header) - 16px);
+    padding: 8px;
+    overflow: auto;
+    border: 2px solid #d9ae77;
+    border-radius: 20px;
+    background: #fff1d4;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .right-panel { display: none; }
+  .playroom[data-mobile-panel="library"] .tool-dock .classic-parameters { display: none; }
+  .playroom[data-mobile-panel="library"] .tool-dock .right-panel { flex: 1 1 auto; }
+  .playroom[data-mobile-panel="brushes"] .classic-left,
+  .playroom[data-mobile-panel="tools"] .tool-rail { overflow-y: auto; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box,
+  .playroom[data-mobile-panel="tools"] .tool-rail #tools { overflow-y: auto; }
+  .playroom[data-mobile-panel="brushes"] .classic-left > *,
+  .playroom[data-mobile-panel="tools"] .tool-rail > * { flex-shrink: 0; }
+}
+
+@media (max-width: 640px), (max-height: 500px) {
+  /* Android WebView reports CSS dp at the device density (800x480 at
+     420dpi is only about 305x183 CSS px). Compact the fixed header and keep
+     the five drawer commands in the first viewport row. */
+  .playroom .app-header {
+    height: 56px;
+    min-height: 0;
+    padding: 2px 4px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .playroom .brand { min-width: 54px; gap: 0; }
+  .playroom .brand strong { font-size: 16px; letter-spacing: 0; }
+  .playroom .brand small,
+  .playroom .brand > .playful-icon { display: none; }
+  .playroom .header-actions { gap: 2px; overflow-x: auto; justify-content: flex-start; }
+  .playroom .header-actions button {
+    flex: 0 0 auto;
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 2px;
+    font-size: 9px;
+  }
+  .playroom .header-actions button .playful-icon,
+  .playroom .header-actions button svg { width: 22px; height: 22px; }
+  .playroom .canvas-topbar { height: 46px; min-height: 46px; overflow: hidden; }
+  .playroom .canvas-topbar .workspace-tabs,
+  .playroom .canvas-topbar .canvas-welcome { display: none; }
+  .playroom .mobile-commands {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .playroom .mobile-command { min-width: 48px; min-height: 40px; padding: 3px 5px; font-size: 10px; }
+  .playroom .document-name { display: none; }
+  .playroom .canvas-footer { height: 20px; font-size: 10px; }
+  .playroom[data-mobile-panel="options"] .tool-dock,
+  .playroom[data-mobile-panel="library"] .tool-dock { height: min(56dvh, 340px); }
+}
+
+/* High-density Android phones/tablets expose a much smaller CSS viewport
+   than their screenshot width. Preserve a usable paper area there while
+   keeping the same drawer controls and touch targets in physical pixels. */
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom .app-header { height: 32px; padding: 1px 3px; gap: 2px; }
+  .playroom .brand { min-width: 40px; }
+  .playroom .brand strong { font-size: 11px; }
+  .playroom .header-actions { gap: 1px; }
+  .playroom .header-actions button { min-width: 30px; width: 30px; height: 30px; padding: 1px; font-size: 7px; }
+  .playroom .header-actions button .playful-icon,
+  .playroom .header-actions button svg { width: 16px; height: 16px; }
+  .playroom .canvas-topbar { height: 32px; min-height: 32px; }
+  .playroom .mobile-commands { gap: 2px; padding: 1px; }
+  .playroom .mobile-command { min-width: 40px; min-height: 40px; padding: 2px 3px; border-radius: 8px; font-size: 8px; }
+  .playroom .workspace { padding: 3px; gap: 3px; }
+  .playroom .studio { gap: 3px; }
+  .playroom .viewport { padding: 3px; border-width: 2px; border-radius: 10px; }
+  .playroom .canvas-footer { display: none; }
+}
+
+/* v1.10.3: mobile studio sheets. The earlier compact rows kept the desktop
+   shelf's internal grid, which clipped brush choices and hid parameter
+   controls. On a narrow Web viewport each shelf is now a real, scrollable
+   sheet with one clear job; desktop and native classic layouts never enter
+   this media query. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom .workspace {
+    grid-template-rows: minmax(0, 1fr);
+    align-content: stretch;
+    overflow: hidden;
+    padding: 4px;
+    gap: 4px;
+  }
+  .playroom .studio,
+  .playroom[data-mobile-panel] .studio {
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    min-height: 0;
+  }
+  .playroom .canvas-topbar { flex: 0 0 44px; height: 44px; min-height: 44px; }
+  .playroom[data-mobile-panel="focus"] .viewport {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0 !important;
+    aspect-ratio: auto;
+  }
+  .playroom[data-mobile-panel="focus"] .canvas-footer { display: none; }
+
+  .playroom[data-mobile-panel="brushes"] .classic-left,
+  .playroom[data-mobile-panel="tools"] .tool-rail,
+  .playroom[data-mobile-panel="options"] .tool-dock,
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    position: fixed !important;
+    top: calc(var(--header) + 52px);
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    box-sizing: border-box;
+    z-index: 10;
+    border: 2px solid #d9ae77;
+    border-radius: 20px;
+    background: #fff1d4;
+    box-shadow: 0 14px 34px rgba(100, 59, 30, .28);
+    overflow: hidden !important;
+  }
+
+  /* Brush sheet: a compact color strip, a real two-column choice grid and
+     a bottom row for tool-specific choices. */
+  .playroom[data-mobile-panel="brushes"] .classic-left {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 4px;
+    padding: 6px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left > h2,
+  .playroom[data-mobile-panel="brushes"] .classic-left > #library-groups { display: none !important; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .classic-colors {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 5px;
+    flex: 0 0 auto;
+    width: auto;
+    padding: 3px;
+    min-height: 0;
+    height: 56px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .classic-colors h3 { display: none; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair {
+    grid-column: 1 / -1;
+    height: 46px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot { gap: 1px; font-size: 10px; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #foreground-palette,
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #background-palette {
+    height: 34px !important;
+    min-height: 34px;
+    width: 100%;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #foreground-history { display: none; }
+  .playroom[data-mobile-panel="brushes"] .classic-left #palette-open { display: none; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    align-content: start;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    gap: 7px;
+    padding: 2px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card {
+    width: auto;
+    min-width: 0;
+    min-height: 74px;
+    height: auto;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .subtool-box {
+    display: flex !important;
+    flex: 0 0 auto;
+    flex-direction: row;
+    min-height: 0;
+    max-height: 62px;
+    width: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 5px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .subtool-card {
+    flex: 0 0 136px;
+    min-width: 136px;
+    min-height: 58px;
+    white-space: nowrap;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons {
+    display: flex;
+    flex: 0 0 auto;
+    min-height: 38px;
+    max-height: 42px;
+    overflow-x: auto;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    gap: 7px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions button { flex: 1; min-height: 38px; }
+
+  /* Tool sheet: enough room for every tool, with the page switch always
+     visible at the bottom. Choosing a tool routes to its brush/options sheet. */
+  .playroom[data-mobile-panel="tools"] .tool-rail {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail #tools {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+    align-content: start;
+    flex: 1 1 auto;
+    width: auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 8px;
+    padding: 2px;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail .tool-button {
+    width: auto;
+    min-height: 68px;
+    max-height: none;
+    font-size: 12px;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail #tool-page {
+    position: static;
+    flex: 0 0 44px;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  /* Parameter sheet: keep the color row visible and let every actual control
+     occupy a readable row inside a vertical scroller. */
+  .playroom[data-mobile-panel="options"] .tool-dock {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px;
+    padding: 9px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette {
+    display: flex !important;
+    flex: 0 0 56px;
+    width: auto;
+    height: 56px !important;
+    min-height: 56px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette .swatches {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    gap: 5px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette .swatch {
+    flex: 0 0 32px;
+    width: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .more-colors { flex: 0 0 auto; min-height: 40px; }
+  .playroom[data-mobile-panel="options"] .tool-dock .classic-parameters {
+    display: flex !important;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    width: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
+  }
+  .playroom[data-mobile-panel="options"] .classic-parameters .options-bar,
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options,
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options .detail-bar {
+    display: flex !important;
+    flex: 0 0 auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    height: auto !important;
+    min-height: 44px;
+    gap: 7px;
+    padding: 0;
+  }
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options { flex-direction: column; }
+  .playroom[data-mobile-panel="options"] .classic-parameters .parameter-slider,
+  .playroom[data-mobile-panel="options"] .classic-parameters #brush-options,
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options label {
+    flex: 1 1 180px;
+    min-height: 44px;
+    justify-content: space-between;
+  }
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options .detail-bar > label,
+  .playroom[data-mobile-panel="options"] .classic-parameters .primary-brush-options .detail-bar > button {
+    flex: 1 1 180px;
+    min-height: 44px;
+  }
+  .playroom[data-mobile-panel="options"] .classic-parameters #stroke-buttons,
+  .playroom[data-mobile-panel="options"] .classic-parameters #selection-combination,
+  .playroom[data-mobile-panel="options"] .classic-parameters #selection-actions {
+    display: flex !important;
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 44px;
+    flex-wrap: wrap;
+  }
+  .playroom[data-mobile-panel="options"] #library-pagination,
+  .playroom[data-mobile-panel="options"] #library-instruction { display: none !important; }
+
+  /* Library sheet: category chips and cards each get their own scroll area;
+     the page controls are moved beside the library by classic-ui.js. */
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    display: flex !important;
+    flex-direction: column;
+    padding: 9px;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .quick-palette,
+  .playroom[data-mobile-panel="library"] .tool-dock .classic-parameters { display: none !important; }
+  .playroom[data-mobile-panel="library"] .tool-dock .right-panel {
+    display: flex !important;
+    position: static !important;
+    inset: auto !important;
+    flex: 1 1 auto;
+    flex-direction: column;
+    width: auto !important;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .library {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .panel-heading { flex: 0 0 auto; min-height: 34px; }
+  .playroom[data-mobile-panel="library"] .tool-dock .panel-heading h2 { font-size: 17px; }
+  .playroom[data-mobile-panel="library"] .tool-dock .panel-description { flex: 0 0 auto; margin: 2px 0 5px; font-size: 12px; }
+  .playroom[data-mobile-panel="library"] .tool-dock .categories {
+    display: flex;
+    flex: 0 0 48px;
+    width: 100%;
+    max-height: 48px;
+    min-height: 48px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 5px;
+    margin: 0 0 6px;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .categories button {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset-grid {
+    display: grid;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    grid-auto-rows: minmax(108px, auto);
+    grid-auto-flow: row;
+    align-content: start;
+    gap: 7px;
+    padding: 2px;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset {
+    min-width: 0;
+    min-height: 104px;
+    padding: 4px;
+    border-radius: 13px;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset img { height: 65px; min-height: 0; flex: none; }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset span { font-size: 11px; line-height: 1.2; }
+  .playroom[data-mobile-panel="library"] .tool-dock .layers-panel { display: none !important; }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination {
+    display: flex !important;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination button { min-height: 40px; }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-instruction {
+    display: flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 5px;
+    min-height: 30px;
+    font-size: 12px;
+  }
+
+  /* Every dialog gets a mobile sheet geometry. The palette editor keeps the
+     hue plane and action buttons in the first view instead of pushing them
+     below a tall preset grid. */
+  .playroom dialog {
+    width: min(560px, calc(100vw - 16px));
+    max-width: calc(100vw - 16px);
+    max-height: calc(100dvh - var(--header) - 16px);
+    margin: auto;
+    padding: 14px;
+    overflow: auto;
+    border-radius: 18px;
+  }
+  .playroom dialog h2 { font-size: 20px; margin-bottom: 8px; }
+  .playroom dialog .dialog-actions {
+    position: sticky;
+    bottom: -14px;
+    z-index: 2;
+    margin: 10px -14px -14px;
+    padding: 9px 14px 14px;
+    background: linear-gradient(transparent, #fff1d4 28%);
+  }
+  .playroom #palette-dialog:not([open]) { display: none; }
+  .playroom #palette-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    width: calc(100vw - 16px);
+    height: calc(100dvh - var(--header) - 16px);
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+  }
+  .playroom #palette-dialog h2 {
+    flex: 0 0 24px;
+    min-height: 24px;
+    margin: 0 0 5px;
+    font-size: 18px;
+  }
+  .playroom #palette-dialog .palette-presets {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(74px, 1fr);
+    grid-template-columns: none;
+    flex: 0 0 46px;
+    height: 46px;
+    max-height: 46px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+  .playroom #palette-dialog .preset-color { min-height: 40px; padding: 3px; gap: 3px; font-size: 10px; }
+  .playroom #palette-dialog .preset-color i { width: 24px; height: 24px; border-radius: 8px; }
+  .playroom #palette-dialog .palette-editor {
+    display: flex;
+    flex: 0 0 92px;
+    flex-direction: row;
+    min-height: 0;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .playroom #palette-dialog .palette-editor > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) 24px;
+    gap: 3px;
+  }
+  .playroom #palette-dialog #color-plane { width: 100%; height: 64px; min-height: 0; max-height: none; }
+  .playroom #palette-dialog .palette-editor > div:first-child label { min-height: 24px; }
+  .playroom #palette-dialog #color-preview { height: 28px; margin: 0 0 2px; }
+  .playroom #palette-dialog .palette-editor > div:last-child {
+    flex: 0 0 176px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 4px;
+    overflow-y: auto;
+  }
+  .playroom #palette-dialog .palette-editor > div:last-child #color-preview,
+  .playroom #palette-dialog .palette-editor > div:last-child label:last-child { grid-column: 1 / -1; }
+  .playroom #palette-dialog .palette-editor label { min-height: 30px; margin: 0; font-size: 11px; }
+  .playroom #palette-dialog .paint-texture-option {
+    flex: 0 0 38px;
+    min-height: 38px;
+    margin: 5px 0 0;
+    gap: 7px;
+    align-items: center;
+    overflow: hidden;
+  }
+  .playroom #palette-dialog .paint-texture-option select,
+  .playroom #palette-dialog .paint-texture-option .choice-button { min-height: 34px; padding: 4px 7px; }
+  .playroom #palette-dialog .dialog-actions { flex: 0 0 42px; position: static; margin: 5px 0 0; padding: 0; background: none; }
+  .playroom #palette-dialog .dialog-actions button { min-height: 42px; }
+}
+
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom { --header: 32px; }
+  .playroom .canvas-topbar { flex-basis: 40px; height: 40px; min-height: 40px; }
+  .playroom[data-mobile-panel="brushes"] .classic-left,
+  .playroom[data-mobile-panel="tools"] .tool-rail,
+  .playroom[data-mobile-panel="options"] .tool-dock,
+  .playroom[data-mobile-panel="library"] .tool-dock { top: calc(var(--header) + 44px); }
+}
+
+/* v1.10.4: content-sized mobile drawers.  A fixed bottom sheet should expose
+   the controls it owns, then let that control group scroll; stretching every
+   sheet to the remaining viewport made the brush grid overlap its actions
+   and left the library cards with a clipped row. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="brushes"] .classic-left,
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    top: auto !important;
+    bottom: 8px !important;
+    height: auto !important;
+    max-height: calc(100dvh - var(--header) - 60px) !important;
+  }
+
+  /* The source brush list is intentionally hidden for eraser/fill/etc.  Keep
+     the native [hidden] contract stronger than the drawer's display rules. */
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box[hidden] {
+    display: none !important;
+  }
+
+  /* One visible brush row is enough to identify the tool; the rest remains
+     reachable by scrolling without pushing stroke/actions into the cards. */
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box:not([hidden]) {
+    flex: 0 0 74px !important;
+    height: 74px !important;
+    max-height: 74px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box:not([hidden]) {
+    grid-auto-flow: column !important;
+    grid-auto-columns: 132px !important;
+    grid-template-columns: none !important;
+    grid-template-rows: 70px !important;
+    flex-basis: 70px !important;
+    height: 70px !important;
+    max-height: 70px !important;
+    align-content: start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card {
+    min-height: 70px;
+    height: 70px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .classic-colors {
+    height: 52px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair {
+    height: 42px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #foreground-palette,
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #background-palette {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons {
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions,
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions button {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .subtool-box {
+    flex: 0 0 62px !important;
+    height: 62px !important;
+    max-height: 62px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .subtool-box:empty {
+    display: none !important;
+    flex: 0 0 0 !important;
+    height: 0 !important;
+  }
+
+  /* Material cards are deliberately compact: one complete row plus a pager
+     is more useful than a tall blank sheet with clipped card bottoms. */
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    padding: 7px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .right-panel,
+  .playroom[data-mobile-panel="library"] .tool-dock .library {
+    flex: 0 0 auto !important;
+    height: auto !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .categories {
+    flex: 0 0 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    margin-bottom: 5px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset-grid {
+    flex: 0 0 88px !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    max-height: 88px !important;
+    grid-auto-rows: 84px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset {
+    min-height: 84px !important;
+    height: 84px !important;
+    padding: 3px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset img {
+    height: 50px !important;
+    max-height: 50px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset span {
+    line-height: 14px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination {
+    flex: 0 0 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination button {
+    min-height: 36px !important;
+    padding-block: 3px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-instruction {
+    flex: 0 0 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Keep the CSS viewport variable in step with the compact header. */
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom { --header: 56px; }
+}
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom { --header: 32px; }
+}
+
+/* Keep the existing desktop promise: opening 图库 reserves a readable bottom
+   shelf below the paper instead of turning the mode button into a tiny, easy
+   to miss strip.  The native classic stylesheet is untouched. */
+@media (min-width: 861px) and (min-height: 601px) {
+  .playroom.library-open .tool-dock {
+    min-height: 210px;
+  }
+  .playroom.library-open .tool-dock .right-panel {
+    position: relative !important;
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .playroom.library-open .tool-dock .asset-grid {
+    min-height: 100px;
+  }
+}
+
+/* v1.10.5: a wide but short Web window still uses the canvas-first drawer
+   model. Without this column override the base three-column grid leaves the
+   studio in the old left rail and produces a large empty area on the right. */
+@media (min-width: 861px) and (max-height: 600px) {
+  .playroom .workspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+  }
+  .playroom .studio {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+}
+
+/* v1.10.5: compact drawers size themselves around their controls. The Web
+   mobile tool sheet shows every tool in a small grid; native desktop keeps
+   its original two-page rail because it never enters this media query. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="tools"] .tool-rail {
+    top: auto !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--header) - 60px) !important;
+    padding: 6px !important;
+    gap: 5px !important;
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail #tools {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)) !important;
+    grid-auto-rows: 54px;
+    align-content: start;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    gap: 4px !important;
+    padding: 1px !important;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail .tool-button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 54px !important;
+    height: 54px !important;
+    max-height: 54px !important;
+    padding: 2px !important;
+    gap: 0 !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail .tool-button .playful-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail #tool-page {
+    display: none !important;
+  }
+
+  .playroom[data-mobile-panel="library"] .tool-dock {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--header) - 60px) !important;
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .panel-description {
+    display: none !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .categories {
+    flex-basis: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    margin-bottom: 4px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .categories button {
+    min-height: 36px !important;
+    padding: 2px 7px !important;
+    font-size: 11px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset-grid {
+    flex-basis: 82px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)) !important;
+    grid-auto-rows: 78px !important;
+    gap: 5px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset {
+    min-height: 78px !important;
+    height: 78px !important;
+    padding: 2px !important;
+    border-radius: 10px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset img {
+    height: 46px !important;
+    max-height: 46px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset span {
+    font-size: 10px !important;
+    line-height: 12px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination {
+    flex-basis: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination button {
+    min-height: 32px !important;
+    padding-block: 2px !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-instruction {
+    flex-basis: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 420px), (max-height: 420px) {
+  .playroom[data-mobile-panel="library"] .tool-dock #library-instruction {
+    display: none !important;
+  }
+}
+
+@media (min-width: 641px) and (max-height: 600px) {
+  .playroom {
+    --header: 64px;
+  }
+  .playroom .app-header {
+    height: 64px;
+    padding: 4px 8px;
+  }
+  .playroom .header-actions button {
+    height: 56px;
+    min-height: 50px;
+  }
+  .playroom .header-actions button .playful-icon,
+  .playroom .header-actions button svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* v1.10.6: keep every section of the brush drawer inside its own row. The
+   previous compact rules made the color helper pseudo-element and the 48px
+   stroke buttons larger than their 40px grid tracks, so both could paint over
+   the brush cards and the action row. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="brushes"] .classic-left {
+    gap: 4px !important;
+    padding: 6px !important;
+    overflow: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .classic-colors {
+    display: block !important;
+    flex: 0 0 50px !important;
+    width: auto !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding: 3px 6px !important;
+    overflow: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .classic-colors::after {
+    display: none !important;
+    content: none !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) !important;
+    grid-template-rows: 44px !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    gap: 4px !important;
+    align-items: center !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot {
+    height: 40px !important;
+    min-height: 40px !important;
+    gap: 0 !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+    line-height: 10px !important;
+    overflow: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #foreground-palette,
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #background-palette {
+    width: 100% !important;
+    max-width: 64px !important;
+    height: 29px !important;
+    min-height: 29px !important;
+    padding: 0 !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #swap-colors {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 18px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #foreground-history,
+  .playroom[data-mobile-panel="brushes"] .classic-left #background-history,
+  .playroom[data-mobile-panel="brushes"] .classic-left #palette-open {
+    display: none !important;
+  }
+
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-box:not([hidden]) {
+    flex: 0 0 74px !important;
+    flex-basis: 74px !important;
+    width: auto !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
+    padding: 2px !important;
+    grid-template-columns: none !important;
+    grid-template-rows: 70px !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 132px !important;
+    align-content: start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card {
+    width: 132px !important;
+    min-width: 132px !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
+    grid-template-columns: 32px minmax(0, 1fr) !important;
+    grid-template-rows: 36px 24px !important;
+    align-content: center !important;
+    gap: 0 4px !important;
+    padding: 3px !important;
+    overflow: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card > .playful-icon {
+    width: 30px !important;
+    height: 30px !important;
+    grid-row: 1 !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card > span:not(.brush-sample) {
+    min-width: 0 !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card .brush-sample {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    overflow: hidden !important;
+  }
+
+  .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons {
+    flex: 0 0 48px !important;
+    width: auto !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons button {
+    flex: 0 0 136px !important;
+    width: 136px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 3px 6px !important;
+    gap: 4px !important;
+    font-size: 11px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons .choice-picture {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions,
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions button {
+    flex: 0 0 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: auto !important;
+    margin: 0 !important;
+    gap: 6px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions button {
+    flex: none !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 2px 6px !important;
+    gap: 4px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .left-actions .playful-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+/* Ultra-small Android/WebView viewports still need a way to reach every drawer
+   row. Keep the canvas-first height budget, but let the active drawer scroll
+   vertically instead of clipping pagination and action rows. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="brushes"] .classic-left {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="library"] .library {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .right-panel,
+  .playroom[data-mobile-panel="library"] .tool-dock .library {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  /* The palette editor has a denser fixed layout than the other dialogs.
+     At very high density its action row can exceed the CSS viewport, so the
+     dialog itself becomes the scroll container. */
+  .playroom #palette-dialog[open] {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+  }
+}

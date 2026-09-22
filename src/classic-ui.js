@@ -13,13 +13,14 @@ export function brushPreview(id,color,width=140,height=42,size=28){
 export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const el=id=>document.getElementById(id);document.body.classList.add('playroom');
   const workspace=document.querySelector('.workspace'),studio=document.querySelector('.studio');
-  const left=document.createElement('aside');left.className='classic-left';left.setAttribute('aria-label','画笔盒');workspace.prepend(left);
+  const left=document.createElement('aside');left.id='classic-left';left.className='classic-left';left.setAttribute('aria-label','画笔盒');workspace.prepend(left);
   const heading=document.createElement('div');heading.className='canvas-topbar';const tabs=document.querySelector('.workspace-tabs');heading.append(tabs);const tip=document.createElement('span');tip.className='canvas-welcome';tip.textContent='每一笔，都是新发现';heading.append(tip);studio.prepend(heading);
   const parameter=document.createElement('section');parameter.className='classic-parameters';parameter.setAttribute('aria-label','当前工具参数');parameter.innerHTML='<div class="brush-inspector"><div id="active-brush-preview"></div><div><strong id="active-tool-name">铅笔</strong><span id="active-tool-description">细细的线，勾轮廓</span></div></div>';
   const options=document.querySelector('.options-bar');parameter.append(options);studio.append(parameter);
   const detailBar=document.querySelector('.detail-bar');
   const palette=document.querySelector('.palette');palette.className='quick-palette';parameter.before(palette);palette.querySelector('.palette-label').remove();palette.querySelector('.custom-color').hidden=true;
-  const dock=document.createElement('section');dock.className='tool-dock';dock.setAttribute('aria-label','底部工具区');parameter.before(dock);dock.append(palette,parameter);
+  const dock=document.createElement('section');dock.id='tool-dock';dock.className='tool-dock';dock.setAttribute('aria-label','底部工具区');parameter.before(dock);dock.append(palette,parameter);
+  const rail=document.querySelector('.tool-rail');if(rail)rail.id='tool-rail';
   const primary=document.createElement('div');primary.className='primary-brush-options';primary.setAttribute('aria-label','工具玩法与参数');primary.tabIndex=0;parameter.append(primary);if(detailBar)primary.append(detailBar);
   // The illustrated cards in the sidebar own these choices. Keep their source
   // controls connected for existing events, without duplicating them below.
@@ -52,7 +53,19 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
   const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=1-page;renderTools();sync();};
-  function renderTools(){bar.replaceChildren();for(const [id,name] of tools.slice(page*7,page*7+7)){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}};bar.append(b);}flip.innerHTML=page?'<span>← 常用工具</span><small>2 / 2</small>':'<span>更多工具 →</span><small>1 / 2</small>';bar.after(flip);}
+  function renderTools(){
+    // In a compact WebView all tools belong to the same drawer. Keeping the
+    // second page there made the sheet tall while hiding half of the actions.
+    // Desktop/native windows retain the original two-page rail.
+    const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
+    const visible=compact?tools:tools.slice(page*7,page*7+7);
+    bar.replaceChildren();
+    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);}
+    flip.hidden=compact;
+    flip.setAttribute('aria-hidden',String(compact));
+    flip.innerHTML=page?'<span>← 常用工具</span><small>2 / 2</small>':'<span>更多工具 →</span><small>1 / 2</small>';
+    bar.after(flip);
+  }
   renderTools();
   let lastColor='';
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
@@ -68,7 +81,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     else if(tool!=='pen'){const p=document.createElement('p');p.className='tool-coach';p.textContent=tool==='stamp'?'选好图案，调一调大小\n按住鼠标，连续画':el('tool-hint').textContent;subtools.append(p);if(tool==='stamp'){const edit=document.createElement('button');edit.className='subtool-card';edit.innerHTML=playfulIcon('move')+'<span>调整画里的图案</span>';edit.onclick=()=>{setTool('move');openLibrary(false);};subtools.append(edit);const modes=document.createElement('div');modes.className='fairy-modes';edit.before(modes);for(const [mode,label] of [['single','单张图案'],['static','组合图案'],['dynamic','会动图案']]){const b=document.createElement('button');b.className='subtool-card';b.innerHTML=playfulIcon(mode==='dynamic'?'effect':'stamp')+'<span>'+label+'</span>';b.setAttribute('aria-pressed',(document.body.dataset.fairyMode||'single')===mode);b.onclick=()=>{document.body.dataset.fairyMode=mode;document.dispatchEvent(new Event('fairymodechange'));openLibrary(true);sync();};modes.append(b);}}if(tool==='text'||tool==='fractal'){const b=document.createElement('button');b.className='primary';b.innerHTML=playfulIcon(tool)+'<span>'+(tool==='text'?'写几个字':'生成分形')+'</span>';b.onclick=()=>{if(tool==='fractal')el('fractal-open').click();else [...document.querySelectorAll('.detail-bar button')].find(n=>n.dataset.option==='text')?.click();};subtools.append(b);}}
     if(tool==='eraser'){const clear=document.createElement('button');clear.id='clear-animations';clear.className='subtool-card';clear.innerHTML=playfulIcon('eraser')+'<span>清除所有动图</span>';clear.title='保留背景和画笔；可以撤销';clear.onclick=clearAnimations;subtools.append(clear);}
   }
-  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id))sync();});el('size').addEventListener('input',sync);
+  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id))sync();});el('size').addEventListener('input',sync);
   function openLibrary(open){document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}
   new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);if(open&&libraryGroups.children.length)title.textContent=document.body.dataset.librarySurface==='fairy'?'我的魔法袋':'找一找图案';else if(!open)sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
   el('mode-library').onclick=()=>{const opening=!document.body.classList.contains('library-open')||document.body.dataset.librarySurface==='fairy';if(opening)document.dispatchEvent(new Event('opengallery'));openLibrary(opening);};el('mode-board').addEventListener('click',()=>openLibrary(false));
@@ -79,6 +92,55 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='给画起名字';rename.onclick=()=>titleDialog.showModal();actions.append(rename);el('title-done').onclick=()=>titleDialog.close();
   const header=document.querySelector('.header-actions');header.prepend(el('new-quick'),el('undo'),el('redo'));for(const [id,icon,name] of [['undo','undo','撤销'],['redo','redo','重做'],['new-quick','new-paper','新画纸'],['reset-settings','reset-settings','重置'],['open','folder','打开'],['save','save','保存'],['export','download','导出'],['gallery','folder','画夹']]){el(id).innerHTML=playfulIcon(icon)+`<span>${name}</span>`;el(id).className='header-command';}
   const moreButton=document.createElement('button');moreButton.id='more-open';moreButton.className='header-command';moreButton.innerHTML=playfulIcon('more')+'<span>设置</span>';moreButton.onclick=()=>more.showModal();header.append(moreButton);
+  // On short or narrow windows the canvas is the primary surface. Keep the
+  // full tool groups available as drawers instead of shrinking the paper into
+  // a thumbnail. The same controls remain in their original DOM containers,
+  // so existing keyboard focus and event wiring continue to work.
+  const mobileScrim=document.createElement('div');mobileScrim.className='mobile-scrim';mobileScrim.setAttribute('aria-hidden','true');document.body.append(mobileScrim);
+  const mobileCommands=document.createElement('div');mobileCommands.className='mobile-commands';mobileCommands.setAttribute('aria-label','小屏工具栏');
+  const mobileItems=[['brushes','画笔','classic-left'],['tools','工具','tool-rail'],['options','参数','tool-dock'],['library','素材','tool-dock']];
+  const mobileButtons=new Map();
+  for(const [panel,label,target] of mobileItems){const button=document.createElement('button');button.type='button';button.className='mobile-command';button.dataset.mobilePanel=panel;button.textContent=label;button.setAttribute('aria-controls',target);button.setAttribute('aria-expanded','false');button.onclick=()=>setMobilePanel(panel);mobileCommands.append(button);mobileButtons.set(panel,button);}
+  const focusButton=document.createElement('button');focusButton.type='button';focusButton.className='mobile-command mobile-focus-command';focusButton.textContent='画布';focusButton.setAttribute('aria-controls','viewport');focusButton.setAttribute('aria-expanded','true');focusButton.onclick=()=>setMobilePanel('focus');mobileCommands.append(focusButton);mobileButtons.set('focus',focusButton);
+  document.querySelector('.canvas-topbar').append(mobileCommands);
+  let narrowWindow=false;
+  function syncMobileShelfControls(panel){
+    const library=document.querySelector('.library');
+    const pager=document.querySelector('#library-pagination');
+    const instruction=document.querySelector('#library-instruction');
+    if(panel==='library'){
+      if(pager&&library&&pager.parentElement!==library)library.append(pager);
+      if(instruction&&library&&instruction.parentElement!==library)library.append(instruction);
+    }else{
+      if(pager&&pager.parentElement!==parameter)parameter.append(pager);
+      if(instruction&&instruction.parentElement!==parameter)parameter.append(instruction);
+    }
+  }
+  function setMobilePanel(panel,manual=true){
+    if(!narrowWindow&&panel!=='focus')return;
+    if(panel!=='focus'&&document.body.dataset.mobilePanel===panel)panel='focus';
+    if(panel==='library'&&!document.body.classList.contains('library-open'))el('mode-library').click();
+    if(panel!=='library'&&document.body.classList.contains('library-open'))el('mode-board').click();
+    document.body.dataset.mobilePanel=panel;
+    document.body.dataset.mobileFocus=String(panel==='focus');
+    if(manual)document.body.dataset.mobileUser='true';
+    for(const [name,button] of mobileButtons){const active=name===panel;button.setAttribute('aria-expanded',String(active));button.setAttribute('aria-pressed',String(active));}
+    const toolRail=document.querySelector('.tool-rail');
+    for(const [name,node] of [['brushes',left],['tools',toolRail],['dock',dock]]){const open=node===dock?(panel==='options'||panel==='library'):panel===name;node?.setAttribute('aria-hidden',String(!open));}
+    syncMobileShelfControls(panel);
+  }
+  function syncMobileLayout(){
+    const next=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
+    const changed=next!==narrowWindow;
+    if(next&&!narrowWindow){document.body.removeAttribute('data-mobile-user');setMobilePanel('focus',false);}
+    if(!next&&narrowWindow){document.body.removeAttribute('data-mobile-panel');document.body.removeAttribute('data-mobile-focus');document.body.removeAttribute('data-mobile-user');for(const node of [left,document.querySelector('.tool-rail'),dock])node?.removeAttribute('aria-hidden');syncMobileShelfControls('focus');}
+    narrowWindow=next;
+    if(changed){page=0;renderTools();}
+    if(next&&document.body.dataset.mobilePanel!=='focus'&&document.body.dataset.mobilePanel!=='brushes'&&document.body.dataset.mobilePanel!=='tools'&&document.body.dataset.mobilePanel!=='options'&&document.body.dataset.mobilePanel!=='library')setMobilePanel('focus',false);
+  }
+  mobileScrim.onclick=()=>setMobilePanel('focus');
+  window.addEventListener('resize',syncMobileLayout);document.addEventListener('keydown',event=>{if(event.key==='Escape'&&narrowWindow&&document.body.dataset.mobilePanel!=='focus')setMobilePanel('focus');});
+  syncMobileLayout();
   document.querySelector('.brand').innerHTML=playfulIcon('palette')+'<span><strong>落叶画板</strong><small>我的暖暖画室</small></span>';
   const layerDialog=el('layer-dialog');layerDialog.querySelector('h2').textContent='我的图层';
   const help=document.createElement('p');help.className='layer-guide';help.textContent='每张小卡片都是画里的一部分。先点卡片，再移动或调整它。上面的会挡住下面的，背景一直在最下面。';
