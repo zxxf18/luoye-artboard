@@ -6,7 +6,7 @@
 
 <p align="center"><strong>小小画室，装下大大的想象。</strong></p>
 
-<p align="center">一款面向儿童的离线桌面绘画应用，涂涂画画，拼出自己的小世界。</p>
+<p align="center">一款面向儿童的绘画应用，支持 macOS、Windows、Android 和 Web，涂涂画画，拼出自己的小世界。</p>
 
 <p align="center">
   <a href="README.en.md">English</a> ·
@@ -35,10 +35,11 @@
 | **图形、文字与特效** | 画图形、写文字、圈选与仿制局部，再试试变形和图像滤镜。 |
 | **音乐与工具音效** | 伴着 20 首内置 MIDI 音乐画画，分别调节音乐与工具音效的音量。 |
 | **保存与分享** | 保存可继续编辑的工程、恢复本地草稿、导入图片，将作品导出为 PNG 或 JPEG。 |
+| **多端使用** | 桌面端和 Android 端支持离线创作；Web 版可直接在浏览器打开，适合快速体验和部署。 |
 
 ## 开始画画
 
-1. 打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)，选择适合自己系统的安装包
+1. 桌面端或 Android 端打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)选择安装包；Web 端直接访问 [board.yebuluo.com.cn](https://board.yebuluo.com.cn)
 2. 启动落叶画板，从白纸开始，或通过 **图库 → 彩色背景** 选一片风景
 3. 拿起画笔或打开魔法袋。保存工程方便继续编辑，导出图片方便分享
 
@@ -58,6 +59,16 @@
 - Microsoft Edge WebView2 Runtime
 - 应用自带 .NET 运行时
 - 安装器需要 .NET 10 Desktop Runtime
+
+### Android
+
+- Android 6.0（API 23）或更高版本
+- 手机和平板默认横屏，支持小尺寸窗口和高密度屏幕
+
+### Web
+
+- 现代浏览器（Chrome、Edge、Safari 或 Firefox）
+- 在线版本地址：[board.yebuluo.com.cn](https://board.yebuluo.com.cn)
 
 ## 从源码构建
 
@@ -120,6 +131,10 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 ## 更多信息
 
 - [项目文档](docs/README.md)
+- [Android 构建说明](android/README.md)
+- [Web 部署说明](design/platform/web-deployment.md)
+- 在线 Web 版：[board.yebuluo.com.cn](https://board.yebuluo.com.cn)
+- 网站容器部署：本地构建 Linux AMD64 镜像使用 `docker buildx build --platform linux/amd64 --load -t luoye-artboard:web-linux-amd64 .`，然后运行 `docker run --rm -p 8080:8080 luoye-artboard:web-linux-amd64`
 - [反馈问题](https://github.com/zxxf18/luoye-artboard/issues)
 - [许可证 AGPLv3](LICENSE)
 - [支持项目](docs/donate.md)
