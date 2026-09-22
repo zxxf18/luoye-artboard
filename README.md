@@ -131,10 +131,6 @@ sudo xattr -rd com.apple.quarantine "{app_path}"
 ## 更多信息
 
 - [项目文档](docs/README.md)
-- [Android 构建说明](android/README.md)
-- [Web 部署说明](design/platform/web-deployment.md)
-- 在线 Web 版：[board.yebuluo.com.cn](https://board.yebuluo.com.cn)
-- 网站容器部署：本地构建 Linux AMD64 镜像使用 `docker buildx build --platform linux/amd64 --load -t luoye-artboard:web-linux-amd64 .`，然后运行 `docker run --rm -p 8080:8080 luoye-artboard:web-linux-amd64`
 - [反馈问题](https://github.com/zxxf18/luoye-artboard/issues)
 - [许可证 AGPLv3](LICENSE)
 - [支持项目](docs/donate.md)
