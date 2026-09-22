@@ -1,5 +1,8 @@
 node_modules/
 dist/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/www/
 build/
 .DS_Store
 __pycache__/
@@ -16,7 +19,11 @@ tests/obj/
 
 # Local archives and generated deliveries
 local-only/
-/design/
+# Keep the platform plans and validation records reviewable; generated evidence
+# and historical deliveries remain ignored below.
+/design/*
+!/design/platform/
+!/design/platform/*.md
 *.app/
 *.zip
 *.dmg

@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+def repositoryRoot = rootProject.projectDir.parentFile
+def webOutput = new File(repositoryRoot, 'dist')
+def webAssets = new File(projectDir, 'src/main/assets/www')
+
+def syncWebAssets = tasks.register('syncWebAssets') {
+    inputs.file(new File(repositoryRoot, 'package.json'))
+    inputs.dir(new File(repositoryRoot, 'public'))
+    inputs.dir(new File(repositoryRoot, 'src'))
+    inputs.dir(new File(repositoryRoot, 'tools'))
+    outputs.dir(webAssets)
+
+    doLast {
+        exec {
+            workingDir repositoryRoot
+            commandLine 'node', 'tools/build.mjs'
+        }
+        delete webAssets
+        copy {
+            from webOutput
+            into webAssets
+        }
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn syncWebAssets }
+
+android {
+    namespace 'cn.com.yebuluo'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'cn.com.yebuluo'
+        minSdk 23
+        targetSdk 35
+        versionCode 11003
+        versionName '1.10.3'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = '17' }
+    buildFeatures { buildConfig true }
+
+    packaging {
+        resources.excludes += '/META-INF/{AL2.0,LGPL2.1}'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

@@ -3,7 +3,7 @@ const check=(ok,name)=>{checks.push({name,passed:!!ok});if(!ok)throw Error(name)
 const idle=async()=>{await pause(25);for(let i=0;i<1500&&document.body.hasAttribute('aria-busy');i++)await pause(20);check(!document.body.hasAttribute('aria-busy'),'界面操作恢复响应');await pause(30);};
 const click=async id=>{$(id).click();await idle();};
 try{
- check(window.LUOYE_VERSION==='1.10.2','原生客户端载入 1.10.2');
+ check(window.LUOYE_VERSION==='1.10.3','原生客户端载入 1.10.3');
  await window.LUOYEMusicState();await click('music-open');$('music-volume').value='0';$('music-volume').dispatchEvent(new Event('change'));await idle();
  for(let i=0;i<20;i++){$('music-track-choose').click();document.querySelector(`#choice-grid [data-value="${i}"]`).click();await idle();const state=await window.LUOYEMusicState();check(state.playing&&state.duration>0&&state.name===window.LUOYE_MUSIC_TRACKS[i].label,'真实 MIDI 播放音乐 '+(i+1));}
  for(const id of ['music-stop','music-play','music-prev','music-next'])await click(id);
