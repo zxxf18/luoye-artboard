@@ -19,11 +19,7 @@ tests/obj/
 
 # Local archives and generated deliveries
 local-only/
-# Keep the platform plans and validation records reviewable; generated evidence
-# and historical deliveries remain ignored below.
-/design/*
-!/design/platform/
-!/design/platform/*.md
+/design/
 *.app/
 *.zip
 *.dmg
