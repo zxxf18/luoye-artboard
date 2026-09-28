@@ -122,8 +122,8 @@ function changed() {
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
   })();}, 900);
 }
-let libraryCategory='sticker',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
-let galleryLocation={category:'sticker',collection:'',page:0};
+let libraryCategory='background',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
+let galleryLocation={category:'background',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
 const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外','bg-indoor-play':'室内','bg-sports-pool':'健身','bg-school':'学校','vehicles':'交通工具','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
@@ -192,11 +192,11 @@ for (const swatch of palette) {
   button.style.background = swatch; button.style.setProperty('--swatch', swatch); button.setAttribute('aria-label', `颜色 ${swatch}`);
   button.onclick = () => setColor(swatch); $('swatches').append(button);
 }
-for (const [category, name] of Object.entries({ sticker: '小伙伴', background: '彩色背景', coloring:'涂色本', animation: '动画', frame: '相框', fairy: '魔法袋', paper: '纸样', texture: '纹理' })) {
+for (const [category, name] of Object.entries({ background: '彩色背景', sticker: '小伙伴', coloring:'涂色本', animation: '动画', frame: '相框', fairy: '魔法袋', paper: '纸样', texture: '纹理' })) {
   const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',coloring:'pen',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
-engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('sticker');
+engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('background');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
@@ -343,6 +343,10 @@ window.LUOYERequestClose=createCloseFlow({
  discard:async()=>{clearTimeout(saveTimer);await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';}
 });
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
+// The base HTML is intentionally hidden until the classic UI has replaced it.
+// This prevents the old shell from flashing during module startup while keeping
+// its dimensions available for the first layout pass.
+document.body.classList.remove('app-loading');
 async function initialize() {
   try {
     await preserveDraft();
