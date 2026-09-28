@@ -1420,6 +1420,12 @@
     gap: 4px !important;
     align-items: center !important;
   }
+  /* DOM order is foreground, background, swap. Pin the swap control to the
+     middle grid track so the second colour button cannot spill underneath it
+     when the drawer becomes very wide but short. */
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair .color-slot:first-child { grid-column: 1 !important; grid-row: 1 !important; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair .color-slot:nth-child(2) { grid-column: 3 !important; grid-row: 1 !important; }
+  .playroom[data-mobile-panel="brushes"] .classic-left .color-pair #swap-colors { grid-column: 2 !important; grid-row: 1 !important; }
   .playroom[data-mobile-panel="brushes"] .classic-left .color-slot {
     height: 40px !important;
     min-height: 40px !important;
