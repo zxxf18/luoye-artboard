@@ -17,6 +17,7 @@ import { mountToolFeedback } from './tool-feedback.js';
 import { mountDisplay } from './display-ui.js';
 import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
+import { mountAssist } from './assist-ui.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -28,7 +29,7 @@ let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
-let saveTimer, pointerId, studio, stampTimer, stampSize = 160, hoverPoint;
+let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
@@ -107,6 +108,7 @@ function renderLayers() {
 }
 function changed() {
   if (!engine) return;
+  assist?.sync?.();
   revision++; renderLayers(); layoutCanvas(); $('canvas-size').textContent = `${engine.width} × ${engine.height}`;
   if (!ready) return;
   $('save-state').textContent = '正在保留这份想象…'; clearTimeout(saveTimer);
@@ -198,7 +200,9 @@ engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engi
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
-mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});chooseCategory(libraryCategory);
+mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
+assist=mountAssist({engine,toast});
+chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
 
@@ -237,7 +241,7 @@ async function newBlank(width=engine.width,height=engine.height){
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
-  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
+  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
 bind('new',()=>newBlank());
 bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${engine.height}`;if(!$('preset').value)$('preset').selectedIndex=0;document.dispatchEvent(new Event('controlschange'));showDialog('new-dialog');});
@@ -266,7 +270,7 @@ $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
   event.preventDefault(); $('painting').focus({ preventScroll: true }); const point = engine.point(event);
   if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
-  if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options()});}catch(e){toast(e.message);}return;}
+  if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options(),...assist.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
     const x = Math.max(0, Math.min(engine.width - 1, Math.floor(point.x))), y = Math.max(0, Math.min(engine.height - 1, Math.floor(point.y)));
     const composite=makeCanvas(engine.width,engine.height);engine.paint(composite.getContext('2d'));const pixel = composite.getContext('2d').getImageData(x, y, 1, 1).data;
@@ -282,7 +286,7 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options() });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });

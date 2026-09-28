@@ -549,6 +549,85 @@
   .playroom .canvas-footer { display: none; }
 }
 
+/* Keep the auxiliary trigger reachable when the compact mobile command row
+   replaces the desktop canvas tabs. */
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom .canvas-topbar { padding-right: 58px; }
+  .playroom .canvas-topbar .assist-open {
+    position: absolute;
+    z-index: 9;
+    top: 3px;
+    right: 4px;
+    min-height: 40px;
+    padding: 3px 7px;
+  }
+}
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom .canvas-topbar { padding-right: 48px; }
+  .playroom .canvas-topbar .assist-open { top: 1px; right: 2px; min-height: 30px; padding: 2px 5px; font-size: 8px; border-radius: 8px; }
+  .playroom .canvas-topbar .assist-open-mark { font-size: 12px; }
+}
+
+/* Standalone symmetry and guide controls. The panel stays compact so the
+   canvas keeps the height budget on short phones and narrow WebViews. */
+.playroom .assist-open {
+  flex: 0 0 auto;
+  min-height: 40px;
+  border: 2px solid #d6a267;
+  border-radius: 14px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #6b4932;
+  background: #fff1d6;
+  font: 700 13px/1.1 inherit;
+}
+.playroom .assist-open[aria-pressed="true"] { background: #ffe0a8; border-color: #bf7038; box-shadow: inset 0 0 0 2px #fff7e9; }
+.playroom .assist-open-mark { font-size: 18px; line-height: 1; color: #bc6e42; }
+.playroom .assist-dialog {
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(620px, calc(100vh - 24px));
+  overflow: auto;
+  padding: 0;
+  border: 3px solid #e0ae73;
+  border-radius: 20px;
+  background: #fff8e8;
+  color: #6a4934;
+  box-shadow: 0 16px 50px #6c452d45;
+}
+.playroom .assist-dialog::backdrop { background: #4f382b55; }
+.playroom .assist-form { display: grid; gap: 12px; padding: 18px; }
+.playroom .assist-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.playroom .assist-header strong { display: block; font-size: 20px; }
+.playroom .assist-header span { display: block; margin-top: 3px; color: #9a7154; font-size: 12px; }
+.playroom .assist-close { width: 32px; height: 32px; border: 1px solid #d9ad7c; border-radius: 50%; color: #795238; background: #fff2da; font-size: 22px; line-height: 1; }
+.playroom .assist-status { min-height: 18px; padding: 7px 9px; border-radius: 10px; color: #8c5a32; background: #ffedc7; font-size: 12px; }
+.playroom .assist-switch { display: grid; grid-template-columns: 40px minmax(0,1fr); align-items: center; gap: 9px; padding: 10px; border: 1px solid #e3bd8a; border-radius: 12px; background: #fff3dd; cursor: pointer; }
+.playroom .assist-switch input, .playroom .assist-check input { accent-color: #bd713b; }
+.playroom .assist-switch-track { display: block; width: 36px; height: 21px; border-radius: 99px; background: #d9c7b3; position: relative; }
+.playroom .assist-switch-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #fffaf0; transition: transform .16s ease; }
+.playroom .assist-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.playroom .assist-switch input:checked + .assist-switch-track { background: #bf743b; }
+.playroom .assist-switch input:checked + .assist-switch-track::after { transform: translateX(15px); }
+.playroom .assist-switch b, .playroom .assist-switch small { display: block; }
+.playroom .assist-switch small { margin-top: 2px; color: #9a7154; font-size: 11px; }
+.playroom .assist-section { display: grid; gap: 6px; }
+.playroom .assist-section > label { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 13px; }
+.playroom .assist-section output { color: #a0643d; font-weight: 700; }
+.playroom .assist-section select { min-height: 36px; border: 1px solid #dfb57e; border-radius: 9px; padding: 4px 8px; color: #684832; background: #fffdf7; }
+.playroom .assist-section input[type="range"] { width: 100%; accent-color: #bd713b; }
+.playroom .assist-check { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.playroom .assist-note { margin: 0; color: #9a7154; font-size: 11px; line-height: 1.45; }
+@media (max-width: 560px), (max-height: 600px) {
+  .playroom .assist-open { min-height: 34px; padding: 3px 7px; font-size: 11px; }
+  .playroom .assist-open-mark { font-size: 15px; }
+  .playroom .assist-dialog { width: min(330px, calc(100vw - 12px)); max-height: calc(100vh - 12px); border-radius: 16px; }
+  .playroom .assist-form { gap: 9px; padding: 13px; }
+  .playroom .assist-header strong { font-size: 17px; }
+  .playroom .assist-switch { padding: 8px; }
+}
+
 /* v1.10.3: mobile studio sheets. The earlier compact rows kept the desktop
    shelf's internal grid, which clipped brush choices and hid parameter
    controls. On a narrow Web viewport each shelf is now a real, scrollable

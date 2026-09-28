@@ -2,11 +2,11 @@ import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updat
 import { EditorEngine } from './editor.js';
 import { makeCanvas } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
-import { shapePath } from './geometry.js';
 import { brushSegment } from './brushes.js';
 import { warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
 import { seededRandom } from './pixels.js';
+import { assistCopies, assistGuideLines, assistPointSetCopies, assistPointSets, assistSegmentCopies, normalizeAssistConfig } from './assist.js';
 
 // Store immutable animation frames at the stamp's drawing resolution. Large
 // stamps keep the originals; small stamps do not each retain 480px frames.
@@ -25,6 +25,73 @@ function stampGroup(group,size){
 }
 
 export class DrawingEngine extends EditorEngine {
+  assistGeometry(options, layer) {
+    const config = normalizeAssistConfig(options?.assist ?? {});
+    if (!config.enabled) return null;
+    const world = {
+      x: Number.isFinite(config.centerX) ? config.centerX : this.width / 2,
+      y: Number.isFinite(config.centerY) ? config.centerY : this.height / 2,
+    };
+    return { config, center: this.paperMode ? world : toLayerPoint(world, layer) };
+  }
+  assistPoints(point, options, layer, includeStamp = false) {
+    const geometry = this.assistGeometry(options, layer);
+    if (!geometry || (includeStamp && !geometry.config.stamp)) return [point];
+    return assistCopies(point, geometry.config, geometry.center);
+  }
+  assistPairs(start, end, options, layer) {
+    const geometry = this.assistGeometry(options, layer);
+    return geometry ? assistSegmentCopies(start, end, geometry.config, geometry.center) : [{ start, end, transformIndex: 0 }];
+  }
+  applyAssistTransform(ctx, geometry, copyIndex) {
+    if (!geometry) return;
+    const { config, center } = geometry;
+    ctx.translate(center.x, center.y);
+    if (config.mode === 'radial') ctx.rotate(Math.PI * 2 * copyIndex / config.axes);
+    else if (config.mode === 'vertical') ctx.scale(copyIndex ? -1 : 1, 1);
+    else if (config.mode === 'horizontal') ctx.scale(1, copyIndex ? -1 : 1);
+    else if (config.mode === 'four') {
+      if (copyIndex === 1) ctx.scale(-1, 1);
+      if (copyIndex === 2) ctx.scale(1, -1);
+      if (copyIndex === 3) ctx.scale(-1, -1);
+    }
+    ctx.translate(-center.x, -center.y);
+  }
+  drawAssistSegment(ctx, gesture, start, end, texture, paper, bounds, transformIndex = 0) {
+    const geometry = this.assistGeometry(gesture.options, gesture.layer);
+    if (!geometry) {
+      if (texture || paper) materialSegment(ctx, gesture, start, end, texture, paper, bounds);
+      else brushSegment(ctx, gesture, start, end);
+      return;
+    }
+    const states = gesture.assistStates ??= [];
+    const state = states[transformIndex] ?? (states[transformIndex] = {});
+    const copy = { ...gesture, ...state, start, end };
+    ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
+    if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
+    else brushSegment(ctx, copy, start, end);
+    ctx.restore();
+    for (const key of ['bristles', 'random', 'dabStarted', 'dabTravel']) if (copy[key] !== undefined) state[key] = copy[key];
+  }
+  drawAssistGuides(ctx) {
+    const config = normalizeAssistConfig(this.assistConfig);
+    if (!config.enabled || !config.showGuides) return;
+    const lines = assistGuideLines(config, this.width, this.height);
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.strokeStyle = '#c86f45';
+    ctx.globalAlpha = .46;
+    ctx.lineWidth = Math.max(1.5, this.width / 1400);
+    ctx.setLineDash([10, 8]);
+    for (const line of lines) { ctx.beginPath(); ctx.moveTo(line.start.x, line.start.y); ctx.lineTo(line.end.x, line.end.y); ctx.stroke(); }
+    if (config.showGrid) {
+      const spacing = Math.max(40, Math.round(Math.min(this.width, this.height) / 12));
+      ctx.globalAlpha = .12; ctx.setLineDash([]); ctx.strokeStyle = '#8d765f'; ctx.lineWidth = 1;
+      for (let x = 0; x <= this.width; x += spacing) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, this.height); ctx.stroke(); }
+      for (let y = 0; y <= this.height; y += spacing) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(this.width, y); ctx.stroke(); }
+    }
+    ctx.restore();
+  }
   setPaintTexture(image){this.paintTexture=textureData(image);}
   setPaperTexture(image){this.paperTexture=textureData(image);}
   applyBoardFilter(kind,options={}){
@@ -105,21 +172,57 @@ export class DrawingEngine extends EditorEngine {
       target.clearRect(0,0,c.width,c.height);const strokeContext=stroke.getContext('2d');strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,c.width,c.height);
       target.drawImage(line.layer.canvas,0,0);
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
-      if(texture||paper)materialSegment(stroke.getContext('2d'),preview,line.start,line.end,texture,paper,{x:0,y:0,width:c.width,height:c.height});else brushSegment(stroke.getContext('2d'),preview,line.start,line.end);
+      const previewContext = stroke.getContext('2d');
+      for (const { transformIndex } of this.assistPairs(line.start, line.end, line.options, line.layer)) {
+        this.drawAssistSegment(previewContext, preview, line.start, line.end, texture, paper, {x:0,y:0,width:c.width,height:c.height}, transformIndex);
+      }
       if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);const sc=stroke.getContext('2d');sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);}
       target.drawImage(stroke,0,0);this.strokePreview={...line.layer,canvas:c};
     }
     try{super.paint(ctx,guides);}finally{this.strokePreview=null;}if(!guides)return;
+    this.drawAssistGuides(ctx);
     if(this.stampPreview&&this.stampImages?.length){
       const {point,size}=this.stampPreview,index=this.gesture?.stampIndex||0;
       const group=this.fairyGroups?.[index%this.fairyGroups.length];
       const image=group?group.frames[Math.floor(group.frames.length/2)]:this.stampImages[index%this.stampImages.length],scale=size/Math.max(image.width,image.height);
-      ctx.save();ctx.globalAlpha=.6;ctx.drawImage(image,point.x-image.width*scale/2,point.y-image.height*scale/2,image.width*scale,image.height*scale);
-      ctx.restore();
+      const geometry=this.assistGeometry({assist:this.assistConfig},this.active),points=geometry?.config.stamp?this.assistPoints(point,{assist:this.assistConfig},this.active,true):[point],sourceAngle=geometry?.config.mode==='radial'?Math.atan2(point.y-geometry.center.y,point.x-geometry.center.x):0;
+      for(const copy of points){
+        const radial=geometry?.config.mode==='radial'&&Math.hypot(point.x-geometry.center.x,point.y-geometry.center.y)>.001,copyAngle=radial?Math.atan2(copy.y-geometry.center.y,copy.x-geometry.center.x)-sourceAngle:0;
+        const mirrorX=!radial&&(['vertical','four'].includes(geometry?.config.mode))&&Math.abs(copy.x-(geometry.center.x*2-point.x))<.001;
+        const mirrorY=!radial&&(['horizontal','four'].includes(geometry?.config.mode))&&Math.abs(copy.y-(geometry.center.y*2-point.y))<.001;
+        ctx.save();ctx.globalAlpha=.6;ctx.translate(copy.x,copy.y);ctx.scale(mirrorX?-1:1,mirrorY?-1:1);ctx.rotate(copyAngle);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);ctx.restore();
+      }
     }
-    if(this.path){const p=this.path;ctx.save();if(!p.select)this.transform(ctx,p.layer);ctx.strokeStyle=p.options.color||'#285b49';ctx.lineWidth=2;ctx.stroke(shapePath(p.options.tool,p.points[0],p.points.at(-1),p.points));ctx.setLineDash([5,4]);ctx.beginPath();p.points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.stroke();for(const v of p.points){ctx.fillStyle='#ffffff';ctx.fillRect(v.x-4,v.y-4,8,8);ctx.strokeRect(v.x-4,v.y-4,8,8);}ctx.restore();}
+    if(this.path){
+      const p=this.path;ctx.save();if(!p.select)this.transform(ctx,p.layer);
+      this.drawShape(ctx,{...p,start:p.points[0],end:p.points.at(-1),points:p.points});
+      ctx.strokeStyle=p.options.color||'#285b49';ctx.lineWidth=2;ctx.setLineDash([5,4]);
+      const geometry=!p.select?this.assistGeometry(p.options,p.layer):null;
+      const pointSets=geometry?assistPointSets(p.points,geometry.config,geometry.center):[p.points];
+      for(const points of pointSets){ctx.beginPath();points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.stroke();}
+      ctx.setLineDash([]);for(const v of p.points){ctx.fillStyle='#ffffff';ctx.fillRect(v.x-4,v.y-4,8,8);ctx.strokeRect(v.x-4,v.y-4,8,8);}ctx.restore();
+    }
     const g=this.gesture;if(g?.kind==='paper-erase'&&g.options.eraserMode==='rect'){ctx.save();ctx.strokeStyle='#9c684b';ctx.lineWidth=2*this.width/Math.max(1,this.canvas.clientWidth);ctx.setLineDash([6,4]);ctx.strokeRect(g.start.x,g.start.y,g.end.x-g.start.x,g.end.y-g.start.y);ctx.restore();}
     if(g?.kind==='erase-rect'){ctx.save();this.transform(ctx,g.layer);ctx.strokeStyle=g.kind==='erase-rect'?'#9c684b':g.options.color;ctx.lineWidth=(g.kind==='erase-rect'?2*this.width/Math.max(1,this.canvas.clientWidth):g.options.size)/g.layer.scale;ctx.globalAlpha=.5;ctx.beginPath();if(g.kind==='erase-rect'){ctx.setLineDash([6,4]);ctx.rect(g.start.x,g.start.y,g.end.x-g.start.x,g.end.y-g.start.y);}else{ctx.moveTo(g.start.x,g.start.y);ctx.lineTo(g.end.x,g.end.y);}ctx.stroke();ctx.restore();}
+  }
+  drawShape(ctx,g){
+    const geometry=this.assistGeometry(g.options,g.layer);
+    if(!geometry||g.select||g.options.tool==='select-bezier'){super.drawShape(ctx,g);return;}
+    if (geometry.config.mode === 'radial') {
+      const centered=(Math.abs((g.start.x+g.end.x)/2-geometry.center.x)<.001&&Math.abs((g.start.y+g.end.y)/2-geometry.center.y)<.001);
+      const square=Math.abs(Math.abs(g.end.x-g.start.x)-Math.abs(g.end.y-g.start.y))<.001;
+      const rotationallyStable=centered&&square&&['rect','roundrect','ellipse'].includes(g.options.tool);
+      const count=rotationallyStable?1:geometry.config.axes;
+      for (let index = 0; index < count; index++) {
+        const angle = Math.PI * 2 * index / geometry.config.axes;
+        ctx.save();ctx.translate(geometry.center.x,geometry.center.y);ctx.rotate(angle);ctx.translate(-geometry.center.x,-geometry.center.y);super.drawShape(ctx,g);ctx.restore();
+      }
+      return;
+    }
+    const sets=assistPointSetCopies([g.start,g.end,...(g.points||[])],geometry.config,geometry.center);
+    for(const { points } of sets){
+      const [start,end,...shapePoints]=points;ctx.save();super.drawShape(ctx,{...g,start,end,points:shapePoints});ctx.restore();
+    }
   }
   addVertex(point,options){
     const select=options.tool==='select-bezier';if(!select){if(this.paperMode&&!this.path)this.ensureDrawingLayer();this.assertRaster();}
@@ -165,23 +268,38 @@ export class DrawingEngine extends EditorEngine {
     super.begin(point,options);
   }
   segment(a,b){
-    const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4;
-    const bounds={x:Math.min(a.x,b.x)-pad,y:Math.min(a.y,b.y)-pad,width:Math.abs(b.x-a.x)+pad*2,height:Math.abs(b.y-a.y)+pad*2};this.captureTiles(g.layer,bounds,g.tiles);
+    const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4,ctx=g.layer.canvas.getContext('2d');
     const texture=g.options.fillSource==='texture'?this.paintTexture:null,paper=g.options.paperGrain?this.paperTexture:null;
-    if(g.options.tool==='pen'&&(texture||paper))materialSegment(g.layer.canvas.getContext('2d'),g,a,b,texture,paper,bounds);
-    else brushSegment(g.layer.canvas.getContext('2d'),g,a,b);
-    if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
+    let maskBounds=null;
+    for(const { start, end, transformIndex } of this.assistPairs(a,b,g.options,g.layer)){
+      const bounds={x:Math.min(start.x,end.x)-pad,y:Math.min(start.y,end.y)-pad,width:Math.abs(end.x-start.x)+pad*2,height:Math.abs(end.y-start.y)+pad*2};
+      this.captureTiles(g.layer,bounds,g.tiles);
+      const sourceBounds={x:Math.min(a.x,b.x)-pad,y:Math.min(a.y,b.y)-pad,width:Math.abs(b.x-a.x)+pad*2,height:Math.abs(b.y-a.y)+pad*2};
+      this.drawAssistSegment(ctx,g,a,b,g.options.tool==='pen'&&texture?texture:null,g.options.tool==='pen'&&paper?paper:null,sourceBounds,transformIndex);
+      maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+    }
+    if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();
   }
   specialDab(p){
     const g=this.gesture,o=g.options,ctx=g.layer.canvas.getContext('2d'),size=o.size/g.layer.scale;
     g.lastStampTime=performance.now();
-    const bounds={x:p.x-size*2,y:p.y-size*2,width:size*4,height:size*4};
-    this.captureTiles(g.layer,bounds,g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
-    if(g.kind==='clone'){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(g.source,-g.offset.x,-g.offset.y);}
-    else{const behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1),index=behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length;g.stampIndex++;
-      const image=this.stampImages[index],scale=size/Math.max(image.width,image.height),rotation=(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180;
-      ctx.translate(p.x,p.y);ctx.rotate(rotation);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);}
-    ctx.restore();if(g.kind==='stamp'&&this.fairyMode==='static')this.fairyStampIndex=g.stampIndex;if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);this.render();
+    const geometry=this.assistGeometry(o,g.layer),points=g.kind==='stamp'?this.assistPoints(p,o,g.layer,true):[p],behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1),index=g.kind==='clone'?0:(behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length),image=g.kind==='clone'?null:this.stampImages[index],scale=image?size/Math.max(image.width,image.height):1,rotation=image?(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180:0,sourceAngle=geometry?.config.mode==='radial'?Math.atan2(p.y-geometry.center.y,p.x-geometry.center.x):0;
+    let maskBounds=null;
+    for(const point of points){
+      const bounds={x:point.x-size*2,y:point.y-size*2,width:size*4,height:size*4};
+      this.captureTiles(g.layer,bounds,g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
+      if(g.kind==='clone'){ctx.beginPath();ctx.arc(point.x,point.y,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(g.source,-g.offset.x,-g.offset.y);}
+      else{
+        const radial=Math.hypot(p.x-geometry?.center.x,p.y-geometry?.center.y)>0.001&&geometry?.config.mode==='radial';
+        const copyAngle=radial?Math.atan2(point.y-geometry.center.y,point.x-geometry.center.x)-sourceAngle:0;
+        const mirrorX=!radial&&(['vertical','four'].includes(geometry?.config.mode))&&Math.abs(point.x-(geometry.center.x*2-p.x))<.001;
+        const mirrorY=!radial&&(['horizontal','four'].includes(geometry?.config.mode))&&Math.abs(point.y-(geometry.center.y*2-p.y))<.001;
+        ctx.translate(point.x,point.y);ctx.scale(mirrorX?-1:1,mirrorY?-1:1);ctx.rotate(rotation+copyAngle);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);
+      }
+      ctx.restore();
+      maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+    }
+    if(g.kind!=='clone')g.stampIndex++;if(g.kind==='stamp'&&this.fairyMode==='static')this.fairyStampIndex=g.stampIndex;if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();
   }
   update(point){
     const g=this.gesture;if(!g){super.update(point);return;}
@@ -214,7 +332,14 @@ export class DrawingEngine extends EditorEngine {
       if(!cancel)for(const t of touched)if(t.layer.spriteClip)refresh(t.layer);
       this.gesture=null;this.changed();return;
     }
-    if(!g||!['brush-line','erase-rect','stamp','clone'].includes(g.kind)){super.end(cancel);return;}
+    if(!g||!['brush-line','erase-rect','stamp','clone'].includes(g.kind)){
+      // PaintEngine's line/rect/ellipse path normally snapshots only the
+      // original drag bounds. Assisted copies can land outside that box, so
+      // take a full-layer snapshot for these infrequent shape commits; this
+      // keeps undo/cancel exact without changing the normal freehand path.
+      if(!cancel&&g?.options?.assist?.enabled&&g.layer&&['line','rect','ellipse'].includes(g.options.tool))this.captureTiles(g.layer,{x:0,y:0,width:g.layer.width,height:g.layer.height},g.tiles);
+      super.end(cancel);return;
+    }
     if(cancel){const ctx=g.layer.canvas.getContext('2d');for(const t of g.tiles.values())ctx.putImageData(t.before,t.x,t.y);}
     else {
       if(g.kind==='brush-line')this.segment(g.start,g.end);
