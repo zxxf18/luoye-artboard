@@ -9,7 +9,7 @@ try{
  check(!document.getElementById('close-dialog').open,'取消后恢复画板');
  const saved=await choose('save');check(saved.action==='save'&&saved.payload.project.layers.length>0,'保存退出提供工程和图片');
  check((await choose('discard')).action==='exit','不保存退出明确放弃本次修改');
- const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('luoye-studio',2);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+ const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('luoye-studio');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
  const current=await new Promise(resolve=>{const r=db.transaction('drafts').objectStore('drafts').get('current');r.onsuccess=()=>resolve(r.result);});db.close();
  check(!current,'放弃后不留当前会话自动草稿');
  check((await window.LUOYERequestClose()).action==='exit','重复关闭不再询问');

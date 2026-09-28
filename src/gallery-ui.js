@@ -11,7 +11,7 @@ export function mountGallery({engine,run,toast,getTitle,setTitle}){
     card.append(image,name,info,open);if(!trash){const remove=document.createElement('button');remove.textContent='移到回收站';remove.onclick=()=>run(async()=>{await galleryTrash(item.id,Date.now());await refresh();});card.append(remove);}el('gallery-items').append(card);
   }if(!el('gallery-items').children.length)el('gallery-items').textContent=trash?'回收站是空的。':'还没有作品，先把当前画作保存到画夹吧。';}
   async function save(folder){const project=await engine.serialize(getTitle()),preview=makeCanvas(240,Math.round(240*engine.height/engine.width));const composite=makeCanvas(engine.width,engine.height);engine.paint(composite.getContext('2d'));preview.getContext('2d').drawImage(composite,0,0,preview.width,preview.height);await galleryPut({id:crypto.randomUUID(),folder,project,thumbnail:preview.toDataURL(),updatedAt:Date.now(),deletedAt:null});}
-  async function backup(){engine.end();await writeDraft(await engine.serialize(getTitle()));await save('自动保留');}
+  async function backup(){engine.end();await writeDraft(await engine.serialize(getTitle()),{revision:Date.now()});await save('自动保留');}
   button.onclick=()=>run(async()=>{await refresh();dialog.showModal();});el('gallery-close').onclick=()=>dialog.close();el('gallery-trash').onchange=()=>run(refresh);el('gallery-save').onclick=()=>run(async()=>{engine.end();await save(el('gallery-folder').value.trim()||'我的作品');await refresh();toast('作品已保存在画夹');});
   return {backup};
 }

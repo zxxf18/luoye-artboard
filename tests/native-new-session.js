@@ -12,6 +12,6 @@ const current=await window.LUOYEFlushBeforeClose();assert(current.project.title!
 const canvas=document.getElementById('painting'),ctx=canvas.getContext('2d'),pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
 let colored=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<230||pixels[i+1]<230||pixels[i+2]<230)colored++;
 assert(colored===0,'New session canvas is not blank');
-const items=await new Promise((resolve,reject)=>{const request=indexedDB.open('luoye-studio',2);request.onsuccess=()=>{const db=request.result,r=db.transaction('gallery').objectStore('gallery').getAll();r.onsuccess=()=>{db.close();resolve(r.result);};r.onerror=()=>reject(r.error);};request.onerror=()=>reject(request.error);});
+const items=await new Promise((resolve,reject)=>{const request=indexedDB.open('luoye-studio');request.onsuccess=()=>{const db=request.result,r=db.transaction('gallery').objectStore('gallery').getAll();r.onsuccess=()=>{db.close();resolve(r.result);};r.onerror=()=>reject(r.error);};request.onerror=()=>reject(request.error);});
 assert(items.some(x=>x.project.title==='必须留下的旧画'),'Old draft lost while starting a blank sheet');
 return {blankPixels:colored,oldDraftPreserved:true,galleryEntries:items.length};

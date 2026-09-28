@@ -18,7 +18,7 @@ function paint(x,y,brush='crayon',color='#d9715f'){
   finally{canvas.setPointerCapture=capture;}
 }
 function regionPixels(x,y){const c=el('painting');return new Uint8ClampedArray(c.getContext('2d').getImageData(Math.round(c.width*x),Math.round(c.height*(y-.03)),Math.round(c.width*.13),Math.round(c.height*.06)).data);}
-async function project(){await window.LUOYEFlushBeforeClose();return new Promise((resolve,reject)=>{const request=indexedDB.open('luoye-studio',2);request.onsuccess=()=>{const db=request.result,r=db.transaction('drafts').objectStore('drafts').get('current');r.onsuccess=()=>{db.close();resolve(r.result.project);};r.onerror=()=>reject(r.error);};request.onerror=()=>reject(request.error);});}
+async function project(){await window.LUOYEFlushBeforeClose();return new Promise((resolve,reject)=>{const request=indexedDB.open('luoye-studio');request.onsuccess=()=>{const db=request.result,r=db.transaction('drafts').objectStore('drafts').get('current');r.onsuccess=()=>{db.close();resolve(r.result.project);};r.onerror=()=>reject(r.error);};request.onerror=()=>reject(request.error);});}
 function pixels(){return new Uint8ClampedArray(el('painting').getContext('2d').getImageData(0,0,el('painting').width,el('painting').height).data);}
 function different(a,b){let n=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])n++;return n;}
 function rect(node){const r=node.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height)};}

@@ -115,7 +115,7 @@ function changed() {
     try {
       const project = await engine.serialize($('title').value.trim() || '我的画');
       if(savingRevision!==revision)return;
-      await writeDraft(project);
+      await writeDraft(project, { revision: savingRevision });
       if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
     } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
   })();}, 900);
@@ -324,7 +324,7 @@ window.LUOYEFlushBeforeClose=async()=>{
     const project=await engine.serialize($('title').value.trim()||'我的画');
     closeSnapshot={sessionId,revision:snapshotRevision,project,png};
   }
-  await writeDraft(closeSnapshot.project);await recorder.flush();
+  await writeDraft(closeSnapshot.project, { revision: closeSnapshot.revision });await recorder.flush();
   return closeSnapshot;
   }finally{busy=false;}
 };
