@@ -53,7 +53,7 @@ Object.assign(art,{
  star:'<circle cx="32" cy="32" r="23" fill="#263b78"/><path d="m32 10 5 15 16 1-12 10 4 16-13-9-14 9 5-16-13-10 16-1z" fill="#ffd88a"/><circle cx="16" cy="16" r="2" fill="#fff"/><circle cx="51" cy="17" r="2" fill="#fff"/>',
  fish:'<path d="M12 34q16-22 35 0-19 22-35 0Z" fill="#75c9bc"/><path d="m47 34 14-12v24z" fill="#4ba69b"/><circle cx="24" cy="30" r="3" fill="#fff"/><circle cx="24" cy="30" r="1.5" fill="#355e64"/><path d="M12 34H5" stroke="#4ba69b" stroke-width="4"/>',
  forest:'<path d="M8 53Q32 40 59 53V61H8Z" fill="#aad3a0"/><path d="M27 26h10v31H27Z" fill="#c79764"/><path d="M10 29C0 14 19 7 26 11 32-3 51 5 49 17 67 21 60 40 44 38 32 48 15 41 10 29Z" fill="#aacd83"/><circle cx="25" cy="26" r="2" fill="#705142"/><circle cx="40" cy="26" r="2" fill="#705142"/><path d="M28 33q5 5 10 0" fill="none"/><circle cx="20" cy="32" r="3" fill="#f1b0a1" stroke="none"/>',
- theme:'<circle cx="32" cy="32" r="26" fill="#dce7c0"/><path d="M32 6v52M6 32h52" stroke="#79a878" stroke-width="4"/><circle cx="19" cy="19" r="5" fill="#e39a69"/><circle cx="45" cy="19" r="5" fill="#78b9c4"/><circle cx="19" cy="45" r="5" fill="#9a83bd"/><circle cx="45" cy="45" r="5" fill="#e5bf68"/><circle cx="32" cy="32" r="5" fill="#fff3d2"/>',
+ theme:'<circle cx="24" cy="35" r="15" fill="#e59b78"/><circle cx="39" cy="24" r="15" fill="#79b9c4"/><circle cx="42" cy="42" r="15" fill="#9a83bd"/><path d="m51 8 3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#f0c96e"/>',
  friend:'<path d="M16 25 10 6 29 16 44 8 54 25" fill="#efbc7b"/><ellipse cx="33" cy="37" rx="26" ry="23" fill="#efbc7b"/><ellipse cx="32" cy="43" rx="15" ry="12" fill="#ffe7bd"/><circle cx="23" cy="31" r="3" fill="#705142"/><circle cx="43" cy="31" r="3" fill="#705142"/><path d="m28 40 5 4 5-4z" fill="#b77668"/><path d="M24 48q9 8 18 0" fill="none"/><path d="M7 39h10M6 47l11-3m31-5h12m-12 5 12 3"/>',
  butterfly:'<path d="M30 29C13-9-11 15 12 37-10 61 28 68 31 43 34 70 69 63 54 39 78 11 43-8 35 29" fill="#f0acbc"/><path d="M31 25q7-4 6 7l-3 21q-4 7-7-1Z" fill="#e7b167"/><circle cx="33" cy="24" r="8" fill="#ffdfa0"/><circle cx="30" cy="23" r="1.5" fill="#705142"/><circle cx="36" cy="23" r="1.5" fill="#705142"/><path d="M30 28q3 3 6 0M29 17 24 9m12 8 6-8"/><path d="m9 24 10 6m28-6 8-6" stroke="#fff0db" stroke-width="5"/>',
 });
@@ -63,13 +63,13 @@ const faces={eraser:[34,37],fill:[28,39],stamp:[32,43],tube:[33,34],spray:[32,40
 export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playful-icon" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="#705142" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${art[name]||art.palette}${faces[name]?`<g transform="translate(${faces[name][0]} ${faces[name][1]})"><ellipse cx="-5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><ellipse cx="5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><path d="M-4 5q4 5 8 0" stroke-width="1.5" fill="none"/><circle cx="-9" cy="4" r="2.5" fill="#e7978e" stroke="none"/><circle cx="9" cy="4" r="2.5" fill="#e7978e" stroke="none"/></g>`:''}</g></svg>`;}
 
 // The product mark is the illustrated child holding a brush. Each theme has a
-// small cached 256px variant so the outfit, props, brush and backdrop can
+// small cached 192px variant so the outfit, props, brush and backdrop can
 // change without applying destructive filters to the character.
 export function brandIcon(theme = 'autumn', { slot = 'brand', src } = {}) {
   const platform = typeof globalThis !== 'undefined' && globalThis.LUOYE_PLATFORM === 'windows' ? 'windows' : 'mac';
   const themeId = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean'].includes(theme) ? theme : 'autumn';
   const source = src || `branding/themes/app-icon-${themeId}${platform === 'windows' ? '-windows' : ''}.png`;
-  const slotClass = slot === 'about' ? ' about-theme-icon' : '';
-  const alt = slot === 'about' ? '落叶画板主题图标' : '落叶画板应用图标';
+  const slotClass = slot === 'about' ? ' about-theme-icon' : slot === 'theme' ? ' theme-card-logo' : '';
+  const alt = slot === 'about' ? '落叶画板主题图标' : slot === 'theme' ? `${themeId}主题图标` : '落叶画板应用图标';
   return `<img src="${source}" class="playful-icon brand-icon brand-logo brand-logo-${themeId}${slotClass}" data-theme-logo="${themeId}" alt="${alt}" aria-hidden="true" draggable="false">`;
 }

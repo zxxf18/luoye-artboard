@@ -41,6 +41,7 @@ test('theme visuals are lightweight CSS decoration and do not target canvas pixe
   assert.match(sceneStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(sceneStyles, /animation: theme-(breeze|waves|leaf-fall|snow|gear|planet|fish)/);
   assert.match(theme, /brandIcon\(/);
+  assert.match(theme, /brandIcon\(theme\.id, \{ slot: 'theme' \}\)/);
   assert.match(scenes, /class="theme-scene/);
   assert.doesNotMatch(styles, /data-theme[^{}]*#painting/);
   assert.doesNotMatch(styles, /data-theme[^{}]*\.canvas-sheet/);
@@ -86,6 +87,8 @@ test('brand and about use the illustrated child logo with dedicated theme slots'
   assert.match(icons, /-windows/);
   assert.match(icons, /\.png/);
   assert.match(styles, /\.about-mark img[^{]*\{[^}]*filter:none/);
+  assert.match(styles, /\.theme-card-preview \.theme-card-logo[^{]*\{/);
+  assert.match(styles, /header-actions #save[^{]*\{[^}]*var\(--theme-control/);
   // The true color controls carry explicit classes so global theme selectors
   // cannot overwrite their inline values.
   assert.match(palette, /color-value-control/);

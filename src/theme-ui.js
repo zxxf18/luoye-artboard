@@ -48,7 +48,7 @@ export function applyStoredTheme() {
 }
 
 function themeIcon(theme) {
-  return playfulIcon(theme.icon);
+  return brandIcon(theme.id, { slot: 'theme' });
 }
 
 export function mountTheme() {
@@ -115,7 +115,7 @@ export function mountTheme() {
     card.className = 'theme-card';
     card.dataset.theme = theme.id;
     card.setAttribute('aria-label', `${theme.label}：${theme.caption}`);
-    card.innerHTML = `<span class="theme-card-preview" aria-hidden="true"><i></i><b></b></span><span class="theme-card-copy"><strong>${theme.label}</strong><small>${theme.caption}</small></span>${themeIcon(theme)}`;
+    card.innerHTML = `<span class="theme-card-preview" aria-hidden="true">${themeIcon(theme)}</span><span class="theme-card-copy"><strong>${theme.label}</strong><small>${theme.caption}</small></span>`;
     card.addEventListener('click', () => {
       selected = applyTheme(theme.id, { persist: true });
       renderBrandIcon(selected);

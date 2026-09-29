@@ -102,9 +102,14 @@ async function pick(doc, id) {
   entry.click();
   await pause(15);
   const dialog = doc.querySelector('#theme-dialog');
-  const card = dialog?.querySelector(`.theme-card[data-theme="${id}"]`);
-  assert(dialog?.open && card, `主题卡片缺失：${id}`);
-  card.click();
+      const card = dialog?.querySelector(`.theme-card[data-theme="${id}"]`);
+      assert(dialog?.open && card, `主题卡片缺失：${id}`);
+      const cardLogo = card.querySelector('.theme-card-logo');
+      assert(cardLogo?.tagName === 'IMG', `主题卡片没有使用主题 Logo：${id}`);
+      assert(cardLogo.dataset.themeLogo === id, `主题卡片 Logo 主题不匹配：${id}`);
+      assert(new RegExp(`branding/themes/app-icon-${id}(?:-windows)?\\.png$`).test(cardLogo.getAttribute('src') || ''), `主题卡片 Logo 资源不匹配：${id}`);
+      assert(cardLogo.complete && cardLogo.naturalWidth >= cardLogo.getBoundingClientRect().width * 2, `主题卡片 Logo 未加载或清晰度不足：${id}`);
+      card.click();
   await pause(180);
   assert(doc.body.dataset.theme === id, `主题没有切换到 ${id}`);
   assert(card.getAttribute('aria-pressed') === 'true', `主题选中态没有同步：${id}`);

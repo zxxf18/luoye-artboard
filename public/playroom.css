@@ -2126,6 +2126,40 @@
 .playroom[data-theme] .brand > .brand-icon,
 .playroom[data-theme] .about-mark img { filter: none; }
 
+/* Keep Save in the same surface family as the other header commands. */
+.playroom .header-actions #save {
+  background: var(--theme-control, #fffaf0);
+  border-color: var(--theme-border, #eacaa0);
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--theme-shadow, #c98f6533);
+}
+.playroom[data-theme] .header-actions #save {
+  background: var(--theme-control);
+  border-color: var(--theme-border);
+  color: var(--ink);
+}
+
+/* Theme cards show the same child mascot as the active brand. */
+.playroom[data-theme] .theme-card {
+  grid-template-rows: 1fr;
+}
+.playroom[data-theme] .theme-card-preview {
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  background: var(--theme-panel);
+}
+.playroom[data-theme] .theme-card-preview .theme-card-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+  filter: none;
+}
+
 @media (max-width: 980px) {
   .playroom .brand { min-width: 92px; }
   .playroom[data-theme] .brand > .brand-icon { width: 38px; height: 38px; border-radius: 10px; }
