@@ -1597,3 +1597,157 @@
     scrollbar-width: thin;
   }
 }
+
+/* Compact assist sheet: keep the canvas visible while the settings remain
+   understandable at a glance. The original single-column sheet was too tall
+   for short landscape WebViews, so related controls now share two cards. */
+.playroom .assist-dialog {
+  width: min(620px, calc(100vw - 16px));
+  max-height: min(420px, calc(100dvh - 12px));
+  overflow: hidden;
+  padding: 0;
+  border-width: 2px;
+  border-radius: 18px;
+}
+.playroom .assist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 10px;
+  overflow: hidden;
+}
+.playroom .assist-header {
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+}
+.playroom .assist-title strong { font-size: 17px; }
+.playroom .assist-title span { margin-top: 1px; font-size: 10px; }
+.playroom .assist-header-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.playroom .assist-header-actions .assist-switch {
+  position: relative;
+  min-height: 34px;
+  margin: 0;
+  padding: 3px 6px;
+  gap: 6px;
+  border-radius: 10px;
+  display: flex;
+  grid-template-columns: none;
+}
+.playroom .assist-header-actions .assist-switch input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.playroom .assist-switch-track { width: 30px; height: 18px; flex: none; }
+.playroom .assist-switch-track::after { width: 12px; height: 12px; top: 3px; left: 3px; }
+.playroom .assist-switch input:checked + .assist-switch-track::after { transform: translateX(12px); }
+.playroom .assist-switch-copy b { font-size: 11px; }
+.playroom .assist-switch-copy small { display: none; }
+.playroom .assist-close { width: 34px; height: 34px; min-width: 34px; min-height: 34px; padding: 0; font-size: 20px; }
+.playroom .assist-status {
+  min-height: 25px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.playroom .assist-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+  gap: 8px;
+  min-height: 0;
+}
+.playroom .assist-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px;
+  border: 1px solid #e3bd8a;
+  border-radius: 12px;
+  background: #fff3dd;
+}
+.playroom .assist-card-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.playroom .assist-card-heading strong { font-size: 12px; }
+.playroom .assist-card-heading small { color: #9a7154; font-size: 10px; white-space: nowrap; }
+.playroom .assist-section,
+.playroom .assist-form .assist-check,
+.playroom .assist-form label.assist-switch { margin: 0; }
+.playroom .assist-section { display: grid; gap: 3px; min-width: 0; }
+.playroom .assist-section > label { min-height: 16px; margin: 0; font-size: 11px; line-height: 1.25; }
+.playroom .assist-section select {
+  width: 100%;
+  min-height: 32px;
+  height: 32px;
+  padding: 3px 7px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+.playroom .assist-section input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  height: 28px;
+}
+.playroom .assist-axes-row { margin-top: 6px; }
+.playroom .assist-dialog:not([data-assist-mode="radial"]) .assist-axes-row { display: none; }
+.playroom .assist-center-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 7px; }
+.playroom .assist-section output { font-size: 11px; }
+.playroom .assist-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(32px, 1fr); flex: 1; align-content: stretch; gap: 5px; }
+.playroom .assist-form label.assist-check {
+  min-width: 0;
+  min-height: 36px;
+  padding: 4px 5px;
+  border: 1px solid #e3bd8a;
+  border-radius: 8px;
+  background: #fff9e9;
+  gap: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+.playroom .assist-form label.assist-check input { width: 20px; height: 20px; min-width: 20px; min-height: 20px; margin: 0; flex: none; }
+.playroom .assist-form label.assist-check span { min-width: 0; overflow-wrap: anywhere; }
+.playroom .assist-options .assist-check { height: 100%; }
+.playroom .assist-note { margin: 7px 0 0; font-size: 10px; line-height: 1.35; }
+@media (max-width: 499px) {
+  .playroom .assist-dialog { width: min(390px, calc(100vw - 12px)); }
+  .playroom .assist-layout { grid-template-columns: 1fr; }
+  .playroom .assist-options .assist-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 380px), (max-height: 280px) {
+  .playroom .assist-dialog { max-height: calc(100dvh - 8px); overflow: auto; }
+  .playroom .assist-form { overflow: visible; padding: 8px; }
+  .playroom .assist-title span { display: none; }
+  .playroom .assist-card { padding: 7px; }
+  .playroom .assist-card-heading small { display: none; }
+}
+@media (max-height: 380px) {
+  .playroom .assist-dialog { max-height: calc(100dvh - 8px); }
+  .playroom .assist-form { gap: 5px; padding: 7px; }
+  .playroom .assist-status { min-height: 22px; padding: 3px 7px; }
+  .playroom .assist-card { padding: 6px; }
+  .playroom .assist-card-heading { margin-bottom: 4px; }
+  .playroom .assist-section select { min-height: 29px; height: 29px; }
+  .playroom .assist-section input[type="range"] { min-height: 24px; height: 24px; }
+  .playroom .assist-center-grid { gap: 5px; margin-top: 4px; }
+  .playroom .assist-axes-row { margin-top: 4px; }
+  .playroom .assist-form label.assist-check { min-height: 32px; }
+  .playroom .assist-note { margin-top: 4px; }
+}

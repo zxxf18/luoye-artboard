@@ -47,15 +47,24 @@ async function checkAssist(doc,width,height){
  assert(dialog?.open&&form,'辅助面板没有打开');
  const viewport=doc.defaultView,box=dialog.getBoundingClientRect(),margin=4;
  assert(box.left>=margin&&box.top>=margin&&box.right<=viewport.innerWidth-margin&&box.bottom<=viewport.innerHeight-margin,`辅助面板越出窗口 ${width}×${height}`);
- const blocks=[...form.children].filter(isVisible);
- for(const block of blocks){const r=block.getBoundingClientRect();assert(r.left>=box.left-1&&r.right<=box.right+1,'辅助面板内容横向溢出');}
- for(let i=0;i<blocks.length;i++)for(let j=i+1;j<blocks.length;j++){
-  const a=blocks[i].getBoundingClientRect(),b=blocks[j].getBoundingClientRect();
-  assert(a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1,`辅助面板内容重叠 ${width}×${height}`);
- }
+ const checkLayout=()=>{const blocks=[...form.children].filter(isVisible);for(const block of blocks){const r=block.getBoundingClientRect();assert(r.left>=box.left-1&&r.right<=box.right+1,'辅助面板内容横向溢出');}for(let i=0;i<blocks.length;i++)for(let j=i+1;j<blocks.length;j++){const a=blocks[i].getBoundingClientRect(),b=blocks[j].getBoundingClientRect();assert(a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1,`辅助面板内容重叠 ${width}×${height}`);}};
+ checkLayout();
  const fields=[...form.querySelectorAll('input,select,button')].filter(isVisible);
  for(const field of fields){const r=field.getBoundingClientRect();assert(r.width>0&&r.height>0,'辅助控件没有可用尺寸');assert(r.left>=box.left-1&&r.right<=box.right+1,'辅助控件超出面板');}
  assert(form.scrollHeight>=form.clientHeight,'辅助面板滚动容器尺寸异常');
+ // Short landscape windows keep the whole assist sheet in one view, including
+ // the larger radial mode. The smallest portrait fixtures retain the normal
+ // dialog fallback because 320×240 cannot fit every touch target at once.
+ const compact=width>=500&&height<=400;
+ if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`矮窗口辅助面板仍需滚动 ${width}×${height}`);
+ const enabled=doc.querySelector('#assist-enabled');if(!enabled.checked)enabled.click();await pause(20);assert(enabled.checked,'辅助开关无法操作');
+ const modeButton=doc.querySelector('#assist-mode-choose');assert(modeButton&&!modeButton.disabled,'辅助模式选择不可操作');modeButton.click();await pause(20);
+ const radial=doc.querySelector('#choice-dialog .choice-card[data-value="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
+ assert(dialog.dataset.assistMode==='radial','辅助模式没有切换到径向');assert(doc.querySelector('#assist-axes-value').textContent.includes('8'),'径向份数没有显示');
+ for(const [id,value] of [['assist-center-x','36'],['assist-center-y','64']]){const input=doc.querySelector('#'+id);input.value=value;input.dispatchEvent(new frame.contentWindow.Event('input',{bubbles:true}));}
+ for(const id of ['assist-grid','assist-stamp']){const input=doc.querySelector('#'+id);if(!input.checked)input.click();}
+ assert(doc.querySelector('#assist-center-x-value').textContent==='36%'&&doc.querySelector('#assist-center-y-value').textContent==='64%','辅助中心位置没有更新');assert(doc.querySelector('#assist-grid').checked&&doc.querySelector('#assist-stamp').checked,'辅助预览选项无法操作');checkLayout();
+ if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`径向辅助面板仍需滚动 ${width}×${height}`);
  form.querySelector('.assist-close')?.click();await pause(20);assert(!dialog.open,'辅助面板关闭失败');
 }
 for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080],[2560,1440]]){
