@@ -338,46 +338,40 @@
   --ink: #315443; --muted: #587965; --green: #5d9b70; --green-soft: #dcefd8;
   --theme-bg: #e7f3df; --theme-header: #f2faec; --theme-panel: #e7f4df; --theme-rail: #d6ead0;
   --theme-surface: #fbfff8; --theme-control: #f5fced; --theme-hover: #d8efd0; --theme-selected: #c8e7bc;
-  --theme-border: #a8cfad; --theme-accent: #4d9363; --theme-strong: #39734e; --theme-classic-colors: #c5e0bd;
-  --brand-logo-filter: saturate(.86) hue-rotate(10deg) brightness(1.03); --brand-logo-ring: #79b48a;
+  --theme-border: #a8cfad; --theme-accent: #4d9363; --theme-strong: #39734e; --theme-classic-colors: #c5e0bd; --brand-logo-ring: #79b48a;
 }
 .playroom[data-theme="summer"] {
   --ink: #214b61; --muted: #4d7281; --green: #2b8ea0; --green-soft: #d5f0ef;
   --theme-bg: #d9f1f5; --theme-header: #eefcff; --theme-panel: #e2f4f5; --theme-rail: #c1e5ec;
   --theme-surface: #f7ffff; --theme-control: #effbfc; --theme-hover: #d0eff2; --theme-selected: #b7e1e7;
-  --theme-border: #94c9d3; --theme-accent: #23849a; --theme-strong: #17647b; --theme-classic-colors: #abd9e1;
-  --brand-logo-filter: saturate(1.04) hue-rotate(4deg) brightness(1.02); --brand-logo-ring: #4ca9be;
+  --theme-border: #94c9d3; --theme-accent: #23849a; --theme-strong: #17647b; --theme-classic-colors: #abd9e1; --brand-logo-ring: #4ca9be;
 }
 .playroom[data-theme="autumn"] {
-  --theme-classic-colors: #f0cfa1; --brand-logo-filter: none; --brand-logo-ring: #c79460;
+  --theme-classic-colors: #f0cfa1; --brand-logo-ring: #c79460;
 }
 .playroom[data-theme="winter"] {
   --ink: #304b68; --muted: #607b98; --green: #5a8db4; --green-soft: #dbeaf5;
   --theme-bg: #dcecf6; --theme-header: #f3faff; --theme-panel: #e6f2fa; --theme-rail: #c9e0ee;
   --theme-surface: #f8fcff; --theme-control: #f2f9fe; --theme-hover: #d9edf8; --theme-selected: #c7e2f2;
-  --theme-border: #a9c9dc; --theme-accent: #4d83aa; --theme-strong: #345f82; --theme-classic-colors: #bdd7e8;
-  --brand-logo-filter: saturate(.78) hue-rotate(175deg) brightness(1.06); --brand-logo-ring: #7ba9cc;
+  --theme-border: #a9c9dc; --theme-accent: #4d83aa; --theme-strong: #345f82; --theme-classic-colors: #bdd7e8; --brand-logo-ring: #7ba9cc;
 }
 .playroom[data-theme="mechanical"] {
   --ink: #29333c; --muted: #64717a; --green: #628593; --green-soft: #d7e2e5;
   --theme-bg: #d4dce0; --theme-header: #eaf0f2; --theme-panel: #dce5e8; --theme-rail: #bccbd1;
   --theme-surface: #f3f7f8; --theme-control: #e7eef0; --theme-hover: #d0e0e4; --theme-selected: #bfd4da;
-  --theme-border: #9eafb7; --theme-accent: #557b87; --theme-strong: #3d5c67; --theme-classic-colors: #a9bac0;
-  --brand-logo-filter: grayscale(.22) saturate(.76) contrast(1.06); --brand-logo-ring: #718b95;
+  --theme-border: #9eafb7; --theme-accent: #557b87; --theme-strong: #3d5c67; --theme-classic-colors: #a9bac0; --brand-logo-ring: #718b95;
 }
 .playroom[data-theme="space"] {
   --ink: #e7edf9; --muted: #aab9d4; --green: #8e9fe0; --green-soft: #2d3964;
   --theme-bg: #111a3a; --theme-header: #1b2850; --theme-panel: #1b2a50; --theme-rail: #202f5d;
   --theme-surface: #202d55; --theme-control: #2b3a68; --theme-hover: #354878; --theme-selected: #465c91;
-  --theme-border: #6074a9; --theme-accent: #a4b5ff; --theme-strong: #c2ccff; --theme-classic-colors: #151f43;
-  --brand-logo-filter: saturate(1.08) hue-rotate(18deg) brightness(.92) contrast(1.08); --brand-logo-ring: #a4b5ff;
+  --theme-border: #6074a9; --theme-accent: #a4b5ff; --theme-strong: #c2ccff; --theme-classic-colors: #151f43; --brand-logo-ring: #a4b5ff;
 }
 .playroom[data-theme="ocean"] {
   --ink: #214f55; --muted: #527d80; --green: #3a9b91; --green-soft: #d3f0e8;
   --theme-bg: #c9e9e5; --theme-header: #e8faf7; --theme-panel: #d5efeb; --theme-rail: #a9d7d2;
   --theme-surface: #f3fffc; --theme-control: #e8faf6; --theme-hover: #c9ebe4; --theme-selected: #b5ded7;
-  --theme-border: #8fc3ba; --theme-accent: #2d8e86; --theme-strong: #1e665f; --theme-classic-colors: #9bcfc7;
-  --brand-logo-filter: saturate(.92) hue-rotate(12deg) brightness(1.02); --brand-logo-ring: #54a89f;
+  --theme-border: #8fc3ba; --theme-accent: #2d8e86; --theme-strong: #1e665f; --theme-classic-colors: #9bcfc7; --brand-logo-ring: #54a89f;
 }
 
 .playroom[data-theme] .theme-entry {
@@ -392,7 +386,7 @@
   border: 2px solid var(--brand-logo-ring, var(--theme-border));
   border-radius: 16px;
   box-shadow: 0 3px 0 var(--theme-shadow);
-  filter: var(--brand-logo-filter, none);
+  filter: none;
 }
 .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
   width: calc(32px * var(--u));
@@ -523,7 +517,7 @@
 #close-dialog .dialog-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 #close-dialog button{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;white-space:normal}
 #close-dialog .playful-icon{width:38px;height:38px}
-.playroom .about-dialog{width:min(420px,calc(100vw - 36px));text-align:center;padding:28px 28px 20px}.playroom .about-dialog h2{margin:8px 0 4px;font-size:30px}.playroom .about-mark{width:82px;height:82px;margin:0 auto 6px;display:grid;place-items:center;border:3px solid #d29a64;border-radius:28px;background:#ffe2a8;box-shadow:0 5px 0 #b9764d33;overflow:hidden}.playroom .about-mark img{width:100%;height:100%;object-fit:cover;filter:var(--brand-logo-filter,none)}.playroom .about-mark .about-theme-icon{display:block}.playroom .about-version{margin:0 0 8px;color:#936b4b}.playroom .about-links{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:2px;margin:0 0 12px}.playroom .about-links-sep{color:#c89a6d;font-weight:700;margin:0 8px;pointer-events:none}.playroom .about-links a{color:#8b4d31;font-weight:650;text-decoration:underline;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:32px;padding:0 6px;border-radius:8px;cursor:pointer;transition:color 160ms ease,background 160ms ease,transform 160ms ease}.playroom .about-links a:active{transform:scale(.97)}.playroom .about-links a:focus-visible{outline:3px solid #a55339;outline-offset:2px}.playroom .about-credit{margin:0;color:#9a6d52;font-size:13px;font-weight:600;letter-spacing:.05em;line-height:1.55}.playroom .about-dialog .dialog-actions{justify-content:center;margin-top:16px}
+.playroom .about-dialog{width:min(420px,calc(100vw - 36px));text-align:center;padding:28px 28px 20px}.playroom .about-dialog h2{margin:8px 0 4px;font-size:30px}.playroom .about-mark{width:82px;height:82px;margin:0 auto 6px;display:grid;place-items:center;border:3px solid #d29a64;border-radius:28px;background:#ffe2a8;box-shadow:0 5px 0 #b9764d33;overflow:hidden}.playroom .about-mark img{width:100%;height:100%;object-fit:cover;filter:none}.playroom .about-mark .about-theme-icon{display:block}.playroom .about-version{margin:0 0 8px;color:#936b4b}.playroom .about-links{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:2px;margin:0 0 12px}.playroom .about-links-sep{color:#c89a6d;font-weight:700;margin:0 8px;pointer-events:none}.playroom .about-links a{color:#8b4d31;font-weight:650;text-decoration:underline;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:32px;padding:0 6px;border-radius:8px;cursor:pointer;transition:color 160ms ease,background 160ms ease,transform 160ms ease}.playroom .about-links a:active{transform:scale(.97)}.playroom .about-links a:focus-visible{outline:3px solid #a55339;outline-offset:2px}.playroom .about-credit{margin:0;color:#9a6d52;font-size:13px;font-weight:600;letter-spacing:.05em;line-height:1.55}.playroom .about-dialog .dialog-actions{justify-content:center;margin-top:16px}
 
 /* Keep the canvas interaction model clear and prevent accidental page selection. */
 .playroom, .playroom * { user-select: none; -webkit-user-select: none; }
@@ -2096,4 +2090,57 @@
   .playroom .assist-axes-row { margin-top: 4px; }
   .playroom .assist-form label.assist-check { min-height: 32px; }
   .playroom .assist-note { margin-top: 4px; }
+}
+
+/* v1.10.5: keep the mascot legible without letting it dominate the chrome.
+   The source artwork remains a square image; only its presentation changes.
+   Compact sizes still show a small mark so the themed brand is available on
+   narrow windows, while the canvas keeps the rest of the space. */
+.playroom .brand {
+  min-width: clamp(112px, 12vw, 136px);
+}
+.playroom[data-theme] .brand > .brand-icon {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-width: 2px;
+  border-radius: 12px;
+  box-shadow: 0 2px 0 var(--theme-shadow);
+}
+.playroom .about-mark {
+  width: 68px;
+  height: 68px;
+  border-width: 2px;
+  border-radius: 20px;
+  box-shadow: 0 3px 0 var(--theme-shadow, #b9764d33);
+}
+.playroom .about-mark img {
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border-radius: 17px;
+}
+
+/* Each theme now points to its own illustrated mascot asset. Never tint the
+   generated art again: the clothes, brush, props and backdrop are already
+   authored for that theme. */
+.playroom[data-theme] .brand > .brand-icon,
+.playroom[data-theme] .about-mark img { filter: none; }
+
+@media (max-width: 980px) {
+  .playroom .brand { min-width: 92px; }
+  .playroom[data-theme] .brand > .brand-icon { width: 34px; height: 34px; border-radius: 10px; }
+}
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom .brand { min-width: 50px; }
+  .playroom .brand > .brand-icon,
+  .playroom[data-theme] .brand > .brand-icon { display: block; width: 28px; height: 28px; border-radius: 8px; border-width: 1px; }
+  .playroom .brand { gap: 4px; }
+  .playroom .about-mark { width: 60px; height: 60px; border-radius: 16px; }
+  .playroom .about-mark img { border-radius: 13px; }
+}
+@media (max-width: 380px) {
+  .playroom .brand { min-width: 42px; }
+  .playroom .brand > .brand-icon,
+  .playroom[data-theme] .brand > .brand-icon { width: 24px; height: 24px; }
+  .playroom .about-mark { width: 56px; height: 56px; }
 }

@@ -123,7 +123,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     const history = doc.querySelector('#foreground-history')?.innerHTML;
     const brandIcon = themedIcon(doc, '.brand .brand-icon-svg, .brand .brand-icon, .brand [data-brand-icon]');
     assert(brandIcon && visible(brandIcon), '左上缺少独立应用图标');
-    assert(brandIcon.tagName === 'IMG' && /branding\/app-icon(?:-windows)?\.png$/.test(brandIcon.getAttribute('src') || ''), '左上未使用卡通小孩 logo');
+    assert(brandIcon.tagName === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(brandIcon.getAttribute('src') || ''), '左上未使用卡通小孩主题 logo');
     assert(!brandIcon.closest('.theme-scene'), '主题动效不应替换左上应用图标');
     const brandSignature = iconSignature(brandIcon);
     const aboutVariants = [];
@@ -148,7 +148,9 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
       assert(!doc.querySelector('.theme-decoration'), '不应存在全屏主题装饰层');
       const currentBrandIcon = themedIcon(doc, '.brand .brand-icon-svg, .brand .brand-icon, .brand [data-brand-icon]');
       assert(currentBrandIcon && !currentBrandIcon.closest('.theme-scene'), `左上图标被主题动效替换：${id}`);
-      assert(JSON.stringify(iconSignature(currentBrandIcon)) === JSON.stringify(brandSignature), `主题切换改变左上图标结构：${id}`);
+      const currentBrandSignature = iconSignature(currentBrandIcon);
+      assert(currentBrandSignature.tag === brandSignature.tag && currentBrandSignature.width === brandSignature.width && currentBrandSignature.height === brandSignature.height, `主题切换改变左上图标尺寸：${id}`);
+      assert(/branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(currentBrandSignature.source), `主题没有切换 Logo 资源：${id}`);
       assert(inside(currentBrandIcon, doc.querySelector('.app-header')), `主题图标超出顶部栏边界：${id}`);
       const residuals = themedControlResiduals(doc);
       assert(!residuals.length, `主题 ${id} 仍有未换肤的暖黄色控件：${residuals.slice(0, 4).map(node => node.id || node.className).join(', ')}`);
@@ -169,7 +171,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     }
     assert(new Set(aboutVariants).size >= 2, '关于图标没有随主题更换视觉配色');
     for (const signature of aboutSignatures) {
-      assert(signature && signature.tag === 'IMG' && /branding\/app-icon(?:-windows)?\.png$/.test(signature.source), '关于主题图标不是卡通小孩资源');
+      assert(signature && signature.tag === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(signature.source), '关于主题图标不是卡通小孩主题资源');
       assert(signature.width > 0 && signature.height > 0, '关于主题图标没有可见尺寸');
     }
     doc.querySelector('#theme-done').click();

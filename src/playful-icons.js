@@ -62,14 +62,14 @@ art['shrink']='<circle cx="27" cy="29" r="17" fill="#b8d7ae"/><circle cx="22" cy
 const faces={eraser:[34,37],fill:[28,39],stamp:[32,43],tube:[33,34],spray:[32,40],text:[33,38],paper:[30,43],folder:[31,42]};
 export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playful-icon" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="#705142" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${art[name]||art.palette}${faces[name]?`<g transform="translate(${faces[name][0]} ${faces[name][1]})"><ellipse cx="-5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><ellipse cx="5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><path d="M-4 5q4 5 8 0" stroke-width="1.5" fill="none"/><circle cx="-9" cy="4" r="2.5" fill="#e7978e" stroke="none"/><circle cx="9" cy="4" r="2.5" fill="#e7978e" stroke="none"/></g>`:''}</g></svg>`;}
 
-// The product mark is the illustrated child holding a brush. Keep one source
-// image for all themes so the logo remains recognizable and browser caching
-// keeps theme switching cheap; theme-specific framing and a restrained filter
-// are applied by playroom.css.
+// The product mark is the illustrated child holding a brush. Each theme has a
+// small cached 256px variant so the outfit, props, brush and backdrop can
+// change without applying destructive filters to the character.
 export function brandIcon(theme = 'autumn', { slot = 'brand', src } = {}) {
   const platform = typeof globalThis !== 'undefined' && globalThis.LUOYE_PLATFORM === 'windows' ? 'windows' : 'mac';
-  const source = src || (platform === 'windows' ? 'branding/app-icon-windows.png' : 'branding/app-icon.png');
+  const themeId = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean'].includes(theme) ? theme : 'autumn';
+  const source = src || `branding/themes/app-icon-${themeId}${platform === 'windows' ? '-windows' : ''}.png`;
   const slotClass = slot === 'about' ? ' about-theme-icon' : '';
   const alt = slot === 'about' ? '落叶画板主题图标' : '落叶画板应用图标';
-  return `<img src="${source}" class="playful-icon brand-icon brand-logo brand-logo-${theme}${slotClass}" data-theme-logo="${theme}" alt="${alt}" aria-hidden="true" draggable="false">`;
+  return `<img src="${source}" class="playful-icon brand-icon brand-logo brand-logo-${themeId}${slotClass}" data-theme-logo="${themeId}" alt="${alt}" aria-hidden="true" draggable="false">`;
 }

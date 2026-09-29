@@ -78,14 +78,14 @@ test('brand and about use the illustrated child logo with dedicated theme slots'
   assert.match(classic, /about-mark/);
   assert.match(classic, /brandIcon\(/);
   assert.match(classic, /themechange/);
-  assert.match(classic, /app-icon-windows\.png/);
   assert.match(theme, /brand-icon(?:-svg)?|about-theme-icon/);
   assert.match(theme, /themechange/);
   assert.match(icons, /theme:/);
   assert.match(icons, /export function brandIcon/);
-  assert.match(icons, /branding\/app-icon(?:-windows)?\.png/);
-  assert.match(styles, /--brand-logo-filter/);
-  assert.match(styles, /\.about-mark img[^{]*\{[^}]*filter:var\(--brand-logo-filter/);
+  assert.match(icons, /branding\/themes\/app-icon-\$\{themeId\}/);
+  assert.match(icons, /-windows/);
+  assert.match(icons, /\.png/);
+  assert.match(styles, /\.about-mark img[^{]*\{[^}]*filter:none/);
   // The true color controls carry explicit classes so global theme selectors
   // cannot overwrite their inline values.
   assert.match(palette, /color-value-control/);
