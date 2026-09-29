@@ -148,7 +148,14 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
       assert(!doc.querySelector('.theme-decoration'), '不应存在全屏主题装饰层');
       const currentBrandIcon = themedIcon(doc, '.brand .brand-icon-svg, .brand .brand-icon, .brand [data-brand-icon]');
       assert(currentBrandIcon && !currentBrandIcon.closest('.theme-scene'), `左上图标被主题动效替换：${id}`);
+      const brandStyle = getComputedStyle(currentBrandIcon);
+      assert(['Top', 'Right', 'Bottom', 'Left'].every(side => parseFloat(brandStyle[`border${side}Width`]) === 0), `左上 Logo 仍有边框：${id}`);
+      assert(brandStyle.boxShadow === 'none', `左上 Logo 仍有边框阴影：${id}`);
       const currentBrandSignature = iconSignature(currentBrandIcon);
+      const minimumLogoSize = width <= 380 ? 26 : width <= 640 || height <= 500 ? 30 : width <= 980 ? 36 : 44;
+      assert(currentBrandSignature.width >= minimumLogoSize && currentBrandSignature.height >= minimumLogoSize, `左上 Logo 尺寸过小：${id}`);
+      assert(currentBrandIcon.complete && currentBrandIcon.naturalWidth >= currentBrandSignature.width * 2, `主题 Logo 未加载或清晰度不足：${id}`);
+      assert(!overlaps(currentBrandIcon, doc.querySelector('.brand > span')), `左上 Logo 与品牌文案重叠：${id}`);
       assert(currentBrandSignature.tag === brandSignature.tag && currentBrandSignature.width === brandSignature.width && currentBrandSignature.height === brandSignature.height, `主题切换改变左上图标尺寸：${id}`);
       assert(/branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(currentBrandSignature.source), `主题没有切换 Logo 资源：${id}`);
       assert(inside(currentBrandIcon, doc.querySelector('.app-header')), `主题图标超出顶部栏边界：${id}`);
