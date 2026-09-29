@@ -8,12 +8,44 @@ export function makeCanvas(width, height, readback = true) {
   return canvas;
 }
 
+const IMAGE_CACHE_MAX_PIXELS = 8_388_608;
+const IMAGE_CACHE_MAX_ENTRIES = 48;
+const imageCache = new Map();
+const imageLoads = new Map();
+let imageCachePixels = 0;
+function imageCacheKey(src) {
+  return typeof src === 'string' && /^(?:assets|classic)\//.test(src) ? src : null;
+}
+function rememberImage(key, image) {
+  const width = Number(image.naturalWidth || image.width) || 0;
+  const height = Number(image.naturalHeight || image.height) || 0;
+  const pixels = width * height;
+  if (!pixels || pixels > IMAGE_CACHE_MAX_PIXELS) return;
+  const previous = imageCache.get(key);
+  if (previous) imageCachePixels -= previous.pixels;
+  imageCache.delete(key); imageCache.set(key, { image, pixels }); imageCachePixels += pixels;
+  while ((imageCache.size > IMAGE_CACHE_MAX_ENTRIES || imageCachePixels > IMAGE_CACHE_MAX_PIXELS) && imageCache.size) {
+    const oldestKey = imageCache.keys().next().value;
+    const oldest = imageCache.get(oldestKey);
+    imageCache.delete(oldestKey); imageCachePixels -= oldest.pixels;
+  }
+}
+export function clearImageCache() { imageCache.clear(); imageCachePixels = 0; }
+
 export async function loadImage(src) {
+  const key = imageCacheKey(src);
+  const cached = key && imageCache.get(key);
+  if (cached) { imageCache.delete(key); imageCache.set(key, cached); return cached.image; }
+  const pending = imageLoads.get(src);
+  if (pending) return pending;
   const source=await bundledImageSource(src);
-  return new Promise((resolve, reject) => {
+  const task = new Promise((resolve, reject) => {
     const image = new Image(); image.onload = () => resolve(image);
     image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.LUOYE_IMAGE_DATA?.[src] || source;
   });
+  imageLoads.set(src, task);
+  try { const image = await task; if (key) rememberImage(key, image); return image; }
+  finally { if (imageLoads.get(src) === task) imageLoads.delete(src); }
 }
 
 function canvasPNG(canvas){
