@@ -1,4 +1,4 @@
-import { playfulIcon } from './playful-icons.js';
+import { brandIcon, playfulIcon } from './playful-icons.js';
 import { themeScene } from './theme-scenes.js';
 
 export const THEME_STORAGE_KEY = 'luoye-theme';
@@ -30,7 +30,13 @@ export function readTheme() {
 
 export function applyTheme(value = DEFAULT_THEME, { persist = false } = {}) {
   const theme = normalizeTheme(value);
+  document.body.dataset.themeChanging = 'true';
   document.body.dataset.theme = theme;
+  const clearTransition = () => {
+    if (document.body.dataset.theme === theme) delete document.body.dataset.themeChanging;
+  };
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => requestAnimationFrame(clearTransition));
+  else setTimeout(clearTransition, 0);
   if (persist) {
     try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch { /* storage is optional */ }
   }
@@ -67,8 +73,8 @@ export function mountTheme() {
   entry.id = 'theme-open';
   entry.type = 'button';
   entry.className = 'header-command theme-entry';
-  entry.setAttribute('aria-label', '换肤');
-  entry.innerHTML = `${playfulIcon('theme')}<span>换肤</span>`;
+  entry.setAttribute('aria-label', '主题');
+  entry.innerHTML = `${playfulIcon('theme')}<span>主题</span>`;
 
   const header = document.querySelector('.header-actions');
   if (header) {
@@ -80,15 +86,20 @@ export function mountTheme() {
   const summary = dialog.querySelector('#theme-summary');
   let selected = applyStoredTheme();
 
-  function renderScene(theme) {
+  function renderBrandIcon(theme) {
     const brand = document.querySelector('.brand');
     if (!brand) return;
-    const current = brand.querySelector('.theme-scene, .playful-icon');
+    const icon = brandIcon(theme);
+    const currentIcon = brand.querySelector('.brand-icon, .playful-icon:not(.theme-scene)');
+    if (currentIcon) currentIcon.outerHTML = icon;
+    else brand.insertAdjacentHTML('afterbegin', icon);
+    const currentScene = brand.querySelector('.theme-scene');
     const scene = themeScene(theme, { animated: true });
-    if (current) current.outerHTML = scene;
-    else brand.insertAdjacentHTML('afterbegin', scene);
+    if (currentScene) currentScene.outerHTML = scene;
+    else brand.insertAdjacentHTML('beforeend', scene);
+    brand.dataset.themeIcon = theme;
   }
-  renderScene(selected);
+  renderBrandIcon(selected);
 
   function sync() {
     const current = THEMES.find(theme => theme.id === selected) || THEMES[2];
@@ -107,7 +118,7 @@ export function mountTheme() {
     card.innerHTML = `<span class="theme-card-preview" aria-hidden="true"><i></i><b></b></span><span class="theme-card-copy"><strong>${theme.label}</strong><small>${theme.caption}</small></span>${themeIcon(theme)}`;
     card.addEventListener('click', () => {
       selected = applyTheme(theme.id, { persist: true });
-      renderScene(selected);
+      renderBrandIcon(selected);
       document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: selected } }));
       sync();
     });
@@ -123,7 +134,7 @@ export function mountTheme() {
     getTheme: () => selected,
     reset() {
       selected = applyTheme(DEFAULT_THEME);
-      renderScene(selected);
+      renderBrandIcon(selected);
       try { localStorage.removeItem(THEME_STORAGE_KEY); } catch { /* storage is optional */ }
       document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: selected } }));
       sync();

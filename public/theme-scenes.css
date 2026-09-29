@@ -18,6 +18,18 @@
   overflow: hidden;
   pointer-events: none;
 }
+.playroom .brand { position: relative; }
+.playroom .brand > .brand-icon,
+.playroom .brand > span:not(.theme-scene) { position: relative; z-index: 1; }
+.playroom .brand > .theme-scene {
+  position: absolute;
+  z-index: 0;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .2;
+  mix-blend-mode: multiply;
+}
 .theme-scene [data-motion] { transform-box: fill-box; }
 
 .theme-scene svg[data-theme-motion="on"] [data-motion="breeze"] {
@@ -76,6 +88,7 @@
 
 @media (max-width: 860px), (max-height: 600px) {
   .theme-scene { width: 48px; height: 38px; border-radius: 10px; }
+  .playroom .brand > .theme-scene { display: none; }
 }
 @media (max-width: 380px) {
   .theme-scene { width: 32px; height: 28px; border-radius: 8px; }

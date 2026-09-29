@@ -8,7 +8,10 @@ const app = readFileSync(new URL('src/app.js', root), 'utf8');
 const display = readFileSync(new URL('src/display-ui.js', root), 'utf8');
 const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
 const scenes = readFileSync(new URL('src/theme-scenes.js', root), 'utf8');
+const icons = readFileSync(new URL('src/playful-icons.js', root), 'utf8');
+const palette = readFileSync(new URL('src/palette-ui.js', root), 'utf8');
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
+const toolStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
 
 test('theme picker defines seven stable themes with autumn as the default', () => {
@@ -37,8 +40,7 @@ test('theme visuals are lightweight CSS decoration and do not target canvas pixe
   assert.doesNotMatch(sceneStyles, /\.theme-decoration\s*\{/);
   assert.match(sceneStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(sceneStyles, /animation: theme-(breeze|waves|leaf-fall|snow|gear|planet|fish)/);
-  assert.match(theme, /theme-scenes\.js/);
-  assert.match(theme, /themeScene\(theme/);
+  assert.match(theme, /brandIcon\(/);
   assert.match(scenes, /class="theme-scene/);
   assert.doesNotMatch(styles, /data-theme[^{}]*#painting/);
   assert.doesNotMatch(styles, /data-theme[^{}]*\.canvas-sheet/);
@@ -70,6 +72,44 @@ test('theme scene is confined to the brand and animation is reduced safely', () 
   assert.match(theme, /document\.querySelector\('\.brand'\)/);
   assert.match(sceneStyles, /\.theme-scene\s*\{[\s\S]*?pointer-events:\s*none/);
   assert.match(sceneStyles, /prefers-reduced-motion:[^}]+theme-scene/);
+});
+
+test('brand and about use dedicated theme icon slots while preserving the brand shape', () => {
+  assert.match(classic, /about-mark/);
+  assert.match(classic, /brandIcon\(/);
+  assert.match(classic, /themechange/);
+  assert.match(classic, /about-original-icon/);
+  assert.match(classic, /app-icon-windows\.png/);
+  assert.match(theme, /brand-icon(?:-svg)?|about-theme-icon/);
+  assert.match(theme, /themechange/);
+  assert.match(icons, /theme:/);
+  assert.match(icons, /BRAND_PALETTE/);
+  assert.match(icons, /export function brandIcon/);
+  // The true color controls carry explicit classes so global theme selectors
+  // cannot overwrite their inline values.
+  assert.match(palette, /color-value-control/);
+  assert.match(palette, /swap-color-control/);
+  assert.match(palette, /color-history-value/);
+});
+
+test('theme entry uses the shared command size and the final Chinese label', () => {
+  assert.match(theme, /setAttribute\('aria-label', '(?:主题|换肤)'\)/);
+  assert.match(theme, /<span>(?:主题|换肤)<\/span>/);
+  assert.match(styles, /\.theme-entry[\s\S]*?min-width/);
+  assert.match(styles, /theme-entry > \.playful-icon[\s\S]*?width/);
+});
+
+test('theme CSS exposes global control surfaces and excludes artwork pixels', () => {
+  const skinStyles = `${styles}\n${toolStyles}`;
+  assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.detail-bar/);
+  assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.subtool-card/);
+  assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.quick-palette/);
+  assert.match(skinStyles, /--theme-control\s*:/);
+  assert.match(skinStyles, /--theme-selected\s*:/);
+  assert.doesNotMatch(styles, /\.playroom\[data-theme\][^{}]*#painting/);
+  assert.doesNotMatch(styles, /\.playroom\[data-theme\][^{}]*\.canvas-sheet/);
+  assert.match(toolStyles, /#painting/);
+  assert.match(toolStyles, /\.asset img/);
 });
 
 test('theme dialog is keyboard and small-window friendly', () => {

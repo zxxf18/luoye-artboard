@@ -103,3 +103,263 @@
 .playroom #selection-actions { grid-column: 1 / -1; order: 2; }
 .playroom :is(#selection-combination, #selection-actions) button { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; font-size: 14px; white-space: nowrap; }
 .playroom #selection-combination button[aria-pressed=true] { background: #ffdf9e; border-color: #a4633c; box-shadow: inset 0 0 0 1px #a4633c; font-weight: 700; }
+
+/* Theme surfaces for the complete tool shelf.  This file is loaded after
+   playroom.css, so these rules are the final chrome layer and cover the
+   older compact-shelf declarations above.  Canvas pixels, brush samples,
+   asset artwork and actual color swatches are deliberately excluded. */
+.playroom[data-theme] {
+  --theme-classic-control: #fff1d4;
+  --theme-backdrop: #65493466;
+}
+.playroom[data-theme="spring"] {
+  --theme-classic-control: #f1faeb;
+  --theme-backdrop: #47755455;
+}
+.playroom[data-theme="summer"] {
+  --theme-classic-control: #eefbfc;
+  --theme-backdrop: #245f7055;
+}
+.playroom[data-theme="autumn"] {
+  --theme-classic-control: #fff1d4;
+  --theme-backdrop: #65493466;
+}
+.playroom[data-theme="winter"] {
+  --theme-classic-control: #eff8fd;
+  --theme-backdrop: #37587855;
+}
+.playroom[data-theme="mechanical"] {
+  --theme-classic-control: #edf3f4;
+  --theme-backdrop: #26373f55;
+}
+.playroom[data-theme="space"] {
+  --theme-classic-control: #2f3d6d;
+  --theme-backdrop: #00061c99;
+}
+.playroom[data-theme="ocean"] {
+  --theme-classic-control: #ebfaf6;
+  --theme-backdrop: #124c4b55;
+}
+
+/* Repaint all interface-only shelves and cards. */
+.playroom[data-theme] .classic-left,
+.playroom[data-theme] .tool-rail,
+.playroom[data-theme] .tool-dock,
+.playroom[data-theme] .classic-parameters,
+.playroom[data-theme] .right-panel,
+.playroom[data-theme] .quick-palette {
+  background: var(--theme-panel) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink);
+}
+.playroom[data-theme] .classic-colors {
+  background: var(--theme-classic-colors) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink);
+}
+.playroom[data-theme] .parameter-slider,
+.playroom[data-theme] #brush-options,
+.playroom[data-theme] .primary-brush-options label,
+.playroom[data-theme] #selection-combination,
+.playroom[data-theme] #selection-actions,
+.playroom[data-theme] .detail-bar > label,
+.playroom[data-theme] .creative-options > label {
+  background: var(--theme-classic-control) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink);
+}
+.playroom[data-theme] .brush-card,
+.playroom[data-theme] .subtool-card,
+.playroom[data-theme] .tool-page,
+.playroom[data-theme] .tool-button,
+.playroom[data-theme] .choice-card,
+.playroom[data-theme] .text-style,
+.playroom[data-theme] .layer-row,
+.playroom[data-theme] .asset,
+.playroom[data-theme] .library-tip,
+.playroom[data-theme] .layer-guide {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink);
+}
+.playroom[data-theme] .brush-card[aria-pressed="true"],
+.playroom[data-theme] .asset[aria-pressed="true"],
+.playroom[data-theme] .text-style:has(input:checked),
+.playroom[data-theme] .layer-row.active,
+.playroom[data-theme] #selection-combination button[aria-pressed="true"] {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-accent) !important;
+  color: var(--ink);
+}
+
+/* Buttons in parameter panes, color actions and choice sheets.  Excluding
+   swatches keeps the user-selected colors and gallery thumbnails truthful. */
+.playroom[data-theme] .parameter-slider button,
+.playroom[data-theme] #brush-options button,
+.playroom[data-theme] .primary-brush-options button,
+.playroom[data-theme] #stroke-buttons button,
+.playroom[data-theme] #selection-combination button,
+.playroom[data-theme] #selection-actions button,
+.playroom[data-theme] .choice-button,
+.playroom[data-theme] .number-stepper button,
+.playroom[data-theme] #palette-open,
+.playroom[data-theme] .more-colors,
+.playroom[data-theme] .categories button,
+.playroom[data-theme] .display-options button,
+.playroom[data-theme] .music-transport button,
+.playroom[data-theme] .mobile-command {
+  background: var(--theme-control) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink) !important;
+}
+.playroom[data-theme] .parameter-slider button:hover:not(:disabled),
+.playroom[data-theme] #brush-options button:hover:not(:disabled),
+.playroom[data-theme] .primary-brush-options button:hover:not(:disabled),
+.playroom[data-theme] #stroke-buttons button:hover:not(:disabled),
+.playroom[data-theme] #selection-combination button:hover:not(:disabled),
+.playroom[data-theme] #selection-actions button:hover:not(:disabled),
+.playroom[data-theme] .choice-button:hover:not(:disabled),
+.playroom[data-theme] .number-stepper button:hover:not(:disabled),
+.playroom[data-theme] #palette-open:hover:not(:disabled),
+.playroom[data-theme] .more-colors:hover:not(:disabled),
+.playroom[data-theme] .categories button:hover:not(:disabled),
+.playroom[data-theme] .display-options button:hover:not(:disabled),
+.playroom[data-theme] .music-transport button:hover:not(:disabled),
+.playroom[data-theme] .mobile-command:hover:not(:disabled) {
+  background: var(--theme-hover) !important;
+  border-color: var(--theme-accent) !important;
+}
+.playroom[data-theme] .mobile-command[aria-pressed="true"],
+.playroom[data-theme] .categories button[aria-pressed="true"] {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-accent) !important;
+}
+
+/* Preserve the inline color of these controls while still adapting their
+   frame to the selected skin. */
+.playroom[data-theme] .color-value-control,
+.playroom[data-theme] .swap-color-control,
+.playroom[data-theme] .color-history-value {
+  border-color: var(--theme-border) !important;
+}
+.playroom[data-theme] .color-value-control {
+  box-shadow: inset 0 0 0 3px var(--theme-surface), 0 3px 0 var(--theme-shadow) !important;
+}
+.playroom[data-theme] .swap-color-control {
+  background: var(--theme-classic-control) !important;
+  color: var(--theme-strong) !important;
+}
+.playroom[data-theme] .color-history-value { background-clip: padding-box; }
+.playroom[data-theme] .swatch,
+.playroom[data-theme] .preset-color,
+.playroom[data-theme] .preset-color i,
+.playroom[data-theme] .custom-color,
+.playroom[data-theme] .brush-sample,
+.playroom[data-theme] .choice-picture,
+.playroom[data-theme] .choice-picture canvas,
+.playroom[data-theme] .asset img,
+.playroom[data-theme] .asset canvas,
+.playroom[data-theme] .layer-thumb,
+.playroom[data-theme] #painting,
+.playroom[data-theme] .canvas-sheet {
+  filter: none !important;
+}
+
+/* Sliders use theme tracks/thumbs; the canvas and image previews have no
+   filter or color overlay. */
+.playroom[data-theme] input[type="range"]::-webkit-slider-runnable-track,
+.playroom[data-theme] input[type="range"]::-moz-range-track {
+  background: var(--theme-border) !important;
+  border-color: var(--theme-border) !important;
+}
+.playroom[data-theme] input[type="range"]::-webkit-slider-thumb,
+.playroom[data-theme] input[type="range"]::-moz-range-thumb {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-accent) !important;
+  box-shadow: inset 0 0 0 3px var(--theme-surface), 0 2px 1px var(--theme-shadow) !important;
+}
+.playroom[data-theme] input[type="checkbox"] {
+  background: var(--theme-control) !important;
+  border-color: var(--theme-border) !important;
+}
+.playroom[data-theme] input[type="checkbox"]:checked {
+  background: var(--theme-accent) !important;
+  border-color: var(--theme-strong) !important;
+}
+
+/* All dialogs and their nested cards follow the same surface hierarchy. */
+.playroom[data-theme] dialog,
+.playroom[data-theme] .assist-dialog,
+.playroom[data-theme] .theme-dialog,
+.playroom[data-theme] .about-dialog,
+.playroom[data-theme] .choice-dialog,
+.playroom[data-theme] .classic-palette-dialog {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink) !important;
+}
+.playroom[data-theme] dialog::backdrop { background: var(--theme-backdrop) !important; }
+.playroom[data-theme] .dialog-actions { background: var(--theme-surface) !important; }
+.playroom[data-theme] dialog h2,
+.playroom[data-theme] dialog h3,
+.playroom[data-theme] .assist-header strong,
+.playroom[data-theme] .assist-card-heading strong,
+.playroom[data-theme] .about-dialog h2,
+.playroom[data-theme] .tool-coach,
+.playroom[data-theme] .choice-arrow {
+  color: var(--theme-strong) !important;
+}
+.playroom[data-theme] dialog p,
+.playroom[data-theme] dialog label,
+.playroom[data-theme] .assist-header span,
+.playroom[data-theme] .assist-card-heading small,
+.playroom[data-theme] .assist-note,
+.playroom[data-theme] .about-version,
+.playroom[data-theme] .about-credit,
+.playroom[data-theme] .panel-description,
+.playroom[data-theme] .canvas-welcome,
+.playroom[data-theme] .canvas-footer,
+.playroom[data-theme] .brush-inspector span,
+.playroom[data-theme] .parameter-slider > output,
+.playroom[data-theme] .primary-brush-options label > output,
+.playroom[data-theme] .asset span,
+.playroom[data-theme] .tool-page small {
+  color: var(--muted) !important;
+}
+.playroom[data-theme] dialog input:not([type="checkbox"]):not([type="range"]):not([type="file"]):not([type="color"]),
+.playroom[data-theme] dialog textarea,
+.playroom[data-theme] dialog select,
+.playroom[data-theme] .assist-section select {
+  background: var(--theme-control) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink) !important;
+}
+.playroom[data-theme] .assist-card,
+.playroom[data-theme] .assist-switch,
+.playroom[data-theme] .assist-form label.assist-check,
+.playroom[data-theme] .assist-status {
+  background: var(--theme-classic-control) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink) !important;
+}
+.playroom[data-theme] .assist-switch-track { background: var(--theme-border) !important; }
+.playroom[data-theme] .assist-switch input:checked + .assist-switch-track { background: var(--theme-accent) !important; }
+.playroom[data-theme] .assist-close { background: var(--theme-control) !important; border-color: var(--theme-border) !important; color: var(--ink) !important; }
+
+/* Header and workspace tabs are commands too; keep them in the selected skin
+   instead of inheriting the autumn defaults from the compact layout rules. */
+.playroom[data-theme] .header-actions #new-quick,
+.playroom[data-theme] .workspace-tabs button {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--ink) !important;
+}
+
+/* The about mark keeps the original app icon artwork but gets a skin-aware
+   frame, so every theme can carry a matching version without changing the
+   recognizable mark itself. */
+.playroom[data-theme] .about-mark {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-border) !important;
+  box-shadow: 0 5px 0 var(--theme-shadow) !important;
+}
