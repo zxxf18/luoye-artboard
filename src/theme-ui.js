@@ -1,4 +1,5 @@
 import { playfulIcon } from './playful-icons.js';
+import { themeScene } from './theme-scenes.js';
 
 export const THEME_STORAGE_KEY = 'luoye-theme';
 export const DEFAULT_THEME = 'autumn';
@@ -47,12 +48,6 @@ function themeIcon(theme) {
 export function mountTheme() {
   applyStoredTheme();
 
-  const decoration = document.createElement('div');
-  decoration.className = 'theme-decoration';
-  decoration.setAttribute('aria-hidden', 'true');
-  decoration.innerHTML = '<span class="theme-decoration-a"></span><span class="theme-decoration-b"></span><span class="theme-decoration-c"></span>';
-  document.body.append(decoration);
-
   const dialog = document.createElement('dialog');
   dialog.id = 'theme-dialog';
   dialog.className = 'theme-dialog';
@@ -71,17 +66,29 @@ export function mountTheme() {
   const entry = document.createElement('button');
   entry.id = 'theme-open';
   entry.type = 'button';
-  entry.className = 'theme-entry';
+  entry.className = 'header-command theme-entry';
   entry.setAttribute('aria-label', '换肤');
-  entry.innerHTML = `${playfulIcon('palette')}<span>换肤</span>`;
+  entry.innerHTML = `${playfulIcon('theme')}<span>换肤</span>`;
 
-  const actions = document.querySelector('#more-dialog .more-actions');
-  if (actions) actions.append(entry);
-  else document.querySelector('.header-actions')?.append(entry);
+  const header = document.querySelector('.header-actions');
+  if (header) {
+    const gallery = header.querySelector('#gallery');
+    header.insertBefore(entry, gallery || header.firstElementChild || null);
+  }
 
   const grid = dialog.querySelector('.theme-grid');
   const summary = dialog.querySelector('#theme-summary');
   let selected = applyStoredTheme();
+
+  function renderScene(theme) {
+    const brand = document.querySelector('.brand');
+    if (!brand) return;
+    const current = brand.querySelector('.theme-scene, .playful-icon');
+    const scene = themeScene(theme, { animated: true });
+    if (current) current.outerHTML = scene;
+    else brand.insertAdjacentHTML('afterbegin', scene);
+  }
+  renderScene(selected);
 
   function sync() {
     const current = THEMES.find(theme => theme.id === selected) || THEMES[2];
@@ -100,6 +107,7 @@ export function mountTheme() {
     card.innerHTML = `<span class="theme-card-preview" aria-hidden="true"><i></i><b></b></span><span class="theme-card-copy"><strong>${theme.label}</strong><small>${theme.caption}</small></span>${themeIcon(theme)}`;
     card.addEventListener('click', () => {
       selected = applyTheme(theme.id, { persist: true });
+      renderScene(selected);
       document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: selected } }));
       sync();
     });
@@ -115,6 +123,7 @@ export function mountTheme() {
     getTheme: () => selected,
     reset() {
       selected = applyTheme(DEFAULT_THEME);
+      renderScene(selected);
       try { localStorage.removeItem(THEME_STORAGE_KEY); } catch { /* storage is optional */ }
       document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: selected } }));
       sync();

@@ -1,0 +1,85 @@
+/* Decorative theme scenes are clipped to their own small brand-sized viewport. */
+.theme-scene {
+  display: inline-grid;
+  width: 56px;
+  height: 50px;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  pointer-events: none;
+  contain: layout paint;
+  color: currentColor;
+}
+.theme-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.theme-scene [data-motion] { transform-box: fill-box; }
+
+.theme-scene svg[data-theme-motion="on"] [data-motion="breeze"] {
+  transform-origin: 14px 24px;
+  animation: theme-breeze 3.6s ease-in-out infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="waves"] {
+  animation: theme-waves 4.2s ease-in-out infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="leaf-fall"] {
+  transform-origin: 32px 28px;
+  animation: theme-leaf-fall 5.5s ease-in-out infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="snow-crystal"] {
+  animation: theme-snow 7s ease-in-out infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="gear-left"] {
+  transform-origin: 21px 29px;
+  animation: theme-gear-left 12s linear infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="gear-right"] {
+  transform-origin: 43px 29px;
+  animation: theme-gear-right 8s linear infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="planet"] {
+  transform-origin: 31px 29px;
+  animation: theme-planet 24s linear infinite;
+}
+.theme-scene svg[data-theme-motion="on"] [data-motion="fish"] {
+  animation: theme-fish 6s ease-in-out infinite;
+}
+
+@keyframes theme-breeze {
+  0%, 100% { transform: rotate(-2deg) translateX(0); opacity: .86; }
+  50% { transform: rotate(3deg) translateX(2px); opacity: 1; }
+}
+@keyframes theme-waves {
+  0%, 100% { transform: translateX(-1px); opacity: .82; }
+  50% { transform: translateX(2px); opacity: 1; }
+}
+@keyframes theme-leaf-fall {
+  0%, 100% { transform: rotate(-4deg) translateY(-1px); opacity: .9; }
+  50% { transform: rotate(5deg) translateY(1px); opacity: 1; }
+}
+@keyframes theme-snow {
+  0%, 100% { transform: rotate(0deg); opacity: .88; }
+  50% { transform: rotate(8deg); opacity: 1; }
+}
+@keyframes theme-gear-left { to { transform: rotate(360deg); } }
+@keyframes theme-gear-right { to { transform: rotate(-360deg); } }
+@keyframes theme-planet { to { transform: rotate(360deg); } }
+@keyframes theme-fish {
+  0%, 100% { transform: translateX(-1px); opacity: .88; }
+  50% { transform: translateX(2px); opacity: 1; }
+}
+
+@media (max-width: 860px), (max-height: 600px) {
+  .theme-scene { width: 48px; height: 38px; border-radius: 10px; }
+}
+@media (max-width: 380px) {
+  .theme-scene { width: 32px; height: 28px; border-radius: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-scene [data-motion] { animation: none !important; }
+}

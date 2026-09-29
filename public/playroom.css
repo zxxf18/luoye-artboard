@@ -172,9 +172,9 @@
 .playroom .tool-dock .asset img{min-height:16px}
 .playroom .tool-dock .asset span{flex-shrink:0;font-size:12px;line-height:15px}
 
-/* Theme skins stay in the interface chrome. Canvas pixels, paper sizing and
-   asset artwork deliberately keep their existing styles. Each theme uses
-   gradients and three tiny decorative nodes instead of loading image assets. */
+/* Theme skins stay in the interface chrome. The paper, canvas pixels, and
+   asset artwork keep their existing rendering. Motion is confined to the
+   clipped scene in the brand; this block only changes static surfaces. */
 .playroom[data-theme] {
   --theme-bg: #f5dfb9;
   --theme-header: #fff3da;
@@ -187,155 +187,294 @@
   --theme-border: #e8c69c;
   --theme-accent: #b9593e;
   --theme-strong: #8b4d31;
+  --theme-classic-colors: #f0cfa1;
   --theme-shadow: #89583c33;
+  --ink: #5a4030;
+  --muted: #80664f;
+  color: var(--ink);
   background-color: var(--theme-bg);
-  background-image: radial-gradient(var(--theme-dot, #fff2d8) 1.5px, transparent 1.5px);
+  background-image: radial-gradient(#fff2d866 1px, transparent 1px);
   background-size: 20px 20px;
 }
-.playroom[data-theme] .app-header { background: var(--theme-header); border-bottom-color: var(--theme-border); }
-.playroom[data-theme] .classic-left { background: var(--theme-panel); border-color: var(--theme-border); }
-.playroom[data-theme] .tool-rail { background: var(--theme-rail); border-color: var(--theme-border); }
+.playroom[data-theme] .app-header {
+  background: var(--theme-header);
+  border-bottom-color: var(--theme-border);
+}
+.playroom[data-theme] .classic-left,
+.playroom[data-theme] .tool-rail,
+.playroom[data-theme] .right-panel {
+  background: var(--theme-panel);
+  border-color: var(--theme-border);
+}
 .playroom[data-theme] .quick-palette,
-.playroom[data-theme] .tool-dock { background: var(--theme-panel); background: color-mix(in srgb, var(--theme-panel) 86%, transparent); border-color: var(--theme-border); }
+.playroom[data-theme] .tool-dock {
+  background: var(--theme-panel);
+  border-color: var(--theme-border);
+}
 .playroom[data-theme] .header-actions button,
-.playroom[data-theme] button:not(.swatch):not(.theme-card) { background: var(--theme-control); border-color: var(--theme-border); color: var(--ink); }
-.playroom[data-theme] button:hover:not(:disabled):not(.swatch):not(.theme-card) { background: var(--theme-hover); border-color: var(--theme-accent); }
-.playroom[data-theme] button[aria-pressed=true]:not(.swatch):not(.theme-card) { background: var(--theme-selected); border-color: var(--theme-accent); }
+.playroom[data-theme] button:not(.swatch):not(.theme-card):not(.color-value-control):not(.swap-color-control):not([class~="color-history-value"]):not(.preset-color) {
+  background: var(--theme-control);
+  border-color: var(--theme-border);
+  color: var(--ink);
+}
+.playroom[data-theme] button:hover:not(:disabled):not(.swatch):not(.theme-card):not(.color-value-control):not(.swap-color-control):not([class~="color-history-value"]):not(.preset-color) {
+  background: var(--theme-hover);
+  border-color: var(--theme-accent);
+}
+.playroom[data-theme] button[aria-pressed="true"]:not(.swatch):not(.theme-card):not(.color-value-control):not(.swap-color-control):not([class~="color-history-value"]):not(.preset-color) {
+  background: var(--theme-selected);
+  border-color: var(--theme-accent);
+}
 .playroom[data-theme] .header-actions #save,
-.playroom[data-theme] button.primary { background: var(--theme-accent); border-color: var(--theme-strong); color: var(--theme-surface); }
-.playroom[data-theme] .header-actions #new-quick { background: var(--theme-selected); background: color-mix(in srgb, var(--theme-selected) 70%, var(--theme-surface)); border-color: var(--theme-border); }
+.playroom[data-theme] button.primary {
+  background: var(--theme-accent);
+  border-color: var(--theme-strong);
+  color: var(--theme-surface);
+}
+.playroom[data-theme] .header-actions #new-quick {
+  background: var(--theme-selected);
+  border-color: var(--theme-border);
+}
 .playroom[data-theme] .workspace-tabs button,
 .playroom[data-theme] .tool-button,
 .playroom[data-theme] .brush-card,
 .playroom[data-theme] .subtool-card,
 .playroom[data-theme] .categories button,
 .playroom[data-theme] .asset,
-.playroom[data-theme] .layer-row { background: var(--theme-surface); border-color: var(--theme-border); }
-.playroom[data-theme] .viewport { background-color: var(--theme-bg); background-color: color-mix(in srgb, var(--theme-bg) 78%, #ffffff); border-color: var(--theme-border); border-color: color-mix(in srgb, var(--theme-surface) 84%, var(--theme-border)); }
-.playroom[data-theme] dialog { background: var(--theme-surface); border-color: var(--theme-border); box-shadow: 0 9px 0 var(--theme-shadow), 0 20px 80px #00000024; }
-.playroom[data-theme] dialog h2 { color: var(--theme-strong); }
+.playroom[data-theme] .layer-row {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--ink);
+}
+.playroom[data-theme] .viewport {
+  background-color: var(--theme-bg);
+  border-color: var(--theme-border);
+}
+.playroom[data-theme] dialog {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--ink);
+  box-shadow: 0 9px 0 var(--theme-shadow), 0 20px 80px #00000024;
+}
+.playroom[data-theme] dialog h2,
+.playroom[data-theme] dialog h3,
+.playroom[data-theme] .panel-heading h2,
+.playroom[data-theme] .classic-colors h3,
+.playroom[data-theme] .theme-card-copy strong {
+  color: var(--theme-strong);
+}
 .playroom[data-theme] dialog p,
-.playroom[data-theme] .muted { color: var(--muted); }
-.playroom[data-theme] input:not([type=checkbox]):not([type=range]):not([type=file]):not([type=color]),
+.playroom[data-theme] .muted,
+.playroom[data-theme] .brand small,
+.playroom[data-theme] .canvas-welcome,
+.playroom[data-theme] .canvas-footer,
+.playroom[data-theme] .panel-description,
+.playroom[data-theme] .asset span,
+.playroom[data-theme] .theme-summary,
+.playroom[data-theme] .theme-card-copy small,
+.playroom[data-theme] .library-tip {
+  color: var(--muted);
+}
+.playroom[data-theme] input:not([type="checkbox"]):not([type="range"]):not([type="file"]):not([type="color"]),
 .playroom[data-theme] textarea,
-.playroom[data-theme] select { background: var(--theme-surface); border-color: var(--theme-border); color: var(--ink); }
-.playroom[data-theme] input[type=range]::-webkit-slider-runnable-track { background: color-mix(in srgb, var(--theme-border) 52%, var(--theme-surface)); border-color: var(--theme-border); }
-.playroom[data-theme] input[type=range]::-webkit-slider-thumb { background: var(--theme-selected); border-color: var(--theme-accent); }
-.playroom[data-theme] .dialog-actions { background: var(--theme-surface); }
+.playroom[data-theme] select {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--ink);
+}
+.playroom[data-theme] input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--theme-border);
+}
+.playroom[data-theme] input[type="range"]::-webkit-slider-thumb {
+  background: var(--theme-selected);
+  border-color: var(--theme-accent);
+}
+.playroom[data-theme] .dialog-actions {
+  background: var(--theme-surface);
+}
 
-.playroom .theme-decoration { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: strict; opacity: .72; }
-.playroom .theme-decoration span { position: absolute; display: block; pointer-events: none; }
-.playroom .theme-decoration-a { width: 170px; height: 74px; left: 2%; top: 18%; border-top: 3px solid var(--theme-decor, #9ac59f); border-radius: 50%; transform: rotate(-8deg); animation: theme-drift 18s ease-in-out infinite; }
-.playroom .theme-decoration-b { width: 120px; height: 120px; right: 3%; bottom: 7%; border-radius: 50%; background: var(--theme-decor-soft, #cce8bd); opacity: .26; animation: theme-float 22s ease-in-out infinite; }
-.playroom .theme-decoration-c { width: 62px; height: 62px; right: 18%; top: 14%; border-radius: 50%; background: var(--theme-decor, #9ac59f); opacity: .28; animation: theme-float 15s ease-in-out infinite reverse; }
-.playroom[data-theme="spring"] { --ink: #315443; --muted: #587965; --green: #5d9b70; --green-soft: #dcefd8; --white: #f8fff7; --paper: #eff9eb; --line: #add4b2; --theme-bg: #e7f3df; --theme-header: #f2faec; --theme-panel: #e7f4df; --theme-rail: #d6ead0; --theme-surface: #fbfff8; --theme-control: #f5fced; --theme-hover: #d8efd0; --theme-selected: #c8e7bc; --theme-border: #a8cfad; --theme-accent: #4d9363; --theme-strong: #39734e; --theme-dot: #ffffffaa; --theme-decor: #78b785; --theme-decor-soft: #bde1b8; }
-.playroom[data-theme="spring"] .theme-decoration-a { width: 210px; height: 110px; left: 1%; top: 12%; border: 0; border-left: 3px solid #7db589; border-radius: 50%; transform: rotate(22deg); }
-.playroom[data-theme="spring"] .theme-decoration-a::after { content: '🍃  🍃  🍃'; position: absolute; color: #70aa78; font-size: 20px; letter-spacing: 14px; white-space: nowrap; transform: rotate(-22deg); }
-.playroom[data-theme="spring"] .theme-decoration-b { width: 220px; height: 28px; right: 4%; bottom: 18%; border-top: 3px solid #8ac49b; border-radius: 50%; background: none; opacity: .5; }
-.playroom[data-theme="spring"] .theme-decoration-c { width: 160px; height: 22px; right: 1%; bottom: 12%; border-top: 2px solid #a9d4a7; border-radius: 50%; background: none; opacity: .5; }
+/* The panel gets a differentiated darker surface. Inline color values and
+   history/preset swatches are intentionally excluded from generic button
+   theming so the selected colors remain truthful. */
+.playroom[data-theme] .classic-colors {
+  background: var(--theme-classic-colors);
+  border-color: var(--theme-border);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--theme-shadow);
+}
+.playroom[data-theme] .classic-colors h3 { color: var(--ink); }
+.playroom[data-theme] .classic-colors::after { color: var(--ink); }
+.playroom[data-theme] .classic-colors [class~="color-value-control"] {
+  border-color: var(--theme-border);
+  box-shadow: inset 0 0 0 3px var(--theme-surface), 0 3px 0 var(--theme-shadow);
+}
+.playroom[data-theme] .classic-colors [class~="swap-color-control"] {
+  background: var(--theme-classic-control, var(--theme-control));
+  border-color: var(--theme-border);
+  color: var(--theme-strong);
+}
+.playroom[data-theme] [class~="color-history-value"] {
+  border-color: var(--theme-surface);
+}
+.playroom[data-theme] .classic-colors #palette-open {
+  color: var(--theme-strong);
+}
 
-.playroom[data-theme="summer"] { --ink: #214b61; --muted: #4d7281; --green: #2b8ea0; --green-soft: #d5f0ef; --white: #f7ffff; --paper: #edfaff; --line: #9bcbd4; --theme-bg: #d9f1f5; --theme-header: #eefcff; --theme-panel: #e2f4f5; --theme-rail: #c1e5ec; --theme-surface: #f7ffff; --theme-control: #effbfc; --theme-hover: #d0eff2; --theme-selected: #b7e1e7; --theme-border: #94c9d3; --theme-accent: #23849a; --theme-strong: #17647b; --theme-dot: #ffffffcc; --theme-decor: #62b9c8; --theme-decor-soft: #9ddbe1; }
-.playroom[data-theme="summer"] .theme-decoration-a { width: 150%; height: 90px; left: -20%; top: auto; bottom: 1%; border: 0; border-top: 5px solid #58b4c4; border-radius: 45%; transform: rotate(-3deg); animation: theme-wave 12s linear infinite; }
-.playroom[data-theme="summer"] .theme-decoration-b { width: 130%; height: 58px; right: -15%; bottom: 7%; border: 0; border-top: 3px solid #9adbe2; border-radius: 45%; background: none; animation: theme-wave 17s linear infinite reverse; }
-.playroom[data-theme="summer"] .theme-decoration-c { width: 84px; height: 84px; right: 10%; top: 12%; background: #ffd98c; box-shadow: 0 0 34px #ffe9a0; opacity: .34; }
+.playroom[data-theme="spring"] {
+  --ink: #315443; --muted: #587965; --green: #5d9b70; --green-soft: #dcefd8;
+  --theme-bg: #e7f3df; --theme-header: #f2faec; --theme-panel: #e7f4df; --theme-rail: #d6ead0;
+  --theme-surface: #fbfff8; --theme-control: #f5fced; --theme-hover: #d8efd0; --theme-selected: #c8e7bc;
+  --theme-border: #a8cfad; --theme-accent: #4d9363; --theme-strong: #39734e; --theme-classic-colors: #c5e0bd;
+}
+.playroom[data-theme="summer"] {
+  --ink: #214b61; --muted: #4d7281; --green: #2b8ea0; --green-soft: #d5f0ef;
+  --theme-bg: #d9f1f5; --theme-header: #eefcff; --theme-panel: #e2f4f5; --theme-rail: #c1e5ec;
+  --theme-surface: #f7ffff; --theme-control: #effbfc; --theme-hover: #d0eff2; --theme-selected: #b7e1e7;
+  --theme-border: #94c9d3; --theme-accent: #23849a; --theme-strong: #17647b; --theme-classic-colors: #abd9e1;
+}
+.playroom[data-theme="autumn"] {
+  --theme-classic-colors: #f0cfa1;
+}
+.playroom[data-theme="winter"] {
+  --ink: #304b68; --muted: #607b98; --green: #5a8db4; --green-soft: #dbeaf5;
+  --theme-bg: #dcecf6; --theme-header: #f3faff; --theme-panel: #e6f2fa; --theme-rail: #c9e0ee;
+  --theme-surface: #f8fcff; --theme-control: #f2f9fe; --theme-hover: #d9edf8; --theme-selected: #c7e2f2;
+  --theme-border: #a9c9dc; --theme-accent: #4d83aa; --theme-strong: #345f82; --theme-classic-colors: #bdd7e8;
+}
+.playroom[data-theme="mechanical"] {
+  --ink: #29333c; --muted: #64717a; --green: #628593; --green-soft: #d7e2e5;
+  --theme-bg: #d4dce0; --theme-header: #eaf0f2; --theme-panel: #dce5e8; --theme-rail: #bccbd1;
+  --theme-surface: #f3f7f8; --theme-control: #e7eef0; --theme-hover: #d0e0e4; --theme-selected: #bfd4da;
+  --theme-border: #9eafb7; --theme-accent: #557b87; --theme-strong: #3d5c67; --theme-classic-colors: #a9bac0;
+}
+.playroom[data-theme="space"] {
+  --ink: #e7edf9; --muted: #aab9d4; --green: #8e9fe0; --green-soft: #2d3964;
+  --theme-bg: #111a3a; --theme-header: #1b2850; --theme-panel: #1b2a50; --theme-rail: #202f5d;
+  --theme-surface: #202d55; --theme-control: #2b3a68; --theme-hover: #354878; --theme-selected: #465c91;
+  --theme-border: #6074a9; --theme-accent: #a4b5ff; --theme-strong: #c2ccff; --theme-classic-colors: #151f43;
+}
+.playroom[data-theme="ocean"] {
+  --ink: #214f55; --muted: #527d80; --green: #3a9b91; --green-soft: #d3f0e8;
+  --theme-bg: #c9e9e5; --theme-header: #e8faf7; --theme-panel: #d5efeb; --theme-rail: #a9d7d2;
+  --theme-surface: #f3fffc; --theme-control: #e8faf6; --theme-hover: #c9ebe4; --theme-selected: #b5ded7;
+  --theme-border: #8fc3ba; --theme-accent: #2d8e86; --theme-strong: #1e665f; --theme-classic-colors: #9bcfc7;
+}
 
-.playroom[data-theme="autumn"] { --theme-decor: #d48b58; --theme-decor-soft: #e7b06f; }
-.playroom[data-theme="autumn"] .theme-decoration-a { width: 90px; height: 36px; left: 7%; top: 20%; border: 0; background: radial-gradient(ellipse at 20% 50%, #d88e59 0 18%, transparent 20%), radial-gradient(ellipse at 62% 32%, #e4aa60 0 16%, transparent 18%), radial-gradient(ellipse at 85% 72%, #c8754c 0 15%, transparent 17%); animation: theme-leaves 19s linear infinite; }
-.playroom[data-theme="autumn"] .theme-decoration-b { width: 74px; height: 34px; right: 10%; bottom: 12%; background: radial-gradient(ellipse, #d98f56 0 18%, transparent 20%), radial-gradient(ellipse at 70% 70%, #e8b164 0 16%, transparent 18%); opacity: .34; }
-.playroom[data-theme="autumn"] .theme-decoration-c { width: 44px; height: 28px; right: 22%; top: 16%; background: #cf7b4d; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); opacity: .36; }
+.playroom[data-theme] .theme-entry {
+  flex: 0 0 auto;
+}
+.playroom[data-theme] .theme-dialog {
+  width: min(700px, calc(100vw - 24px));
+  max-height: min(650px, calc(100dvh - 24px));
+  overflow: hidden;
+  padding: clamp(14px, 3vw, 24px);
+}
+.playroom[data-theme] .theme-dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.playroom[data-theme] .theme-dialog-heading h2 { margin-bottom: 4px; }
+.playroom[data-theme] .theme-summary { margin: 0 0 14px; }
+.playroom[data-theme] .theme-close { min-width: 40px; min-height: 40px; padding: 0; font-size: 26px; line-height: 1; }
+.playroom[data-theme] .theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  gap: 10px;
+}
+.playroom[data-theme] .theme-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  gap: 3px 8px;
+  min-width: 0;
+  min-height: 82px;
+  padding: 8px;
+  text-align: left;
+  background: var(--theme-control);
+  border: 2px solid var(--theme-border);
+  border-radius: 14px;
+  box-shadow: 0 3px 0 var(--theme-shadow);
+}
+.playroom[data-theme] .theme-card:hover { transform: translateY(-1px); }
+.playroom[data-theme] .theme-card[aria-pressed="true"] {
+  background: var(--theme-selected);
+  border-color: var(--theme-accent);
+  box-shadow: inset 0 0 0 2px var(--theme-surface), 0 3px 0 var(--theme-shadow);
+}
+.playroom[data-theme] .theme-card[aria-pressed="true"]::after {
+  content: '✓'; position: absolute; top: 5px; right: 7px; color: var(--theme-strong); font-weight: 900;
+}
+.playroom[data-theme] .theme-card-preview {
+  grid-row: 1 / span 2; width: 54px; height: 54px; overflow: hidden; border-radius: 12px;
+  background: linear-gradient(150deg, #c6e5ba, #fff4d7); position: relative;
+}
+.playroom[data-theme] .theme-card-preview i,
+.playroom[data-theme] .theme-card-preview b { position: absolute; display: block; border-radius: 50%; }
+.playroom[data-theme] .theme-card-preview i { width: 27px; height: 27px; right: 5px; top: 6px; background: var(--theme-preview-a, #e4ac66); }
+.playroom[data-theme] .theme-card-preview b { width: 42px; height: 11px; left: 5px; bottom: 9px; border-top: 3px solid var(--theme-preview-b, #7cb383); border-radius: 50%; }
+.playroom[data-theme] .theme-card[data-theme="spring"] .theme-card-preview { background: linear-gradient(#e2f3d9 0 60%, #b9dab0); --theme-preview-a: #9cca91; --theme-preview-b: #6ba67a; }
+.playroom[data-theme] .theme-card[data-theme="summer"] .theme-card-preview { background: linear-gradient(#b9eaf3 0 60%, #f7d59b 60%); --theme-preview-a: #ffd982; --theme-preview-b: #319bb0; }
+.playroom[data-theme] .theme-card[data-theme="autumn"] .theme-card-preview { background: linear-gradient(#f9e3bd, #d7a46e); --theme-preview-a: #d47a4c; --theme-preview-b: #a66542; }
+.playroom[data-theme] .theme-card[data-theme="winter"] .theme-card-preview { background: linear-gradient(#d7effc, #f7fcff); --theme-preview-a: #fff; --theme-preview-b: #9bc8e4; }
+.playroom[data-theme] .theme-card[data-theme="mechanical"] .theme-card-preview { background: linear-gradient(135deg, #687b83, #d9e1e3); --theme-preview-a: #5f7076; --theme-preview-b: #8ca1a8; }
+.playroom[data-theme] .theme-card[data-theme="space"] .theme-card-preview { background: radial-gradient(circle at 70% 25%, #f3bd91 0 8%, #754e91 22%, transparent 23%), #1c2754; --theme-preview-a: #c68ca0; --theme-preview-b: #8497eb; }
+.playroom[data-theme] .theme-card[data-theme="ocean"] .theme-card-preview { background: linear-gradient(#a9e2e4, #2d8e9a); --theme-preview-a: #d2f4e9; --theme-preview-b: #4ab19a; }
+.playroom[data-theme] .theme-card-copy { min-width: 0; display: flex; flex-direction: column; }
+.playroom[data-theme] .theme-card-copy strong { font-size: 16px; }
+.playroom[data-theme] .theme-card-copy small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.playroom[data-theme] .theme-card > .playful-icon { position: absolute; width: 22px; height: 22px; right: 5px; bottom: 4px; opacity: .75; }
+.playroom[data-theme] .theme-dialog .dialog-actions { margin-top: 14px; padding-top: 10px; }
 
-.playroom[data-theme="winter"] { --ink: #304b68; --muted: #607b98; --green: #5a8db4; --green-soft: #dbeaf5; --white: #f8fcff; --paper: #eef7fc; --line: #b1cfdf; --theme-bg: #dcecf6; --theme-header: #f3faff; --theme-panel: #e6f2fa; --theme-rail: #c9e0ee; --theme-surface: #f8fcff; --theme-control: #f2f9fe; --theme-hover: #d9edf8; --theme-selected: #c7e2f2; --theme-border: #a9c9dc; --theme-accent: #4d83aa; --theme-strong: #345f82; --theme-dot: #ffffffdd; --theme-decor: #8fc4e5; --theme-decor-soft: #d8efff; }
-.playroom[data-theme="winter"] .theme-decoration-a { width: 180px; height: 180px; left: 5%; top: 10%; border: 0; background: radial-gradient(circle, #ffffff 0 5%, transparent 6%) 0 0/34px 34px, radial-gradient(circle, #b6d9ee 0 4%, transparent 5%) 17px 17px/34px 34px; animation: theme-snow 16s linear infinite; }
-.playroom[data-theme="winter"] .theme-decoration-b { width: 130px; height: 130px; right: 3%; bottom: 8%; background: radial-gradient(circle, #fff 0 5%, transparent 6%) 0 0/28px 28px; opacity: .55; animation: theme-snow 22s linear infinite reverse; }
-.playroom[data-theme="winter"] .theme-decoration-c { width: 34px; height: 34px; right: 18%; top: 15%; background: linear-gradient(45deg, transparent 42%, #9dcae3 43% 57%, transparent 58%), linear-gradient(-45deg, transparent 42%, #9dcae3 43% 57%, transparent 58%); opacity: .5; }
-
-.playroom[data-theme="mechanical"] { --ink: #29333c; --muted: #64717a; --green: #628593; --green-soft: #d7e2e5; --white: #f5f8f9; --paper: #eef2f3; --line: #aebdc4; --theme-bg: #d4dce0; --theme-header: #eaf0f2; --theme-panel: #dce5e8; --theme-rail: #bccbd1; --theme-surface: #f3f7f8; --theme-control: #e7eef0; --theme-hover: #d0e0e4; --theme-selected: #bfd4da; --theme-border: #9eafb7; --theme-accent: #557b87; --theme-strong: #3d5c67; --theme-dot: #ffffff88; --theme-decor: #6d8790; --theme-decor-soft: #9db1b8; }
-.playroom[data-theme="mechanical"] .theme-decoration-a { width: 130px; height: 130px; left: 3%; top: 14%; border: 10px dotted #718890; border-radius: 50%; background: repeating-conic-gradient(#718890 0 10deg, transparent 10deg 30deg); opacity: .18; animation: theme-gear 24s linear infinite; }
-.playroom[data-theme="mechanical"] .theme-decoration-b { width: 90px; height: 90px; right: 4%; bottom: 9%; border: 8px dotted #66808a; border-radius: 50%; background: repeating-conic-gradient(#66808a 0 12deg, transparent 12deg 32deg); opacity: .2; animation: theme-gear 18s linear infinite reverse; }
-.playroom[data-theme="mechanical"] .theme-decoration-c { width: 16px; height: 160px; right: 16%; top: 12%; background: repeating-linear-gradient(0deg, #718890 0 10px, transparent 10px 20px); opacity: .2; }
-
-.playroom[data-theme="space"] { --ink: #e7edf9; --muted: #aab9d4; --green: #8e9fe0; --green-soft: #2d3964; --white: #f6f8ff; --paper: #1b2448; --line: #586b9f; --theme-bg: #111a3a; --theme-header: #1b2850; --theme-panel: #1b2a50; --theme-rail: #202f5d; --theme-surface: #202d55; --theme-control: #2b3a68; --theme-hover: #354878; --theme-selected: #465c91; --theme-border: #6074a9; --theme-accent: #a4b5ff; --theme-strong: #c2ccff; --theme-dot: #dce5ff; --theme-decor: #9aaeff; --theme-decor-soft: #6779c7; }
-.playroom[data-theme="space"] .theme-decoration-a { width: 190px; height: 190px; right: 4%; top: 11%; border-radius: 50%; border: 2px solid #9eafff66; background: radial-gradient(circle at 35% 30%, #f3c5a0 0 8%, #be7e79 24%, #584b91 58%, transparent 60%); box-shadow: 0 0 30px #6d75e766; animation: theme-orbit 30s linear infinite; }
-.playroom[data-theme="space"] .theme-decoration-b { width: 240px; height: 130px; left: 3%; bottom: 4%; background: radial-gradient(circle, #fff 0 1px, transparent 2px) 0 0/34px 28px; opacity: .48; animation: theme-stars 25s linear infinite; }
-.playroom[data-theme="space"] .theme-decoration-c { width: 5px; height: 5px; left: 28%; top: 14%; border-radius: 50%; background: #fff; box-shadow: 58px 36px #fff, 122px 10px #ced8ff, 206px 76px #fff, 330px 30px #b9c8ff, 500px 96px #fff; opacity: .75; }
-
-.playroom[data-theme="ocean"] { --ink: #214f55; --muted: #527d80; --green: #3a9b91; --green-soft: #d3f0e8; --white: #f4fffd; --paper: #e5f8f4; --line: #9dcec3; --theme-bg: #c9e9e5; --theme-header: #e8faf7; --theme-panel: #d5efeb; --theme-rail: #a9d7d2; --theme-surface: #f3fffc; --theme-control: #e8faf6; --theme-hover: #c9ebe4; --theme-selected: #b5ded7; --theme-border: #8fc3ba; --theme-accent: #2d8e86; --theme-strong: #1e665f; --theme-dot: #ffffff99; --theme-decor: #4aa89a; --theme-decor-soft: #8ed0c2; }
-.playroom[data-theme="ocean"] .theme-decoration-a { width: 110px; height: 190px; left: 4%; bottom: 0; border: 0; border-left: 5px solid #439985; border-radius: 50%; transform: skewX(-14deg); opacity: .38; animation: theme-seaweed 12s ease-in-out infinite; }
-.playroom[data-theme="ocean"] .theme-decoration-b { width: 170px; height: 170px; right: 4%; top: 12%; border: 0; background: radial-gradient(circle at 30% 30%, #fff 0 3px, transparent 4px) 0 0/36px 36px; opacity: .42; animation: theme-bubbles 20s linear infinite; }
-.playroom[data-theme="ocean"] .theme-decoration-c { width: 58px; height: 22px; left: 16%; bottom: 10%; border-bottom: 4px solid #4ba58d; border-radius: 50%; transform: rotate(-10deg); opacity: .42; }
-
-.playroom .theme-entry { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-height: 58px; }
-.playroom .theme-entry .playful-icon { width: 32px; height: 32px; }
-.playroom .theme-dialog { width: min(700px, calc(100vw - 24px)); max-height: min(650px, calc(100dvh - 24px)); padding: clamp(14px, 3vw, 24px); }
-.playroom .theme-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.playroom .theme-dialog-heading h2 { margin-bottom: 4px; }
-.playroom .theme-summary { margin: 0 0 14px; }
-.playroom .theme-close { min-width: 40px; min-height: 40px; padding: 0; font-size: 26px; line-height: 1; }
-.playroom .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(142px, 1fr)); gap: 10px; }
-.playroom .theme-card { position: relative; display: grid; grid-template-columns: 54px minmax(0, 1fr); grid-template-rows: 1fr auto; align-items: center; gap: 3px 8px; min-width: 0; min-height: 82px; padding: 8px; text-align: left; background: var(--theme-control); border: 2px solid var(--theme-border); border-radius: 14px; box-shadow: 0 3px 0 var(--theme-shadow); }
-.playroom .theme-card:hover { transform: translateY(-1px); }
-.playroom .theme-card[aria-pressed=true] { background: var(--theme-selected); border-color: var(--theme-accent); box-shadow: inset 0 0 0 2px var(--theme-surface), 0 3px 0 var(--theme-shadow); }
-.playroom .theme-card[aria-pressed=true]::after { content: '✓'; position: absolute; top: 5px; right: 7px; color: var(--theme-strong); font-weight: 900; }
-.playroom .theme-card-preview { grid-row: 1 / span 2; width: 54px; height: 54px; overflow: hidden; border-radius: 12px; background: linear-gradient(150deg, #c6e5ba, #fff4d7); position: relative; }
-.playroom .theme-card-preview i,.playroom .theme-card-preview b { position: absolute; display: block; border-radius: 50%; }
-.playroom .theme-card-preview i { width: 27px; height: 27px; right: 5px; top: 6px; background: var(--theme-preview-a, #e4ac66); }
-.playroom .theme-card-preview b { width: 42px; height: 11px; left: 5px; bottom: 9px; border-top: 3px solid var(--theme-preview-b, #7cb383); border-radius: 50%; }
-.playroom .theme-card[data-theme="spring"] .theme-card-preview { background: linear-gradient(#e2f3d9 0 60%, #b9dab0); --theme-preview-a: #9cca91; --theme-preview-b: #6ba67a; }
-.playroom .theme-card[data-theme="summer"] .theme-card-preview { background: linear-gradient(#b9eaf3 0 60%, #f7d59b 60%); --theme-preview-a: #ffd982; --theme-preview-b: #319bb0; }
-.playroom .theme-card[data-theme="autumn"] .theme-card-preview { background: linear-gradient(#f9e3bd, #d7a46e); --theme-preview-a: #d47a4c; --theme-preview-b: #a66542; }
-.playroom .theme-card[data-theme="winter"] .theme-card-preview { background: linear-gradient(#d7effc, #f7fcff); --theme-preview-a: #fff; --theme-preview-b: #9bc8e4; }
-.playroom .theme-card[data-theme="mechanical"] .theme-card-preview { background: linear-gradient(135deg, #687b83, #d9e1e3); --theme-preview-a: #5f7076; --theme-preview-b: #8ca1a8; }
-.playroom .theme-card[data-theme="space"] .theme-card-preview { background: radial-gradient(circle at 70% 25%, #f3bd91 0 8%, #754e91 22%, transparent 23%), #1c2754; --theme-preview-a: #c68ca0; --theme-preview-b: #8497eb; }
-.playroom .theme-card[data-theme="ocean"] .theme-card-preview { background: linear-gradient(#a9e2e4, #2d8e9a); --theme-preview-a: #d2f4e9; --theme-preview-b: #4ab19a; }
-.playroom .theme-card-copy { min-width: 0; display: flex; flex-direction: column; }
-.playroom .theme-card-copy strong { font-size: 16px; }
-.playroom .theme-card-copy small { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.playroom .theme-card > .playful-icon { position: absolute; width: 22px; height: 22px; right: 5px; bottom: 4px; opacity: .75; }
-.playroom .theme-dialog .dialog-actions { margin-top: 14px; padding-top: 10px; bottom: -14px; }
-
-@keyframes theme-drift { 0%,100% { transform: translate3d(-8px,0,0) rotate(-8deg); } 50% { transform: translate3d(18px,8px,0) rotate(5deg); } }
-@keyframes theme-float { 0%,100% { transform: translate3d(0,0,0); } 50% { transform: translate3d(-12px,-14px,0); } }
-@keyframes theme-wave { from { transform: translateX(-8%) rotate(-3deg); } to { transform: translateX(8%) rotate(-3deg); } }
-@keyframes theme-leaves { from { transform: translate3d(-10px,-8px,0) rotate(-3deg); } to { transform: translate3d(130px,70px,0) rotate(18deg); } }
-@keyframes theme-snow { from { transform: translate3d(0,-24px,0); } to { transform: translate3d(24px,110px,0); } }
-@keyframes theme-gear { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-@keyframes theme-orbit { from { transform: rotate(0) translateX(8px) rotate(0); } to { transform: rotate(360deg) translateX(8px) rotate(-360deg); } }
-@keyframes theme-stars { from { transform: translateX(0); } to { transform: translateX(34px); } }
-@keyframes theme-seaweed { 0%,100% { transform: skewX(-14deg) rotate(-2deg); } 50% { transform: skewX(-14deg) rotate(5deg); } }
-@keyframes theme-bubbles { from { transform: translateY(30px); } to { transform: translateY(-100px); } }
-@media (prefers-reduced-motion: reduce), (max-width: 640px), (max-height: 500px) {
-  .playroom .theme-decoration span { animation: none !important; }
-  .playroom .theme-card:hover { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .playroom[data-theme] .theme-card:hover { transform: none; }
 }
 @media (max-width: 520px), (max-height: 420px) {
-  .playroom .theme-dialog { width: min(480px, calc(100vw - 12px)); padding: 12px; border-radius: 18px; }
-  .playroom .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  .playroom .theme-card { min-height: 68px; grid-template-columns: 40px minmax(0, 1fr); padding: 5px; border-radius: 10px; }
-  .playroom .theme-card-preview { width: 40px; height: 40px; border-radius: 8px; }
-  .playroom .theme-card-preview i { width: 19px; height: 19px; }
-  .playroom .theme-card-preview b { width: 30px; height: 8px; left: 4px; bottom: 5px; border-width: 2px; }
-  .playroom .theme-card-copy strong { font-size: 13px; }
-  .playroom .theme-card-copy small { font-size: 9px; }
-  .playroom .theme-card > .playful-icon { width: 16px; height: 16px; }
-  .playroom .theme-dialog .dialog-actions { margin-top: 8px; padding-top: 6px; }
-  .playroom .theme-dialog .dialog-actions button { min-height: 36px; padding: 5px 10px; }
+  .playroom[data-theme] .theme-dialog { width: min(480px, calc(100vw - 12px)); padding: 12px; border-radius: 18px; }
+  .playroom[data-theme] .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .playroom[data-theme] .theme-card { min-height: 68px; grid-template-columns: 40px minmax(0, 1fr); padding: 5px; border-radius: 10px; }
+  .playroom[data-theme] .theme-card-preview { width: 40px; height: 40px; border-radius: 8px; }
+  .playroom[data-theme] .theme-card-preview i { width: 19px; height: 19px; }
+  .playroom[data-theme] .theme-card-preview b { width: 30px; height: 8px; left: 4px; bottom: 5px; border-width: 2px; }
+  .playroom[data-theme] .theme-card-copy strong { font-size: 13px; }
+  .playroom[data-theme] .theme-card-copy small { font-size: 9px; }
+  .playroom[data-theme] .theme-card > .playful-icon { width: 16px; height: 16px; }
+  .playroom[data-theme] .theme-dialog .dialog-actions { position: static; bottom: auto; margin: 8px 0 0; padding: 6px 0 0; }
+  .playroom[data-theme] .theme-dialog .dialog-actions button { min-height: 36px; padding: 5px 10px; }
 }
-/* Short landscape windows have enough width for three compact columns. This
-   keeps all seven themes visible without forcing a vertical scroll just to
-   compare the palette choices. */
 @media (min-width: 500px) and (max-height: 420px) {
-  .playroom .theme-dialog { padding: 10px 12px; }
-  .playroom .theme-dialog-heading h2 { font-size: 19px; margin-bottom: 1px; }
-  .playroom .theme-summary { font-size: 11px; margin-bottom: 7px; }
-  .playroom .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
-  .playroom .theme-card { grid-template-columns: 30px minmax(0, 1fr); min-height: 56px; padding: 4px; border-radius: 9px; gap: 2px 4px; }
-  .playroom .theme-card-preview { width: 30px; height: 30px; border-radius: 6px; }
-  .playroom .theme-card-preview i { width: 14px; height: 14px; right: 3px; top: 3px; }
-  .playroom .theme-card-preview b { width: 22px; height: 6px; left: 3px; bottom: 4px; border-width: 2px; }
-  .playroom .theme-card-copy strong { font-size: 12px; }
-  .playroom .theme-card-copy small { font-size: 8px; }
-  .playroom .theme-card > .playful-icon { width: 14px; height: 14px; right: 2px; bottom: 2px; }
-  .playroom .theme-dialog .dialog-actions { margin-top: 6px; padding-top: 4px; }
+  .playroom[data-theme] .theme-dialog { padding: 10px 12px; }
+  .playroom[data-theme] .theme-dialog-heading h2 { font-size: 19px; margin-bottom: 1px; }
+  .playroom[data-theme] .theme-summary { font-size: 11px; margin-bottom: 7px; }
+  .playroom[data-theme] .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .playroom[data-theme] .theme-card { grid-template-columns: 30px minmax(0, 1fr); min-height: 56px; padding: 4px; border-radius: 9px; gap: 2px 4px; }
+  .playroom[data-theme] .theme-card-preview { width: 30px; height: 30px; border-radius: 6px; }
+  .playroom[data-theme] .theme-card-preview i { width: 14px; height: 14px; right: 3px; top: 3px; }
+  .playroom[data-theme] .theme-card-preview b { width: 22px; height: 6px; left: 3px; bottom: 4px; border-width: 2px; }
+  .playroom[data-theme] .theme-card-copy strong { font-size: 12px; }
+  .playroom[data-theme] .theme-card-copy small { font-size: 8px; }
+  .playroom[data-theme] .theme-card > .playful-icon { width: 14px; height: 14px; right: 2px; bottom: 2px; }
+  .playroom[data-theme] .theme-dialog .dialog-actions { position: static; bottom: auto; margin: 0; padding: 0; }
+}
+@media (min-width: 340px) and (max-height: 280px) {
+  .playroom[data-theme] .theme-dialog { padding: 8px; border-radius: 14px; }
+  .playroom[data-theme] .theme-dialog-heading { gap: 4px; }
+  .playroom[data-theme] .theme-dialog-heading h2 { font-size: 16px; margin-bottom: 0; }
+  .playroom[data-theme] .theme-summary { display: none; }
+  .playroom[data-theme] .theme-close { min-width: 28px; min-height: 28px; font-size: 20px; }
+  .playroom[data-theme] .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .playroom[data-theme] .theme-card { grid-template-columns: 28px minmax(0, 1fr); min-height: 38px; padding: 3px; border-radius: 8px; gap: 1px 3px; }
+  .playroom[data-theme] .theme-card-preview { width: 28px; height: 28px; border-radius: 5px; }
+  .playroom[data-theme] .theme-card-preview i { width: 12px; height: 12px; right: 2px; top: 2px; }
+  .playroom[data-theme] .theme-card-preview b { width: 19px; height: 5px; left: 3px; bottom: 3px; border-width: 1px; }
+  .playroom[data-theme] .theme-card-copy strong { font-size: 10px; }
+  .playroom[data-theme] .theme-card-copy small { display: none; }
+  .playroom[data-theme] .theme-card > .playful-icon { width: 12px; height: 12px; right: 1px; bottom: 1px; }
+  .playroom[data-theme] .theme-dialog .dialog-actions { position: static; bottom: auto; margin: 4px 0 0; padding: 2px 0 0; }
+  .playroom[data-theme] .theme-dialog .dialog-actions button { min-height: 28px; padding: 3px 8px; }
 }
 
 /* Close choices remain legible on the smallest supported window. */

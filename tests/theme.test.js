@@ -5,7 +5,11 @@ import { readFileSync } from 'node:fs';
 const root = new URL('../', import.meta.url);
 const theme = readFileSync(new URL('src/theme-ui.js', root), 'utf8');
 const app = readFileSync(new URL('src/app.js', root), 'utf8');
+const display = readFileSync(new URL('src/display-ui.js', root), 'utf8');
+const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
+const scenes = readFileSync(new URL('src/theme-scenes.js', root), 'utf8');
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
+const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
 
 test('theme picker defines seven stable themes with autumn as the default', () => {
   const ids = [...theme.matchAll(/id:\s*'([^']+)'/g)].map(match => match[1]);
@@ -28,12 +32,44 @@ test('theme visuals are lightweight CSS decoration and do not target canvas pixe
   for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']) {
     assert.match(styles, new RegExp(`data-theme="${id}"`));
   }
-  assert.match(styles, /\.theme-decoration\s*\{/);
-  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(styles, /animation: theme-(drift|wave|leaves|snow|gear|orbit|bubbles)/);
+  assert.match(sceneStyles, /\.theme-scene\s*\{/);
+  assert.doesNotMatch(styles, /\.theme-decoration\s*\{/);
+  assert.doesNotMatch(sceneStyles, /\.theme-decoration\s*\{/);
+  assert.match(sceneStyles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(sceneStyles, /animation: theme-(breeze|waves|leaf-fall|snow|gear|planet|fish)/);
+  assert.match(theme, /theme-scenes\.js/);
+  assert.match(theme, /themeScene\(theme/);
+  assert.match(scenes, /class="theme-scene/);
   assert.doesNotMatch(styles, /data-theme[^{}]*#painting/);
   assert.doesNotMatch(styles, /data-theme[^{}]*\.canvas-sheet/);
   assert.doesNotMatch(styles, /data-theme[^{}]*\.asset img/);
+});
+
+test('theme and settings entries stay in their intended containers', () => {
+  assert.match(theme, /id\s*=\s*'theme-open'/);
+  assert.match(theme, /header\.insertBefore\(entry/);
+  assert.doesNotMatch(theme, /more-dialog \\.more-actions/);
+  assert.match(display, /id='display-open'/);
+  assert.match(classic, /id='about-open'/);
+  assert.match(classic, /actions\.append\(aboutButton\)/);
+  assert.match(app, /mountDisplay\(\)/);
+});
+
+test('classic color surfaces are themed separately from actual color controls', () => {
+  assert.match(styles, /classic-colors/);
+  for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']) {
+    assert.match(styles, new RegExp(`data-theme="${id}"`));
+  }
+  assert.doesNotMatch(styles, /data-theme[^{}]*#foreground-palette/);
+  assert.doesNotMatch(styles, /data-theme[^{}]*#background-palette/);
+  assert.doesNotMatch(styles, /data-theme[^{}]*\.color-history/);
+});
+
+test('theme scene is confined to the brand and animation is reduced safely', () => {
+  assert.match(sceneStyles, /\.theme-scene\s*\{[\s\S]*?overflow:\s*hidden/);
+  assert.match(theme, /document\.querySelector\('\.brand'\)/);
+  assert.match(sceneStyles, /\.theme-scene\s*\{[\s\S]*?pointer-events:\s*none/);
+  assert.match(sceneStyles, /prefers-reduced-motion:[^}]+theme-scene/);
 });
 
 test('theme dialog is keyboard and small-window friendly', () => {
