@@ -62,22 +62,14 @@ art['shrink']='<circle cx="27" cy="29" r="17" fill="#b8d7ae"/><circle cx="22" cy
 const faces={eraser:[34,37],fill:[28,39],stamp:[32,43],tube:[33,34],spray:[32,40],text:[33,38],paper:[30,43],folder:[31,42]};
 export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playful-icon" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="#705142" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${art[name]||art.palette}${faces[name]?`<g transform="translate(${faces[name][0]} ${faces[name][1]})"><ellipse cx="-5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><ellipse cx="5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><path d="M-4 5q4 5 8 0" stroke-width="1.5" fill="none"/><circle cx="-9" cy="4" r="2.5" fill="#e7978e" stroke="none"/><circle cx="9" cy="4" r="2.5" fill="#e7978e" stroke="none"/></g>`:''}</g></svg>`;}
 
-// The brand mark keeps the original palette silhouette in every theme. Only
-// its small color fields change, so users do not have to relearn the logo when
-// they switch the surrounding interface skin.
-const BRAND_PALETTE = Object.freeze({
-  spring: ['#c4dfb0', '#e89a7d', '#82bbbd', '#a79cca', '#e4bb64', '#fff3d8', '#5d7f68'],
-  summer: ['#a7dce3', '#f2a35d', '#6fb9dd', '#ef8e99', '#efcc70', '#fff8e5', '#276b74'],
-  autumn: ['#ffdb94', '#ee8b79', '#91bda4', '#a6aed7', '#efb45b', '#fff5dc', '#705142'],
-  winter: ['#c4def0', '#f0a4b1', '#8bbce1', '#a695d0', '#e4c46d', '#f8fcff', '#45677f'],
-  mechanical: ['#adbfc5', '#df9a68', '#7bb2bc', '#b6a4c4', '#e5c279', '#edf2f4', '#40545d'],
-  space: ['#334b8f', '#e8a967', '#78b5dd', '#e68da5', '#f2d27b', '#f7f9ff', '#d7e1ff'],
-  ocean: ['#9ed8cc', '#e79983', '#69b4cd', '#99a7d7', '#e2c26f', '#f2fbef', '#356b68'],
-});
-
-export function brandIcon(theme = 'autumn', { slot = 'brand' } = {}) {
-  const colors = BRAND_PALETTE[theme] || BRAND_PALETTE.autumn;
-  const [base, coral, mint, lavender, gold, light, stroke] = colors;
+// The product mark is the illustrated child holding a brush. Keep one source
+// image for all themes so the logo remains recognizable and browser caching
+// keeps theme switching cheap; theme-specific framing and a restrained filter
+// are applied by playroom.css.
+export function brandIcon(theme = 'autumn', { slot = 'brand', src } = {}) {
+  const platform = typeof globalThis !== 'undefined' && globalThis.LUOYE_PLATFORM === 'windows' ? 'windows' : 'mac';
+  const source = src || (platform === 'windows' ? 'branding/app-icon-windows.png' : 'branding/app-icon.png');
   const slotClass = slot === 'about' ? ' about-theme-icon' : '';
-  return `<svg viewBox="0 0 68 68" class="playful-icon brand-icon brand-icon-${theme}${slotClass}" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="${stroke}" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path fill="${base}" d="M8 25c10-27 54-17 51 10-1 10-14 3-18 12-4 18-27 12-32-2-2-6-3-12-1-20z"/><circle cx="22" cy="22" r="5" fill="${coral}"/><circle cx="39" cy="18" r="5" fill="${mint}"/><circle cx="48" cy="31" r="5" fill="${lavender}"/><circle cx="18" cy="39" r="5" fill="${gold}"/><circle cx="32" cy="43" r="5" fill="${light}"/></g></svg>`;
+  const alt = slot === 'about' ? '落叶画板主题图标' : '落叶画板应用图标';
+  return `<img src="${source}" class="playful-icon brand-icon brand-logo brand-logo-${theme}${slotClass}" data-theme-logo="${theme}" alt="${alt}" aria-hidden="true" draggable="false">`;
 }

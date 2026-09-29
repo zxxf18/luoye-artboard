@@ -89,8 +89,9 @@ export function mountTheme() {
   function renderBrandIcon(theme) {
     const brand = document.querySelector('.brand');
     if (!brand) return;
-    const icon = brandIcon(theme);
     const currentIcon = brand.querySelector('.brand-icon, .playful-icon:not(.theme-scene)');
+    const src = currentIcon?.getAttribute('src') || (window.LUOYE_PLATFORM === 'windows' ? 'branding/app-icon-windows.png' : 'branding/app-icon.png');
+    const icon = brandIcon(theme, { src });
     if (currentIcon) currentIcon.outerHTML = icon;
     else brand.insertAdjacentHTML('afterbegin', icon);
     const currentScene = brand.querySelector('.theme-scene');

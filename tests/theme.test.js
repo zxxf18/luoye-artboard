@@ -74,17 +74,18 @@ test('theme scene is confined to the brand and animation is reduced safely', () 
   assert.match(sceneStyles, /prefers-reduced-motion:[^}]+theme-scene/);
 });
 
-test('brand and about use dedicated theme icon slots while preserving the brand shape', () => {
+test('brand and about use the illustrated child logo with dedicated theme slots', () => {
   assert.match(classic, /about-mark/);
   assert.match(classic, /brandIcon\(/);
   assert.match(classic, /themechange/);
-  assert.match(classic, /about-original-icon/);
   assert.match(classic, /app-icon-windows\.png/);
   assert.match(theme, /brand-icon(?:-svg)?|about-theme-icon/);
   assert.match(theme, /themechange/);
   assert.match(icons, /theme:/);
-  assert.match(icons, /BRAND_PALETTE/);
   assert.match(icons, /export function brandIcon/);
+  assert.match(icons, /branding\/app-icon(?:-windows)?\.png/);
+  assert.match(styles, /--brand-logo-filter/);
+  assert.match(styles, /\.about-mark img[^{]*\{[^}]*filter:var\(--brand-logo-filter/);
   // The true color controls carry explicit classes so global theme selectors
   // cannot overwrite their inline values.
   assert.match(palette, /color-value-control/);
@@ -93,8 +94,8 @@ test('brand and about use dedicated theme icon slots while preserving the brand 
 });
 
 test('theme entry uses the shared command size and the final Chinese label', () => {
-  assert.match(theme, /setAttribute\('aria-label', '(?:主题|换肤)'\)/);
-  assert.match(theme, /<span>(?:主题|换肤)<\/span>/);
+  assert.match(theme, /setAttribute\('aria-label', '主题'\)/);
+  assert.match(theme, /<span>主题<\/span>/);
   assert.match(styles, /\.theme-entry[\s\S]*?min-width/);
   assert.match(styles, /theme-entry > \.playful-icon[\s\S]*?width/);
 });

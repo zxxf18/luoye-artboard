@@ -4,23 +4,18 @@ import { brandIcon } from '../src/playful-icons.js';
 
 const themes = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean'];
 
-test('brand icon keeps the original palette silhouette across themes', () => {
-  const signatures = themes.map(theme => {
-    const svg = brandIcon(theme);
-    return {
-      viewBox: svg.match(/viewBox="([^"]+)"/)?.[1],
-      paths: (svg.match(/<path\b/g) || []).length,
-      circles: (svg.match(/<circle\b/g) || []).length,
-      groups: (svg.match(/<g\b/g) || []).length,
-    };
-  });
-  assert.ok(signatures.every(signature => signature.viewBox === '0 0 68 68'));
-  assert.ok(signatures.every(signature => signature.paths === 1 && signature.circles === 5 && signature.groups === 1));
-  assert.equal(new Set(signatures.map(signature => JSON.stringify(signature))).size, 1);
+test('brand icon uses the illustrated child logo for every theme', () => {
+  const images = themes.map(theme => brandIcon(theme));
+  assert.ok(images.every(icon => icon.startsWith('<img ')));
+  assert.ok(images.every(icon => icon.includes('src="branding/app-icon.png"')));
+  assert.ok(images.every(icon => icon.includes('class="playful-icon brand-icon brand-logo')));
+  assert.equal(new Set(images.map(icon => icon.match(/brand-logo-([a-z]+)/)?.[1])).size, themes.length);
 });
 
-test('about icon keeps a dedicated slot while changing theme colors', () => {
+test('about icon keeps a dedicated slot and platform source', () => {
   const icons = themes.map(theme => brandIcon(theme, { slot: 'about' }));
   assert.ok(icons.every(icon => icon.includes('about-theme-icon')));
-  assert.ok(new Set(icons.map(icon => icon.match(/<path fill="([^"]+)"/)?.[1])).size > 1);
+  assert.ok(icons.every(icon => icon.includes('src="branding/app-icon.png"')));
+  assert.ok(icons.every(icon => icon.includes('data-theme-logo=')));
+  assert.match(brandIcon('spring', { slot: 'about', src: 'branding/app-icon-windows.png' }), /src="branding\/app-icon-windows\.png"/);
 });

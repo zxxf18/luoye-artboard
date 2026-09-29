@@ -28,18 +28,10 @@ function overlaps(a, b, margin = 1) {
 }
 function iconSignature(icon) {
   if (!icon) return null;
-  const rect = box(icon), viewBox = icon.getAttribute('viewBox') || '';
-  const shape = [...icon.querySelectorAll('path, circle, rect, ellipse, polygon')].map(node => [
-    node.tagName, node.getAttribute('d') || '', node.getAttribute('cx') || '', node.getAttribute('cy') || '',
-    node.getAttribute('r') || '', node.getAttribute('rx') || '', node.getAttribute('ry') || '',
-  ].join(':')).join('|');
+  const rect = box(icon);
   return {
     tag: icon.tagName,
-    viewBox,
-    shape,
-    paths: icon.querySelectorAll('path').length,
-    circles: icon.querySelectorAll('circle').length,
-    groups: icon.querySelectorAll('g').length,
+    source: icon.getAttribute('src') || '',
     width: Math.round(rect?.width || 0),
     height: Math.round(rect?.height || 0),
   };
@@ -83,14 +75,13 @@ async function inspectAboutIcon(doc, themeId) {
   await pause(20);
   const about = doc.querySelector('#about-dialog');
   assert(about?.open, `关于弹窗未打开：${themeId}`);
-  const icon = themedIcon(about, '.about-mark .about-theme-icon, .about-mark [data-theme-icon], .about-mark svg');
+  const icon = themedIcon(about, '.about-mark .about-theme-icon, .about-mark [data-theme-icon], .about-mark svg, .about-mark img');
   assert(icon && visible(icon), `关于缺少主题图标：${themeId}`);
   const mark = icon.closest('.about-mark');
-  const painted = icon.querySelector('path, circle, rect, ellipse, polygon') || icon;
-  const iconStyle = getComputedStyle(painted), markStyle = getComputedStyle(mark);
+  const iconStyle = getComputedStyle(icon), markStyle = getComputedStyle(mark);
   const variant = [
-    iconStyle.fill, iconStyle.stroke, iconStyle.color,
-    markStyle.backgroundColor, icon.dataset.theme || icon.dataset.themeIcon || '',
+    iconStyle.filter, iconStyle.opacity, markStyle.backgroundColor,
+    icon.dataset.theme || icon.dataset.themeIcon || icon.dataset.themeLogo || '',
   ].join('|');
   const signature = iconSignature(icon);
   about.querySelector('#about-close')?.click();
@@ -132,6 +123,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     const history = doc.querySelector('#foreground-history')?.innerHTML;
     const brandIcon = themedIcon(doc, '.brand .brand-icon-svg, .brand .brand-icon, .brand [data-brand-icon]');
     assert(brandIcon && visible(brandIcon), '左上缺少独立应用图标');
+    assert(brandIcon.tagName === 'IMG' && /branding\/app-icon(?:-windows)?\.png$/.test(brandIcon.getAttribute('src') || ''), '左上未使用卡通小孩 logo');
     assert(!brandIcon.closest('.theme-scene'), '主题动效不应替换左上应用图标');
     const brandSignature = iconSignature(brandIcon);
     const aboutVariants = [];
@@ -177,7 +169,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     }
     assert(new Set(aboutVariants).size >= 2, '关于图标没有随主题更换视觉配色');
     for (const signature of aboutSignatures) {
-      assert(signature && signature.paths + signature.circles > 0, '关于主题图标缺少可绘制轮廓');
+      assert(signature && signature.tag === 'IMG' && /branding\/app-icon(?:-windows)?\.png$/.test(signature.source), '关于主题图标不是卡通小孩资源');
       assert(signature.width > 0 && signature.height > 0, '关于主题图标没有可见尺寸');
     }
     doc.querySelector('#theme-done').click();
