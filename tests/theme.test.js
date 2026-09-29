@@ -13,6 +13,7 @@ const palette = readFileSync(new URL('src/palette-ui.js', root), 'utf8');
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 const toolStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
+const materials = readFileSync(new URL('src/materials-ui.js', root), 'utf8');
 
 test('theme picker defines eight stable themes with autumn as the default', () => {
   const ids = [...theme.matchAll(/id:\s*'([^']+)'/g)].map(match => match[1]);
@@ -120,6 +121,13 @@ test('theme CSS exposes global control surfaces and excludes artwork pixels', ()
   assert.match(toolStyles, /\.asset img/);
 });
 
+test('theme chrome replaces legacy yellow scrollbars and canvas frame ring', () => {
+  assert.match(styles, /\.playroom\[data-theme\]\s*\{[\s\S]*--theme-accent\s*:/);
+  assert.match(styles, /\.playroom\[data-theme\]\s*:is\([\s\S]*\.classic-left \.brush-box[\s\S]*scrollbar-color:\s*var\(--theme-accent\)\s+var\(--theme-panel\)/);
+  assert.match(styles, /\.playroom\[data-theme\]\s*:is\([\s\S]*::-webkit-scrollbar-thumb[\s\S]*background:\s*var\(--theme-accent\)/);
+  assert.match(styles, /\.playroom\[data-theme\] \.viewport\s*\{[\s\S]*box-shadow:\s*0 0 0 2px var\(--theme-border\)/);
+});
+
 test('theme dialog is keyboard and small-window friendly', () => {
   assert.match(theme, /id = 'theme-open'/);
   assert.match(theme, /className = 'theme-dialog'/);
@@ -127,4 +135,10 @@ test('theme dialog is keyboard and small-window friendly', () => {
   assert.match(theme, /setAttribute\('aria-pressed'/);
   assert.match(styles, /\.theme-grid\s*\{/);
   assert.match(styles, /@media \(max-width: 520px\), \(max-height: 420px\)/);
+});
+
+test('paper grain control explains that it changes brush texture rather than the paper', () => {
+  assert.match(materials, /笔触纸感/);
+  assert.match(materials, /模拟纸张颗粒/);
+  assert.match(materials, /纸感强度/);
 });

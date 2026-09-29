@@ -3,7 +3,7 @@ import { loadImage } from './engine.js';
 export function mountMaterials({engine,run,toast,getColor}) {
   const el=id=>document.getElementById(id),panel=document.createElement('div');panel.className='creative-options';
   const drawing='pen fill line rect ellipse triangle pentagon hexagon roundrect star polygon bezier';
-  panel.innerHTML=`<label data-option="${drawing}">色彩 <button id="paint-color-open" type="button"><i aria-hidden="true"></i><span>选颜色</span></button></label><label data-option="pen">画纸 <select id="paper-grain"><option value="none">光滑</option><option value="grain-0">纸纹 1</option><option value="grain-1">纸纹 2</option></select></label><label data-option="pen">纸纹强度 <input id="paper-grain-strength" type="range" min="0" max="100" value="70"></label><input id="paint-texture-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>`;
+  panel.innerHTML=`<label data-option="${drawing}">色彩 <button id="paint-color-open" type="button"><i aria-hidden="true"></i><span>选颜色</span></button></label><label data-option="pen" title="模拟纸张颗粒对笔触透明度的影响，强度越高颗粒越明显">笔触纸感 <select id="paper-grain" aria-label="笔触纸感（模拟纸张颗粒）"><option value="none">光滑</option><option value="grain-0">纸纹 1</option><option value="grain-1">纸纹 2</option></select></label><label data-option="pen" title="控制纸张颗粒在笔触中的透出程度">纸感强度 <input id="paper-grain-strength" aria-label="纸感强度" type="range" min="0" max="100" value="70"></label><input id="paint-texture-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>`;
   // Mount the complete panel, including the custom texture file input, before
   // looking up controls or binding handlers. The wrapper uses display:contents.
   document.querySelector('.primary-brush-options').append(panel);

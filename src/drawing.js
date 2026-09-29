@@ -11,6 +11,18 @@ import { assistCopies, assistGuideLines, assistPointSetCopies, assistPointSets, 
 // Store immutable animation frames at the stamp's drawing resolution. Large
 // stamps keep the originals; small stamps do not each retain 480px frames.
 const fairyResolutions=new WeakMap(),fairyFrameResolutions=new WeakMap();
+/**
+ * Return the smallest layer-space rectangle that can contain a line preview.
+ * Material previews are composited into a full layer afterwards, but the
+ * expensive texture sampling only needs this stroke-sized source rectangle.
+ */
+export function previewBoundsForLine(start,end,size,scale,width,height,copies=[]){
+  const layerScale=Math.max(.01,Number(scale)||1),brushSize=Math.max(1,Number(size)||1)/layerScale,pad=brushSize*2+4;
+  const points=[start,end,...copies.flatMap(copy=>[copy.start,copy.end])].filter(point=>point&&Number.isFinite(point.x)&&Number.isFinite(point.y));
+  const left=Math.max(0,Math.floor(Math.min(...points.map(point=>point.x))-pad)),top=Math.max(0,Math.floor(Math.min(...points.map(point=>point.y))-pad));
+  const right=Math.min(width,Math.ceil(Math.max(...points.map(point=>point.x))+pad)),bottom=Math.min(height,Math.ceil(Math.max(...points.map(point=>point.y))+pad));
+  return {x:left,y:top,width:Math.max(1,right-left),height:Math.max(1,bottom-top)};
+}
 function stampGroup(group,size){
   const edge=Math.max(...group.frames.map(f=>Math.max(f.width,f.height)));
   const target=Math.min(edge,Math.max(128,Math.ceil(size/32)*32));
@@ -168,16 +180,18 @@ export class DrawingEngine extends EditorEngine {
   paint(ctx,guides=false){
     const line=this.gesture;
     if(guides&&line?.kind==='brush-line'){
-      const c=line.previewCanvas??=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d'),stroke=line.previewStroke??=makeCanvas(c.width,c.height),preview={layer:line.layer,options:{...line.options}};
-      target.clearRect(0,0,c.width,c.height);const strokeContext=stroke.getContext('2d');strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,c.width,c.height);
+      const c=line.previewCanvas??=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d'),copies=this.assistPairs(line.start,line.end,line.options,line.layer),bounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height,copies),sourceBounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height),preview={layer:line.layer,options:{...line.options}};
+      if(!line.previewStroke||line.previewStroke.width!==bounds.width||line.previewStroke.height!==bounds.height)line.previewStroke=makeCanvas(bounds.width,bounds.height);
+      const stroke=line.previewStroke;target.clearRect(0,0,c.width,c.height);const strokeContext=stroke.getContext('2d');strokeContext.setTransform(1,0,0,1,0,0);strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,stroke.width,stroke.height);
       target.drawImage(line.layer.canvas,0,0);
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
-      const previewContext = stroke.getContext('2d');
-      for (const { transformIndex } of this.assistPairs(line.start, line.end, line.options, line.layer)) {
-        this.drawAssistSegment(previewContext, preview, line.start, line.end, texture, paper, {x:0,y:0,width:c.width,height:c.height}, transformIndex);
+      strokeContext.save();strokeContext.translate(-bounds.x,-bounds.y);
+      for (const { transformIndex } of copies) {
+        this.drawAssistSegment(strokeContext, preview, line.start, line.end, texture, paper, sourceBounds, transformIndex);
       }
-      if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);const sc=stroke.getContext('2d');sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);}
-      target.drawImage(stroke,0,0);this.strokePreview={...line.layer,canvas:c};
+      strokeContext.restore();
+      if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);strokeContext.globalCompositeOperation='destination-in';strokeContext.drawImage(mask,-bounds.x,-bounds.y);strokeContext.globalCompositeOperation='source-over';}
+      target.drawImage(stroke,bounds.x,bounds.y);line.previewBounds=bounds;this.strokePreview={...line.layer,canvas:c};
     }
     try{super.paint(ctx,guides);}finally{this.strokePreview=null;}if(!guides)return;
     this.drawAssistGuides(ctx);
