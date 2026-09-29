@@ -12,4 +12,4 @@
 | 宇宙 | `app-icon-space.png` | `app-icon-space-windows.png` |
 | 海洋 | `app-icon-ocean.png` | `app-icon-ocean-windows.png` |
 
-主题插画使用本地生成资源并缩放为 256px，单个文件约 55–100KB；主题切换只替换本地图片 URL，不引入网络请求。Windows 与 macOS WebView 使用同一套主题构图，平台原生图标文件不变。
+主题插画使用本地生成资源并缩放为 192px，单个文件约 54–76KB，14 个文件合计约 984KB；在当前 24–68px 的显示范围内保留接近 3× 的清晰度。主题切换只替换本地图片 URL，不引入网络请求。Windows 与 macOS WebView 使用同一套主题构图，平台原生图标文件不变。
