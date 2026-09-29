@@ -373,6 +373,12 @@
   --theme-surface: #f3fffc; --theme-control: #e8faf6; --theme-hover: #c9ebe4; --theme-selected: #b5ded7;
   --theme-border: #8fc3ba; --theme-accent: #2d8e86; --theme-strong: #1e665f; --theme-classic-colors: #9bcfc7; --brand-logo-ring: #54a89f;
 }
+.playroom[data-theme="candy"] {
+  --ink: #56364b; --muted: #8e6076; --green: #65ad94; --green-soft: #dff5e8;
+  --theme-bg: #fff0f4; --theme-header: #fff9fb; --theme-panel: #ffe2ea; --theme-rail: #f5c7d6;
+  --theme-surface: #fffaff; --theme-control: #fff3f7; --theme-hover: #ffdbe7; --theme-selected: #ffc5d8;
+  --theme-border: #e5a9c0; --theme-accent: #d86a8e; --theme-strong: #a84467; --theme-classic-colors: #f3cad9; --brand-logo-ring: #e887a5;
+}
 
 .playroom[data-theme] .theme-entry {
   flex: 0 0 calc(66px * var(--u));
@@ -458,6 +464,7 @@
 .playroom[data-theme] .theme-card[data-theme="mechanical"] .theme-card-preview { background: linear-gradient(135deg, #687b83, #d9e1e3); --theme-preview-a: #5f7076; --theme-preview-b: #8ca1a8; }
 .playroom[data-theme] .theme-card[data-theme="space"] .theme-card-preview { background: radial-gradient(circle at 70% 25%, #f3bd91 0 8%, #754e91 22%, transparent 23%), #1c2754; --theme-preview-a: #c68ca0; --theme-preview-b: #8497eb; }
 .playroom[data-theme] .theme-card[data-theme="ocean"] .theme-card-preview { background: linear-gradient(#a9e2e4, #2d8e9a); --theme-preview-a: #d2f4e9; --theme-preview-b: #4ab19a; }
+.playroom[data-theme] .theme-card[data-theme="candy"] .theme-card-preview { background: linear-gradient(150deg, #ffd1df, #bfead8); --theme-preview-a: #ffd98b; --theme-preview-b: #d86a8e; }
 .playroom[data-theme] .theme-card-copy { min-width: 0; display: flex; flex-direction: column; }
 .playroom[data-theme] .theme-card-copy strong { font-size: 16px; }
 .playroom[data-theme] .theme-card-copy small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

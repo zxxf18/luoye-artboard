@@ -11,5 +11,6 @@
 | 机械 | `app-icon-mechanical.png` | `app-icon-mechanical-windows.png` |
 | 宇宙 | `app-icon-space.png` | `app-icon-space-windows.png` |
 | 海洋 | `app-icon-ocean.png` | `app-icon-ocean-windows.png` |
+| 糖果 | `app-icon-candy.png` | `app-icon-candy-windows.png` |
 
-主题插画使用本地生成资源并缩放为 192px，四角为透明 RGBA，单个文件约 54–100KB，14 个文件合计约 1.1MB；在当前 28–68px 的显示范围内保留接近 3× 的清晰度。主题切换只替换本地图片 URL，不引入网络请求。Windows 与 macOS WebView 使用同一套主题构图，平台原生图标文件不变。
+主题插画使用本地生成资源并缩放为 192px，四角为透明 RGBA，单个文件约 54–100KB，16 个文件合计约 1.3MB；在当前 28–68px 的显示范围内保留接近 3× 的清晰度。主题切换只替换本地图片 URL，不引入网络请求。Windows 与 macOS WebView 使用同一套主题构图，平台原生图标文件不变。糖果主题继续使用同一小男孩角色，仅替换糖果围裙、棒棒糖画笔和背景。

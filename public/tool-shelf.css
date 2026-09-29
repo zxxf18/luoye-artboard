@@ -140,6 +140,10 @@
   --theme-classic-control: #ebfaf6;
   --theme-backdrop: #124c4b55;
 }
+.playroom[data-theme="candy"] {
+  --theme-classic-control: #fff3f7;
+  --theme-backdrop: #8c3d5a44;
+}
 
 /* Repaint all interface-only shelves and cards. */
 .playroom[data-theme] .classic-left,

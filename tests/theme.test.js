@@ -14,12 +14,13 @@ const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 const toolStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
 
-test('theme picker defines seven stable themes with autumn as the default', () => {
+test('theme picker defines eight stable themes with autumn as the default', () => {
   const ids = [...theme.matchAll(/id:\s*'([^']+)'/g)].map(match => match[1]);
-  assert.deepEqual(ids, ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']);
+  assert.deepEqual(ids, ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']);
   assert.match(theme, /THEME_STORAGE_KEY\s*=\s*'luoye-theme'/);
   assert.match(theme, /DEFAULT_THEME\s*=\s*'autumn'/);
   assert.match(theme, /normalizeTheme\(value\)/);
+  assert.match(theme, /id: 'candy', label: '糖果', caption: '甜甜画室'/);
 });
 
 test('theme selection is persisted independently from projects and reset restores autumn', () => {
@@ -32,7 +33,7 @@ test('theme selection is persisted independently from projects and reset restore
 });
 
 test('theme visuals are lightweight CSS decoration and do not target canvas pixels or asset images', () => {
-  for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']) {
+  for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {
     assert.match(styles, new RegExp(`data-theme="${id}"`));
   }
   assert.match(sceneStyles, /\.theme-scene\s*\{/);
@@ -40,6 +41,9 @@ test('theme visuals are lightweight CSS decoration and do not target canvas pixe
   assert.doesNotMatch(sceneStyles, /\.theme-decoration\s*\{/);
   assert.match(sceneStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(sceneStyles, /animation: theme-(breeze|waves|leaf-fall|snow|gear|planet|fish)/);
+  assert.match(scenes, /candy:/);
+  assert.match(sceneStyles, /theme-sprinkles/);
+  assert.match(styles, /data-theme="candy"[\s\S]*--theme-bg:\s*#fff0f4/);
   assert.match(theme, /brandIcon\(/);
   assert.match(theme, /brandIcon\(theme\.id, \{ slot: 'theme' \}\)/);
   assert.match(scenes, /class="theme-scene/);
@@ -60,7 +64,7 @@ test('theme and settings entries stay in their intended containers', () => {
 
 test('classic color surfaces are themed separately from actual color controls', () => {
   assert.match(styles, /classic-colors/);
-  for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']) {
+  for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {
     assert.match(styles, new RegExp(`data-theme="${id}"`));
   }
   assert.doesNotMatch(styles, /data-theme[^{}]*#foreground-palette/);

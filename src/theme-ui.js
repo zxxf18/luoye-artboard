@@ -12,6 +12,7 @@ export const THEMES = Object.freeze([
   { id: 'mechanical', label: '机械', caption: '金属传动', icon: 'gear' },
   { id: 'space', label: '宇宙', caption: '星球漫游', icon: 'star' },
   { id: 'ocean', label: '海洋', caption: '海底花园', icon: 'fish' },
+  { id: 'candy', label: '糖果', caption: '甜甜画室', icon: 'palette' },
 ]);
 
 const THEME_IDS = new Set(THEMES.map(theme => theme.id));

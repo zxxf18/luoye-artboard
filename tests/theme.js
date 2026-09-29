@@ -128,7 +128,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     const history = doc.querySelector('#foreground-history')?.innerHTML;
     const brandIcon = themedIcon(doc, '.brand .brand-icon-svg, .brand .brand-icon, .brand [data-brand-icon]');
     assert(brandIcon && visible(brandIcon), '左上缺少独立应用图标');
-    assert(brandIcon.tagName === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(brandIcon.getAttribute('src') || ''), '左上未使用卡通小孩主题 logo');
+    assert(brandIcon.tagName === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean|candy)(?:-windows)?\.png$/.test(brandIcon.getAttribute('src') || ''), '左上未使用卡通小孩主题 logo');
     assert(!brandIcon.closest('.theme-scene'), '主题动效不应替换左上应用图标');
     const brandSignature = iconSignature(brandIcon);
     const aboutVariants = [];
@@ -137,7 +137,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     assert(doc.querySelector('#display-open')?.closest('#more-dialog .more-actions'), '界面大小入口未放入设置');
     assert(doc.querySelector('#about-open')?.parentElement?.lastElementChild === doc.querySelector('#about-open'), '关于必须是设置最后一项');
     assert(inside(brandIcon, doc.querySelector('.app-header')), '左上应用图标超出顶部栏边界');
-    for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean']) {
+    for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {
       const dialog = await pick(doc, id);
       const box = dialog.getBoundingClientRect();
       assert(box.left >= 2 && box.top >= 2 && box.right <= width - 2 && box.bottom <= height - 2, `主题弹窗越出窗口：${width}×${height}`);
@@ -162,7 +162,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
       assert(currentBrandIcon.complete && currentBrandIcon.naturalWidth >= currentBrandSignature.width * 2, `主题 Logo 未加载或清晰度不足：${id}`);
       assert(!overlaps(currentBrandIcon, doc.querySelector('.brand > span')), `左上 Logo 与品牌文案重叠：${id}`);
       assert(currentBrandSignature.tag === brandSignature.tag && currentBrandSignature.width === brandSignature.width && currentBrandSignature.height === brandSignature.height, `主题切换改变左上图标尺寸：${id}`);
-      assert(/branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(currentBrandSignature.source), `主题没有切换 Logo 资源：${id}`);
+      assert(/branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean|candy)(?:-windows)?\.png$/.test(currentBrandSignature.source), `主题没有切换 Logo 资源：${id}`);
       assert(inside(currentBrandIcon, doc.querySelector('.app-header')), `主题图标超出顶部栏边界：${id}`);
       const residuals = themedControlResiduals(doc);
       assert(!residuals.length, `主题 ${id} 仍有未换肤的暖黄色控件：${residuals.slice(0, 4).map(node => node.id || node.className).join(', ')}`);
@@ -183,18 +183,18 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     }
     assert(new Set(aboutVariants).size >= 2, '关于图标没有随主题更换视觉配色');
     for (const signature of aboutSignatures) {
-      assert(signature && signature.tag === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean)(?:-windows)?\.png$/.test(signature.source), '关于主题图标不是卡通小孩主题资源');
+      assert(signature && signature.tag === 'IMG' && /branding\/themes\/app-icon-(spring|summer|autumn|winter|mechanical|space|ocean|candy)(?:-windows)?\.png$/.test(signature.source), '关于主题图标不是卡通小孩主题资源');
       assert(signature.width > 0 && signature.height > 0, '关于主题图标没有可见尺寸');
     }
     doc.querySelector('#theme-done').click();
     await pause(15);
     assert(!doc.querySelector('#theme-dialog').open, '主题弹窗没有关闭');
     const persisted = await doc.defaultView.localStorage.getItem('luoye-theme');
-    assert(persisted === 'ocean', '主题没有写入本地配置');
+    assert(persisted === 'candy', '主题没有写入本地配置');
     await new Promise(resolve => { frame.onload = resolve; frame.src = '/'; });
     const reloaded = frame.contentDocument;
     for (let i = 0; i < 240 && reloaded.body.dataset.appReady !== 'true'; i++) await pause(25);
-    assert(reloaded.body.dataset.theme === 'ocean', `重新打开没有保持主题：${width}×${height}`);
+    assert(reloaded.body.dataset.theme === 'candy', `重新打开没有保持主题：${width}×${height}`);
     assert(reloaded.querySelectorAll('.theme-scene').length <= 1, '主题场景重复挂载');
     reloaded.querySelector('#reset-settings').click();
     await pause(80);
@@ -202,9 +202,9 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     assert(reloaded.defaultView.localStorage.getItem('luoye-theme') === null, '重置设置没有清除主题偏好');
     const controls = [...reloaded.querySelectorAll('.theme-card, #theme-open')].filter(node => node.getClientRects().length);
     assert(controls.every(node => node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0), '主题控件没有可用尺寸');
-    results.push({ name: `${width}×${height} · 七主题、持久化、画布与素材`, passed: true });
+    results.push({ name: `${width}×${height} · 八主题、持久化、画布与素材`, passed: true });
   } catch (error) {
-    results.push({ name: `${width}×${height} · 七主题、持久化、画布与素材`, passed: false, error: error.message });
+    results.push({ name: `${width}×${height} · 八主题、持久化、画布与素材`, passed: false, error: error.message });
   }
 }
 document.querySelector('#results').replaceChildren(...results.map(result => {

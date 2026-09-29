@@ -61,6 +61,9 @@
 .theme-scene svg[data-theme-motion="on"] [data-motion="fish"] {
   animation: theme-fish 6s ease-in-out infinite;
 }
+.theme-scene svg[data-theme-motion="on"] [data-motion="sprinkles"] {
+  animation: theme-sprinkles 4.8s ease-in-out infinite;
+}
 
 @keyframes theme-breeze {
   0%, 100% { transform: rotate(-2deg) translateX(0); opacity: .86; }
@@ -84,6 +87,10 @@
 @keyframes theme-fish {
   0%, 100% { transform: translateX(-1px); opacity: .88; }
   50% { transform: translateX(2px); opacity: 1; }
+}
+@keyframes theme-sprinkles {
+  0%, 100% { transform: translateY(1px) scale(.98); opacity: .82; }
+  50% { transform: translateY(-1px) scale(1.02); opacity: 1; }
 }
 
 @media (max-width: 860px), (max-height: 600px) {

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { brandIcon } from '../src/playful-icons.js';
 
-const themes = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean'];
+const themes = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy'];
 
 test('brand icon uses the illustrated child logo for every theme', () => {
   const images = themes.map(theme => brandIcon(theme));

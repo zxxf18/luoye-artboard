@@ -67,7 +67,7 @@ export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playfu
 // change without applying destructive filters to the character.
 export function brandIcon(theme = 'autumn', { slot = 'brand', src } = {}) {
   const platform = typeof globalThis !== 'undefined' && globalThis.LUOYE_PLATFORM === 'windows' ? 'windows' : 'mac';
-  const themeId = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean'].includes(theme) ? theme : 'autumn';
+  const themeId = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy'].includes(theme) ? theme : 'autumn';
   const source = src || `branding/themes/app-icon-${themeId}${platform === 'windows' ? '-windows' : ''}.png`;
   const slotClass = slot === 'about' ? ' about-theme-icon' : slot === 'theme' ? ' theme-card-logo' : '';
   const alt = slot === 'about' ? '落叶画板主题图标' : slot === 'theme' ? `${themeId}主题图标` : '落叶画板应用图标';
