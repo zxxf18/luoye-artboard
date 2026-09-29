@@ -18,6 +18,7 @@ import { mountDisplay } from './display-ui.js';
 import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
 import { mountAssist } from './assist-ui.js';
+import { applyStoredTheme, mountTheme } from './theme-ui.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -26,7 +27,7 @@ const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉�
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
-let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0;
+let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0, theme;
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
@@ -200,7 +201,9 @@ engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engi
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
+applyStoredTheme();
 mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
+theme = mountTheme();
 assist=mountAssist({engine,toast});
 chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
@@ -241,7 +244,7 @@ async function newBlank(width=engine.width,height=engine.height){
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
-  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
+  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();theme?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
 bind('new',()=>newBlank());
 bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${engine.height}`;if(!$('preset').value)$('preset').selectedIndex=0;document.dispatchEvent(new Event('controlschange'));showDialog('new-dialog');});
