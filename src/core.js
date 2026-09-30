@@ -41,6 +41,100 @@ export function floodFill(data, width, height, x, y, color, tolerance = 12) {
   return { count };
 }
 
+// Close a small break in a line-art boundary before flooding.  The boundary
+// is only used for reachability; pixels in the source image keep their own
+// colour and alpha when the fill is committed.  A component that still
+// reaches the canvas edge is considered open and is rejected by default so a
+// large gap can never turn the whole page into one fill operation.
+function morphAxis(source, width, height, radius, horizontal, dilate) {
+  const output = new Uint8Array(source.length);
+  const lines = horizontal ? height : width;
+  const length = horizontal ? width : height;
+  for (let line = 0; line < lines; line++) {
+    const prefix = new Uint32Array(length + 1);
+    for (let i = 0; i < length; i++) {
+      const index = horizontal ? line * width + i : i * width + line;
+      prefix[i + 1] = prefix[i] + source[index];
+    }
+    for (let i = 0; i < length; i++) {
+      const start = Math.max(0, i - radius), end = Math.min(length, i + radius + 1);
+      const count = prefix[end] - prefix[start], span = end - start;
+      const value = dilate ? count > 0 : count === span;
+      const index = horizontal ? line * width + i : i * width + line;
+      output[index] = value ? 1 : 0;
+    }
+  }
+  return output;
+}
+
+function closeBoundaryMask(mask, width, height, radius) {
+  if (!radius) return mask;
+  let result = morphAxis(mask, width, height, radius, true, true);
+  result = morphAxis(result, width, height, radius, false, true);
+  result = morphAxis(result, width, height, radius, true, false);
+  return morphAxis(result, width, height, radius, false, false);
+}
+
+/**
+ * Fill a line-art region while tolerating a small break in its outline.
+ *
+ * `options.maxGap` is the largest break (in pixels) to bridge.  The default
+ * safety rule rejects a result that is connected to any canvas edge; pass
+ * `{ rejectOpen: false }` only for callers that intentionally want that
+ * behaviour.  The source array is unchanged when a component is rejected.
+ */
+export function closedFloodFill(data, width, height, x, y, color, tolerance = 12, options = {}) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || data.length < width * height * 4) return { count: 0 };
+  x = Math.floor(x); y = Math.floor(y);
+  if (x < 0 || y < 0 || x >= width || y >= height) return { count: 0 };
+  const seed = y * width + x, target = data.slice(seed * 4, seed * 4 + 4);
+  if (color.every((value, index) => value === target[index])) return { count: 0 };
+  const barrier = new Uint8Array(width * height);
+  for (let p = 0; p < barrier.length; p++) {
+    const offset = p * 4;
+    barrier[p] = target.some((value, index) => Math.abs(data[offset + index] - value) > tolerance) ? 1 : 0;
+  }
+  if (barrier[seed]) return { count: 0 };
+
+  const maxGap = Math.max(0, Math.min(32, Math.floor(Number(options.maxGap ?? 4) || 0)));
+  const closed = closeBoundaryMask(barrier, width, height, Math.ceil(maxGap / 2));
+  const visited = new Uint8Array(width * height), stack = new Uint32Array(width * height);
+  let top = 0, touchesEdge = false;
+  stack[top++] = seed; visited[seed] = 1;
+  const push = p => {
+    if (!visited[p] && !closed[p]) { visited[p] = 1; stack[top++] = p; }
+  };
+  while (top) {
+    const p = stack[--top], px = p % width, py = Math.floor(p / width);
+    if (px === 0 || py === 0 || px === width - 1 || py === height - 1) touchesEdge = true;
+    if (px) push(p - 1);
+    if (px < width - 1) push(p + 1);
+    if (py) push(p - width);
+    if (py < height - 1) push(p + width);
+  }
+  if (touchesEdge && options.rejectOpen !== false) return { count: 0, open: true };
+
+  const fill = Array.isArray(color) || ArrayBuffer.isView(color) ? color : [0, 0, 0, 255];
+  let count = 0, bridged = 0;
+  const isVisitedNeighbour = p => {
+    const px = p % width, py = Math.floor(p / width);
+    return (px && visited[p - 1]) || (px < width - 1 && visited[p + 1]) || (py && visited[p - width]) || (py < height - 1 && visited[p + width]);
+  };
+  for (let p = 0; p < visited.length; p++) {
+    // A target-colour pixel swallowed by the closed boundary is only a
+    // virtual bridge. It must stay untouched so filling a colouring-page
+    // opening never paints over the original line art.
+    if (!visited[p] || barrier[p]) {
+      if (!barrier[p] && closed[p] && isVisitedNeighbour(p)) bridged++;
+      continue;
+    }
+    const offset = p * 4;
+    for (let index = 0; index < 4; index++) data[offset + index] = fill[index] ?? (index === 3 ? 255 : 0);
+    count++;
+  }
+  return { count, open: false, bridged };
+}
+
 export class History {
   constructor(budget = 96 * 1024 * 1024) { this.budget = budget; this.clear(); }
   clear() { this.past = []; this.future = []; }

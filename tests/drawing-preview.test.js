@@ -15,3 +15,8 @@ test('paper-grain preview samples a bounded source region instead of full canvas
   assert.match(drawingSource, /line\.previewStroke\.width!==bounds\.width/);
   assert.doesNotMatch(drawingSource, /drawAssistSegment\([^\n]+\{x:0,y:0,width:c\.width,height:c\.height\}/);
 });
+
+test('assisted strokes reuse normalized geometry during a gesture', () => {
+  assert.match(drawingSource, /assistGeometryCache/);
+  assert.match(drawingSource, /gesture\.assistCopies/);
+});

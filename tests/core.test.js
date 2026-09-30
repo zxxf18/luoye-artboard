@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { floodFill, fitInside, toLayerPoint, validateProject, History } from '../src/core.js';
+import { floodFill, closedFloodFill, fitInside, toLayerPoint, validateProject, History } from '../src/core.js';
 
 test('fit preserves aspect ratio inside a 2K canvas', () => {
   assert.deepEqual(fitInside(600, 450, 2560, 1440), { width: 1920, height: 1440 });
@@ -30,6 +30,32 @@ test('fill outside canvas is a no-op; same color never loops', () => {
   const data = new Uint8ClampedArray(16).fill(255);
   assert.equal(floodFill(data, 2, 2, -1, 0, [0, 0, 0, 255], 0).count, 0);
   assert.equal(floodFill(data, 2, 2, 0, 0, [255, 255, 255, 255], 0).count, 0);
+});
+
+test('closed fill bridges a small line gap without touching the outside', () => {
+  const width = 9, height = 9, data = new Uint8ClampedArray(width * height * 4).fill(255);
+  const pixel = (x, y, rgba) => data.set(rgba, (y * width + x) * 4);
+  for (let x = 1; x < 8; x++) { pixel(x, 1, [0, 0, 0, 255]); pixel(x, 7, [0, 0, 0, 255]); }
+  for (let y = 1; y < 8; y++) { pixel(1, y, [0, 0, 0, 255]); pixel(7, y, [0, 0, 0, 255]); }
+  pixel(4, 1, [255, 255, 255, 255]); // one-pixel opening in the top edge
+  const result = closedFloodFill(data, width, height, 4, 4, [255, 0, 0, 255], 0, { maxGap: 2 });
+  assert.ok(result.count > 0);
+  assert.deepEqual([...data.slice((4 * width + 4) * 4, (4 * width + 4) * 4 + 4)], [255, 0, 0, 255]);
+  assert.deepEqual([...data.slice((1 * width + 4) * 4, (1 * width + 4) * 4 + 4)], [255, 255, 255, 255]);
+  assert.deepEqual([...data.slice(4 * 4, 4 * 4 + 4)], [255, 255, 255, 255]);
+});
+
+test('closed fill aborts when the opening is too large and reaches the edge', () => {
+  const width = 9, height = 9, data = new Uint8ClampedArray(width * height * 4).fill(255);
+  const pixel = (x, y, rgba) => data.set(rgba, (y * width + x) * 4);
+  for (let x = 1; x < 8; x++) { pixel(x, 1, [0, 0, 0, 255]); pixel(x, 7, [0, 0, 0, 255]); }
+  for (let y = 1; y < 8; y++) { pixel(1, y, [0, 0, 0, 255]); pixel(7, y, [0, 0, 0, 255]); }
+  for (let x = 2; x < 7; x++) pixel(x, 1, [255, 255, 255, 255]); // opening wider than maxGap
+  const before = data.slice();
+  const result = closedFloodFill(data, width, height, 4, 4, [255, 0, 0, 255], 0, { maxGap: 2 });
+  assert.equal(result.count, 0);
+  assert.equal(result.open, true);
+  assert.deepEqual(data, before);
 });
 
 test('history clears redo after a new edit and retains a bounded history', () => {

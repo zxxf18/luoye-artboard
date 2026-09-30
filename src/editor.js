@@ -1,6 +1,6 @@
 import { runPaperEffect } from './animated-effects.js';
 import { PaintEngine, makeCanvas, loadImage } from './engine.js';
-import { toLayerPoint } from './core.js';
+import { closedFloodFill, toLayerPoint } from './core.js';
 import { regionMask, combineMasks, blendMasked, applyEffect, rgb } from './pixels.js';
 import { shapePath } from './geometry.js';
 
@@ -124,7 +124,7 @@ export class EditorEngine extends PaintEngine {
     if(options.tool==='select'){this.gesture={kind:'select',options:{...options},start:point,end:point,points:[point]};return;}
     if(options.tool==='magic'){this.magicSelect(point,options.tolerance,options.selectionMode);return;}
     if(options.tool==='fill'){
-      this.assertRaster();if(['region','all'].includes(options.fillMode||'region')){this.fillAt(point,options);return;}
+      this.assertRaster();if(['region','all','closed'].includes(options.fillMode||'region')){this.fillAt(point,options);return;}
       this.gesture={kind:'fill',options:{...options},start:point,end:point};return;
     }
     if(['triangle','pentagon','hexagon','roundrect','star'].includes(options.tool)){
@@ -145,15 +145,25 @@ export class EditorEngine extends PaintEngine {
     const layer=this.active,start=toLayerPoint(point,layer),finish=toLayerPoint(end,layer),mode=options.fillMode||'region';
     const composite=this.paperMode?makeCanvas(this.width,this.height):null;if(composite)this.paint(composite.getContext('2d'));
     const color=rgb(options.color||'#285b49'),background=rgb(options.background||'#ffffff'),alpha=Math.round((options.opacity??1)*255);
+    if(mode==='closed'){
+      const sourceCanvas=composite||layer.canvas,sourceImage=sourceCanvas.getContext('2d').getImageData(0,0,sourceCanvas.width,sourceCanvas.height),source=sourceImage.data;
+      const sx=Math.floor(start.x),sy=Math.floor(start.y);
+      if(sx<0||sy<0||sx>=sourceImage.width||sy>=sourceImage.height)return {count:0};
+      const seed=(sy*sourceImage.width+sx)*4,target=source.slice(seed,seed+4),marker=[target[0]^255,target[1]^255,target[2]^255,255],probe=new Uint8ClampedArray(source);
+      const result=closedFloodFill(probe,sourceImage.width,sourceImage.height,sx,sy,marker,options.tolerance??20,{maxGap:Math.max(1,Math.min(8,Math.round((options.size||12)/6)))});
+      if(result.open)this.notice?.('边界缺口太大，已停止填色，避免涂到画纸外。');
+      if(result.count&&!result.open)this.mutatePixels((data,w,h)=>{for(let n=0;n<w*h&&n*4<source.length;n++){const p=n*4;if(probe[p]!==source[p]||probe[p+1]!==source[p+1]||probe[p+2]!==source[p+2]||probe[p+3]!==source[p+3]){data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=alpha;}}return data;});
+      return result;
+    }
     this.mutatePixels((data,w,h)=>{
       const selected=mode.startsWith('region')?regionMask(composite?composite.getContext('2d').getImageData(0,0,w,h).data:data,w,h,start.x,start.y,options.tolerance??20):null;
       const dx=finish.x-start.x,dy=finish.y-start.y,length=dx*dx+dy*dy;
+      const texture=options.fillSource==='texture'?this.paintTexture:null;
       for(let y=0;y<h;y++)for(let x=0;x<w;x++){
         const n=y*w+x;if(selected&&!selected[n])continue;
         if(mode==='rect'&&(x<Math.min(start.x,finish.x)||x>Math.max(start.x,finish.x)||y<Math.min(start.y,finish.y)||y>Math.max(start.y,finish.y)))continue;
         if(mode==='ellipse'&&((x-(start.x+finish.x)/2)**2/Math.max(.01,dx*dx/4)+(y-(start.y+finish.y)/2)**2/Math.max(.01,dy*dy/4)>1))continue;
         const t=mode.includes('gradient')||options.gradient?Math.max(0,Math.min(1,length?((x-start.x)*dx+(y-start.y)*dy)/length:0)):0;
-        const texture=options.fillSource==='texture'?this.paintTexture:null;
         if(texture){const index=((y%texture.height)*texture.width+x%texture.width)*4;for(let k=0;k<3;k++)data[n*4+k]=texture.pixels[index+k];data[n*4+3]=alpha*texture.pixels[index+3]/255;}
         else{for(let k=0;k<3;k++)data[n*4+k]=color[k]+(background[k]-color[k])*t;data[n*4+3]=alpha;}
       }

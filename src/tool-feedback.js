@@ -14,10 +14,11 @@ const brushSounds = [
   ['triangle',[760,510],.09], ['sawtooth',[290,420,330],.19], ['sine',[520,740,620],.24],
   ['triangle',[220,290],.16], ['square',[360,480],.11], ['sawtooth',[185,260],.14],
   ['triangle',[930,690,460],.17], ['sine',[170,310,240],.2], ['sine',[880,1175,1568],.27],
+  ['sawtooth',[430,650,860],.2], ['triangle',[610,780,520],.18],
 ];
 TOOL_FEEDBACK.forEach((entry,i)=>{const [wave,frequencies,duration]=brushSounds[i];entry.sound={wave,frequencies,duration};});
-feedbackGroup('eraser',{hard:'硬橡皮',soft:'软橡皮',rect:'矩形清除'},'eraser','eraser-mode','triangle',240,.12);
-feedbackGroup('fill',{region:'区域填色',all:'完全填色',gradient:'前景／背景渐变','region-gradient':'区域渐变',ellipse:'圆形填色',rect:'矩形填色','ellipse-gradient':'圆形渐变','rect-gradient':'矩形渐变'},'fill','fill-mode','sine',180,.2);
+feedbackGroup('eraser',{hard:'硬橡皮',soft:'软橡皮',rect:'矩形清除',shape:'形状橡皮'},'eraser','eraser-mode','triangle',240,.12);
+feedbackGroup('fill',{region:'区域填色',all:'完全填色',gradient:'前景／背景渐变','region-gradient':'区域渐变',closed:'不出界填色',ellipse:'圆形填色',rect:'矩形填色','ellipse-gradient':'圆形渐变','rect-gradient':'矩形渐变'},'fill','fill-mode','sine',180,.2);
 feedbackGroup('stamp',{single:'单张图案',static:'组合图案',dynamic:'会动图案'},v=>({single:'stamp',static:'friend',dynamic:'butterfly'}[v]),null,'sine',660,.21);
 feedbackGroup('select',{rect:'矩形圈选',ellipse:'圆形圈选',triangle:'三角形圈选',pentagon:'五角形圈选',hexagon:'六角形圈选',roundrect:'圆矩形圈选',free:'自由套索',bezier:'曲线圈选'},'select','selection-shape','triangle',530,.1);
 feedbackGroup('geometry',feedbackShapes,'line','geometry','triangle',310,.13);

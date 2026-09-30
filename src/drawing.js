@@ -3,6 +3,7 @@ import { EditorEngine } from './editor.js';
 import { makeCanvas } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
 import { brushSegment } from './brushes.js';
+import { shapeEraserSegment } from './shape-eraser.js';
 import { warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
 import { seededRandom } from './pixels.js';
@@ -38,13 +39,23 @@ function stampGroup(group,size){
 
 export class DrawingEngine extends EditorEngine {
   assistGeometry(options, layer) {
-    const config = normalizeAssistConfig(options?.assist ?? {});
-    if (!config.enabled) return null;
+    const assist=options?.assist;
+    if(!assist||typeof options!=='object')return null;
+    // A single pointer sample can ask for the same geometry once per mirrored
+    // copy. Cache it by the immutable gesture options object so normalization
+    // and coordinate conversion happen once per stroke, without sharing stale
+    // state across changed controls or transformed layers.
+    const cache=this.assistGeometryCache??=new WeakMap(),cached=cache.get(options);
+    if(cached?.assist===assist&&cached.layer===layer&&cached.width===this.width&&cached.height===this.height&&cached.paperMode===!!this.paperMode)return cached.geometry;
+    const config = normalizeAssistConfig(assist);
+    if (!config.enabled) { cache.set(options,{assist,layer,width:this.width,height:this.height,paperMode:!!this.paperMode,geometry:null}); return null; }
     const world = {
       x: Number.isFinite(config.centerX) ? config.centerX : this.width / 2,
       y: Number.isFinite(config.centerY) ? config.centerY : this.height / 2,
     };
-    return { config, center: this.paperMode ? world : toLayerPoint(world, layer) };
+    const geometry={ config, center: this.paperMode ? world : toLayerPoint(world, layer) };
+    cache.set(options,{assist,layer,width:this.width,height:this.height,paperMode:!!this.paperMode,geometry});
+    return geometry;
   }
   assistPoints(point, options, layer, includeStamp = false) {
     const geometry = this.assistGeometry(options, layer);
@@ -71,19 +82,31 @@ export class DrawingEngine extends EditorEngine {
   }
   drawAssistSegment(ctx, gesture, start, end, texture, paper, bounds, transformIndex = 0) {
     const geometry = this.assistGeometry(gesture.options, gesture.layer);
+    if (!gesture.gradientOrigin && gesture.start) gesture.gradientOrigin = { x: gesture.start.x, y: gesture.start.y };
     if (!geometry) {
-      if (texture || paper) materialSegment(ctx, gesture, start, end, texture, paper, bounds);
+      if (gesture.options.tool === 'eraser' && gesture.options.eraserMode === 'shape') shapeEraserSegment(ctx, gesture, start, end);
+      else if (texture || paper) materialSegment(ctx, gesture, start, end, texture, paper, bounds);
       else brushSegment(ctx, gesture, start, end);
       return;
     }
     const states = gesture.assistStates ??= [];
     const state = states[transformIndex] ?? (states[transformIndex] = {});
-    const copy = { ...gesture, ...state, start, end };
+    // Keep one copy object per assisted transform. Pointer events can arrive
+    // dozens of times per frame; rebuilding the whole gesture object for each
+    // copy creates avoidable garbage and makes GC pauses visible on tablets.
+    const copies = gesture.assistCopies ??= [];
+    const copy = copies[transformIndex] ?? (copies[transformIndex] = { ...gesture, ...state });
+    // All assisted copies are rendered serially into the same material scratch
+    // surface. Sharing it avoids allocating one large temporary canvas per
+    // symmetry axis when a thick textured brush is used.
+    copy.materialScratchOwner = gesture;
+    copy.start = start; copy.end = end;
     ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
-    if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
+    if (copy.options.tool === 'eraser' && copy.options.eraserMode === 'shape') shapeEraserSegment(ctx, copy, start, end);
+    else if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
     else brushSegment(ctx, copy, start, end);
     ctx.restore();
-    for (const key of ['bristles', 'random', 'dabStarted', 'dabTravel']) if (copy[key] !== undefined) state[key] = copy[key];
+    for (const key of ['bristles', 'random', 'dabStarted', 'dabTravel', 'gradientOrigin', 'shapeStarted', 'shapeTravel']) if (copy[key] !== undefined) state[key] = copy[key];
   }
   drawAssistGuides(ctx) {
     const config = normalizeAssistConfig(this.assistConfig);
@@ -285,12 +308,20 @@ export class DrawingEngine extends EditorEngine {
     const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4,ctx=g.layer.canvas.getContext('2d');
     const texture=g.options.fillSource==='texture'?this.paintTexture:null,paper=g.options.paperGrain?this.paperTexture:null;
     let maskBounds=null;
-    for(const { start, end, transformIndex } of this.assistPairs(a,b,g.options,g.layer)){
-      const bounds={x:Math.min(start.x,end.x)-pad,y:Math.min(start.y,end.y)-pad,width:Math.abs(end.x-start.x)+pad*2,height:Math.abs(end.y-start.y)+pad*2};
-      this.captureTiles(g.layer,bounds,g.tiles);
-      const sourceBounds={x:Math.min(a.x,b.x)-pad,y:Math.min(a.y,b.y)-pad,width:Math.abs(b.x-a.x)+pad*2,height:Math.abs(b.y-a.y)+pad*2};
-      this.drawAssistSegment(ctx,g,a,b,g.options.tool==='pen'&&texture?texture:null,g.options.tool==='pen'&&paper?paper:null,sourceBounds,transformIndex);
-      maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+    const material = g.options.tool==='pen' && (texture || paper);
+    const distance=Math.hypot(b.x-a.x,b.y-a.y),maxSpan=material?Math.max(96,Math.min(320,width*1.5)):distance;
+    const steps=Math.max(1,Math.ceil(distance/Math.max(1,maxSpan)));
+    for(let part=0;part<steps;part++){
+      const from=part/steps,to=(part+1)/steps,startPoint={x:a.x+(b.x-a.x)*from,y:a.y+(b.y-a.y)*from},endPoint={x:a.x+(b.x-a.x)*to,y:a.y+(b.y-a.y)*to};
+      // assistPairs receives the untransformed source segment and the draw
+      // helper applies the selected transform exactly once.
+      for(const { start, end, transformIndex } of this.assistPairs(startPoint,endPoint,g.options,g.layer)){
+        const bounds={x:Math.min(start.x,end.x)-pad,y:Math.min(start.y,end.y)-pad,width:Math.abs(end.x-start.x)+pad*2,height:Math.abs(end.y-start.y)+pad*2};
+        const sourceBounds={x:Math.min(startPoint.x,endPoint.x)-pad,y:Math.min(startPoint.y,endPoint.y)-pad,width:Math.abs(endPoint.x-startPoint.x)+pad*2,height:Math.abs(endPoint.y-startPoint.y)+pad*2};
+        this.captureTiles(g.layer,bounds,g.tiles);
+        this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex);
+        maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+      }
     }
     if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();
   }

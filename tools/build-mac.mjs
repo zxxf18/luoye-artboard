@@ -18,8 +18,10 @@ for(const name of ['index.html','app.js','playroom.css','tool-shelf.css','assets
 }
 await writeFile(path.join(app, 'Contents/Info.plist'), `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict><key>CFBundleName</key><string>落叶画板</string><key>CFBundleDisplayName</key><string>落叶画板</string><key>CFBundleIdentifier</key><string>local.luoye.studio</string><key>CFBundleExecutable</key><string>LUOYEStudio</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>${version}</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>CFBundleIconFile</key><string>AppIcon</string><key>NSHighResolutionCapable</key><true/></dict></plist>`);
+<plist version="1.0"><dict><key>CFBundleName</key><string>落叶画板</string><key>CFBundleDisplayName</key><string>落叶画板</string><key>CFBundleIdentifier</key><string>local.luoye.studio</string><key>CFBundleExecutable</key><string>LUOYEStudio</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>${version}</string><key>CFBundleVersion</key><string>${version}</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>CFBundleIconFile</key><string>AppIcon</string><key>NSHighResolutionCapable</key><true/></dict></plist>`);
 await cp(path.join(root,'public/branding/AppIcon.icns'), path.join(app,'Contents/Resources/AppIcon.icns'));
 const result = spawnSync('xcrun', ['swiftc', '-swift-version', '6', '-target', 'arm64-apple-macos13.0', '-module-cache-path', path.join(root,'build/swift-cache'), '-framework','AppKit','-framework','WebKit','-framework','AVFoundation','-framework','AudioToolbox', path.join(root,'native/macos/Music.swift'), path.join(root,'native/macos/Archive.swift'), path.join(root,'native/macos/Main.swift'), '-o',path.join(app,'Contents/MacOS/LUOYEStudio')], { stdio:'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
+const signature = spawnSync('codesign', ['--force', '--deep', '--sign', '-', app], { stdio:'inherit' });
+if (signature.status !== 0) process.exit(signature.status || 1);
 console.log(`Mac application built: ${app}`);

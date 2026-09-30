@@ -4,7 +4,7 @@ import { playfulIcon } from './playful-icons.js';
 // A contact is a nib, edge, nozzle, or working center — never a separate marker.
 const iconContacts = {
   pencil:[13,61], crayon:[17,60], watercolor:[11,56], brush:[22,57],
-  marker:[12,54], chalk:[26,58], spray:[42,14], tube:[36,62], effect:[45,8],
+  marker:[12,54], chalk:[26,58], spray:[42,14], tube:[36,62], effect:[45,8], rainbow:[32,48], duotone:[32,48],
   stamp:[34,44], friend:[35,38], butterfly:[35,33], picker:[10,61],
   magic:[44,7], move:[32,27], text:[28,61], clone:[34,57], fractal:[33,62],
 };
@@ -29,7 +29,8 @@ function pouringBucket(value) {
 function cursorArt(entry) {
   if(entry.tool==='fill')return {body:pouringBucket(entry.value),contact:[52,61]};
   if(entry.tool==='eraser') {
-    const soft=entry.value==='soft',rect=entry.value==='rect';
+    const soft=entry.value==='soft',rect=entry.value==='rect',shape=entry.value==='shape';
+    if(shape)return {contact:[32,34],body:'<path d="m32 8 6 16 17 2-13 11 4 17-14-9-15 9 4-17-13-11 17-2z" fill="#fff1c8" stroke="#9b684f" stroke-width="3"/>'};
     return {contact:soft?[18,54]:[21,51],body:`${rect?'<path d="M7 23V8h44v14M7 39v17h7m19 0h18v-9" fill="none" stroke-dasharray="4 4"/>':''}
       <path d="M10 44 35 14q${soft?'8-8 15 0l8 8q8 8 0 16L33 59q-4 4-8 0L11 49q-3-2-1-5':'3-3 6 0l17 14q3 3 0 6L33 59 10 44'}Z" fill="${soft?'#c3aedb':'#ee9bad'}"/>
       <path d="m10 44 10-12 24 20-11 7Z" fill="#ffdfb3"/><path d="m25 24 15-5" stroke="#fff3e7"/>${soft?'<path d="m17 45 14 11" stroke="#fff5e3" stroke-width="4"/>':''}`};

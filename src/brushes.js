@@ -11,11 +11,61 @@ export const BRUSHES=[
   {id:'chalk',name:'粉笔',hint:'软软粉末，毛茸茸',size:24,color:'#91b982'},
   {id:'tube',name:'颜料管',hint:'挤出颜料，亮亮的',size:20,color:'#f4ac59'},
   {id:'effect',name:'星光笔',hint:'拖一拖，撒下星星',size:28,color:'#df91b7'},
+  {id:'rainbow',name:'彩虹笔',hint:'一笔画出彩虹',size:24,color:'#ef5350'},
+  {id:'duotone',name:'双色渐变',hint:'两种颜色慢慢变',size:24,color:'#ef5350'},
 ];
 const brushTau=Math.PI*2;
 function tint(hex,amount){return '#'+hex.slice(1).match(/../g).map(n=>{const c=parseInt(n,16);return Math.round(amount>0?c+(255-c)*amount:c*(1+amount)).toString(16).padStart(2,'0');}).join('');}
 function ribbon(ctx,a,b,width,color,alpha,ox=0,oy=0){ctx.strokeStyle=color;ctx.fillStyle=color;ctx.globalAlpha=alpha;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();if(a.x===b.x&&a.y===b.y){ctx.arc(a.x+ox,a.y+oy,width/2,0,brushTau);ctx.fill();}else{ctx.moveTo(a.x+ox,a.y+oy);ctx.lineTo(b.x+ox,b.y+oy);ctx.stroke();}}
 function starPath(ctx,r){ctx.beginPath();for(let i=0;i<10;i++){const angle=i*Math.PI/5-Math.PI/2,rad=i%2?r*.43:r;const x=Math.cos(angle)*rad,y=Math.sin(angle)*rad;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();}
+
+function hexRgb(hex,fallback='#000000'){
+  const value=typeof hex==='string'&&/^#[\da-f]{6}$/i.test(hex)?hex:fallback;
+  return [parseInt(value.slice(1,3),16),parseInt(value.slice(3,5),16),parseInt(value.slice(5,7),16)];
+}
+function rgbHex(rgb){return '#'+rgb.map(value=>Math.max(0,Math.min(255,Math.round(value))).toString(16).padStart(2,'0')).join('');}
+function seedUnit(seed){
+  let value=Number.isFinite(Number(seed))?Number(seed)>>>0:0;
+  // A small integer mixer gives adjacent recorded seeds visibly different
+  // starting colors without keeping a mutable random stream on the gesture.
+  value=(value+0x9e3779b9)>>>0;value^=value>>>16;value=Math.imul(value,0x21f0aaad)>>>0;value^=value>>>15;value=Math.imul(value,0x735a2d97)>>>0;value^=value>>>15;
+  return (value>>>0)/4294967296;
+}
+function gradientScalar(point,origin){const dx=point.x-origin.x,dy=point.y-origin.y,dir=origin.direction;return dir?dx*dir.x+dy*dir.y:dx;}
+function normalizeProgress(point,origin,length,seed=0){return Math.max(0,Math.min(1,gradientScalar(point,origin,seed)/Math.max(1,length)));}
+
+/** Return a deterministic rainbow color for a canvas position. */
+export function rainbowColorAt(point,origin,seed=0,length=260){
+  const hue=(seedUnit(seed)*360+gradientScalar(point,origin)/Math.max(1,length)*360+360)%360;
+  const chroma=1,hh=hue/60,x=chroma*(1-Math.abs(hh%2-1));let rgb;
+  if(hh<1)rgb=[chroma,x,0];else if(hh<2)rgb=[x,chroma,0];else if(hh<3)rgb=[0,chroma,x];else if(hh<4)rgb=[0,x,chroma];else if(hh<5)rgb=[x,0,chroma];else rgb=[chroma,0,x];
+  return rgbHex(rgb.map(value=>value*255));
+}
+
+/** Return a deterministic foreground-to-secondary color for a canvas position. */
+export function gradientColorAt(point,origin,foreground,secondary,length=260,seed=0){
+  const t=normalizeProgress(point,origin,length,0),a=hexRgb(foreground),b=hexRgb(secondary,'#ffffff');
+  return rgbHex(a.map((value,index)=>value+(b[index]-value)*t));
+}
+
+function gradientOrigin(gesture,point){
+  if(gesture.gradientOrigin&&Number.isFinite(gesture.gradientOrigin.x)&&Number.isFinite(gesture.gradientOrigin.y))return gesture.gradientOrigin;
+  if(gesture.start&&Number.isFinite(gesture.start.x)&&Number.isFinite(gesture.start.y))return gesture.gradientOrigin={x:gesture.start.x,y:gesture.start.y};
+  return gesture.gradientOrigin??=({...point});
+}
+function segmentGradient(ctx,a,b,colorAt){
+  if(a.x===b.x&&a.y===b.y)return null;
+  const gradient=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
+  // Several stops keep the hue smooth even when a segment spans a full color
+  // cycle. Every stop is derived from its position, so pointer event density
+  // cannot change the result.
+  for(let i=0;i<=8;i++){const t=i/8;gradient.addColorStop(t,colorAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}));}
+  return gradient;
+}
+function gradientRibbon(ctx,a,b,width,colorAt,alpha){
+  if(a.x===b.x&&a.y===b.y){ribbon(ctx,a,b,width,colorAt(a),alpha);return;}
+  ribbon(ctx,a,b,width,segmentGradient(ctx,a,b,colorAt),alpha);
+}
 
 export function brushSegment(ctx,g,a,b){
   const o=g.options;
@@ -23,7 +73,15 @@ export function brushSegment(ctx,g,a,b){
   if(o.brushVersion!==2||o.tool==='eraser')return legacyBrushSegment(ctx,g,a,b);
   const key=o.brush||'pencil',w=o.size/g.layer.scale,ratio=Math.max(.15,Math.min(2,o.ratio??1)),alpha=o.opacity,random=g.random||(g.random=seededRandom(o.seed??1));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=alpha;
-  if(key==='pencil'){
+  if(key==='rainbow'||key==='duotone'){
+    const origin=gradientOrigin(g,a);if(!origin.direction&&(a.x!==b.x||a.y!==b.y)){const distance=Math.hypot(b.x-a.x,b.y-a.y);if(distance)origin.direction={x:(b.x-a.x)/distance,y:(b.y-a.y)/distance};}
+    // Keep the colour journey visible on a child's short stroke while still
+    // giving long strokes room to show several rainbow bands.
+    const length=Math.max(96,w*5),colorAt=key==='rainbow'
+      ?point=>rainbowColorAt(point,origin,o.seed??0,length)
+      :point=>gradientColorAt(point,origin,o.color,o.secondaryColor||'#ffffff',length,o.seed??0);
+    gradientRibbon(ctx,a,b,Math.max(1,w*.72)*ratio,colorAt,alpha);
+  }else if(key==='pencil'){
     ribbon(ctx,a,b,Math.max(1,w*.26)*ratio,o.color,alpha*.94);
     ribbon(ctx,a,b,Math.max(.5,w*.05),o.color,alpha*.24,-w*.13,-w*.1);
   }else if(key==='tube'){

@@ -33,7 +33,7 @@ let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
-const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
+const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
 function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `落叶画板_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
 function setCanvasCursor(){const canvas=$('painting');canvas.dataset.tool=tool;canvas.dataset.brush=$('brush')?.value||'pencil';}
 
@@ -243,7 +243,7 @@ async function newBlank(width=engine.width,height=engine.height){
 }
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
-  for(const [id,value] of Object.entries({ 'eraser-mode':'hard','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
+  for(const [id,value] of Object.entries({ 'eraser-mode':'hard','eraser-shape':'star','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
   for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();theme?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
 bind('new',()=>newBlank());
@@ -301,10 +301,12 @@ function previewStamp(point) {
 }
 $('size').addEventListener('input',()=>previewStamp(hoverPoint));
 $('painting').addEventListener('pointermove', event => {
-  const point=engine.point(event);previewStamp(point);
+  // Coalesced touch samples share one layout rectangle. Reading it once per
+  // pointer event avoids repeated getBoundingClientRect calls on tablets.
+  const rect=$('painting').getBoundingClientRect(),point=engine.point(event,rect);previewStamp(point);
   if (event.pointerId !== pointerId) return;
   const samples=event.getCoalescedEvents?.();
-  for(const sample of samples?.length?samples:[event])engine.update(engine.point(sample));
+  for(const sample of samples?.length?samples:[event])engine.update(engine.point(sample,rect));
 });
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
 function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);engine.end(event.type==='pointercancel');pointerId=undefined; }

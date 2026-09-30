@@ -89,7 +89,12 @@ export class PaintEngine {
     // The common case is a document with many unchanged raster layers. Keep a
     // single paper composite for those frames and invalidate it on mutations.
     this.staticComposite=null;
-    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0};
+    // During a freehand gesture the active drawing layer changes every sample,
+    // while lower layers stay immutable. When that layer is already on top,
+    // reuse a cached composite of the lower layers and redraw only the active
+    // layer for each frame. This keeps input latency independent of layer count.
+    this.gestureComposite=null;
+    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0};
     this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
@@ -99,7 +104,7 @@ export class PaintEngine {
     this.addLayer('我的画笔', makeCanvas(width, height), false); this.changed();
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
-  changed() { this.staticComposite=null; this.render(); this.onChange?.(); }
+  changed() { this.staticComposite=null; this.gestureComposite=null; this.render(); this.onChange?.(); }
   layerPixels(layer) {
     return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
@@ -205,31 +210,57 @@ export class PaintEngine {
   paint(ctx, guides = false) {
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0, 0, this.width, this.height);
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, this.width, this.height);
+    // Resolve one timeline position per frame. Apart from avoiding a clock
+    // read for every layer, this keeps animated layers on the same frame when
+    // a scene contains many of them.
+    const frameTime=this.playing?performance.now()-this.animationStart:this.animationTime||0;
     const hasPlayingDynamic=this.playing&&this.layers.some(layer=>layer.visible&&(layer.frames?.length||layer.sprites?.length));
     if (!this.gesture&&!hasPlayingDynamic) {
       if (!this.staticComposite || this.staticComposite.width!==this.width || this.staticComposite.height!==this.height) {
-        const cached=makeCanvas(this.width,this.height),cachedCtx=cached.getContext('2d');
+        // This surface is only drawn from and then blitted to the visible
+        // canvas. It never participates in pixel readback, so keep it on the
+        // browser's normal compositing path instead of forcing a software
+        // readback surface.
+        const cached=makeCanvas(this.width,this.height,false),cachedCtx=cached.getContext('2d');
         cachedCtx.fillStyle='#ffffff';cachedCtx.fillRect(0,0,this.width,this.height);
-        this.drawLayers(cachedCtx);
+        this.drawLayers(cachedCtx,null,frameTime);
         this.staticComposite=cached;
       } else this.metrics.staticCacheHits++;
       ctx.drawImage(this.staticComposite,0,0);
-    } else this.drawLayers(ctx);
+    } else {
+      const gestureLayer=this.gesture?.layer;
+      // A cache is safe only when the edited layer is the top layer and no
+      // animation is changing the lower layers. Other gestures keep the full
+      // painter order so their output remains pixel-identical.
+      const cached=this.gestureCompositeFor(gestureLayer,hasPlayingDynamic,frameTime);
+      if(cached){
+        ctx.drawImage(cached,0,0);
+        if(gestureLayer.visible){ctx.save();ctx.globalAlpha=gestureLayer.opacity;this.transform(ctx,gestureLayer);this.drawLayer(ctx,gestureLayer);ctx.restore();}
+      }else this.drawLayers(ctx,null,frameTime);
+    }
     const g = this.gesture;
     if (guides && g && ['line', 'rect', 'ellipse'].includes(g.options.tool)) {
       ctx.save(); this.transform(ctx, g.layer); this.drawShape(ctx, g); ctx.restore();
     }
     ctx.restore();
   }
-  drawLayers(ctx) {
+  gestureCompositeFor(layer, hasPlayingDynamic = false, frameTime = this.playing ? performance.now()-this.animationStart : this.animationTime||0) {
+    if(!layer||hasPlayingDynamic||this.layers.at(-1)!==layer)return null;
+    const cached=this.gestureComposite;
+    if(cached?.layer===layer&&cached.canvas.width===this.width&&cached.canvas.height===this.height){this.metrics.gestureCacheHits++;return cached.canvas;}
+    const canvas=makeCanvas(this.width,this.height,false),cachedCtx=canvas.getContext('2d');
+    cachedCtx.setTransform(1,0,0,1,0,0);cachedCtx.globalCompositeOperation='source-over';cachedCtx.globalAlpha=1;cachedCtx.clearRect(0,0,this.width,this.height);
+    this.drawLayers(cachedCtx,layer,frameTime);this.gestureComposite={layer,canvas};this.metrics.gestureCacheBuilds++;return canvas;
+  }
+  drawLayers(ctx,skipLayer=null,time=this.playing?performance.now()-this.animationStart:this.animationTime||0) {
     for (const layer of this.layers) {
-      if (!layer.visible) continue;
+      if (layer===skipLayer||!layer.visible) continue;
       ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
-      this.drawLayer(ctx,layer); ctx.restore();
+      this.drawLayer(ctx,layer,time); ctx.restore();
     }
   }
-  point(event) {
-    const r = this.canvas.getBoundingClientRect();
+  point(event, rect = this.canvas.getBoundingClientRect()) {
+    const r = rect;
     return { x: (event.clientX - r.left) * this.width / r.width, y: (event.clientY - r.top) * this.height / r.height };
   }
   pickLayer(point) {
@@ -441,6 +472,6 @@ export class PaintEngine {
     this.layers = layers; this.activeId = layers.at(-1).id; this.history.clear(); this.gesture = null; this.changed();
     return value.title;
   }
-  exportLayerPNG() { const layer=this.active,canvas=makeCanvas(layer.width,layer.height);this.drawLayer(canvas.getContext('2d'),layer);return canvas.toDataURL('image/png'); }
-  exportPNG() { const canvas = makeCanvas(this.width, this.height); this.paint(canvas.getContext('2d')); return canvas.toDataURL('image/png'); }
+  exportLayerPNG() { const layer=this.active,canvas=makeCanvas(layer.width,layer.height,false);this.drawLayer(canvas.getContext('2d'),layer);return canvas.toDataURL('image/png'); }
+  exportPNG() { const canvas = makeCanvas(this.width, this.height, false); this.paint(canvas.getContext('2d')); return canvas.toDataURL('image/png'); }
 }

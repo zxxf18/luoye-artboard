@@ -110,9 +110,11 @@ test('paper eraser includes the visible gallery background with reversible per-l
  const drawing=e.addLayer('绘画',canvas(1920,1080),false);
  const hidden=e.addLayer('隐藏背景',canvas(1920,1080),false,{role:'background',visible:false});
  e.captureTiles=(layer,bounds,tiles)=>tiles.set('touched',{});e.maskTiles=()=>{};
- beginPaperErase(e,{x:30,y:30},{tool:'eraser',eraserMode:'rect',size:20,opacity:1});
- assert.deepEqual(e.gesture.targets.map(t=>t.layer),[background,drawing]);
- updatePaperErase(e,{x:100,y:100});endPaperErase(e,false);
+  beginPaperErase(e,{x:30,y:30},{tool:'eraser',eraserMode:'rect',size:20,opacity:1});
+  assert.deepEqual(e.gesture.targets.map(t=>t.layer),[background,drawing]);
+  assert.equal(background.eraseMask,undefined,'开始擦除时不应为未命中的图层预分配整张蒙版');
+  assert.equal(drawing.eraseMask,undefined,'开始擦除时不应为未命中的图层预分配整张蒙版');
+  updatePaperErase(e,{x:100,y:100});endPaperErase(e,false);
  const mask=background.eraseMask;assert.ok(mask);assert.ok(drawing.eraseMask);assert.equal(hidden.eraseMask,undefined);
  e.history.undo();assert.equal(background.eraseMask,undefined);assert.equal(drawing.eraseMask,undefined);
  e.history.redo();assert.equal(background.eraseMask,mask);

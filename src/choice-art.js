@@ -29,7 +29,15 @@ export function choiceArt(select, option) {
     if(value==='intersect')drawing+='<path d="M25 21h3q12 0 12 12v16H25Z" fill="#f3ba76" stroke="none"/>';
     drawing+='<circle cx="30" cy="33" r="2" fill="#87573e" stroke="none"/><circle cx="36" cy="33" r="2" fill="#87573e" stroke="none"/><path d="M30 40q3 3 6 0" stroke-width="2"/>';
   }
-  if(key==='eraser-mode') drawing=`<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/>${value==='rect'?'<rect x="14" y="20" width="35" height="26" rx="2" fill="#fffaf0" stroke="#8d6c55" stroke-dasharray="4 3"/>':`<path d="M15 44 44 19" stroke="#fffaf0" stroke-width="${value==='soft'?22:13}" stroke-linecap="round" opacity="${value==='soft'?.55:1}"/>`}<path d="m30 35 15-17 12 10-15 17Z" fill="#f1a396" stroke="#875944" stroke-width="2"/><path d="m30 35 6-7 12 10-6 7Z" fill="#ffe7bf"/>`;
+  if(key==='eraser-shape') {
+    const shape = value === 'heart'
+      ? 'M32 52C27 47 10 38 10 23c0-8 10-12 16-5l6 7 6-7c6-7 16-3 16 5 0 15-17 24-22 29Z'
+      : value === 'cloud'
+        ? 'M14 45h36c8 0 10-11 2-14 1-10-12-14-18-5-8-5-19 1-17 11-8 0-9 8-3 8Z'
+        : 'M32 8 38 24 55 26 42 37 46 54 32 45 18 54 22 37 9 26 26 24Z';
+    drawing='<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/><path d="'+shape+'" fill="#fffaf0" stroke="#8d6c55" stroke-width="2" stroke-linejoin="round"/>';
+  }
+  if(key==='eraser-mode') drawing=value==='shape'?'<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/><path d="m32 13 5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1z" fill="#fffaf0" stroke="#8d6c55" stroke-width="2"/>':`<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/>${value==='rect'?'<rect x="14" y="20" width="35" height="26" rx="2" fill="#fffaf0" stroke="#8d6c55" stroke-dasharray="4 3"/>':`<path d="M15 44 44 19" stroke="#fffaf0" stroke-width="${value==='soft'?22:13}" stroke-linecap="round" opacity="${value==='soft'?.55:1}"/>`}<path d="m30 35 15-17 12 10-15 17Z" fill="#f1a396" stroke="#875944" stroke-width="2"/><path d="m30 35 6-7 12 10-6 7Z" fill="#ffe7bf"/>`;
   if(key==='fill-mode') {
     const gradient=value.includes('gradient'),base=value==='all'||value==='gradient',gradientId='choice-fill-'+(++choiceArtSequence);
     drawing='<defs><linearGradient id="'+gradientId+'"><stop stop-color="#f2b560"/><stop offset="1" stop-color="#e69aab"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="9" fill="#fff7e5" stroke="#d9bb8d" stroke-width="2"/>';
