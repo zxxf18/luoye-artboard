@@ -26,15 +26,27 @@
 
 ## Features
 
+From a blank page to a finished little scene, the brushes, gallery, drawing helpers, and save flow are designed to be easy to discover and try right away:
+
 | | What you can do |
 | --- | --- |
-| **Nine brushes** | Sketch with a pencil, spray soft dots, layer watercolor, or try a brush, marker, crayon, chalk, paint tube, and star brush. |
-| **Backgrounds and coloring pages** | Start a picture in a forest, by a lake, on a farm, or in space; fill and paint themed coloring pages. |
-| **Magic bag and animated characters** | Stamp individual pictures, combine patterns, and add moving characters to a scene. |
-| **Layers and editing** | Move, resize, rotate, mirror, duplicate, and hide objects; undo and redo while you experiment. |
-| **Shapes, text, and effects** | Draw shapes, add words, select and clone areas, and explore warps and image filters. |
-| **Music and tool sounds** | Draw along to 20 built-in MIDI tracks; adjust music and tool sound volumes separately. |
+| **11 brushes** | Sketch with a pencil, spray soft dots, layer watercolor, or try a brush, marker, crayon, chalk, paint tube, star brush, rainbow brush, and two-color gradient brush. |
+| **Drawing helpers and fill** | Use vertical, horizontal, four-way, or radial symmetry with guide lines. Closed-line fill colors an area without spilling out, while the shape eraser cuts star, heart, or cloud silhouettes. |
+| **Paper, backgrounds, and coloring pages** | Start a picture in a forest, by a lake, on a farm, or in space; fill and paint themed coloring pages, or add paper grain to a brush. |
+| **Gallery and animated characters** | Start with a colored background, stamp individual pictures, combine patterns, and add moving characters to a scene. |
+| **Layers, shapes, text, and effects** | Move, resize, rotate, mirror, duplicate, and hide objects; draw shapes, add words, select and clone areas, and explore warps and image filters. |
+| **Themes** | Switch the interface, buttons, dialogs, and logo between spring, summer, autumn, winter, mechanical, space, ocean, and candy themes. The canvas and artwork stay unchanged, and the last choice is remembered. |
 | **Save and share** | Save editable projects, recover local drafts, import pictures, and export artwork as PNG or JPEG. |
+| **Music and multi-platform use** | Draw along to 20 built-in MIDI tracks, adjust music and tool sound volumes separately, and use the app offline on macOS, Windows, or Android. The Web version runs directly in a browser. |
+
+<p align="center">
+  <img src="public/branding/themes/app-icon-spring.png" alt="Spring theme preview" width="96" height="96">
+  <img src="public/branding/themes/app-icon-mechanical.png" alt="Mechanical theme preview" width="96" height="96">
+  <img src="public/branding/themes/app-icon-space.png" alt="Space theme preview" width="96" height="96">
+  <img src="public/branding/themes/app-icon-candy.png" alt="Candy theme preview" width="96" height="96">
+</p>
+
+<p align="center"><sub>Spring · Mechanical · Space · Candy theme previews</sub></p>
 
 ## Getting started
 
