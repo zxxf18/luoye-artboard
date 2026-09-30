@@ -39,14 +39,13 @@
 | **保存与分享** | 保存可继续编辑的工程，恢复本地草稿，导入图片，将作品导出为 PNG 或 JPEG。 |
 | **音乐与多端使用** | 伴着 20 首内置 MIDI 音乐画画，分别调节音乐与工具音效的音量；macOS、Windows、Android 支持离线创作，Web 版可直接在浏览器打开。 |
 
-<p align="center">
-  <img src="public/branding/themes/app-icon-spring.png" alt="春主题预览" width="96" height="96">
-  <img src="public/branding/themes/app-icon-mechanical.png" alt="机械主题预览" width="96" height="96">
-  <img src="public/branding/themes/app-icon-space.png" alt="宇宙主题预览" width="96" height="96">
-  <img src="public/branding/themes/app-icon-candy.png" alt="糖果主题预览" width="96" height="96">
-</p>
+| 春 · 森林背景 | 机械 · 城市背景 |
+| --- | --- |
+| <img src="docs/images/theme-spring.png" alt="春主题选择森林彩色背景后的主页面" width="396"> | <img src="docs/images/theme-mechanical.png" alt="机械主题选择城市彩色背景后的主页面" width="396"> |
+| 宇宙 · 太空背景 | 糖果 · 商场背景 |
+| <img src="docs/images/theme-space.png" alt="宇宙主题选择太空彩色背景后的主页面" width="396"> | <img src="docs/images/theme-candy.png" alt="糖果主题选择商场彩色背景后的主页面" width="396"> |
 
-<p align="center"><sub>春 · 机械 · 宇宙 · 糖果主题预览（主题插画与界面配色会一起切换）</sub></p>
+<p align="center"><sub>主题切换只改变界面配色和 Logo；每张预览同时选择了不同的彩色背景。</sub></p>
 
 ## 开始画画
 

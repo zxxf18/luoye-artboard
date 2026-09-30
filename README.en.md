@@ -39,14 +39,13 @@ From a blank page to a finished little scene, the brushes, gallery, drawing help
 | **Save and share** | Save editable projects, recover local drafts, import pictures, and export artwork as PNG or JPEG. |
 | **Music and multi-platform use** | Draw along to 20 built-in MIDI tracks, adjust music and tool sound volumes separately, and use the app offline on macOS, Windows, or Android. The Web version runs directly in a browser. |
 
-<p align="center">
-  <img src="public/branding/themes/app-icon-spring.png" alt="Spring theme preview" width="96" height="96">
-  <img src="public/branding/themes/app-icon-mechanical.png" alt="Mechanical theme preview" width="96" height="96">
-  <img src="public/branding/themes/app-icon-space.png" alt="Space theme preview" width="96" height="96">
-  <img src="public/branding/themes/app-icon-candy.png" alt="Candy theme preview" width="96" height="96">
-</p>
+| Spring · Forest background | Mechanical · City background |
+| --- | --- |
+| <img src="docs/images/theme-spring.png" alt="Spring theme with a forest background" width="396"> | <img src="docs/images/theme-mechanical.png" alt="Mechanical theme with a city background" width="396"> |
+| Space · Space background | Candy · Mall background |
+| <img src="docs/images/theme-space.png" alt="Space theme with a space background" width="396"> | <img src="docs/images/theme-candy.png" alt="Candy theme with a mall background" width="396"> |
 
-<p align="center"><sub>Spring · Mechanical · Space · Candy theme previews</sub></p>
+<p align="center"><sub>Theme changes apply to the interface and logo; each preview uses a different colored background.</sub></p>
 
 ## Getting started
 
