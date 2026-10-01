@@ -8,7 +8,10 @@ export function mountDisplay(){
   function apply(value){selected=choices.some(c=>c[0]===value)?value:'auto';const base=innerWidth>=2200?1.2:innerWidth>=1800?1.08:1,scale=base*choices.find(c=>c[0]===selected)[2];document.body.style.setProperty('--u',scale);document.body.dataset.uiSize=selected;for(const b of dialog.querySelectorAll('[data-ui-size]'))b.setAttribute('aria-pressed',b.dataset.uiSize===selected);try{localStorage.setItem('luoye-ui-size',selected);}catch{}document.dispatchEvent(new Event('uisizechange'));}
   for(const [id,label] of choices){const b=document.createElement('button');b.dataset.uiSize=id;b.textContent=label;b.onclick=()=>apply(id);dialog.querySelector('#ui-sizes').append(b);}apply(selected);window.addEventListener('resize',()=>apply(selected));
   const bridge=window.webkit?.messageHandlers?.display;
-  for(const [action,name] of [['fit','适合屏幕'],['1080','1080 工作区'],['2k','2K 工作区'],['fullscreen','全屏／返回']]){const b=document.createElement('button');b.textContent=name;b.disabled=!bridge;b.onclick=()=>bridge.postMessage({action});dialog.querySelector('#window-sizes').append(b);}
-  if(!bridge)dialog.querySelector('#display-note').textContent='界面大小可以直接调整。窗口与全屏请在桌面客户端使用。';
+  const isIOS=window.LUOYE_PLATFORM==='ios';
+  const windowChoices=isIOS?[['fullscreen','全屏／返回']]:[['fit','适合屏幕'],['1080','1080 工作区'],['2k','2K 工作区'],['fullscreen','全屏／返回']];
+  for(const [action,name] of windowChoices){const b=document.createElement('button');b.textContent=name;b.disabled=!bridge;b.onclick=()=>bridge.postMessage({action});dialog.querySelector('#window-sizes').append(b);}
+  if(isIOS)dialog.querySelector('#display-note').textContent='iPhone 和 iPad 的窗口大小由系统管理，画板会自动适应当前方向与分屏宽度。';
+  else if(!bridge)dialog.querySelector('#display-note').textContent='界面大小可以直接调整。窗口与全屏请在桌面客户端使用。';
   window.addEventListener('native-display-result',event=>{const value=event.detail;dialog.querySelector('#display-note').textContent=`窗口已调整为 ${Math.round(value.width)} × ${Math.round(value.height)}，画纸保持不变。`;});
 }

@@ -34,6 +34,7 @@ test('iOS bridge handles every native channel used by the web app', async () => 
 
 test('iOS host keeps local resources sandboxed and enables safe-area layout', async () => {
   const source = await read('native/ios/LuoyeWebViewController.swift');
+  const display = await read('src/display-ui.js');
   assert.match(source, /loadFileURL/);
   assert.match(source, /allowingReadAccessTo/);
   assert.match(source, /viewport-fit=cover/);
@@ -41,6 +42,9 @@ test('iOS host keeps local resources sandboxed and enables safe-area layout', as
   assert.match(source, /WKWebsiteDataStore\.default/);
   assert.match(source, /sceneWillResignActive/);
   assert.match(source, /LUOYEFlushBeforeClose/);
+  assert.match(source, /LUOYE_PLATFORM = 'ios'/);
+  assert.match(display, /isIOS/);
+  assert.match(display, /windowChoices=isIOS/);
 });
 
 test('iOS build helper refuses to claim a build without Xcode and copies the current dist', async () => {

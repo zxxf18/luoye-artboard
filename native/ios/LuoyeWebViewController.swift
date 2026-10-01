@@ -57,6 +57,11 @@ final class LuoyeWebViewController: UIViewController {
         })();
         """, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(script)
+        webView.configuration.userContentController.addUserScript(WKUserScript(
+            source: "window.LUOYE_PLATFORM = 'ios';",
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        ))
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true) else {
             showError("应用内没有找到画板资源。"); return
         }
