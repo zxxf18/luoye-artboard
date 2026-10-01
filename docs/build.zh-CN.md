@@ -23,6 +23,16 @@ npm run build:mac
 
 当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本不执行应用签名和公证。
 
+## iPhone / iPad 应用
+
+iOS 版本使用 UIKit + WKWebView，目标为 iOS 16+，同时支持 iPhone 和 iPad。它需要完整 Xcode（Command Line Tools 不包含 iOS SDK 和模拟器）：
+
+```sh
+npm run build:ios
+```
+
+默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
+
 ## Windows 应用
 
 安装 .NET 10 SDK。构建脚本优先使用 `LUOYE_DOTNET`，其次使用 `build/tooling/dotnet/` 下的本地 SDK，最后使用 PATH 中的 `dotnet`。

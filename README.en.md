@@ -37,7 +37,7 @@ From a blank page to a finished little scene, the brushes, gallery, drawing help
 | **Layers, shapes, text, and effects** | Move, resize, rotate, mirror, duplicate, and hide objects; draw shapes, add words, select and clone areas, and explore warps and image filters. |
 | **Themes** | Switch the interface, buttons, dialogs, and logo between spring, summer, autumn, winter, mechanical, space, ocean, and candy themes. The canvas and artwork stay unchanged, and the last choice is remembered. |
 | **Save and share** | Save editable projects, recover local drafts, import pictures, and export artwork as PNG or JPEG. |
-| **Music and multi-platform use** | Draw along to 20 built-in MIDI tracks, adjust music and tool sound volumes separately, and use the app offline on macOS, Windows, or Android. The Web version runs directly in a browser. |
+| **Music and multi-platform use** | Draw along to 20 built-in MIDI tracks, adjust music and tool sound volumes separately, and use the app offline on macOS, Windows, Android, iPhone, or iPad. The Web version runs directly in a browser. |
 
 | <div align="center"><strong>Spring · Forest background</strong></div> | <div align="center"><strong>Mechanical · City background</strong></div> |
 | --- | --- |
@@ -68,6 +68,13 @@ The current interface is in Simplified Chinese. See the [build guide](docs/build
 - .NET runtime bundled with the app
 - .NET 10 Desktop Runtime required by the installer
 
+### iPhone / iPad
+
+- iOS 16 or later
+- Universal app with iPhone and iPad portrait, landscape, and iPad split-view support
+- Finger and Apple Pencil input; projects, images, and MIDI use the system Files picker
+- The repository includes a buildable iOS target; device distribution still requires Xcode signing
+
 ## Build from source
 
 ### Editor and tests
@@ -79,6 +86,11 @@ The current interface is in Simplified Chinese. See the [build guide](docs/build
 - macOS
 - Xcode Command Line Tools with Swift 6
 - macOS SDK
+
+### iPhone / iPad app
+
+- macOS with a full Xcode installation, including the iOS SDK and Simulator
+- Xcode 16 or later
 
 ### Windows app
 
@@ -102,6 +114,8 @@ Open `http://127.0.0.1:4173` for the browser preview. To package a desktop app, 
 npm run build:mac
 # or
 npm run build:windows
+# or (requires full Xcode)
+npm run build:ios
 ```
 
 See the [build guide](docs/build.md) for tool paths and installer packaging

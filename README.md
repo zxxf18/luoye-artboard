@@ -6,7 +6,7 @@
 
 <p align="center"><strong>小小画室，装下大大的想象。</strong></p>
 
-<p align="center">一款面向儿童的绘画应用，支持 macOS、Windows、Android 和 Web，涂涂画画，拼出自己的小世界。</p>
+<p align="center">一款面向儿童的绘画应用，支持 macOS、Windows、Android、iPhone、iPad 和 Web，涂涂画画，拼出自己的小世界。</p>
 
 <p align="center">
   <a href="README.en.md">English</a> ·
@@ -37,7 +37,7 @@
 | **图形、文字与特效** | 画图形、写文字、圈选与仿制局部，再试试变形、滤镜和颜色调整。 |
 | **主题配色** | 一键切换春、夏、秋、冬、机械、宇宙、海洋和糖果主题；主题只改变界面、按钮、弹窗和 Logo，不会改动画布与素材，并会记住上次选择。 |
 | **保存与分享** | 保存可继续编辑的工程，恢复本地草稿，导入图片，将作品导出为 PNG 或 JPEG。 |
-| **音乐与多端使用** | 伴着 20 首内置 MIDI 音乐画画，分别调节音乐与工具音效的音量；macOS、Windows、Android 支持离线创作，Web 版可直接在浏览器打开。 |
+| **音乐与多端使用** | 伴着 20 首内置 MIDI 音乐画画，分别调节音乐与工具音效的音量；macOS、Windows、Android、iPhone 和 iPad 支持离线创作，Web 版可直接在浏览器打开。 |
 
 | <div align="center"><strong>春 · 森林背景</strong></div> | <div align="center"><strong>机械 · 城市背景</strong></div> |
 | --- | --- |
@@ -47,7 +47,7 @@
 
 ## 开始画画
 
-1. 桌面端或 Android 端打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)选择安装包；Web 端直接访问 [board.yebuluo.com.cn](https://board.yebuluo.com.cn)
+1. 桌面端、Android 或 iPhone/iPad 打开[发布页面](https://github.com/zxxf18/luoye-artboard/releases)选择安装包；Web 端直接访问 [board.yebuluo.com.cn](https://board.yebuluo.com.cn)
 2. 启动落叶画板，从白纸开始，或通过 **图库 → 彩色背景** 选一片风景
 3. 拿起画笔或打开魔法袋。保存工程方便继续编辑，导出图片方便分享
 
@@ -73,6 +73,13 @@
 - Android 6.0（API 23）或更高版本
 - 手机和平板默认横屏，支持小尺寸窗口和高密度屏幕
 
+### iPhone / iPad
+
+- iOS 16 或更高版本
+- Universal 应用，支持 iPhone、iPad 横竖屏和 iPad 分屏
+- 支持手指与 Apple Pencil；工程、图片和音乐通过系统“文件”面板导入/导出
+- 当前仓库提供可构建的 iOS target；发布到设备仍需要 Xcode 的签名配置
+
 ### Web
 
 - 现代浏览器（Chrome、Edge、Safari 或 Firefox）
@@ -89,6 +96,11 @@
 - macOS
 - 包含 Swift 6 的 Xcode Command Line Tools
 - macOS SDK
+
+### iPhone / iPad 应用
+
+- macOS 与完整 Xcode（包含 iOS Simulator 和 iOS SDK）
+- Xcode 16 或更高版本
 
 ### Windows 应用
 
@@ -112,6 +124,8 @@ npm run dev
 npm run build:mac
 # 或
 npm run build:windows
+# 或（需要完整 Xcode）
+npm run build:ios
 ```
 
 工具路径和安装器打包步骤见[构建指南](docs/build.zh-CN.md)

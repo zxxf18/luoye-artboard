@@ -14,6 +14,8 @@ local-only/reference/
 test-results/
 native/windows/bin/
 native/windows/obj/
+ios/Resources/
+build/ios-derived/
 tests/bin/
 tests/obj/
 

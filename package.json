@@ -9,6 +9,7 @@
     "test": "node --test tests/*.test.js",
     "build": "node tools/build.mjs",
     "build:mac": "node tools/build-mac.mjs",
+    "build:ios": "node tools/build-ios.mjs",
     "build:windows": "node tools/build-windows.mjs",
     "build:windows:installer": "node tools/build-windows-installer.mjs"
   },
