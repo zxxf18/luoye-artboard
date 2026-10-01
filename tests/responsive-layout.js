@@ -79,6 +79,18 @@ function assertScrollReachable(scrollbox, first, last, label) {
   }
   scrollbox.scrollLeft = left; scrollbox.scrollTop = top;
 }
+function checkCompactHeader(doc, width, height) {
+  const narrow = width <= 860 || height <= 600;
+  if (!narrow) return;
+  const view = frame.contentWindow;
+  const newQuick = doc.querySelector('#new-quick');
+  const reset = doc.querySelector('#reset-settings');
+  const themeIcon = doc.querySelector('#theme-open > .playful-icon');
+  assert(newQuick && reset && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
+  assert(parseFloat(view.getComputedStyle(newQuick).fontSize) <= 9.1, '小屏新画纸文案仍然过大');
+  assert(parseFloat(view.getComputedStyle(reset).fontSize) <= 9.1, '小屏重置文案仍然过大');
+  assert(rect(themeIcon).width <= 20.5 && rect(themeIcon).height <= 20.5, '小屏主题图标仍然过大');
+}
 function checkBrushDrawer(doc) {
   const drawer = assertDrawerFrame(doc, 'brushes');
   const rows = [drawer.querySelector('.classic-colors'), drawer.querySelector('.brush-box:not([hidden])'), drawer.querySelector('.subtool-box:not([hidden])'), drawer.querySelector('#stroke-buttons:not([hidden])'), drawer.querySelector('.left-actions')];
@@ -188,6 +200,7 @@ async function runCase(width, height) {
   await new Promise(resolve => { frame.onload = resolve; });
   const doc = frame.contentDocument;
   await waitReady(doc);
+  checkCompactHeader(doc, width, height);
   const viewport = doc.querySelector('#viewport');
   assert(viewport && rect(viewport).width >= 200 && rect(viewport).height >= 100, `${width}×${height} 画布被挤压`);
   for (const panel of ['brushes', 'tools', 'options', 'library']) {

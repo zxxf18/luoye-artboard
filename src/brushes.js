@@ -1,6 +1,7 @@
 import { seededRandom } from './pixels.js';
 import { legacyBrushSegment } from './brushes-legacy.js';
 
+export const DEFAULT_BRUSH_SIZE=16;
 export const BRUSHES=[
   {id:'pencil',name:'铅笔',hint:'细细的线，勾轮廓',size:14,color:'#eca73b'},
   {id:'spray',name:'喷笔',hint:'点点雾气，轻轻喷',size:34,color:'#69abc1'},

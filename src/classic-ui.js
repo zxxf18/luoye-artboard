@@ -1,7 +1,7 @@
 import { choiceArt } from './choice-art.js';
 import { mountPalette } from './palette-ui.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
-import { BRUSHES, brushSegment } from './brushes.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment } from './brushes.js';
 import { makeCanvas } from './engine.js';
 
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
@@ -43,10 +43,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const footer=document.createElement('div');footer.className='left-actions';
   const pens=document.createElement('div');pens.className='brush-box';pens.setAttribute('aria-label','十一种画笔');const title=document.createElement('h2');title.textContent='我的画笔盒';left.append(title,pens);const libraryGroups=document.createElement('div');libraryGroups.id='library-groups';libraryGroups.setAttribute('aria-label','素材分类');left.append(libraryGroups);
   let currentBrush=el('brush').value;const sizes={};
-  function chooseBrush(value){el('painting').dataset.brush=value;document.dispatchEvent(new Event('brushchange'));if(el('painting').dataset.tool==='pen')sizes[currentBrush]=Number(el('size').value);openLibrary(false);currentBrush=value;el('brush').value=value;el('size').value=sizes[value]||BRUSHES.find(b=>b.id===value).size;el('size').dispatchEvent(new Event('input',{bubbles:true}));setTool('pen');sync();document.dispatchEvent(new Event('controlschange'));}
+  function chooseBrush(value){el('painting').dataset.brush=value;document.dispatchEvent(new Event('brushchange'));if(el('painting').dataset.tool==='pen')sizes[currentBrush]=Number(el('size').value);openLibrary(false);currentBrush=value;el('brush').value=value;el('size').value=sizes[value]||DEFAULT_BRUSH_SIZE;el('size').dispatchEvent(new Event('input',{bubbles:true}));setTool('pen');sync();document.dispatchEvent(new Event('controlschange'));}
   for(const brush of BRUSHES){const b=document.createElement('button');b.type='button';b.className='brush-card';b.dataset.brush=brush.id;b.style.setProperty('--brush-color',brush.color);b.setAttribute('aria-label',brush.name);b.title=brush.name+'：'+brush.hint;b.innerHTML=playfulIcon(brush.id)+`<span>${brush.name}</span><span class="brush-sample"></span>`;b.onclick=()=>{if(!document.body.hasAttribute('aria-busy'))chooseBrush(brush.id);};pens.append(b);const option=[...el('brush').options].find(o=>o.value===brush.id);option.textContent=brush.name;}
   pens.tabIndex=0;
-  el('size').value=BRUSHES[0].size;el('size-value').textContent=BRUSHES[0].size;
+  el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
   const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形']];
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
@@ -70,7 +70,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   let lastColor='',lastSecondary='',showEraserShapes=false;
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
-    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,24,secondary));}
+    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,DEFAULT_BRUSH_SIZE,secondary));}
     const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,getColor(),140,50,Math.min(36,Number(el('size').value)),secondary):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
     primary.hidden=false;modes.hidden=tool!=='pen';
     el('brush-options').hidden=!['pen','eraser','stamp','clone',...geometries].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal'].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');

@@ -19,6 +19,7 @@ import { mountPlayfulControls } from './playful-controls.js';
 import { mountMaterials } from './materials-ui.js';
 import { mountAssist } from './assist-ui.js';
 import { applyStoredTheme, mountTheme } from './theme-ui.js';
+import { DEFAULT_BRUSH_SIZE } from './brushes.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -33,7 +34,7 @@ let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
-const defaultSettings = { brush:'pencil', size:14, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
+const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
 function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `落叶画板_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
 function setCanvasCursor(){const canvas=$('painting');canvas.dataset.tool=tool;canvas.dataset.brush=$('brush')?.value||'pencil';}
 

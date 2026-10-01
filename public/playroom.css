@@ -2250,3 +2250,74 @@
   .playroom[data-theme] .brand > .brand-icon { width: 28px; height: 28px; }
   .playroom .about-mark { width: 56px; height: 56px; }
 }
+
+/* Final compact contract. These rules come last so the themed command and
+   mascot selectors cannot re-expand after the responsive layout has chosen
+   its touch targets. The button box stays tappable while its label and icon
+   follow the same scale as the neighboring commands. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom .header-actions button {
+    line-height: 1.1;
+  }
+  .playroom .header-actions #new-quick,
+  .playroom .header-actions #reset-settings {
+    font-size: 12px !important;
+    line-height: 1.1;
+  }
+  .playroom[data-theme] .header-actions .theme-entry {
+    flex: 0 0 48px;
+    min-width: 48px;
+  }
+  .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom .header-actions {
+    gap: 2px;
+  }
+  .playroom .header-actions button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 2px;
+    font-size: 9px;
+  }
+  .playroom .header-actions #new-quick,
+  .playroom .header-actions #reset-settings {
+    font-size: 9px !important;
+    line-height: 1.1;
+  }
+  .playroom[data-theme] .header-actions .theme-entry {
+    flex: 0 0 44px;
+    min-width: 44px;
+  }
+  .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .playroom[data-theme] .theme-card-preview .theme-card-logo {
+    width: auto !important;
+    height: auto !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 380px), (max-height: 420px) {
+  .playroom .header-actions #new-quick,
+  .playroom .header-actions #reset-settings {
+    font-size: 8px !important;
+  }
+  .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .playroom[data-theme] .theme-card-preview .theme-card-logo {
+    max-width: 24px !important;
+    max-height: 24px !important;
+  }
+}
