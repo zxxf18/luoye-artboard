@@ -129,8 +129,8 @@
   --theme-backdrop: #37587855;
 }
 .playroom[data-theme="mechanical"] {
-  --theme-classic-control: #edf3f4;
-  --theme-backdrop: #26373f55;
+  --theme-classic-control: #2c3b43;
+  --theme-backdrop: #000000cc;
 }
 .playroom[data-theme="space"] {
   --theme-classic-control: #2f3d6d;

@@ -24,6 +24,13 @@ test('theme picker defines eight stable themes with autumn as the default', () =
   assert.match(theme, /id: 'candy', label: '糖果', caption: '甜甜画室'/);
 });
 
+test('mechanical theme uses a dark glossy metal palette', () => {
+  assert.match(styles, /data-theme="mechanical"\]\s*\{[\s\S]*--theme-bg:\s*#11171d/);
+  assert.match(styles, /data-theme="mechanical"\]\s*\{[\s\S]*--theme-accent:\s*#4bc0cf/);
+  assert.match(styles, /theme-card\[data-theme="mechanical"\] \.theme-card-preview[^{]*\{[^}]*#0f151b/);
+  assert.match(toolStyles, /data-theme="mechanical"\]\s*\{[\s\S]*--theme-classic-control:\s*#2c3b43/);
+});
+
 test('theme selection is persisted independently from projects and reset restores autumn', () => {
   assert.match(theme, /localStorage\.setItem\(THEME_STORAGE_KEY, theme\)/);
   assert.match(theme, /localStorage\.removeItem\(THEME_STORAGE_KEY\)/);

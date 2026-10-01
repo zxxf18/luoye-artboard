@@ -356,10 +356,11 @@
   --theme-border: #a9c9dc; --theme-accent: #4d83aa; --theme-strong: #345f82; --theme-classic-colors: #bdd7e8; --brand-logo-ring: #7ba9cc;
 }
 .playroom[data-theme="mechanical"] {
-  --ink: #29333c; --muted: #64717a; --green: #628593; --green-soft: #d7e2e5;
-  --theme-bg: #d4dce0; --theme-header: #eaf0f2; --theme-panel: #dce5e8; --theme-rail: #bccbd1;
-  --theme-surface: #f3f7f8; --theme-control: #e7eef0; --theme-hover: #d0e0e4; --theme-selected: #bfd4da;
-  --theme-border: #9eafb7; --theme-accent: #557b87; --theme-strong: #3d5c67; --theme-classic-colors: #a9bac0; --brand-logo-ring: #718b95;
+  --ink: #e8f1f4; --muted: #a7bac2; --green: #82b5c2; --green-soft: #293841;
+  --theme-bg: #11171d; --theme-header: #19232a; --theme-panel: #202c34; --theme-rail: #0e1419;
+  --theme-surface: #2a3841; --theme-control: #33454f; --theme-hover: #3e505a; --theme-selected: #3e6470;
+  --theme-border: #607a85; --theme-accent: #4bc0cf; --theme-strong: #b8edf2; --theme-classic-colors: #1d2830;
+  --theme-shadow: #020609aa; --brand-logo-ring: #74d4df;
 }
 .playroom[data-theme="space"] {
   --ink: #e7edf9; --muted: #aab9d4; --green: #8e9fe0; --green-soft: #2d3964;
@@ -461,7 +462,7 @@
 .playroom[data-theme] .theme-card[data-theme="summer"] .theme-card-preview { background: linear-gradient(#b9eaf3 0 60%, #f7d59b 60%); --theme-preview-a: #ffd982; --theme-preview-b: #319bb0; }
 .playroom[data-theme] .theme-card[data-theme="autumn"] .theme-card-preview { background: linear-gradient(#f9e3bd, #d7a46e); --theme-preview-a: #d47a4c; --theme-preview-b: #a66542; }
 .playroom[data-theme] .theme-card[data-theme="winter"] .theme-card-preview { background: linear-gradient(#d7effc, #f7fcff); --theme-preview-a: #fff; --theme-preview-b: #9bc8e4; }
-.playroom[data-theme] .theme-card[data-theme="mechanical"] .theme-card-preview { background: linear-gradient(135deg, #687b83, #d9e1e3); --theme-preview-a: #5f7076; --theme-preview-b: #8ca1a8; }
+.playroom[data-theme] .theme-card[data-theme="mechanical"] .theme-card-preview { background: linear-gradient(135deg, #0f151b, #668692); --theme-preview-a: #4bc0cf; --theme-preview-b: #101920; }
 .playroom[data-theme] .theme-card[data-theme="space"] .theme-card-preview { background: radial-gradient(circle at 70% 25%, #f3bd91 0 8%, #754e91 22%, transparent 23%), #1c2754; --theme-preview-a: #c68ca0; --theme-preview-b: #8497eb; }
 .playroom[data-theme] .theme-card[data-theme="ocean"] .theme-card-preview { background: linear-gradient(#a9e2e4, #2d8e9a); --theme-preview-a: #d2f4e9; --theme-preview-b: #4ab19a; }
 .playroom[data-theme] .theme-card[data-theme="candy"] .theme-card-preview { background: linear-gradient(150deg, #ffd1df, #bfead8); --theme-preview-a: #ffd98b; --theme-preview-b: #d86a8e; }
