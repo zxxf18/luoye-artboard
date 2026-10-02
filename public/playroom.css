@@ -1264,6 +1264,51 @@
   .playroom[data-mobile-panel="library"] .tool-dock .panel-heading { flex: 0 0 auto; min-height: 34px; }
   .playroom[data-mobile-panel="library"] .tool-dock .panel-heading h2 { font-size: 17px; }
   .playroom[data-mobile-panel="library"] .tool-dock .panel-description { flex: 0 0 auto; margin: 2px 0 5px; font-size: 12px; }
+  .playroom[data-mobile-panel="library"] #library-groups {
+    display: flex !important;
+    flex: 0 0 64px;
+    align-items: stretch;
+    gap: 5px;
+    width: 100%;
+    min-height: 0;
+    max-height: 64px;
+    margin: 0 0 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .playroom[data-mobile-panel="library"] #library-groups .subtool-card {
+    flex: 0 0 112px;
+    min-width: 112px;
+    min-height: 58px;
+    padding: 3px 5px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups {
+    display: grid !important;
+    flex: 0 0 auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    width: 100%;
+    min-height: 0;
+    max-height: 68px;
+    margin: 0 0 6px;
+    overflow: hidden;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups .subtool-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    min-height: 58px;
+    padding: 3px 2px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups .playful-icon { width: 26px; height: 26px; }
   .playroom[data-mobile-panel="library"] .tool-dock .categories {
     display: flex;
     flex: 0 0 48px;

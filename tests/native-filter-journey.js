@@ -4,26 +4,59 @@ try{
  const check=(ok,name)=>{checks.push({passed:!!ok,name});if(!ok)throw Error(name);};
  const idle=async()=>{for(let i=0;i<600&&document.body.hasAttribute('aria-busy');i++)await pause(25);check(!document.body.hasAttribute('aria-busy'),'操作结束后恢复响应');await pause(100);};
  const project=async()=> (await window.LUOYEFlushBeforeClose()).project;
+ const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
  const tool=id=>{if(!document.querySelector(`#tools [data-tool="${id}"]`))$('tool-page').click();document.querySelector(`#tools [data-tool="${id}"]`).click();};
- const library=category=>{if(!document.body.classList.contains('library-open'))$('mode-library').click();document.querySelector(`[data-category="${category}"]`).click();};
- const add=async(category,id)=>{library(category);const b=document.querySelector(`[data-asset-id="${id}"]`);check(b,'素材可选 '+id);b.click();await idle();};
+ const openLibrary=async()=>{
+   const command=document.querySelector('.mobile-command[data-mobile-panel="library"]');
+   if(compact&&command){if(document.body.dataset.mobilePanel!=='library'){command.click();await pause(80);}}
+   else if(!document.body.classList.contains('library-open')){$('mode-library').click();await pause(40);}
+ };
+ const closeLibrary=async()=>{const focus=document.querySelector('.mobile-command[data-mobile-panel="focus"]');if(compact&&focus&&document.body.dataset.mobilePanel!=='focus'){focus.click();await pause(80);}};
+ const openOptions=async()=>{const options=document.querySelector('.mobile-command[data-mobile-panel="options"]');if(compact&&options&&document.body.dataset.mobilePanel!=='options'){options.click();await pause(80);}};
+ const library=async category=>{await openLibrary();const button=document.querySelector(`[data-category="${category}"]`);check(button,'素材分类不可用 '+category);button.click();await pause(40);};
+ // A compact phone shows only a few cards per page.  Select the collection
+ // first when the requested asset belongs to one, then walk the real pager
+ // instead of assuming the first page contains a particular id.
+ const collectionFor=id=>id.startsWith('bg170-space')?'太空':id.startsWith('bg170-')?'全部图案':'';
+ const selectAsset=async(category,id)=>{
+   await library(category);
+   const collection=collectionFor(id);
+   if(collection){const group=[...document.querySelectorAll('#library-groups button')].find(b=>b.textContent.trim()===collection);if(group){group.click();await pause(30);}}
+   for(let page=0;page<80;page++){
+     const card=document.querySelector(`[data-asset-id="${id}"]`);
+     if(card){card.click();await idle();return card;}
+     const next=document.querySelector('#library-pagination button[aria-label="下一页"]');
+     if(!next||next.disabled)break;
+     next.click();await pause(30);
+   }
+   check(false,'素材可选 '+id);return null;
+ };
+ const add=async(category,id)=>{await selectAsset(category,id);};
  await add('background','bg170-space-comic-01');
  await add('sticker','role0-1');
  await add('animation','animation-0');
+ await closeLibrary();
+ tool('move');
+ await openOptions();
  let p=await project(),object=p.layers.at(-1),scale=object.scale;
  check(object.frames?.length>1,'放入会动的小伙伴');
- check($('object-controls').getBoundingClientRect().height>0,'放入后直接显示大小按钮');
+ const objectControls=$('object-controls');check(objectControls&&!objectControls.hidden&&objectControls.getBoundingClientRect().height>0,'放入后直接显示大小按钮：hidden='+objectControls?.hidden+' tool='+$('painting').dataset.tool+' panel='+document.body.dataset.mobilePanel+' layers='+p.layers.length);
  $('object-bigger').click();await idle();p=await project();
  check(p.layers.at(-1).scale>scale&&p.layers.at(-1).frames.length===object.frames.length,'变大保持动画帧');
  $('undo').click();await idle();check((await project()).layers.at(-1).scale===scale,'大小调整可撤销');
+ await closeLibrary();
  const panel=document.querySelector('.classic-colors'),panelHeight=panel.getBoundingClientRect().height;
  $('foreground-palette').click();document.querySelector('.preset-color[aria-label="苹果红"]').click();$('palette-apply').click();
  check($('foreground-palette').style.background==='rgb(239, 83, 80)','一键选儿童常用颜色');
  check(panel.getBoundingClientRect().height===panelHeight,'历史色不把左边面板越撑越高');
  $('foreground-palette').click();document.querySelector('.preset-color[aria-label="天空蓝"]').click();$('palette-cancel').click();
  check($('foreground-palette').style.background==='rgb(239, 83, 80)','取消选色保持原画笔色');
- tool('stamp');const modes=[...document.querySelectorAll('#library-groups [data-fairy-mode]')];check(modes.length===3&&modes.every(b=>{const r=b.getBoundingClientRect();return r.height>=44&&r.bottom<innerHeight;}),'魔法袋左侧三种玩法直接可见且按钮足够大');document.querySelector('#library-groups [data-fairy-mode="dynamic"]').click();
- document.querySelector('[data-asset-id="girl-2-0"]').click();await idle();
+ tool('stamp');await pause(80);
+ // The stamp tool opens the library sheet on compact screens. Its three
+ // mode cards are the user-facing controls in the library drawer.
+ await pause(120);const modes=[...document.querySelectorAll('#library-groups [data-fairy-mode]')];const group=document.querySelector('#library-groups');const chain=[];for(let n=group;n&&chain.length<4;n=n.parentElement){const r=n.getBoundingClientRect();chain.push(`${n.tagName}.${n.className||''}:${getComputedStyle(n).display}:${Math.round(r.width)}x${Math.round(r.height)}`);}check(modes.length===3&&modes.every(b=>{const r=b.getBoundingClientRect();return r.height>=40&&r.width>=100&&r.bottom>=0&&r.top<=innerHeight;}),'魔法袋三种玩法直接可见且按钮足够大：'+modes.map(b=>{const r=b.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height),Math.round(r.bottom)]})+' tool='+$('painting').dataset.tool+' panel='+document.body.dataset.mobilePanel+' chain='+chain.join('|'));const dynamic=modes.find(b=>b.textContent.includes('会动图案'));check(dynamic,'会动图案入口缺失');dynamic.click();
+ await selectAsset('fairy','girl-2-0');
+ await closeLibrary();
  $('size').value=180;$('size').dispatchEvent(new Event('input'));
  const paperForStamp=$('painting'),r=paperForStamp.getBoundingClientRect(),capture=paperForStamp.setPointerCapture;paperForStamp.setPointerCapture=()=>{};
  for(let i=0;i<=8;i++)paperForStamp.dispatchEvent(new PointerEvent(i===0?'pointerdown':i===8?'pointerup':'pointermove',{bubbles:true,pointerId:87,pointerType:'mouse',button:0,buttons:i===8?0:1,clientX:r.x+r.width*(.30+i*.035),clientY:r.y+r.height*.74}));

@@ -20,6 +20,21 @@ SDK=iphoneos CONFIGURATION=Release npm run build:ios
 
 构建脚本会先生成当前 `dist/`，复制到应用资源，再复制已授权的 `GeneralUser-GS.sf2` 音色库及其许可证，最后调用 `xcodebuild`。资源目录是临时生成的并被 Git 忽略，不应手工提交。
 
+Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arguments 在模拟器中运行现有原生烟测。结果会写到应用沙盒的 `Documents/<输出前缀>.checks.json` 和 `Documents/<输出前缀>.png`；使用 `LUOYE_SMOKE_FILES=1` 时，工程、PNG 和 JPEG 会写到同一前缀下，便于 `simctl` 拉取。示例：
+
+```sh
+CONFIGURATION=Debug npm run build:ios
+xcrun simctl install booted build/releases/v1.10.4/落叶画板-iphonesimulator.app
+xcrun simctl launch booted cn.com.yebuluo.luoyeartboard \
+  -LUOYE_SMOKE_SCRIPT native-child-journey.js \
+  -LUOYE_SMOKE_OUTPUT child \
+  -LUOYE_SMOKE_FILES 1 \
+  -LUOYE_SMOKE_RELOAD 1
+xcrun simctl get_app_container booted cn.com.yebuluo.luoyeartboard data
+```
+
+烟测默认使用内存中的 WebKit 数据库，避免污染日常草稿；需要验证跨次启动持久化时追加 `-LUOYE_SMOKE_PERSISTENT 1`。完成后用 `xcrun simctl terminate booted cn.com.yebuluo.luoyeartboard` 结束应用。Release 构建不执行烟测脚本。
+
 ## 本机交互映射
 
 | 页面功能 | iPhone / iPad 行为 |

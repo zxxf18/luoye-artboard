@@ -11,9 +11,11 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     private var pendingExport: (id: String, url: URL)?
     private var pendingOpen: (([URL]?) -> Void)?
     private var music: LuoyeMusic?
+    private let smokeFileOutputURL: URL?
 
-    init(host: LuoyeWebViewController?) {
+    init(host: LuoyeWebViewController?, smokeFileOutputURL: URL? = nil) {
         self.host = host
+        self.smokeFileOutputURL = smokeFileOutputURL
         super.init()
     }
 
@@ -22,7 +24,9 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, message.frameInfo.securityOrigin.protocol == "file" else { return }
         switch message.name {
-        case "ready": host?.interfaceReady = true
+        case "ready":
+            host?.interfaceReady = true
+            host?.runSmokeIfRequested()
         case "files": handleFile(message.body)
         case "music": handleMusic(message.body)
         case "display": handleDisplay(message.body)
@@ -34,6 +38,7 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     // iOS enables file inputs by default, but using a document picker here
     // makes .luoyex and cloud-provider imports behave consistently on iPhone
     // and iPad. The copied URL stays inside the app's temporary directory.
+    @available(iOS 18.4, *)
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
                  initiatedByFrame frame: WKFrameInfo,
                  completionHandler: @escaping @MainActor ([URL]?) -> Void) {
@@ -102,6 +107,16 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
             let safeName = sanitize(name, fallback: "落叶画板文件")
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + "-" + (safeName as NSString).deletingPathExtension + "." + extensionName)
             try data.write(to: url, options: .atomic)
+            #if DEBUG
+            if let smokeFileOutputURL {
+                let outputName = ["", ".", ".."].contains(safeName) ? "落叶画板文件" : safeName
+                let destination = URL(fileURLWithPath: smokeFileOutputURL.path + "." + outputName)
+                try data.write(to: destination, options: .atomic)
+                sendFileResult(id: id, saved: true)
+                try? FileManager.default.removeItem(at: url)
+                return
+            }
+            #endif
             guard let presenter else { throw BridgeError.invalidFile("当前页面没有可用的保存窗口") }
             let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true)
             picker.delegate = self
@@ -159,7 +174,7 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
                   size < 32 * 1024 * 1024 else { throw BridgeError.invalidFile("素材路径或大小无效") }
             let ext = file.pathExtension.lowercased()
             let mime = ext == "jpg" || ext == "jpeg" ? "jpeg" : ext
-            let result: [String: Any] = ["id": id, "data": "data:image/\(mime);base64," + Data(contentsOf: file).base64EncodedString()]
+            let result: [String: Any] = ["id": id, "data": "data:image/\(mime);base64," + (try Data(contentsOf: file)).base64EncodedString()]
             sendEvent("native-asset-result", detail: result)
         } catch { sendEvent("native-asset-result", detail: ["id": id, "error": "素材没有读出来：\(error.localizedDescription)"]) }
     }

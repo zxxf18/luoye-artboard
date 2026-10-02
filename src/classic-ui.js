@@ -108,6 +108,14 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     const library=document.querySelector('.library');
     const pager=document.querySelector('#library-pagination');
     const instruction=document.querySelector('#library-instruction');
+    const fairyGroups=document.querySelector('#library-groups');
+    if(fairyGroups){
+      if(panel==='library'&&fairyGroups.parentElement!==library){
+        library?.prepend(fairyGroups);
+      }else if(panel!=='library'&&fairyGroups.parentElement!==left){
+        left.insertBefore(fairyGroups,subtools);
+      }
+    }
     if(panel==='library'){
       if(pager&&library&&pager.parentElement!==library)library.append(pager);
       if(instruction&&library&&instruction.parentElement!==library)library.append(instruction);

@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,13 @@ if (webBuild.status !== 0) process.exit(webBuild.status || 1);
 await rm(resources, { recursive: true, force: true });
 await mkdir(path.join(resources, 'audio'), { recursive: true });
 await mkdir(path.join(resources, 'Assets.xcassets', 'AppIcon.appiconset'), { recursive: true });
+const smoke = path.join(resources, 'smoke');
+await mkdir(smoke, { recursive: true });
+if (configuration === 'Debug') {
+  for (const name of await readdir(path.join(root, 'tests'))) {
+    if (/^native-[a-z0-9-]+\.js$/.test(name)) await cp(path.join(root, 'tests', name), path.join(smoke, name));
+  }
+}
 await cp(path.join(root, 'dist'), path.join(resources, 'site'), { recursive: true });
 await cp(path.join(root, 'native', 'windows', 'audio', 'GeneralUser-GS.sf2'), path.join(resources, 'audio', 'GeneralUser-GS.sf2'));
 await cp(path.join(root, 'native', 'windows', 'audio', 'LICENSE.txt'), path.join(resources, 'audio', 'GeneralUser-GS-LICENSE.txt'));
