@@ -35,6 +35,16 @@ xcrun simctl get_app_container booted cn.com.yebuluo.luoyeartboard data
 
 烟测默认使用内存中的 WebKit 数据库，避免污染日常草稿；需要验证跨次启动持久化时追加 `-LUOYE_SMOKE_PERSISTENT 1`。完成后用 `xcrun simctl terminate booted cn.com.yebuluo.luoyeartboard` 结束应用。Release 构建不执行烟测脚本。
 
+针对 iPad 的紧凑布局、主题、画笔、辅助、素材抽屉、贴图恢复和连续笔触，可运行专用烟测：
+
+```sh
+xcrun simctl launch "落叶 iPad Air 测试" cn.com.yebuluo.luoyeartboard \
+  -LUOYE_SMOKE_SCRIPT native-ipad-journey.js \
+  -LUOYE_SMOKE_OUTPUT ipad
+```
+
+Debug 构建会自动把 `tests/native-ipad-journey.js` 复制到应用的 `smoke` 资源目录。结果仍写入应用沙盒 `Documents/ipad.checks.json` 和 `Documents/ipad.png`。
+
 ## 本机交互映射
 
 | 页面功能 | iPhone / iPad 行为 |
@@ -55,4 +65,6 @@ node --test tests/ios-support.test.js
 xcodebuild -project ios/LuoyeArtboard.xcodeproj -scheme LuoyeArtboard -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
 ```
 
-模拟器至少检查 iPhone SE（375×667）、iPhone 横屏（667×375）、iPad 横屏（1024×768）、iPad 分屏（约 507×768）。真机还必须补测 Apple Pencil 压力、音频中断、后台恢复、文件提供方和 VoiceOver；当前仓库所在机器没有 iOS SDK/Simulator，不能把这些真机检查标记为已通过。
+iPad 专项烟测已在 iPad Air（820×1128）、iPad mini（744×1081）和 iPad Pro 11 英寸（834×1158）的模拟器竖向窗口中通过，每台 10 项。iPhone 的独立烟测覆盖竖屏（375×647）和横屏（667×375）。
+
+iPad 横屏和分屏仍需补测；横屏声明和启动方向请求的静态检查不能替代实际运行验证。烟测笔触使用合成 PointerEvent，并临时替换 `setPointerCapture`，不能证明真实触控或 Apple Pencil 的行为。真机还必须检查压力、音频中断、后台恢复、文件提供方和 VoiceOver。

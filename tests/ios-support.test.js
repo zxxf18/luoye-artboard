@@ -73,6 +73,19 @@ test('Debug iOS host can run bundled native smoke scripts and export evidence', 
   assert.match(project, /SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;/);
 });
 
+test('iPad journey covers compact layout, themes, drawing, assets and recovery', async () => {
+  const journey = await read('tests/native-ipad-journey.js');
+  assert.match(journey, /iPad 实际视口足够容纳画板/);
+  assert.match(journey, /八个主题都可切换且不修改画布像素/);
+  assert.match(journey, /彩虹笔和双色渐变笔/);
+  assert.match(journey, /工具抽屉中的橡皮、填色和形状入口/);
+  assert.match(journey, /辅助绘画在 iPad 弹窗中/);
+  assert.match(journey, /图库抽屉完整显示素材/);
+  assert.match(journey, /贴图保存后恢复/);
+  assert.match(journey, /纸张纹理和连续笔触/);
+  assert.match(journey, /runtimeErrors/);
+});
+
 test('iOS build helper refuses to claim a build without Xcode and copies the current dist', async () => {
   const source = await read('tools/build-ios.mjs');
   const project = await read('ios/LuoyeArtboard.xcodeproj/project.pbxproj');
