@@ -42,6 +42,8 @@ test('iOS host keeps local resources sandboxed and enables safe-area layout', as
   assert.match(source, /view\.safeAreaLayoutGuide/);
   assert.match(source, /webView\.topAnchor\.constraint\(equalTo: safe\.topAnchor\)/);
   assert.doesNotMatch(source, /\.app-header \{ padding-top/);
+  assert.match(source, /preferredInterfaceOrientationForPresentation:\s*UIInterfaceOrientation\s*\{\s*\.landscapeRight\s*\}/);
+  assert.match(source, /initialGeometryRequested/);
   assert.match(source, /WKWebsiteDataStore\.default/);
   assert.match(source, /sceneWillResignActive/);
   assert.match(source, /LUOYEFlushBeforeClose/);

@@ -18,6 +18,7 @@ final class LuoyeWebViewController: UIViewController {
     private let smoke: LuoyeSmokeConfiguration?
     private var smokeRunning = false
     private var smokeOrientationReady = true
+    private var initialGeometryRequested = false
     var interfaceReady = false
     private var immersive = false
 
@@ -35,7 +36,7 @@ final class LuoyeWebViewController: UIViewController {
         webView = view
         bridge = LuoyeBridge(host: nil, smokeFileOutputURL: smoke?.fileChecks == true ? smoke?.outputURL : nil)
         self.smoke = smoke
-        smokeOrientationReady = smoke?.orientation == nil
+        smokeOrientationReady = smoke == nil
         super.init(nibName: nil, bundle: nil)
         bridge.setHost(self)
         bridge.webView = view
@@ -100,23 +101,31 @@ final class LuoyeWebViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool { immersive }
     override var prefersHomeIndicatorAutoHidden: Bool { immersive }
+    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .landscapeRight }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        guard let scene = view.window?.windowScene else { return }
         #if DEBUG
-        guard let orientation = smoke?.orientation, !smokeOrientationReady,
-              let scene = view.window?.windowScene else { return }
-        // Debug smoke can exercise the real landscape viewport without
-        // depending on Simulator.app's Rotate menu.
+        let orientation = smoke?.orientation ?? [.landscapeLeft, .landscapeRight]
+        #else
+        let orientation: UIInterfaceOrientationMask = [.landscapeLeft, .landscapeRight]
+        #endif
+        guard !initialGeometryRequested else {
+            runSmokeIfRequested()
+            return
+        }
+        initialGeometryRequested = true
+        // The app starts in a landscape workspace on both iPhone and iPad.
+        // A later user rotation remains allowed by Info.plist and UIKit.
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { error in
-            NSLog("Luoye smoke orientation failed: %@", error.localizedDescription)
+            NSLog("Luoye initial orientation request failed: %@", error.localizedDescription)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
             guard let self else { return }
             self.smokeOrientationReady = true
             self.runSmokeIfRequested()
         }
-        #endif
     }
 
     func toggleImmersive() {
