@@ -59,6 +59,14 @@ android {
     packaging {
         resources.excludes += '/META-INF/{AL2.0,LGPL2.1}'
     }
+
+    // Built-in MIDI tracks are streamed directly from the APK instead of
+    // being copied to cache on every track change.  Android's asset file
+    // descriptor requires an uncompressed entry; loadAsset still keeps a
+    // cache-file fallback for older/packaging variants.
+    androidResources {
+        noCompress += ['mid']
+    }
 }
 
 dependencies {

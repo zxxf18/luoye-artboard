@@ -19,9 +19,17 @@ test('paper textures precompute reusable luminance masks', () => {
   assert.match(source, /paper\.maskCanvases\.size > 4/);
 });
 
+test('reselecting one texture reuses its decoded pixel and mask data', () => {
+  assert.match(source, /const textureCache = new WeakMap\(\)/);
+  assert.match(source, /const cached = textureCache\.get\(image\)/);
+  assert.match(source, /textureCache\.set\(image, value\)/);
+});
+
 test('textured segments reuse transformable patterns instead of allocating per sample', () => {
   assert.match(source, /entry\?\.transformable/);
   assert.match(source, /entry\.pattern\.setTransform/);
+  assert.match(source, /entry\.matrix\.e = -left/);
+  assert.doesNotMatch(source, /new DOMMatrix\(\)\.translate/);
 });
 
 test('large textured pointer jumps are split into bounded material segments', () => {

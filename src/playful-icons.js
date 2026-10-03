@@ -26,6 +26,7 @@ const art={
  'board-filter':'<circle cx="31" cy="31" r="24" fill="#f9dba0"/><circle cx="31" cy="31" r="14" fill="#ef9a8f"/><path d="M31 8c31 26-25 48-16 12m29 31C13 27 59 13 49 40" fill="none"/>',
  clone:'<path fill="#e1b489" d="M14 42h38l6 14H8z"/><path fill="#b5a8cc" d="M22 42v-8q18-5 6-16-6-9 5-13 15-2 15 9 0 9-7 13v15z"/><path d="M10 61h46" stroke="#dc8c79" stroke-width="4"/>',
  fractal:'<path d="M31 61V25M31 50 15 37m16 2 19-19M22 44 8 43m14 1-4-19m22 6 17-1M40 31l-1-18M31 32 20 15m11 11L40 8" stroke="#87ac83" stroke-width="5" fill="none"/><circle cx="31" cy="59" r="3" fill="#e1b578"/>',
+ scratch:'<path d="m13 48 30-30 10 10-30 30z" fill="#cbd8dc"/><path d="m17 44 24-24m-18 34 24-24" stroke="#fff7df" stroke-width="3"/><path d="M8 56h48" stroke="#d98b67" stroke-width="5"/><path d="M17 15q15-9 30 0" fill="none" stroke="#efbd62" stroke-width="4"/>',
  palette:'<path fill="#ffdb94" d="M8 25c10-27 54-17 51 10-1 10-14 3-18 12-4 18-27 12-32-2-2-6-3-12-1-20z"/><circle cx="22" cy="22" r="5" fill="#ee8b79"/><circle cx="39" cy="18" r="5" fill="#91bda4"/><circle cx="48" cy="31" r="5" fill="#a6aed7"/><circle cx="18" cy="39" r="5" fill="#efb45b"/><circle cx="32" cy="43" r="5" fill="#fff5dc"/>',
  music:'<path d="M27 45V13l28-6v30" stroke-width="5" fill="none"/><path d="m28 22 26-6" stroke-width="5"/><ellipse cx="18" cy="49" rx="11" ry="8" fill="#e79daf"/><ellipse cx="46" cy="41" rx="11" ry="8" fill="#e79daf"/>',
  save:'<path fill="#a9c9ae" d="M10 8h39l9 10v42H10z"/><path fill="#fff2d3" d="M20 8h24v19H20zm-1 32h30v20H19z"/><path d="M36 12v10m-10 25h15m-15 7h15"/>',
@@ -47,6 +48,7 @@ Object.assign(art,{
  stop:'<circle cx="32" cy="32" r="26" fill="#edb4a1"/><rect x="21" y="21" width="22" height="22" rx="4" fill="#fff7df"/>',
 });
 Object.assign(art,{
+ pixel:'<rect x="9" y="9" width="17" height="17" rx="2" fill="#e7b167"/><rect x="31" y="9" width="17" height="17" rx="2" fill="#78b889"/><rect x="9" y="31" width="17" height="17" rx="2" fill="#7ca5d0"/><rect x="31" y="31" width="17" height="17" rx="2" fill="#ed8a75"/><path d="M15 57h38" stroke="#705142" stroke-width="5"/>',
  'mirror-x':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M32 9v44M10 29h14m-7-7 7 7-7 7m37-7H40m7-7-7 7 7 7" fill="none"/>',
  'mirror-y':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M9 29h46M32 9v14m-7-7 7 7 7-7m-7 37V39m-7 7 7-7 7 7" fill="none"/>',
  wave:'<path d="M7 39q9-15 18 0t18 0 18 0" fill="none" stroke="#5db7c5" stroke-width="6"/><path d="M9 51q8-11 16 0t16 0 16 0" fill="none" stroke="#9ddde1" stroke-width="4"/><circle cx="49" cy="17" r="9" fill="#ffd77d"/>',

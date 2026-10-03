@@ -79,7 +79,19 @@ await check('iPad 工具栏和按钮不发生溢出', () => {
   const header = rect(document.querySelector('.app-header'));
   assert(header.height <= 96, `顶部工具栏过高：${header.height}`);
   const targets = [...document.querySelectorAll('.header-actions button,.brush-card,.tool-button,.swatch,.left-actions button')].filter(visible);
-  const overflow = targets.filter(node => { const r = rect(node); return r.x < -1 || r.right > innerWidth + 1 || r.y < -1 || r.bottom > innerHeight + 1; });
+  // Brush/tool shelves intentionally scroll on an iPad when all choices do
+  // not fit in one row. Validate the shelf itself stays in the viewport while
+  // allowing its reachable children to extend inside that scrollport.
+  const inViewportScrollport = node => {
+    for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent);
+      if (!/(auto|scroll)/.test(`${style.overflowX} ${style.overflowY}`)) continue;
+      const r = rect(parent);
+      return r.x >= -1 && r.right <= innerWidth + 1 && r.y >= -1 && r.bottom <= innerHeight + 1;
+    }
+    return false;
+  };
+  const overflow = targets.filter(node => { const r = rect(node); return !inViewportScrollport(node) && (r.x < -1 || r.right > innerWidth + 1 || r.y < -1 || r.bottom > innerHeight + 1); });
   assert(!overflow.length, `有 ${overflow.length} 个按钮超出 iPad 窗口`);
   return { headerHeight: header.height, targetCount: targets.length };
 });

@@ -64,9 +64,13 @@ test('history clears redo after a new edit and retains a bounded history', () =>
   const add = () => { n++; history.push({ bytes: 10, undo: () => n--, redo: () => n++ }); };
   add(); add(); add();
   assert.equal(history.past.length, 2);
+  assert.equal(history.pastBytes, 20);
   history.undo(); assert.equal(n, 2);
+  assert.equal(history.pastBytes, 10); assert.equal(history.futureBytes, 10);
   add(); assert.equal(history.future.length, 0);
+  assert.equal(history.futureBytes, 0);
   history.undo(); history.redo(); assert.equal(n, 3);
+  assert.equal(history.pastBytes, 20); assert.equal(history.futureBytes, 0);
 });
 
 test('project validation rejects oversized, remote, duplicate and nonfinite layers', () => {

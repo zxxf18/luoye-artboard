@@ -71,7 +71,7 @@ function gradientRibbon(ctx,a,b,width,colorAt,alpha){
 export function brushSegment(ctx,g,a,b){
   const o=g.options;
   // Recordings without a version keep the 0.2/0.3 rendering rules.
-  if(o.brushVersion!==2||o.tool==='eraser')return legacyBrushSegment(ctx,g,a,b);
+  if(o.brushVersion!==2||o.tool==='eraser'||o.tool==='scratch')return legacyBrushSegment(ctx,g,a,b);
   const key=o.brush||'pencil',w=o.size/g.layer.scale,ratio=Math.max(.15,Math.min(2,o.ratio??1)),alpha=o.opacity,random=g.random||(g.random=seededRandom(o.seed??1));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=alpha;
   if(key==='rainbow'||key==='duotone'){

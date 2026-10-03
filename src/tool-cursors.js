@@ -5,7 +5,7 @@ import { playfulIcon } from './playful-icons.js';
 const iconContacts = {
   pencil:[13,61], crayon:[17,60], watercolor:[11,56], brush:[22,57],
   marker:[12,54], chalk:[26,58], spray:[42,14], tube:[36,62], effect:[45,8], rainbow:[32,48], duotone:[32,48],
-  stamp:[34,44], friend:[35,38], butterfly:[35,33], picker:[10,61],
+  stamp:[34,44], friend:[35,38], butterfly:[35,33], picker:[10,61], scratch:[25,53],
   magic:[44,7], move:[32,27], text:[28,61], clone:[34,57], fractal:[33,62],
 };
 const cursorShapes = {

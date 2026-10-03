@@ -20,18 +20,22 @@ import { mountMaterials } from './materials-ui.js';
 import { mountAssist } from './assist-ui.js';
 import { applyStoredTheme, mountTheme } from './theme-ui.js';
 import { DEFAULT_BRUSH_SIZE } from './brushes.js';
+import { mountAnimationEditor } from './animation-editor.js';
+import { mountPixelEditor } from './pixel-art.js';
+import { mountCollageEditor } from './collage-ui.js';
+import { mountShapeSnap, recognizeStroke } from './shape-snap.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
-const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
-const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
+const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', scratch: '刮刮画', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
+const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', scratch: '先画好秘密，再刮开银色表面看看', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
-let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0, theme;
+let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0, theme, shapeSnap;
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
-let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
+let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint, snapPoints = [], snapOptions = null;
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
@@ -51,7 +55,16 @@ function setTool(next) {
   if(shapeTools.has(tool)&&!shapeTools.has(next))shapeStyle={size:Number($('size').value),opacity:Number($('opacity').value)};
   if(tool === 'stamp') { stampSize = Number($('size').value); if(next!==tool) engine?.resetStampProgress?.(); }
   if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
-  engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
+  let scratchPrepared=false;
+  engine?.end();
+  if(next==='scratch'&&engine?.prepareScratchCard)try{
+    // prepareScratchCard/createScratchCard already invalidates and renders;
+    // clear stale stamp previews before that render and avoid a second pass.
+    engine.stampPreview=null; const scratchLayer=engine.prepareScratchCard(); scratchPrepared=true;
+    document.dispatchEvent(new CustomEvent('scratch-style-updated',{detail:scratchLayer?.scratchStyle||{}}));
+    renderLayers();document.dispatchEvent(new Event('controlschange'));
+  }catch(error){toast(error.message||'刮刮画没有准备好');return;}
+  if(engine&&!scratchPrepared) { engine.stampPreview = null; engine.render(); }
   if(engine?.path&&next!==tool)engine.finishPath(true);
   if(next!==tool)engine?.clearSelection();
   if(!shapeTools.has(tool)&&shapeTools.has(next)){
@@ -67,6 +80,7 @@ function setTool(next) {
   if(['polygon','bezier'].includes(tool)) $('tool-hint').textContent='点击添加顶点／控制点，Enter 或双击完成，Esc 取消';
   if(tool==='warp')$('tool-hint').textContent='推拉：拖动变形；缩放：点击或拖动。负速度用于反向变形';
   if(tool==='board-filter')$('tool-hint').textContent='点击画纸设置效果中心，或在底部预览后确定';
+  if(tool==='scratch')$('tool-hint').textContent='先画好秘密，再刮开银色表面看看';
   if(tool==='fractal')$('tool-hint').textContent='点击画纸或底部按钮，选择分形样式与尺寸';
   studio?.toolChanged(tool);
   document.dispatchEvent(new Event('toolchange'));
@@ -89,24 +103,29 @@ function renderLayers() {
   $('layer-list').replaceChildren(); $('layer-count').textContent = engine.layers.length;
   for (const layer of [...engine.layers].reverse()) {
     const row = document.createElement('div'); row.className = `layer-row ${layer.id === engine.activeId ? 'active' : ''}`;
-    const thumb = makeCanvas(64, 42); thumb.className = 'layer-thumb';
+    // Thumbnails are draw-only DOM previews; keep them on the compositor path
+    // instead of opting into a readback-optimized canvas.
+    const thumb = makeCanvas(64, 42, false); thumb.className = 'layer-thumb';
     const fit = Math.min(64 / layer.width, 42 / layer.height), context = thumb.getContext('2d');
     context.drawImage(layer.canvas, (64 - layer.width * fit) / 2, (42 - layer.height * fit) / 2, layer.width * fit, layer.height * fit);
     for(const mask of [layer.eraseMask,layer.spriteClip])if(mask){context.globalCompositeOperation='destination-in';context.drawImage(mask,(64-layer.width*fit)/2,(42-layer.height*fit)/2,layer.width*fit,layer.height*fit);}
-    const name = document.createElement('button'); name.className = 'layer-name'; name.innerHTML = ''; const caption = document.createElement('span'); caption.textContent = (layer.role === 'background' ? '画纸背景 · ' : '') + layer.name; name.append(thumb,caption); name.setAttribute('aria-pressed', layer.id === engine.activeId);
+    const name = document.createElement('button'); name.className = 'layer-name'; name.innerHTML = ''; const caption = document.createElement('span'); caption.textContent = (layer.role === 'background' ? '画纸背景 · ' : layer.role === 'scratch-base' ? '刮刮画底色 · ' : '') + layer.name; name.append(thumb,caption); name.setAttribute('aria-pressed', layer.id === engine.activeId); name.disabled = layer.role === 'scratch-base';
     name.onclick = () => { if (busy) return; engine.activeId = layer.id; renderLayers(); document.dispatchEvent(new Event('controlschange')); };
-    const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '藏起来：' : '显示：'}${layer.name}`);
+    const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '藏起来：' : '显示：'}${layer.name}`); eye.disabled = layer.role === 'scratch-base';
     eye.onclick = () => run(() => engine.setProperty(layer, 'visible', !layer.visible));
     eye.append(document.createTextNode(layer.visible ? '藏起来' : '显示')); row.append(name, eye); $('layer-list').append(row);
   }
   document.dispatchEvent(new Event('objectchange'));
-  $('smaller').disabled=$('bigger').disabled=engine.active.role==='background';
-  for(const id of ['rotate','mirror-x','mirror-y']) if($(id)) $(id).disabled=engine.active.role==='background';
+  const protectedLayer=engine.active.role==='background'||engine.active.role==='scratch-base';
+  $('smaller').disabled=$('bigger').disabled=protectedLayer;
+  for(const id of ['rotate','mirror-x','mirror-y']) if($(id)) $(id).disabled=protectedLayer;
+  if($('layer-opacity'))$('layer-opacity').disabled=protectedLayer;
   $('undo').disabled = !engine.history.past.length; $('redo').disabled = !engine.history.future.length;
-  $('delete-layer').disabled = engine.layers.length < 2;
-  $('layer-up').disabled = engine.active === engine.layers.at(-1) || engine.active.role === 'background';
-  $('layer-down').disabled = engine.layers.indexOf(engine.active) === 0 || engine.active.role === 'background' || engine.layers[engine.layers.indexOf(engine.active)-1]?.role === 'background';
-  if($('move-selected-layer')) $('move-selected-layer').disabled = engine.active.role === 'background';
+  $('delete-layer').disabled = engine.layers.length < 2 || protectedLayer;
+  $('layer-up').disabled = engine.active === engine.layers.at(-1) || protectedLayer;
+  const activeIndex=engine.layers.indexOf(engine.active);
+  $('layer-down').disabled = activeIndex === 0 || protectedLayer || ['background','scratch-base'].includes(engine.layers[activeIndex-1]?.role);
+  if($('move-selected-layer')) $('move-selected-layer').disabled = protectedLayer;
 }
 function changed() {
   if (!engine) return;
@@ -204,8 +223,29 @@ const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 applyStoredTheme();
 mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
+document.addEventListener('scratch-reset',()=>run(()=>engine.resetScratchCard?.()));
+// The compact scratch drawer emits a serializable style patch. Keep raster
+// updates in the engine so each palette click is one undoable redraw and is
+// available to recording/replay as well.
+document.addEventListener('scratch-style-change',event=>run(()=>{
+  const { kind, preset, ...style } = event.detail || {};
+  const layer=engine.setScratchStyle?.(style);
+  renderLayers();
+  document.dispatchEvent(new CustomEvent('scratch-style-updated',{detail:layer?.scratchStyle || style}));
+  document.dispatchEvent(new Event('controlschange'));
+}));
+const animationEditor = mountAnimationEditor({
+  engine,
+  run,
+  toast,
+  getColor: () => color,
+  getSecondaryColor: () => $('background-color')?.value || '#ffffff',
+});
+const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
+const collageEditor = mountCollageEditor({ engine, run, toast });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
+shapeSnap=mountShapeSnap({toast});
 chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};
@@ -245,7 +285,7 @@ async function newBlank(width=engine.width,height=engine.height){
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','eraser-shape':'star','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
-  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();theme?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
+  for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();shapeSnap?.reset?.();theme?.reset?.();zoom=1;try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
 bind('new',()=>newBlank());
 bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${engine.height}`;if(!$('preset').value)$('preset').selectedIndex=0;document.dispatchEvent(new Event('controlschange'));showDialog('new-dialog');});
@@ -290,7 +330,10 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
+    const options = { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options(),...assist.options() };
+    snapOptions = shapeSnap?.enabled?.() && tool === 'pen' ? options : null;
+    snapPoints = snapOptions ? [point] : [];
+    engine.begin(point, options);
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });
@@ -298,7 +341,17 @@ $('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
 // Keep drawing gestures, but suppress the embedded browser's reload menu.
 document.addEventListener('contextmenu',event=>event.preventDefault());
 function previewStamp(point) {
-  hoverPoint=point;engine.stampPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;engine.render();
+  hoverPoint=point;
+  const previousPreview=engine.stampPreview;
+  const nextPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;
+  engine.stampPreview=nextPreview;
+  // Pointer hover is continuous even when no stamp preview is visible. Avoid
+  // queueing a canvas render for every idle pointermove; only a visible preview
+  // change needs a new frame. The render queue still coalesces rapid stamp
+  // samples, so the latest point is drawn without extra work.
+  const previewChanged=Boolean(previousPreview)!==Boolean(nextPreview)
+    || Boolean(previousPreview&&nextPreview&&(previousPreview.point.x!==nextPreview.point.x||previousPreview.point.y!==nextPreview.point.y||previousPreview.size!==nextPreview.size));
+  if(previewChanged)engine.render();
 }
 $('size').addEventListener('input',()=>previewStamp(hoverPoint));
 $('painting').addEventListener('pointermove', event => {
@@ -307,16 +360,40 @@ $('painting').addEventListener('pointermove', event => {
   const rect=$('painting').getBoundingClientRect(),point=engine.point(event,rect);previewStamp(point);
   if (event.pointerId !== pointerId) return;
   const samples=event.getCoalescedEvents?.();
-  for(const sample of samples?.length?samples:[event])engine.update(engine.point(sample,rect));
+  for(const sample of samples?.length?samples:[event]){const next=engine.point(sample,rect);if(snapOptions)snapPoints.push(next);engine.update(next);}
 });
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
-function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);engine.end(event.type==='pointercancel');pointerId=undefined; }
+function finishPointer(event) {
+  if(event.pointerId!==pointerId)return;
+  clearInterval(stampTimer);
+  const cancel=event.type==='pointercancel',points=snapPoints,options=snapOptions;
+  engine.end(cancel);
+  // The freehand stroke is committed first so the child sees immediate ink.
+  // When recognition is confident, replace that one history entry with the
+  // corresponding geometric gesture. Low-confidence strokes remain untouched.
+  if(!cancel&&options&&points.length>=8){
+    const shape=recognizeStroke(points);
+    if(shape){
+      const historyBeforeUndo=engine.history.past.length;
+      engine.undo();
+      if(engine.history.past.length<historyBeforeUndo)try {
+        // Recreate a deliberately small geometry option set. The freehand
+        // brush options include material and assist state that should not be
+        // carried into the replacement gesture.
+        const geometryOptions={tool:shape.tool,color:options.color,size:options.size,opacity:options.opacity,filled:false,dashed:false};
+        engine.begin(shape.start,geometryOptions);engine.update(shape.end);engine.end();toast(`已整理成${shape.label}`);
+      }
+      catch(error){ engine.redo?.(); toast(error.message||'一笔成形没有完成'); }
+    }
+  }
+  pointerId=undefined;snapPoints=[];snapOptions=null;
+}
 $('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
-window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;previewStamp(null);});
+window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;snapPoints=[];snapOptions=null;previewStamp(null);});
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
-  if (event.key === 'Escape') { clearInterval(stampTimer); previewStamp(null); engine.finishPath(true);engine.end(true); pointerId = undefined; return; }
+  if (event.key === 'Escape') { clearInterval(stampTimer); previewStamp(null); engine.finishPath(true);engine.end(true); pointerId = undefined; snapPoints=[]; snapOptions=null; return; }
   if (event.metaKey || event.ctrlKey) {
     if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? engine.redo() : engine.undo(); }
     if (event.key.toLowerCase() === 'y') { event.preventDefault(); engine.redo(); }
@@ -339,7 +416,7 @@ window.LUOYEFlushBeforeClose=async()=>{
   }finally{busy=false;}
 };
 const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
-window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.scenePixels()});
+window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.scenePixels(),historyBytes:engine.history.pastBytes||0,futureBytes:engine.history.futureBytes||0});
 closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
 window.LUOYERequestClose=createCloseFlow({
@@ -360,7 +437,7 @@ async function initialize() {
   ready = true;
   document.body.dataset.appReady='true';
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:15,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 

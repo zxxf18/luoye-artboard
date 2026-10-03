@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 
 const source = await readFile(new URL('../public/android-bridge.js', import.meta.url), 'utf8');
+const androidMusic = await readFile(new URL('../android/app/src/main/java/cn/com/yebuluo/AndroidMusic.kt', import.meta.url), 'utf8');
+const androidGradle = await readFile(new URL('../android/app/build.gradle', import.meta.url), 'utf8');
 
 test('Android bridge exposes the desktop-compatible channels and JSON payloads', () => {
   const messages = [];
@@ -19,4 +21,11 @@ test('Android bridge does not replace an existing desktop or browser webkit obje
   const context = { AndroidBridge: { post() {} }, webkit: existing };
   vm.runInNewContext(source, context);
   assert.equal(context.webkit, existing);
+});
+
+test('Android bundled MIDI uses an asset descriptor before the compatibility copy path', () => {
+  assert.match(androidGradle, /noCompress\s*\+=\s*\[.mid.\]/);
+  assert.match(androidMusic, /context\.assets\.openFd\(assetPath\)/);
+  assert.match(androidMusic, /setDataSource\(descriptor\.fileDescriptor, descriptor\.startOffset, descriptor\.length\)/);
+  assert.match(androidMusic, /File\.createTempFile/);
 });

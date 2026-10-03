@@ -16,7 +16,7 @@ export function normalizeEraserShape(value) {
   return Object.prototype.hasOwnProperty.call(ERASER_SHAPES, value) ? value : DEFAULT_SHAPE;
 }
 
-function shapePath(ctx, shape, radius) {
+function shapeEraserPath(ctx, shape, radius) {
   if (shape === 'heart') {
     ctx.beginPath();
     ctx.moveTo(0, radius * .9);
@@ -75,7 +75,7 @@ export function shapeEraserDab(ctx, shape, x, y, size, opacity = 1, rotation = 0
   ctx.globalAlpha = alpha;
   ctx.translate(x, y);
   if (rotation) ctx.rotate(rotation);
-  shapePath(ctx, normalizeEraserShape(shape), radius);
+  shapeEraserPath(ctx, normalizeEraserShape(shape), radius);
   ctx.fill();
   ctx.restore();
 }
@@ -139,4 +139,4 @@ export function shapeEraserSegment(ctx, gesture, start, end) {
   gesture.shapeTravel = (travel + distance) % spacing;
 }
 
-export { shapePath };
+export { shapeEraserPath };

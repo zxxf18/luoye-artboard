@@ -1,6 +1,6 @@
 import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp, endPaperWarp } from './paper-tools.js';
 import { EditorEngine } from './editor.js';
-import { makeCanvas } from './engine.js';
+import { makeCanvas, paintScratchBase, paintScratchCover, scratchStyle } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
 import { brushSegment } from './brushes.js';
 import { shapeEraserSegment } from './shape-eraser.js';
@@ -38,6 +38,128 @@ function stampGroup(group,size){
 }
 
 export class DrawingEngine extends EditorEngine {
+  /** Keep the reveal colour in its own background layer, below the child's
+   * artwork and above ordinary paper backgrounds. It is a normal raster layer
+   * so save/restore and export remain compatible with every existing path. */
+  ensureScratchBase(style = {}, record = true) {
+    const existing = this.layers.find(layer => layer.role === 'scratch-base');
+    if (existing) return existing;
+    const canvas = makeCanvas(this.width, this.height);
+    paintScratchBase(canvas.getContext('2d'), this.width, this.height, style);
+    const firstArtwork = this.layers.findIndex(layer => layer.role !== 'background' && layer.role !== 'scratch-base');
+    return this.addLayer('刮刮画底色', canvas, record, {
+      role: 'scratch-base', sourceId: 'scratch-base', insertAt: firstArtwork < 0 ? this.layers.length : firstArtwork,
+    });
+  }
+  createScratchCard(options = {}) {
+    const style = scratchStyle(options);
+    const before = this.layers.slice(), previous = this.activeId;
+    const base = this.ensureScratchBase(style, false);
+    const cover = super.createScratchCard({ ...style, record: false });
+    const after = this.layers.slice(), active = this.activeId;
+    this.history.push({ bytes: (base.width * base.height + cover.width * cover.height) * 4,
+      undo: () => { this.layers = before.slice(); this.activeId = previous; },
+      redo: () => { this.layers = after.slice(); this.activeId = active; } });
+    this.changed(); return cover;
+  }
+  /** Apply cover and reveal colours once per committed change, preserving any
+   * already scratched alpha. Pointer moves never call this method. */
+  setScratchStyle(next = {}) {
+    const cover = this.layers.find(layer => layer.role === 'scratch');
+    if (!cover) return this.createScratchCard(next);
+    const style = scratchStyle({ ...cover.scratchStyle, ...next });
+    const base = this.ensureScratchBase(style);
+    const beforeCover = cover.canvas, beforeBase = base.canvas, beforeStyle = scratchStyle(cover.scratchStyle);
+    const nextCover = makeCanvas(this.width, this.height), coverContext = nextCover.getContext('2d');
+    paintScratchCover(coverContext, this.width, this.height, style);
+    // Preserve revealed pixels by applying the old cover alpha as a mask.
+    coverContext.globalCompositeOperation = 'destination-in'; coverContext.drawImage(beforeCover, 0, 0);
+    const nextBase = makeCanvas(this.width, this.height);
+    paintScratchBase(nextBase.getContext('2d'), this.width, this.height, style);
+    const same = !!cover.scratchStyle && JSON.stringify(beforeStyle) === JSON.stringify(style);
+    if (same) return cover;
+    cover.scratchStyle = style; cover.canvas = nextCover; base.canvas = nextBase;
+    const restore = (coverCanvas, baseCanvas, value) => { cover.canvas = coverCanvas; base.canvas = baseCanvas; cover.scratchStyle = value; };
+    this.history.push({
+      bytes: (this.width * this.height * 4) * 4,
+      undo: () => restore(beforeCover, beforeBase, beforeStyle),
+      redo: () => restore(nextCover, nextBase, style),
+    });
+    this.changed(); return cover;
+  }
+  // A scratch cover is a real top layer. When the child switches back to a
+  // brush to prepare the hidden picture, keep the new raster layer below that
+  // cover instead of drawing visibly on top of it.
+  ensureDrawingLayer(name = '我的画笔') {
+    const scratchIndex = this.layers.findIndex(layer => layer.role === 'scratch');
+    if (scratchIndex < 0) return super.ensureDrawingLayer(name);
+    const active = this.active, activeIndex = this.layers.indexOf(active);
+    const reusable = active && activeIndex >= 0 && activeIndex < scratchIndex && active.visible && active.opacity > 0 &&
+      !active.frames?.length && !active.sprites && !active.eraseMask && !active.sourceId && !active.role &&
+      active.width === this.width && active.height === this.height && active.scale === 1 && active.rotation === 0 &&
+      active.x === this.width / 2 && active.y === this.height / 2;
+    if (reusable) return active;
+    return this.addLayer(name, makeCanvas(this.width, this.height), true, { insertAt: scratchIndex });
+  }
+  /** Select the current scratch cover, creating one above the artwork when needed. */
+  prepareScratchCard() {
+    const existing = this.layers.find(layer => layer.role === 'scratch');
+    if (existing) {
+      this.ensureScratchBase(scratchStyle(existing.scratchStyle));
+      // A child can reorder layers while exploring the layer panel. The cover
+      // must be the painter-top layer when the scratch tool is selected, or a
+      // later layer could hide the revealed artwork again.
+      const index = this.layers.indexOf(existing), previous = this.activeId, visible = existing.visible;
+      const reordered = index !== this.layers.length - 1;
+      const moveTo = position => { this.layers.splice(position, 0, this.layers.splice(this.layers.indexOf(existing), 1)[0]); };
+      if (reordered) moveTo(this.layers.length - 1);
+      existing.visible = true; this.activeId = existing.id;
+      if (reordered || !visible) {
+        this.history.push({ bytes: 0,
+          undo: () => { if (reordered) moveTo(index); existing.visible = visible; this.activeId = previous; },
+          redo: () => { if (reordered) moveTo(this.layers.length - 1); existing.visible = true; this.activeId = existing.id; } });
+        this.changed();
+      } else this.render();
+      return existing;
+    }
+    return this.createScratchCard();
+  }
+  /** Restore an existing cover in one undoable operation. */
+  resetScratchCard() {
+    const layer = this.layers.find(item => item.role === 'scratch');
+    if (!layer) return this.prepareScratchCard();
+    const ctx = layer.canvas.getContext('2d'), size = 128, beforeTiles = new Map(), dirty = layer.scratchDirtyTiles;
+    // Newly created covers track dirty tiles as strokes happen. Imported
+    // projects do not carry that runtime marker, so inspect alpha tile by tile
+    // once and retain only tiles that contain a reveal. Redo regenerates the
+    // cover from its style rather than retaining a second full pixel snapshot.
+    if (dirty instanceof Set) {
+      for (const key of dirty) {
+        const [tileX, tileY] = String(key).split(':').map(Number), x = tileX * size, y = tileY * size;
+        if (!Number.isInteger(tileX) || !Number.isInteger(tileY) || x < 0 || y < 0 || x >= layer.width || y >= layer.height) continue;
+        beforeTiles.set(key, { x, y, before: ctx.getImageData(x, y, Math.min(size, layer.width - x), Math.min(size, layer.height - y)) });
+      }
+    } else {
+      for (let y = 0; y < layer.height; y += size) for (let x = 0; x < layer.width; x += size) {
+        const width = Math.min(size, layer.width - x), height = Math.min(size, layer.height - y), before = ctx.getImageData(x, y, width, height);
+        let revealed = false;
+        for (let i = 3; i < before.data.length; i += 4) if (before.data[i] < 255) { revealed = true; break; }
+        if (revealed) beforeTiles.set(`${Math.floor(x / size)}:${Math.floor(y / size)}`, { x, y, before });
+      }
+    }
+    const beforeVisible = layer.visible, beforeActiveId = this.activeId, beforeMask = layer.eraseMask;
+    layer.visible = true; this.activeId = layer.id;
+    if (!beforeTiles.size && !beforeMask) { this.render(); return layer; }
+    const style = { ...layer.scratchStyle };
+    const repaint = () => { ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, layer.width, layer.height); paintScratchCover(ctx, layer.width, layer.height, style); ctx.restore(); delete layer.eraseMask; };
+    repaint();
+    const beforeDirty = new Set(dirty instanceof Set ? dirty : beforeTiles.keys()), afterDirty = new Set();
+    this.history.push({ bytes: [...beforeTiles.values()].reduce((bytes, tile) => bytes + tile.before.data.byteLength, beforeMask ? layer.width * layer.height * 4 : 0),
+      undo: () => { for (const tile of beforeTiles.values()) ctx.putImageData(tile.before, tile.x, tile.y); layer.scratchDirtyTiles = new Set(beforeDirty); if (beforeMask) layer.eraseMask = beforeMask; layer.visible = beforeVisible; this.activeId = beforeActiveId; },
+      redo: () => { repaint(); layer.scratchDirtyTiles = new Set(afterDirty); layer.visible = true; this.activeId = layer.id; } });
+    layer.scratchDirtyTiles = afterDirty;
+    this.changed(); return layer;
+  }
   assistGeometry(options, layer) {
     const assist=options?.assist;
     if(!assist||typeof options!=='object')return null;
@@ -155,7 +277,7 @@ export class DrawingEngine extends EditorEngine {
   clearLayer(){const selection=this.selection,canvas=this.selectionCanvas,bounds=this.selectionBounds;this.clearSelection();try{this.clearPixels();}finally{this.selection=selection;this.selectionCanvas=canvas;this.selectionBounds=bounds;this.onSelectionChange?.();this.render();}}
   setCloneSource(point){if(this.paperMode){const canvas=makeCanvas(this.width,this.height);this.paint(canvas.getContext('2d'));this.cloneSource={point,canvas};}else this.cloneSource={point:toLayerPoint(point,this.active),layerId:this.activeId};}
   resetStampProgress(){this.fairyStampIndex=0;}
-  setStampImages(images,reset=true){this.fairyGroups=null;this.fairyBehavior=null;if(reset)this.resetStampProgress();this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return c;});}
+  setStampImages(images,reset=true){this.fairyGroups=null;this.fairyBehavior=null;if(reset)this.resetStampProgress();this.stampImages=images.map(image=>{const c=makeCanvas(image.width,image.height,false);c.getContext('2d').drawImage(image,0,0);return c;});}
   setFairyGroups(groups,mode,behavior=null){const same=this.fairyGroups===groups&&this.fairyMode===mode;this.setStampImages(groups.map(group=>group.frames[0]),!same);this.fairyGroups=groups;this.fairyMode=mode;this.fairyBehavior=behavior;}
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
@@ -279,6 +401,11 @@ export class DrawingEngine extends EditorEngine {
   }
   begin(point,options){
     options={...options,seed:options.seed??(Date.now()>>>0)};
+    if(options.tool==='scratch'){
+      this.assertRaster();
+      if(this.active.role!=='scratch')throw new Error('请先创建或选择刮刮画覆盖层。');
+      super.begin(point,options);return;
+    }
     if(this.paperMode&&options.tool==='eraser'){beginPaperErase(this,point,options);return;}
     if(this.paperMode&&(['pen','line','rect','ellipse','triangle','pentagon','hexagon','roundrect','star','clone','fill'].includes(options.tool)||(options.tool==='stamp'&&this.fairyMode!=='dynamic')))this.ensureDrawingLayer();
     if(this.paperMode&&options.tool==='warp'){beginPaperWarp(this,point,options);return;}

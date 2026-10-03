@@ -86,9 +86,22 @@ function checkCompactHeader(doc, width, height) {
   const newQuick = doc.querySelector('#new-quick');
   const reset = doc.querySelector('#reset-settings');
   const themeIcon = doc.querySelector('#theme-open > .playful-icon');
-  assert(newQuick && reset && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
+  const save = doc.querySelector('#save');
+  const more = doc.querySelector('#more-open');
+  assert(newQuick && reset && themeIcon && save && more, '小屏顶栏缺少快捷操作或主题图标');
   assert(parseFloat(view.getComputedStyle(newQuick).fontSize) <= 9.1, '小屏新画纸文案仍然过大');
-  assert(parseFloat(view.getComputedStyle(reset).fontSize) <= 9.1, '小屏重置文案仍然过大');
+  // Reset/open/export/gallery are intentionally folded into 设置 on compact
+  // windows. They remain the same button nodes so their handlers and keyboard
+  // semantics are preserved, but they should not compete with the canvas in
+  // the top row.
+  assert(reset.closest('#more-dialog .more-actions'), '小屏重置没有收进设置面板');
+  assert(doc.querySelector('#open')?.closest('#more-dialog .more-actions'), '小屏打开没有收进设置面板');
+  assert(doc.querySelector('#export')?.closest('#more-dialog .more-actions'), '小屏导出没有收进设置面板');
+  assert(doc.querySelector('#gallery')?.closest('#more-dialog .more-actions'), '小屏画夹没有收进设置面板');
+  const moreActions = doc.querySelector('#more-dialog .more-actions');
+  const actionIds = moreActions ? [...moreActions.children].map(node => node.id).filter(Boolean) : [];
+  assert(actionIds.at(-1) === 'about-open', '关于没有保持在设置面板最后');
+  assert(doc.querySelectorAll('.header-actions > button').length <= 6, '小屏顶部快捷栏仍放入过多按钮');
   assert(rect(themeIcon).width <= 20.5 && rect(themeIcon).height <= 20.5, '小屏主题图标仍然过大');
 }
 function checkBrushDrawer(doc) {

@@ -80,12 +80,64 @@ function framePNG(frame,width=frame.width,height=frame.height){
   return value;
 }
 
+export function scratchStyle(options = {}) {
+  return {
+    // The warm foil makes the covered surface readable against both white paper
+    // and the themed backgrounds. The two stops stay close so it still feels
+    // like a foil layer rather than a large colour block.
+    color: typeof options.color === 'string' && options.color.trim() ? options.color : '#c99559',
+    secondaryColor: typeof options.secondaryColor === 'string' ? options.secondaryColor.trim() : '#f0d49f',
+    baseMode: options.baseMode === 'rainbow' ? 'rainbow' : 'solid',
+    baseColor: typeof options.baseColor === 'string' && options.baseColor.trim() ? options.baseColor : '#fffdf8',
+    baseSecondaryColor: typeof options.baseSecondaryColor === 'string' ? options.baseSecondaryColor.trim() : '',
+    pattern: options.pattern === 'dots' ? 'dots' : 'none',
+    patternColor: typeof options.patternColor === 'string' && options.patternColor.trim() ? options.patternColor : 'rgba(255,255,255,.28)',
+    patternSpacing: Math.max(16, Math.min(128, Math.round(Number(options.patternSpacing) || 32))),
+  };
+}
+const SCRATCH_RAINBOW = ['#ff6b6b', '#ffb347', '#ffe66d', '#8bd17c', '#67c5e8', '#8d8de8', '#d18bd5'];
+function paintScratchRainbow(ctx, width, height) {
+  if (typeof ctx.createLinearGradient !== 'function') { ctx.fillStyle = SCRATCH_RAINBOW[0]; ctx.fillRect(0, 0, width, height); return; }
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  SCRATCH_RAINBOW.forEach((color, index) => gradient.addColorStop(index / (SCRATCH_RAINBOW.length - 1), color));
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+}
+export function paintScratchBase(ctx, width, height, style = {}) {
+  const base = scratchStyle(style);
+  if (base.baseMode === 'rainbow') paintScratchRainbow(ctx, width, height);
+  else if (base.baseSecondaryColor && typeof ctx.createLinearGradient === 'function') {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, base.baseColor); gradient.addColorStop(1, base.baseSecondaryColor);
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+  } else { ctx.fillStyle = base.baseColor; ctx.fillRect(0, 0, width, height); }
+}
+export function paintScratchCover(ctx, width, height, style = {}) {
+  const cover = scratchStyle(style), secondary = cover.secondaryColor;
+  if (secondary && typeof ctx.createLinearGradient === 'function') {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, cover.color); gradient.addColorStop(1, secondary); ctx.fillStyle = gradient;
+  } else ctx.fillStyle = cover.color;
+  ctx.fillRect(0, 0, width, height);
+  if (cover.pattern === 'dots') {
+    ctx.save(); ctx.fillStyle = cover.patternColor;
+    for (let y = cover.patternSpacing / 2; y < height; y += cover.patternSpacing) for (let x = cover.patternSpacing / 2; x < width; x += cover.patternSpacing) {
+      ctx.beginPath(); ctx.arc(x, y, Math.max(1, cover.patternSpacing / 14), 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
 export class PaintEngine {
   constructor(canvas, onChange) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
     this.history = new History(); this.layers = []; this.activeId = ''; this.playing = true;
     this.gesture = null; this.drawQueued = false; this.animationStart = performance.now();
     this.compositeSurfaces=new WeakMap();
+    // Reuse one readback surface for hit testing. Creating a canvas for every
+    // layer on each pointer down becomes visible on large documents and also
+    // creates avoidable garbage in mobile WebViews.
+    this.hitCanvas=makeCanvas(1,1,true);
+    this.hitContext=this.hitCanvas.getContext('2d');
     // The common case is a document with many unchanged raster layers. Keep a
     // single paper composite for those frames and invalidate it on mutations.
     this.staticComposite=null;
@@ -95,8 +147,27 @@ export class PaintEngine {
     // layer for each frame. This keeps input latency independent of layer count.
     this.gestureComposite=null;
     this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0};
-    this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
+    // Do not keep a timer alive for ordinary static drawings. Mobile WebViews
+    // pay for every wake-up even when there is no animated layer to repaint.
+    // The timer is started lazily by changed()/toggleAnimation() once a
+    // visible animated layer exists.
+    this.animationTimer = null;
     this.reset(1920, 1080);
+  }
+  hasDynamicLayers() {
+    return this.layers.some(layer => layer.visible && layer.opacity > 0 && (layer.frames?.length || layer.sprites?.length));
+  }
+  ensureAnimationTimer() {
+    const shouldRun = this.playing && this.hasDynamicLayers();
+    if (shouldRun && !this.animationTimer) {
+      this.animationTimer = setInterval(() => {
+        if (this.playing && this.hasDynamicLayers()) this.render();
+        else this.ensureAnimationTimer();
+      }, 100);
+    } else if (!shouldRun && this.animationTimer) {
+      clearInterval(this.animationTimer);
+      this.animationTimer = null;
+    }
   }
   reset(width, height) {
     this.width = width; this.height = height; this.canvas.width = width; this.canvas.height = height;
@@ -104,13 +175,21 @@ export class PaintEngine {
     this.addLayer('我的画笔', makeCanvas(width, height), false); this.changed();
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
-  changed() { this.staticComposite=null; this.gestureComposite=null; this.render(); this.onChange?.(); }
+  changed() { this.ensureAnimationTimer(); this.staticComposite=null; this.gestureComposite=null; this.render(); this.onChange?.(); }
   layerPixels(layer) {
     return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
   scenePixels(layers=this.layers){
+    // Count shared animation resources without spreading frame arrays or
+    // flattening every sprite group.  scenePixels() runs on every layer
+    // addition and is also exposed to the native performance diagnostics, so
+    // those short-lived arrays become visible on large animated projects.
     const frames=new Set();let pixels=0;
-    for(const l of layers){pixels+=l.width*l.height*(1+(l.spriteClip?1:0)+(l.eraseMask?1:0));for(const f of [...(l.frames||[]),...(l.spriteGroups||[]).flatMap(g=>g.frames)])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}}
+    for(const l of layers){
+      pixels+=l.width*l.height*(1+(l.spriteClip?1:0)+(l.eraseMask?1:0));
+      for(const f of l.frames||[])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}
+      for(const group of l.spriteGroups||[])for(const f of group.frames||[])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}
+    }
     return pixels;
   }
   assertSceneCapacity(planned){
@@ -131,9 +210,29 @@ export class PaintEngine {
       redo: () => { this.layers.splice(position, 0, layer); this.activeId = layer.id; } });
     this.changed(); return layer;
   }
+  /**
+   * Create an opaque cover layer for a scratch-card activity.
+   *
+   * Scratching removes this layer's alpha, leaving artwork below untouched.
+   * Keeping the cover as a normal raster layer means existing undo, visibility,
+   * reordering and project export/import semantics continue to work.
+   */
+  createScratchCard(options = {}) {
+    const canvas = makeCanvas(this.width, this.height);
+    const ctx = canvas.getContext('2d');
+    const style = scratchStyle(options); paintScratchCover(ctx, this.width, this.height, style);
+    const layer = this.addLayer(options.name || '刮刮画', canvas, options.record !== false, { role: 'scratch', scratchStyle: style });
+    // A newly painted cover is fully opaque. Keeping this small runtime-only
+    // set lets resetScratchCard snapshot only tiles that were actually
+    // scratched instead of reading the whole canvas back into memory.
+    layer.scratchDirtyTiles = new Set();
+    return layer;
+  }
   removeActive() {
     if (this.layers.length === 1) throw new Error('请至少保留一个图层。');
-    const layer = this.active, position = this.layers.indexOf(layer);
+    const layer = this.active;
+    if (layer?.role === 'scratch-base') return;
+    const position = this.layers.indexOf(layer);
     this.layers.splice(position, 1); this.activeId = this.layers.at(-1).id;
     this.history.push({ bytes: layer.width * layer.height * 4,
       undo: () => { this.layers.splice(position, 0, layer); this.activeId = layer.id; },
@@ -151,7 +250,7 @@ export class PaintEngine {
   }
   reorder(delta) {
     const layer = this.active, from = this.layers.indexOf(layer), to = from + delta;
-    if (to < 0 || to >= this.layers.length || layer.role === 'background' || this.layers[to].role === 'background') return;
+    if (to < 0 || to >= this.layers.length || ['background','scratch-base'].includes(layer.role) || ['background','scratch-base'].includes(this.layers[to].role)) return;
     const move = (a, b) => this.layers.splice(b, 0, this.layers.splice(a, 1)[0]);
     move(from, to); this.history.push({ bytes: 0, undo: () => move(to, from), redo: () => move(from, to) }); this.changed();
   }
@@ -162,7 +261,7 @@ export class PaintEngine {
     this.changed();
   }
   resizeActiveObject(factor) {
-    const layer=this.active;if(!layer||layer.role==='background'||!Number.isFinite(factor)||factor<=0||factor>10)return;
+    const layer=this.active;if(!layer||['background','scratch-base'].includes(layer.role)||!Number.isFinite(factor)||factor<=0||factor>10)return;
     const before={scale:layer.scale,x:layer.x,y:layer.y},scale=Math.max(.05,Math.min(40,layer.scale*factor));
     let cx=layer.width/2,cy=layer.height/2;
     if(layer.sprites?.length){const xs=layer.sprites.map(s=>s.x),ys=layer.sprites.map(s=>s.y);cx=(Math.min(...xs)+Math.max(...xs))/2;cy=(Math.min(...ys)+Math.max(...ys))/2;}
@@ -208,8 +307,7 @@ export class PaintEngine {
     }
   }
   paint(ctx, guides = false) {
-    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0, 0, this.width, this.height);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, this.width, this.height);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
     // Resolve one timeline position per frame. Apart from avoiding a clock
     // read for every layer, this keeps animated layers on the same frame when
     // a scene contains many of them.
@@ -228,6 +326,11 @@ export class PaintEngine {
       } else this.metrics.staticCacheHits++;
       ctx.drawImage(this.staticComposite,0,0);
     } else {
+      // Static composites are opaque and already include the paper fill. Only
+      // clear/fill the target when a gesture or animation requires a fresh
+      // scene; this removes one full-canvas write from every cached frame.
+      ctx.clearRect(0, 0, this.width, this.height);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, this.width, this.height);
       const gestureLayer=this.gesture?.layer;
       // A cache is safe only when the edited layer is the top layer and no
       // animation is changing the lower layers. Other gestures keep the full
@@ -264,11 +367,15 @@ export class PaintEngine {
     return { x: (event.clientX - r.left) * this.width / r.width, y: (event.clientY - r.top) * this.height / r.height };
   }
   pickLayer(point) {
-    for(const layer of [...this.layers].reverse()){
-      if(!layer.visible||layer.opacity===0||layer.role==='background')continue;
+    const sample=this.hitCanvas,ctx=this.hitContext;
+    // Walk painter order from top to bottom without allocating a reversed
+    // copy on every pointerdown.
+    for(let index=this.layers.length-1;index>=0;index--){
+      const layer=this.layers[index];
+      if(!layer.visible||layer.opacity===0||['background','scratch-base'].includes(layer.role))continue;
       const local=toLayerPoint(point,layer),x=Math.floor(local.x),y=Math.floor(local.y);
       if(x<0||y<0||x>=layer.width||y>=layer.height)continue;
-      const sample=makeCanvas(1,1),ctx=sample.getContext('2d');ctx.translate(-x,-y);this.drawLayer(ctx,layer);
+      ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,1,1);ctx.translate(-x,-y);this.drawLayer(ctx,layer);
       if(ctx.getImageData(0,0,1,1).data[3]>8)return layer;
     }
     return null;
@@ -288,9 +395,16 @@ export class PaintEngine {
     if (!tiles.size) return;
     const context = layer.canvas.getContext('2d'); let bytes = 0;
     for (const tile of tiles.values()) { tile.after = context.getImageData(tile.x, tile.y, tile.before.width, tile.before.height); bytes += tile.before.data.byteLength * 2; }
+    const scratch = layer.role === 'scratch';
+    // A scratch gesture usually touches a handful of tiles, while the set
+    // itself can contain every tile on a large card.  Keep only the keys that
+    // this gesture newly revealed instead of cloning the whole set twice.
+    const dirty = scratch && layer.scratchDirtyTiles instanceof Set ? layer.scratchDirtyTiles : null;
+    const addedDirty = dirty ? new Set() : null;
+    if (addedDirty) for (const key of tiles.keys()) if (!dirty.has(key)) { dirty.add(key); addedDirty.add(key); }
     this.history.push({ bytes,
-      undo: () => { for (const t of tiles.values()) context.putImageData(t.before, t.x, t.y); },
-      redo: () => { for (const t of tiles.values()) context.putImageData(t.after, t.x, t.y); } });
+      undo: () => { for (const t of tiles.values()) context.putImageData(t.before, t.x, t.y); if (addedDirty) for (const key of addedDirty) layer.scratchDirtyTiles?.delete(key); },
+      redo: () => { for (const t of tiles.values()) context.putImageData(t.after, t.x, t.y); if (addedDirty) for (const key of addedDirty) layer.scratchDirtyTiles?.add(key); } });
   }
   begin(point, options) {
     const layer = this.active;
@@ -299,7 +413,7 @@ export class PaintEngine {
     const local = toLayerPoint(point, layer);
     this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
       origin: point, x: layer.x, y: layer.y, tiles: new Map() };
-    if (['pen', 'eraser'].includes(options.tool)) this.segment(local, local);
+    if (['pen', 'eraser', 'scratch'].includes(options.tool)) this.segment(local, local);
     if (options.tool === 'fill') {
       const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height);
       const next = new ImageData(new Uint8ClampedArray(before.data), layer.width, layer.height);
@@ -338,8 +452,17 @@ export class PaintEngine {
   }
   update(point) {
     const g = this.gesture; if (!g) return;
-    if (g.options.tool === 'move') { g.layer.x = g.x + point.x - g.origin.x; g.layer.y = g.y + point.y - g.origin.y; }
-    else { const local = toLayerPoint(point, g.layer); g.end = local; if (['pen', 'eraser'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; }
+    if (g.options.tool === 'move') {
+      if (point.x === g.origin.x && point.y === g.origin.y) return;
+      g.layer.x = g.x + point.x - g.origin.x; g.layer.y = g.y + point.y - g.origin.y;
+    } else {
+      const local = toLayerPoint(point, g.layer);
+      // Browsers may report the same coalesced sample more than once. A
+      // duplicate dab does not change pixels but still captures readback
+      // tiles and schedules a frame, which is noticeable on large tablets.
+      if (g.last && local.x === g.last.x && local.y === g.last.y) return;
+      g.end = local; if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local;
+    }
     this.render();
   }
   drawShape(ctx, g) {
@@ -404,7 +527,7 @@ export class PaintEngine {
   replaceBackground(name, canvas, extra) {
       // Replace the paper beneath the artwork in one undoable operation.
       const before = this.layers.slice(), previous = this.activeId;
-      this.layers = before.filter(layer => layer.role !== 'background' && !/^(color[0-4]|paper|texture)-/.test(layer.sourceId || ''));
+      this.layers = before.filter(layer => layer.role === 'scratch-base' || (layer.role !== 'background' && !/^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')));
       let background;
       try { background = this.addLayer(name, canvas, false, extra); }
       catch (error) { this.layers = before; this.activeId = previous; throw error; }
@@ -417,15 +540,16 @@ export class PaintEngine {
   }
   ensureDrawingLayer(name = '我的画笔') {
     const layer = this.active;
-    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.eraseMask && !layer.sourceId && layer.role !== 'background' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
+    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.eraseMask && !layer.sourceId && layer.role !== 'background' && layer.role !== 'scratch' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
     if (!fullPaper || layer !== this.layers.at(-1)) this.addLayer(name);
     return this.active;
   }
   async serialize(title) {
     const widthAtStart=this.width,heightAtStart=this.height;
     const jobs = this.layers.map(layer => {
-      const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role } = layer;
+      const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role, scratchStyle: coverStyle } = layer;
       const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX: !!flipX, flipY: !!flipY, sourceId, role };
+      if (role === 'scratch' && coverStyle) item.scratchStyle = coverStyle;
       // Start every mutable-canvas snapshot before yielding, so drawing can
       // continue while PNG encoding completes without mixing document revisions.
       const jobs=[canvasPNG(layer.canvas).then(value=>{item.image=value;})];

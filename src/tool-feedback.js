@@ -24,7 +24,7 @@ feedbackGroup('select',{rect:'矩形圈选',ellipse:'圆形圈选',triangle:'三
 feedbackGroup('geometry',feedbackShapes,'line','geometry','triangle',310,.13);
 feedbackGroup('warp',{push:'推拉变形',zoom:'缩放变形'},'warp','warp-kind','sine',270,.24);
 feedbackGroup('board-filter',{ripple:'水纹滤镜',twist:'扭曲滤镜',waterfall:'瀑布滤镜','point-light':'点光源滤镜','direction-light':'方向光源滤镜'},'board-filter','board-filter-kind','sine',430,.23);
-for(const [tool,label,wave,base] of [['picker','取色器','sine',1320],['magic','魔法棒','sine',1040],['move','移动','triangle',155],['text','文字','square',450],['clone','仿制印章','triangle',200],['fractal','分形','sine',810]]) {
+for(const [tool,label,wave,base] of [['picker','取色器','sine',1320],['magic','魔法棒','sine',1040],['move','移动','triangle',155],['text','文字','square',450],['clone','仿制印章','triangle',200],['fractal','分形','sine',810],['scratch','刮刮画','triangle',580]]) {
   feedbackGroup(tool,{default:label},tool,null,wave,base,.18);
 }
 

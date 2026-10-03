@@ -9,4 +9,14 @@ test('the packaged desktop script contains the new drawing feature modules',asyn
   assert(source.includes("id:'duotone'"));
   assert(source.includes('function shapeEraserBounds'));
   assert(source.includes('function closedFloodFill'));
+  assert(source.includes('class AnimationTimeline'));
+  assert(source.includes('id = \'animation-editor-dialog\''));
+  assert(source.includes('class PixelArtModel'));
+  assert(source.includes('id = \'pixel-art-dialog\''));
+  assert(source.includes('function recognizeStroke'));
+  assert(source.includes('id = \'shape-snap-open\''));
+  assert(source.includes('class CollageEditorModel'));
+  assert(source.includes('class CollageRenderer'));
+  assert(source.includes('id = \'collage-dialog\''));
+  assert(source.includes('id = \'collage-open\''));
 });

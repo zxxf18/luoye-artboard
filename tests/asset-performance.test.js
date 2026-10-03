@@ -53,3 +53,37 @@ test('gesture composite cache skips only the safe top-layer path', () => {
     else globalThis.document = previousDocument;
   }
 });
+
+test('layer picking reuses one readback surface instead of allocating per hit', () => {
+  const source = readFileSync(new URL('../src/engine.js', import.meta.url), 'utf8');
+  assert.match(source, /this\.hitCanvas=makeCanvas\(1,1,true\)/);
+  assert.match(source, /const sample=this\.hitCanvas,ctx=this\.hitContext/);
+  assert.doesNotMatch(source, /const sample=makeCanvas\(1,1\),ctx=sample\.getContext/);
+  assert.doesNotMatch(source, /for\(const layer of \[\.\.\.this\.layers\]\.reverse\(\)\)/);
+});
+
+test('animation wakeups are lazy and limited to visible animated layers', () => {
+  const source = readFileSync(new URL('../src/engine.js', import.meta.url), 'utf8');
+  assert.match(source, /this\.animationTimer = null/);
+  assert.match(source, /hasDynamicLayers\(\)/);
+  assert.match(source, /layer\.visible && layer\.opacity > 0/);
+  assert.match(source, /ensureAnimationTimer\(\)/);
+});
+
+test('inactive pointer hover does not enqueue a canvas render for every event', () => {
+  const source = readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+  assert.match(source, /const previousPreview=engine\.stampPreview/);
+  assert.match(source, /if\(previewChanged\)engine\.render\(\)/);
+});
+
+test('duplicate pointer samples do not repaint an in-progress gesture', () => {
+  const layer = { x: 0, y: 0, width: 100, height: 100, scale: 1, rotation: 0, flipX: false, flipY: false };
+  let segments = 0, renders = 0;
+  const value = {
+    gesture: { layer, options: { tool: 'pen' }, last: { x: 50, y: 50 } },
+    segment() { segments++; }, render() { renders++; },
+  };
+  PaintEngine.prototype.update.call(value, { x: 0, y: 0 });
+  assert.equal(segments, 0);
+  assert.equal(renders, 0);
+});

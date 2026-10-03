@@ -2,6 +2,11 @@ import { makeCanvas } from './engine.js';
 import { brushSegment } from './brushes.js';
 
 function clamp01(value) { return Math.max(0, Math.min(1, Number(value) || 0)); }
+// Image elements and canvases used by the material picker are immutable for
+// the lifetime of a drawing session. Reuse their decoded mask/pixel view when
+// a child switches away and back to the same texture; the cache is weak so a
+// file-backed image can still be collected after the picker releases it.
+const textureCache = new WeakMap();
 
 /**
  * Decode a material once. Paper textures also get a small luminance mask so
@@ -10,6 +15,8 @@ function clamp01(value) { return Math.max(0, Math.min(1, Number(value) || 0)); }
  */
 export function textureData(image) {
   if (!image) return null;
+  const cached = textureCache.get(image);
+  if (cached) return cached;
   if (image.width < 1 || image.height < 1 || image.width > 2048 || image.height > 2048) throw new Error('纹理边长最多 2048。');
   const canvas = makeCanvas(image.width, image.height);
   const source = canvas.getContext('2d');
@@ -23,7 +30,9 @@ export function textureData(image) {
     const light = (pixels[p] + pixels[p + 1] + pixels[p + 2]) / 765;
     paperMask[i] = Math.round((1 - (1 - light) * .8) * 255);
   }
-  return { canvas, width: canvas.width, height: canvas.height, pixels, paperMask, maskCanvases: new Map() };
+  const value = { canvas, width: canvas.width, height: canvas.height, pixels, paperMask, maskCanvases: new Map() };
+  textureCache.set(image, value);
+  return value;
 }
 
 function paperMaskCanvas(paper, strength) {
@@ -57,7 +66,11 @@ function patternAt(cache, context, source, left, top) {
   // pattern avoids one native object allocation per pointer sample.
   if (entry?.transformable) {
     if (entry.left !== left || entry.top !== top) {
-      entry.pattern.setTransform(new DOMMatrix().translate(-left, -top));
+      // DOMMatrix is mutable. Reusing it matters on textured long strokes:
+      // pointer events can arrive hundreds of times per second and allocating
+      // a matrix for every sample creates avoidable GC pauses in WebViews.
+      entry.matrix.e = -left; entry.matrix.f = -top;
+      entry.pattern.setTransform(entry.matrix);
       entry.left = left; entry.top = top;
     }
     return entry.pattern;
@@ -69,8 +82,9 @@ function patternAt(cache, context, source, left, top) {
   // while the context is translated retains the same phase without falling
   // back to a JS pixel loop.
   if (typeof pattern.setTransform === 'function' && typeof DOMMatrix === 'function') {
-    pattern.setTransform(new DOMMatrix().translate(-left, -top));
-    cache.set(source, { left, top, pattern, transformable: true });
+    const matrix = new DOMMatrix(); matrix.e = -left; matrix.f = -top;
+    pattern.setTransform(matrix);
+    cache.set(source, { left, top, pattern, matrix, transformable: true });
     return pattern;
   }
   context.save(); context.translate(-left, -top);

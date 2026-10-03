@@ -18,12 +18,26 @@ class AndroidMusic(private val context: Context) {
     }
 
     fun loadAsset(path: String, name: String) {
-        val temp = File.createTempFile("luoye-music-", ".mid", context.cacheDir)
         val assetPath = if (path.startsWith("www/")) path else "www/$path"
-        context.assets.open(assetPath).use { input ->
-            FileOutputStream(temp).use { output -> input.copyTo(output) }
-        }
+        // Built-in tracks are packaged uncompressed so MediaPlayer can read
+        // them straight from the APK. This avoids a cache write and a second
+        // full-file read whenever a child switches tracks. Keep the previous
+        // temporary-file path as a fallback for old APKs where the asset is
+        // compressed or the device rejects an asset descriptor.
         try {
+            context.assets.openFd(assetPath).use { descriptor ->
+                loadDescriptor(descriptor, name)
+            }
+            return
+        } catch (_: Exception) {
+            releasePlayer()
+        }
+
+        val temp = File.createTempFile("luoye-music-", ".mid", context.cacheDir)
+        try {
+            context.assets.open(assetPath).use { input ->
+                FileOutputStream(temp).use { output -> input.copyTo(output) }
+            }
             loadFile(temp, name)
         } finally {
             temp.delete()
@@ -44,6 +58,18 @@ class AndroidMusic(private val context: Context) {
         releasePlayer()
         player = MediaPlayer().apply {
             setDataSource(file.absolutePath)
+            isLooping = true
+            prepare()
+            setVolume(volume, volume)
+        }
+        title = name
+        duration = player?.duration?.coerceAtLeast(0) ?: 0
+    }
+
+    private fun loadDescriptor(descriptor: android.content.res.AssetFileDescriptor, name: String) {
+        releasePlayer()
+        player = MediaPlayer().apply {
+            setDataSource(descriptor.fileDescriptor, descriptor.startOffset, descriptor.length)
             isLooping = true
             prepare()
             setVolume(volume, volume)

@@ -3,12 +3,13 @@ import { seededRandom } from './pixels.js';
 // A stroke owns its random stream so event timing never changes its texture.
 export function legacyBrushSegment(ctx, gesture, a, b) {
   const o=gesture.options, width=o.size/gesture.layer.scale, ratio=Math.max(.15,Math.min(2,o.ratio??1));
-  const brush=o.tool==='eraser'?(o.eraserMode==='soft'?'soft-eraser':'eraser'):o.brush||'pencil';
+  const erasing=o.tool==='eraser'||o.tool==='scratch';
+  const brush=erasing?(o.tool==='eraser'&&o.eraserMode==='soft'?'soft-eraser':'eraser'):o.brush||'pencil';
   const random=gesture.random||(gesture.random=seededRandom(o.seed??1));
   const spacing=Math.max(.6,width*(brush==='spray'?.15:.12)),distance=Math.hypot(b.x-a.x,b.y-a.y);
   const steps=Math.max(1,Math.ceil(distance/spacing));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=o.opacity;
-  if(o.tool==='eraser')ctx.globalCompositeOperation='destination-out';
+  if(erasing)ctx.globalCompositeOperation='destination-out';
   // Marker and pencil use a continuous ribbon without overlapping translucent dabs.
   if(['pencil','marker','eraser'].includes(brush)&&ratio===1){
     ctx.lineWidth=width;ctx.lineCap=brush==='marker'?'square':'round';ctx.lineJoin='round';

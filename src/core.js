@@ -137,13 +137,13 @@ export function closedFloodFill(data, width, height, x, y, color, tolerance = 12
 
 export class History {
   constructor(budget = 96 * 1024 * 1024) { this.budget = budget; this.clear(); }
-  clear() { this.past = []; this.future = []; }
+  clear() { this.past = []; this.future = []; this.pastBytes = 0; this.futureBytes = 0; }
   push(entry) {
-    this.future = []; this.past.push(entry);
-    while (this.past.length > 1 && this.past.reduce((n, e) => n + (e.bytes || 0), 0) > this.budget) this.past.shift();
+    this.future = []; this.futureBytes = 0; this.past.push(entry); this.pastBytes += entry.bytes || 0;
+    while (this.past.length > 1 && this.pastBytes > this.budget) this.pastBytes -= this.past.shift().bytes || 0;
   }
-  undo() { const entry = this.past.pop(); if (entry) { entry.undo(); this.future.push(entry); return true; } return false; }
-  redo() { const entry = this.future.pop(); if (entry) { entry.redo(); this.past.push(entry); return true; } return false; }
+  undo() { const entry = this.past.pop(); if (entry) { this.pastBytes -= entry.bytes || 0; entry.undo(); this.future.push(entry); this.futureBytes += entry.bytes || 0; return true; } return false; }
+  redo() { const entry = this.future.pop(); if (entry) { this.futureBytes -= entry.bytes || 0; entry.redo(); this.past.push(entry); this.pastBytes += entry.bytes || 0; return true; } return false; }
 }
 
 export function validateProject(value) {
@@ -177,7 +177,16 @@ export function validateProject(value) {
     if (typeof layer.visible !== 'boolean') fail('图层可见性无效。');
     if (layer.flipX !== undefined && typeof layer.flipX !== 'boolean') fail('图层镜像参数无效。');
     if (layer.flipY !== undefined && typeof layer.flipY !== 'boolean') fail('图层镜像参数无效。');
-    if (layer.role !== undefined && layer.role !== 'background') fail('图层类型无效。');
+    if (layer.role !== undefined && !['background','scratch','scratch-base'].includes(layer.role)) fail('图层类型无效。');
+    if (layer.scratchStyle !== undefined) {
+      if (layer.role !== 'scratch' || !layer.scratchStyle || typeof layer.scratchStyle !== 'object') fail('刮刮画覆盖样式无效。');
+      const style = layer.scratchStyle;
+      for (const key of ['color', 'secondaryColor', 'patternColor']) if (style[key] !== undefined && (typeof style[key] !== 'string' || style[key].length > 128)) fail('刮刮画覆盖颜色无效。');
+      for (const key of ['baseColor', 'baseSecondaryColor']) if (style[key] !== undefined && (typeof style[key] !== 'string' || style[key].length > 128)) fail('刮刮画底色无效。');
+      if (style.baseMode !== undefined && !['solid', 'rainbow'].includes(style.baseMode)) fail('刮刮画底色模式无效。');
+      if (style.pattern !== undefined && !['none', 'dots'].includes(style.pattern)) fail('刮刮画覆盖纹理无效。');
+      if (style.patternSpacing !== undefined && (!Number.isFinite(style.patternSpacing) || style.patternSpacing < 16 || style.patternSpacing > 128)) fail('刮刮画覆盖间距无效。');
+    }
     png(layer.image, layer.width, layer.height);
     bytes += layer.image.length;
     if(layer.eraseMask!==undefined){png(layer.eraseMask,layer.width,layer.height);bytes+=layer.eraseMask.length;pixels+=layer.width*layer.height;}

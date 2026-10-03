@@ -28,6 +28,19 @@
 /* The library is a shelf in the layout: it never overlaps the drawing surface. */
 .playroom .workspace-tabs button{display:flex;align-items:center;gap:5px;padding:5px 9px}.playroom .workspace-tabs .playful-icon{width:30px;height:30px}
 .playroom .subtool-card{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-height:76px;text-align:left;flex:none}.playroom .subtool-card .choice-picture{width:64px;height:54px;flex:none}.playroom .subtool-card svg{width:100%;height:100%}.playroom .subtool-card[aria-pressed=true]:after{content:'✓';margin-left:auto}
+.playroom .scratch-style-panel{display:flex;flex-direction:column;gap:5px;min-width:0;padding:6px 8px;border:1px solid var(--theme-border,#e0bd8d);border-radius:12px;background:var(--theme-control,#fff7e8);color:var(--theme-strong,#765341);flex:none}
+.playroom .scratch-style-heading{font-size:12px;font-weight:700;line-height:1.2}
+.playroom .scratch-style-group{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:5px;min-width:0;min-height:34px}
+.playroom .scratch-style-label{font-size:11px;white-space:nowrap}
+.playroom .scratch-style-choices{display:flex;align-items:center;gap:5px;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.playroom .scratch-style-chip,.playroom .scratch-style-custom-button{position:relative;display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;min-width:30px;min-height:30px;padding:0;border:2px solid var(--theme-surface,#fff);border-radius:50%;background:var(--scratch-chip,#fffdf8)!important;box-shadow:0 0 0 1px var(--theme-border,#d8b98d);color:var(--theme-strong,#614a3b);font-size:11px}
+.playroom .scratch-style-chip[aria-pressed=true],.playroom .scratch-style-custom-button[aria-pressed=true]{box-shadow:0 0 0 2px var(--theme-accent,#a66a40),0 0 0 4px var(--theme-control,#fff7e8)}
+.playroom .scratch-style-chip[aria-pressed=true]::after{content:'✓';position:absolute;inset:auto 1px 0 auto;font-size:11px;font-weight:800;text-shadow:0 1px 1px #fff}
+.playroom .scratch-style-custom{position:relative;display:block;flex:0 0 30px;width:30px;height:30px;min-width:30px;min-height:30px}
+.playroom .scratch-style-custom input{position:absolute;inset:0;width:100%;height:100%;padding:0;opacity:0;cursor:pointer;z-index:1}
+.playroom .scratch-style-custom-button{position:absolute;inset:0;background:var(--scratch-chip,#fffdf8)!important}
+.playroom .scratch-style-custom-button[data-has-color=true]{font-size:0}
+.playroom .scratch-style-panel + .subtool-card{min-height:44px;height:44px;font-size:13px}
 .playroom .choice-button>.choice-picture{width:32px;height:32px;flex:none}.playroom .choice-button>.choice-picture svg,.playroom .choice-button>.choice-picture img{width:100%;height:100%;object-fit:contain}
 .playroom.library-open .right-panel{position:static;inset:auto;z-index:auto;display:flex;flex:none;width:100%;height:clamp(190px,24vh,290px);padding:8px 10px;border-width:2px;border-radius:18px;box-shadow:0 3px 0 #bd875433;gap:4px;overflow:hidden}
 .playroom .right-panel{position:relative!important}
@@ -933,6 +946,17 @@
 }
 .playroom .assist-open[aria-pressed="true"] { background: #ffe0a8; border-color: #bf7038; box-shadow: inset 0 0 0 2px #fff7e9; }
 .playroom .assist-open-mark { font-size: 18px; line-height: 1; color: #bc6e42; }
+.playroom .shape-snap-open {
+  display: inline-flex; align-items: center; gap: 5px; min-height: 38px; padding: 5px 10px;
+  border: 1px solid var(--theme-border, #d9ad7c); border-radius: 11px; color: var(--ink, #795238); background: var(--theme-control, #fff2da);
+  font-size: 12px; white-space: nowrap;
+}
+.playroom .shape-snap-open-mark { font-size: 19px; line-height: 1; color: var(--theme-accent, #bc6e42); }
+.playroom .shape-snap-open[aria-pressed="true"] { background: var(--theme-selected, #ffe0a8); border-color: var(--theme-accent, #bf7038); box-shadow: inset 0 0 0 2px var(--theme-surface, #fff7e9); }
+@media (max-width: 720px), (max-height: 600px) {
+  .playroom .shape-snap-open { min-height: 30px; padding: 2px 6px; font-size: 10px; border-radius: 8px; }
+  .playroom .shape-snap-open-mark { font-size: 15px; }
+}
 .playroom .assist-dialog {
   width: min(360px, calc(100vw - 24px));
   max-height: min(620px, calc(100vh - 24px));
@@ -2101,6 +2125,92 @@
 }
 .playroom .assist-axes-row { margin-top: 6px; }
 .playroom .assist-dialog:not([data-assist-mode="radial"]) .assist-axes-row { display: none; }
+
+/* Small self-contained frame animation editor. The editor owns a fixed,
+   lightweight 512px drawing surface; the surrounding sheet adapts without
+   changing the main artboard layout. */
+.playroom .animation-dialog {
+  width: min(980px, calc(100vw - 28px));
+  max-width: 980px;
+  max-height: min(900px, calc(100dvh - 20px));
+  padding: 18px;
+  overflow: auto;
+  background: var(--theme-surface, var(--panel, #fff4dd));
+  border-color: var(--theme-border, #d4a36d);
+  color: var(--ink, #5a4030);
+}
+.playroom .animation-editor-form { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.playroom .animation-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.playroom .animation-heading h2 { margin: 2px 0 3px; }
+.playroom .animation-heading p { margin: 0; color: var(--muted, #8d6b50); }
+.playroom .animation-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
+.playroom .animation-workspace { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(250px, .72fr); gap: 16px; align-items: stretch; }
+.playroom .animation-stage { position: relative; display: grid; place-items: center; min-height: 300px; aspect-ratio: 1; max-height: 58vh; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
+.playroom .animation-stage canvas { width: min(100%, 512px); height: min(100%, 512px); aspect-ratio: 1; object-fit: contain; image-rendering: auto; }
+.playroom #animation-onion-canvas { position: absolute; z-index: 1; pointer-events: none; }
+.playroom #animation-frame-canvas { position: relative; z-index: 2; touch-action: none; outline: none; }
+.playroom .animation-frame-badge { position: absolute; z-index: 3; left: 10px; top: 10px; padding: 4px 9px; border-radius: 999px; background: var(--theme-accent, #70462f); color: var(--theme-surface, #fff8eb); font-size: 12px; pointer-events: none; }
+.playroom .animation-controls { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
+.playroom .animation-control-heading { display: flex; flex-direction: column; gap: 3px; }
+.playroom .animation-control-heading span { color: var(--muted, #8d6b50); font-size: 13px; }
+.playroom .animation-tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.playroom .animation-tool-row button { min-height: 38px; padding: 5px; font-size: 13px; }
+.playroom .animation-tool-row button[aria-pressed="true"], .playroom .animation-tool-row button.is-active { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
+.playroom .animation-select-label, .playroom .animation-speed { display: flex; flex-direction: column; gap: 4px; font-weight: 650; }
+.playroom .animation-select-label select, .playroom .animation-speed select { width: 100%; min-height: 38px; }
+.playroom .animation-sliders { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 8px; align-items: center; }
+.playroom .animation-sliders label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.playroom .animation-sliders input[type="color"] { width: 58px; height: 38px; padding: 2px; }
+.playroom .animation-sliders input[type="range"] { width: 100%; }
+.playroom .animation-sliders output { font-size: 12px; color: var(--muted, #8d6b50); }
+.playroom .animation-onion-toggle { display: flex; align-items: center; gap: 7px; min-height: 36px; font-size: 13px; }
+.playroom .animation-onion-toggle input { width: 22px; height: 22px; min-width: 22px; margin: 0; }
+.playroom .animation-framebar { min-width: 0; padding: 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
+.playroom .animation-framebar-heading { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 8px; }
+.playroom .animation-framebar-heading span { color: var(--muted, #8d6b50); font-size: 12px; }
+.playroom .animation-frame-strip { display: flex; gap: 8px; min-height: 96px; overflow-x: auto; padding: 3px; scrollbar-width: thin; }
+.playroom .animation-frame-thumb { flex: 0 0 104px; min-height: 88px; display: flex; flex-direction: column; gap: 3px; align-items: center; padding: 4px; font-size: 11px; }
+.playroom .animation-frame-thumb[aria-pressed="true"] { border-color: var(--theme-accent, #b86835); background: var(--theme-selected, #ffe1a4); box-shadow: 0 0 0 2px var(--theme-surface, #fff4dc) inset; }
+.playroom .animation-thumb-canvas { width: 96px; height: 72px; object-fit: contain; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 10px 10px; border-radius: 7px; }
+.playroom .animation-actions { display: flex; justify-content: space-between; gap: 10px; align-items: stretch; }
+.playroom .animation-actions-group { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.playroom .animation-actions button { min-height: 40px; padding: 6px 10px; font-size: 13px; }
+.playroom .animation-actions button:disabled { opacity: .45; cursor: default; }
+.playroom .animation-actions .primary { display: inline-flex; align-items: center; gap: 5px; }
+.playroom .animation-actions .primary .playful-icon { width: 24px; height: 24px; }
+
+@media (max-width: 720px), (max-height: 650px) {
+  .playroom .animation-dialog { width: calc(100vw - 10px); max-height: calc(100dvh - 8px); padding: 10px; border-radius: 16px; }
+  .playroom .animation-editor-form { gap: 8px; }
+  .playroom .animation-heading h2 { font-size: 20px; }
+  .playroom .animation-heading p { font-size: 12px; }
+  .playroom .animation-workspace { grid-template-columns: minmax(150px, .9fr) minmax(190px, 1fr); gap: 8px; }
+  .playroom .animation-stage { min-height: 180px; border-radius: 12px; }
+  .playroom .animation-controls { gap: 6px; padding: 7px; border-radius: 12px; }
+  .playroom .animation-control-heading span, .playroom .animation-onion-toggle, .playroom .animation-select-label, .playroom .animation-speed { font-size: 11px; }
+  .playroom .animation-tool-row { gap: 4px; }
+  .playroom .animation-tool-row button { min-height: 32px; font-size: 11px; }
+  .playroom .animation-sliders { grid-template-columns: 56px minmax(0, 1fr); gap: 5px; }
+  .playroom .animation-sliders input[type="color"] { width: 46px; height: 30px; }
+  .playroom .animation-framebar { padding: 6px; }
+  .playroom .animation-frame-thumb { flex-basis: 82px; min-height: 70px; font-size: 10px; }
+  .playroom .animation-thumb-canvas { width: 74px; height: 54px; }
+  .playroom .animation-frame-strip { min-height: 74px; gap: 5px; }
+  .playroom .animation-actions { flex-direction: column; gap: 5px; }
+  .playroom .animation-actions-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .playroom .animation-actions-group:last-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .playroom .animation-actions button { min-height: 34px; padding: 4px 5px; font-size: 11px; }
+}
+
+@media (max-width: 430px) {
+  .playroom .animation-workspace { grid-template-columns: 1fr; }
+  .playroom .animation-stage { max-height: 42dvh; min-height: 150px; }
+  .playroom .animation-controls { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .playroom .animation-control-heading, .playroom .animation-tool-row, .playroom .animation-onion-toggle { grid-column: 1 / -1; }
+  .playroom .animation-tool-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .playroom .animation-tool-row button { min-height: 30px; padding: 2px; }
+}
+
 .playroom .assist-center-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 7px; }
 .playroom .assist-section output { font-size: 11px; }
 .playroom .assist-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(32px, 1fr); flex: 1; align-content: stretch; gap: 5px; }
@@ -2226,7 +2336,9 @@
   .library,
   .asset-grid,
   #layer-list,
-  dialog
+  dialog,
+  .animation-controls,
+  .animation-frame-strip
 ) {
   scrollbar-color: var(--theme-accent) var(--theme-panel);
 }
@@ -2239,7 +2351,9 @@
   .library,
   .asset-grid,
   #layer-list,
-  dialog
+  dialog,
+  .animation-controls,
+  .animation-frame-strip
 )::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -2253,7 +2367,9 @@
   .library,
   .asset-grid,
   #layer-list,
-  dialog
+  dialog,
+  .animation-controls,
+  .animation-frame-strip
 )::-webkit-scrollbar-track {
   background: var(--theme-panel);
   border-radius: 999px;
@@ -2267,7 +2383,9 @@
   .library,
   .asset-grid,
   #layer-list,
-  dialog
+  dialog,
+  .animation-controls,
+  .animation-frame-strip
 )::-webkit-scrollbar-thumb {
   background: var(--theme-accent);
   border: 2px solid var(--theme-panel);
@@ -2366,4 +2484,311 @@
     max-width: 24px !important;
     max-height: 24px !important;
   }
+}
+
+/* The compact header keeps only session actions in the strip. At the
+   narrowest CSS widths six touch targets still need to fit beside the brand;
+   reduce their chrome slightly while retaining a 40px hit area. */
+@media (max-width: 380px) {
+  .playroom .app-header { padding-inline: 4px; gap: 3px; }
+  .playroom .brand { min-width: 42px; }
+  .playroom .header-actions { gap: 1px; }
+  .playroom .header-actions button,
+  .playroom .header-actions .theme-entry {
+    width: 40px;
+    min-width: 40px;
+    height: 42px;
+    padding-inline: 1px;
+  }
+  .playroom .header-actions button .playful-icon,
+  .playroom .header-actions button svg { width: 19px; height: 19px; }
+}
+
+/* A folded toolbar must not reserve a horizontal scroll hint after the
+   infrequent commands have moved into 设置. */
+.playroom .header-actions[data-folded="true"] { overflow-x: hidden; }
+
+/* Keep both compact canvas helpers reachable when the tab row collapses. */
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom .canvas-topbar { padding-right: 116px; }
+  .playroom .canvas-topbar .shape-snap-open {
+    position: absolute; z-index: 9; top: 3px; right: 62px; min-height: 40px; padding: 3px 7px;
+  }
+}
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom .canvas-topbar { padding-right: 96px; }
+  .playroom .canvas-topbar .shape-snap-open { top: 1px; right: 50px; min-height: 30px; padding: 2px 5px; font-size: 8px; border-radius: 8px; }
+  .playroom .canvas-topbar .shape-snap-open-mark { font-size: 12px; }
+}
+
+/* Keep the frame editor's commit actions inside short desktop windows. */
+@media (max-height: 760px) and (min-width: 721px) {
+  .playroom .animation-dialog { max-height: calc(100dvh - 8px); padding: 10px 14px; }
+  .playroom .animation-editor-form { gap: 7px; }
+  .playroom .animation-heading h2 { font-size: 21px; }
+  .playroom .animation-heading p { font-size: 12px; }
+  .playroom .animation-workspace { gap: 10px; align-items: start; }
+  .playroom .animation-stage { min-height: 240px; max-height: 40dvh; border-radius: 13px; }
+  .playroom .animation-controls { gap: 6px; padding: 8px; max-height: 40dvh; overflow: auto; }
+  .playroom .animation-control-heading span, .playroom .animation-select-label, .playroom .animation-speed, .playroom .animation-onion-toggle { font-size: 12px; }
+  .playroom .animation-tool-row button { min-height: 32px; }
+  .playroom .animation-sliders input[type="color"] { height: 30px; }
+  .playroom .animation-framebar { padding: 6px 8px; }
+  .playroom .animation-frame-strip { min-height: 70px; }
+  .playroom .animation-frame-thumb { flex-basis: 82px; min-height: 64px; padding: 2px; }
+  .playroom .animation-thumb-canvas { width: 72px; height: 50px; }
+  .playroom .animation-actions button { min-height: 34px; padding: 4px 8px; }
+}
+
+/* Pixel art editor. Its preview is a low-cost square grid and its output is
+   committed as an ordinary raster layer, so it does not alter the main
+   drawing engine or project format. */
+.playroom .pixel-art-dialog {
+  width: min(860px, calc(100vw - 28px));
+  max-width: 860px;
+  max-height: min(820px, calc(100dvh - 20px));
+  padding: 18px;
+  overflow: auto;
+  background: var(--theme-surface, var(--panel, #fff4dd));
+  border-color: var(--theme-border, #d4a36d);
+  color: var(--ink, #5a4030);
+}
+.playroom .pixel-art-form { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.playroom .pixel-art-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.playroom .pixel-art-heading h2 { margin: 2px 0 3px; }
+.playroom .pixel-art-heading p { margin: 0; color: var(--muted, #8d6b50); }
+.playroom .pixel-art-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
+.playroom .pixel-art-workspace { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(240px, .66fr); align-items: start; gap: 16px; }
+.playroom .pixel-art-stage { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; max-height: 62vh; padding: 8px; background: var(--theme-panel, #f1e4c9); border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
+.playroom #pixel-art-canvas { width: min(100%, 600px); height: min(100%, 600px); aspect-ratio: 1; image-rendering: pixelated; touch-action: none; cursor: crosshair; }
+.playroom .pixel-art-cell { position: absolute; top: 12px; left: 12px; padding: 4px 8px; border-radius: 999px; background: var(--theme-accent, #70462f); color: var(--theme-surface, #fff8eb); font-size: 12px; pointer-events: none; }
+.playroom .pixel-art-controls { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
+.playroom .pixel-art-field { display: flex; flex-direction: column; gap: 4px; font-weight: 650; }
+.playroom .pixel-art-field select { width: 100%; min-height: 38px; }
+.playroom .pixel-art-tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.playroom .pixel-art-tool-row button { min-height: 42px; padding: 5px; font-size: 13px; }
+.playroom .pixel-art-tool-row button[aria-pressed="true"] { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
+.playroom .pixel-art-palette { display: grid; grid-template-columns: repeat(6, minmax(24px, 1fr)); gap: 7px; padding: 4px 0; }
+.playroom .pixel-swatch { min-width: 0; min-height: 34px; height: 34px; padding: 0; border: 3px solid var(--theme-surface, #fff8e9); border-radius: 9px; box-shadow: 0 0 0 1px var(--theme-border, #e1bc87); }
+.playroom .pixel-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--theme-accent, #b86835); }
+.playroom .pixel-art-custom-color { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 5px 8px; border: 1px solid var(--theme-border, #e1bc87); border-radius: 10px; background: var(--theme-surface, #fffaf0); }
+.playroom .pixel-art-custom-color input { width: 48px; height: 30px; padding: 1px; }
+.playroom .pixel-art-tip { margin: 0; color: var(--muted, #8d6b50); font-size: 12px; line-height: 1.45; }
+.playroom .pixel-art-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 8px; margin-top: auto; }
+.playroom .pixel-art-actions button { min-height: 44px; }
+
+@media (max-width: 720px), (max-height: 650px) {
+  .playroom .pixel-art-dialog { width: calc(100vw - 10px); max-height: calc(100dvh - 8px); padding: 10px; border-radius: 16px; }
+  .playroom .pixel-art-form { gap: 8px; }
+  .playroom .pixel-art-heading h2 { font-size: 20px; }
+  .playroom .pixel-art-heading p { font-size: 12px; }
+  .playroom .pixel-art-workspace { gap: 8px; grid-template-columns: minmax(160px, 1fr) minmax(190px, .95fr); }
+  .playroom .pixel-art-stage { max-height: 48vh; min-height: 180px; border-radius: 12px; }
+  .playroom .pixel-art-controls { gap: 6px; padding: 7px; border-radius: 12px; }
+  .playroom .pixel-art-tool-row { gap: 4px; }
+  .playroom .pixel-art-tool-row button { min-height: 34px; font-size: 11px; }
+  .playroom .pixel-art-palette { gap: 4px; }
+  .playroom .pixel-swatch { min-height: 28px; height: 28px; border-radius: 7px; }
+  .playroom .pixel-art-tip { font-size: 11px; }
+  .playroom .pixel-art-actions button { min-height: 36px; font-size: 12px; }
+}
+
+@media (max-width: 430px) {
+  .playroom .pixel-art-workspace { grid-template-columns: 1fr; }
+  .playroom .pixel-art-stage { max-height: 48dvh; min-height: 160px; }
+  .playroom .pixel-art-controls { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .playroom .pixel-art-field, .playroom .pixel-art-tool-row, .playroom .pixel-art-palette, .playroom .pixel-art-tip, .playroom .pixel-art-actions { grid-column: 1 / -1; }
+  .playroom .pixel-art-palette { grid-template-columns: repeat(6, minmax(22px, 1fr)); }
+}
+
+/* In a wide but short landscape window, keep the two-column editor useful
+   without making the primary actions depend on a long modal scroll. */
+@media (min-width: 600px) and (max-height: 650px) {
+  .playroom .pixel-art-dialog { padding: 7px 10px; }
+  .playroom .pixel-art-form { gap: 5px; }
+  .playroom .pixel-art-heading h2 { font-size: 18px; margin: 0; }
+  .playroom .pixel-art-heading p { display: none; }
+  .playroom .pixel-art-workspace { gap: 6px; }
+  .playroom .pixel-art-stage { max-height: 32dvh; min-height: 112px; padding: 5px; border-radius: 12px; }
+  .playroom .pixel-art-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; padding: 5px; border-radius: 12px; }
+  .playroom .pixel-art-field, .playroom .pixel-art-tool-row, .playroom .pixel-art-palette, .playroom .pixel-art-tip, .playroom .pixel-art-actions { grid-column: 1 / -1; }
+  .playroom .pixel-art-field select { min-height: 30px; }
+  .playroom .pixel-art-tool-row { gap: 3px; }
+  .playroom .pixel-art-tool-row button { min-height: 29px; padding: 2px 4px; font-size: 11px; }
+  .playroom .pixel-art-palette { grid-template-columns: repeat(6, minmax(20px, 1fr)); gap: 3px; }
+  .playroom .pixel-swatch { min-height: 23px; height: 23px; }
+  .playroom .pixel-art-custom-color { min-height: 30px; padding: 2px 6px; }
+  .playroom .pixel-art-custom-color input { width: 38px; height: 24px; }
+  .playroom .pixel-art-tip { display: none; }
+  .playroom .pixel-art-actions { gap: 5px; margin-top: 0; }
+  .playroom .pixel-art-actions button { min-height: 31px; padding: 2px 5px; font-size: 11px; }
+}
+
+/* Scratch-card choices are deliberately shorter than the illustrated tool
+   cards. On a phone the two rows stay in one compact drawer and only their
+   color chips scroll horizontally, so the reset action remains reachable. */
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="brushes"] .classic-left .subtool-box:has(.scratch-style-panel) {
+    flex: 0 0 112px !important;
+    height: 112px !important;
+    max-height: 112px !important;
+    overflow-y: auto !important;
+    gap: 5px !important;
+  }
+  .playroom .scratch-style-panel { gap: 3px; padding: 4px 6px; border-radius: 10px; }
+  .playroom .scratch-style-heading { font-size: 11px; }
+  .playroom .scratch-style-group { grid-template-columns: 38px minmax(0, 1fr); gap: 4px; min-height: 30px; }
+  .playroom .scratch-style-label { font-size: 10px; }
+  .playroom .scratch-style-choices { gap: 4px; }
+  .playroom .scratch-style-chip,
+  .playroom .scratch-style-custom,
+  .playroom .scratch-style-custom-button { width: 26px; height: 26px; min-width: 26px; min-height: 26px; flex-basis: 26px; }
+  .playroom .scratch-style-panel + .subtool-card { min-height: 36px; height: 36px; padding: 2px 7px; font-size: 11px; }
+  .playroom .scratch-style-panel + .subtool-card > .playful-icon { width: 26px; height: 26px; }
+}
+
+/* Keep the wide gallery inside the shelf height that was already reserved
+   for the board. Its asset grid may grow internally, but opening it must not
+   change the canvas geometry or trigger a full layout resize. */
+@media (min-width: 861px) and (min-height: 601px) {
+  .playroom.library-open .tool-dock {
+    position: relative !important;
+    height: var(--library-reserved-height, 164px) !important;
+    min-height: var(--library-reserved-height, 164px) !important;
+    overflow: hidden;
+  }
+  .playroom.library-open .tool-dock .classic-parameters {
+    display: none !important;
+  }
+  .playroom.library-open .tool-dock .right-panel {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
+
+/* Color paper collage editor. Keep this surface independent from the main
+   board: the child cuts and arranges pieces here, then commits ordinary
+   transformed layers. The layout intentionally gives the cut preview the
+   largest area and lets the controls become a compact two-column sheet on
+   small screens. */
+.playroom .collage-dialog {
+  width: min(980px, calc(100vw - 28px));
+  max-width: 980px;
+  max-height: min(900px, calc(100dvh - 20px));
+  padding: 18px;
+  overflow: auto;
+  background: var(--theme-surface, var(--panel, #fff4dd));
+  border-color: var(--theme-border, #d4a36d);
+  color: var(--ink, #5a4030);
+}
+.playroom .collage-form { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.playroom .collage-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.playroom .collage-heading h2 { margin: 2px 0 3px; }
+.playroom .collage-heading p { margin: 0; color: var(--muted, #8d6b50); }
+.playroom .collage-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
+.playroom .collage-workspace { display: grid; grid-template-columns: minmax(320px, 1.12fr) minmax(270px, .88fr); gap: 14px; align-items: start; min-width: 0; }
+.playroom .collage-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 260px;
+  max-height: 58vh;
+  padding: 8px;
+  background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px;
+  border: 3px solid var(--theme-border, #d4a36d);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.playroom .collage-stage canvas,
+.playroom .collage-canvas { width: min(100%, 600px); height: min(100%, 600px); aspect-ratio: 1; object-fit: contain; touch-action: none; }
+.playroom .collage-stage canvas { position: relative; z-index: 1; }
+.playroom .collage-stage .collage-selection { position: absolute; inset: 8px; z-index: 2; pointer-events: none; }
+.playroom .collage-stage .collage-stage-label { position: absolute; z-index: 3; left: 12px; top: 12px; padding: 4px 8px; border-radius: 999px; background: var(--theme-accent, #70462f); color: var(--theme-surface, #fff8eb); font-size: 12px; pointer-events: none; }
+.playroom .collage-controls { display: flex; flex-direction: column; gap: 9px; min-width: 0; padding: 11px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
+.playroom .collage-control-heading { display: flex; flex-direction: column; gap: 2px; }
+.playroom .collage-control-heading span { color: var(--muted, #8d6b50); font-size: 12px; }
+.playroom .collage-section { display: grid; gap: 5px; min-width: 0; }
+.playroom .collage-section > strong { font-size: 13px; }
+.playroom .collage-paper-list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+.playroom .collage-paper { min-width: 0; min-height: 34px; height: 34px; padding: 0; border: 3px solid var(--theme-surface, #fff8e9); border-radius: 9px; box-shadow: 0 0 0 1px var(--theme-border, #e1bc87); }
+.playroom .collage-paper[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--theme-accent, #b86835); }
+.playroom .collage-pattern-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.playroom .collage-pattern { min-height: 34px; padding: 4px 5px; font-size: 11px; }
+.playroom .collage-pattern[aria-pressed="true"],
+.playroom .collage-cut-tool[aria-pressed="true"],
+.playroom .collage-piece[aria-pressed="true"] { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
+.playroom .collage-cut-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.playroom .collage-cut-tool { min-height: 36px; padding: 4px 5px; font-size: 12px; }
+.playroom .collage-transform-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.playroom .collage-transform-tool { min-height: 34px; padding: 4px; font-size: 11px; }
+.playroom .collage-piece-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; min-height: 44px; max-height: 104px; overflow: auto; padding: 2px; }
+.playroom .collage-piece { min-width: 0; min-height: 40px; padding: 3px; font-size: 10px; }
+.playroom .collage-tip { margin: 0; color: var(--muted, #8d6b50); font-size: 11px; line-height: 1.4; }
+.playroom .collage-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 7px; margin-top: auto; }
+.playroom .collage-actions button { min-height: 42px; padding: 6px 8px; }
+
+@media (max-width: 720px), (max-height: 650px) {
+  .playroom .collage-dialog { width: calc(100vw - 10px); max-height: calc(100dvh - 8px); padding: 10px; border-radius: 16px; }
+  .playroom .collage-form { gap: 8px; }
+  .playroom .collage-heading h2 { font-size: 20px; }
+  .playroom .collage-heading p { font-size: 12px; }
+  .playroom .collage-workspace { grid-template-columns: minmax(170px, 1fr) minmax(190px, .95fr); gap: 8px; }
+  .playroom .collage-stage { min-height: 174px; max-height: 45dvh; padding: 5px; border-radius: 12px; }
+  .playroom .collage-stage .collage-selection { inset: 5px; }
+  .playroom .collage-stage .collage-stage-label { left: 8px; top: 8px; font-size: 10px; }
+  .playroom .collage-controls { gap: 6px; padding: 7px; border-radius: 12px; }
+  .playroom .collage-section { gap: 3px; }
+  .playroom .collage-section > strong { font-size: 11px; }
+  .playroom .collage-paper-list { gap: 4px; }
+  .playroom .collage-paper { min-height: 27px; height: 27px; border-radius: 7px; }
+  .playroom .collage-pattern-list, .playroom .collage-cut-tools, .playroom .collage-transform-tools { gap: 4px; }
+  .playroom .collage-pattern, .playroom .collage-cut-tool, .playroom .collage-transform-tool { min-height: 30px; padding: 3px 4px; font-size: 10px; }
+  .playroom .collage-piece-list { gap: 4px; max-height: 76px; }
+  .playroom .collage-piece { min-height: 32px; font-size: 9px; }
+  .playroom .collage-tip { font-size: 10px; }
+  .playroom .collage-actions { gap: 5px; }
+  .playroom .collage-actions button { min-height: 35px; padding: 4px 5px; font-size: 11px; }
+  /* The dialog itself is the scroll container. Keeping actions in normal flow
+     prevents them from covering shape cards when the compact sheet is taller
+     than the viewport. */
+  .playroom .collage-actions { position: relative; z-index: 1; }
+}
+
+@media (max-width: 430px) {
+  .playroom .collage-workspace { grid-template-columns: 1fr; }
+  .playroom .collage-stage { min-height: 150px; max-height: 40dvh; }
+  .playroom .collage-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+  .playroom .collage-control-heading, .playroom .collage-section, .playroom .collage-cut-tools, .playroom .collage-transform-tools, .playroom .collage-piece-list, .playroom .collage-tip, .playroom .collage-actions { grid-column: 1 / -1; }
+  .playroom .collage-paper-list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .playroom .collage-pattern-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .playroom .collage-cut-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* A wide short window has enough width for a two-column workspace, but not
+   enough height for roomy cards. Keep the preview square and dense controls
+   together so the commit buttons remain visible without overlap. */
+@media (min-width: 600px) and (max-height: 650px) {
+  .playroom .collage-dialog { padding: 7px 10px; }
+  .playroom .collage-form { gap: 5px; }
+  .playroom .collage-heading h2 { font-size: 18px; margin: 0; }
+  .playroom .collage-heading p { display: none; }
+  .playroom .collage-workspace { gap: 6px; }
+  .playroom .collage-stage { min-height: 112px; max-height: 37dvh; padding: 4px; border-radius: 11px; }
+  .playroom .collage-stage .collage-selection { inset: 4px; }
+  .playroom .collage-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; padding: 5px; border-radius: 11px; }
+  .playroom .collage-control-heading, .playroom .collage-section, .playroom .collage-cut-tools, .playroom .collage-transform-tools, .playroom .collage-piece-list, .playroom .collage-tip, .playroom .collage-actions { grid-column: 1 / -1; }
+  .playroom .collage-section > strong { font-size: 10px; }
+  .playroom .collage-paper { min-height: 22px; height: 22px; }
+  .playroom .collage-pattern, .playroom .collage-cut-tool, .playroom .collage-transform-tool { min-height: 26px; padding: 2px 3px; font-size: 10px; }
+  .playroom .collage-piece-list { max-height: 52px; }
+  .playroom .collage-piece { min-height: 27px; }
+  .playroom .collage-tip { display: none; }
+  .playroom .collage-actions { gap: 4px; }
+  .playroom .collage-actions button { min-height: 29px; padding: 2px 5px; font-size: 10px; }
 }
