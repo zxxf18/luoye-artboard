@@ -7,7 +7,7 @@ const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 
 test('compact header folds infrequent actions into the existing settings sheet', () => {
-  assert.match(classic, /const foldedToolbarIds = \['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','shape-snap-open'\]/);
+  assert.match(classic, /const foldedToolbarIds = \['reset-settings','open','export','gallery','music-open','shape-snap-open'\]/);
   assert.match(classic, /matchMedia\('\(max-width: 1080px\), \(max-height: 600px\)'\)/);
   assert.match(classic, /toolbarObserver\.observe\(header, \{ childList: true \}\)/);
   assert.match(classic, /toolbarResize\.observe\(header\)/);

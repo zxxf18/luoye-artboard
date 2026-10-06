@@ -1,4 +1,4 @@
-import { getCollagePaper, COLLAGE_PAPERS, COLLAGE_PATTERNS, COLLAGE_TEMPLATES, CollageEditorModel, collagePathIsClosed } from './collage-editor.js';
+import { getCollagePaper, COLLAGE_PAPERS, COLLAGE_PATTERNS, COLLAGE_PRESETS, COLLAGE_TEMPLATES, CollageEditorModel, collagePathIsClosed } from './collage-editor.js';
 import { makeCanvas } from './engine.js';
 import { playfulIcon } from './playful-icons.js';
 import { CollageRenderer, COLLAGE_RENDERER_MAX_OUTPUT_SIZE } from './collage-renderer.js';
@@ -27,23 +27,24 @@ export function mountCollageEditor({ engine, run, toast } = {}) {
   dialog.id = 'collage-dialog'; dialog.className = 'collage-dialog';
   dialog.innerHTML = `
     <form method="dialog" class="collage-form">
-      <header class="collage-heading"><div><span class="eyebrow">PAPER PLAY</span><h2>彩色剪贴</h2><p>选一张彩纸，点画布剪一块，再拖到喜欢的位置。</p></div><button value="cancel" class="collage-close" aria-label="关闭彩色剪贴">×</button></header>
+      <header class="collage-heading"><div><span class="eyebrow">PAPER PLAY</span><h2>彩色剪贴</h2><p>选一个小场景马上开始，也可以自己选彩纸和形状。</p><ol class="collage-steps"><li>选场景或彩纸</li><li>选形状</li><li>点击舞台摆放</li></ol></div><button value="cancel" class="collage-close" aria-label="关闭彩色剪贴">×</button></header>
       <div class="collage-workspace">
         <div class="collage-stage"><canvas id="collage-canvas" class="collage-canvas" width="512" height="512" tabindex="0" aria-label="彩色剪贴工作台"></canvas><span class="collage-stage-label" id="collage-stage-label">点画布放一块</span></div>
-        <aside class="collage-controls" aria-label="彩色剪贴工具"><div class="collage-control-heading"><strong>先选彩纸，再剪贴</strong><span id="collage-tool-hint">点击空白处放一块，拖动已有彩纸换位置</span></div>
+        <aside class="collage-controls" aria-label="彩色剪贴工具"><div class="collage-control-heading"><strong>先搭一个小场景</strong><span id="collage-tool-hint">点“快速组合”会自动放好几块彩纸，再拖动它们调整。</span></div>
+          <section class="collage-section collage-preset-section"><strong>快速组合</strong><div class="collage-preset-list" id="collage-preset-list"></div></section>
           <section class="collage-section"><strong>彩纸颜色</strong><div class="collage-paper-list" id="collage-paper-list"></div></section>
           <section class="collage-section"><strong>彩纸纹理</strong><div class="collage-pattern-list" id="collage-pattern-list"></div></section>
           <section class="collage-section"><strong>剪什么形状</strong><div class="collage-cut-tools" id="collage-cut-tools"></div></section>
           <section class="collage-section"><strong>调整这块彩纸</strong><div class="collage-transform-tools" id="collage-transform-tools"></div></section>
           <div class="collage-piece-list" id="collage-piece-list" aria-label="已经剪下的彩纸"></div>
-          <p class="collage-tip">自由剪：在画布上围一圈再松手。这里每一块都能单独移动，贴回画板后会合并成一张图层。</p>
-          <div class="collage-actions"><button type="button" id="collage-clear">重新剪</button><button type="button" id="collage-place" class="primary">贴到画板</button></div>
+          <p class="collage-tip">每一块彩纸都能单独拖动、旋转和缩放。自由剪时在舞台上围一圈，完成后贴回画板会合并成一张图层。</p>
+          <div class="collage-actions"><button type="button" id="collage-clear">清空重做</button><button type="button" id="collage-place" class="primary">贴到画板</button></div>
         </aside>
       </div>
     </form>`;
   document.body.append(dialog);
   const $ = selector => dialog.querySelector(selector.startsWith('#') ? selector : `#${selector}`);
-  const canvas = $('collage-canvas'), paperList = $('collage-paper-list'), patternList = $('collage-pattern-list'), cutTools = $('collage-cut-tools'), pieceList = $('collage-piece-list');
+  const canvas = $('collage-canvas'), presetList = $('collage-preset-list'), paperList = $('collage-paper-list'), patternList = $('collage-pattern-list'), cutTools = $('collage-cut-tools'), pieceList = $('collage-piece-list');
   const model = new CollageEditorModel({ width: 512, height: 512 });
   const renderer = new CollageRenderer({ width: model.width, height: model.height, createCanvas: (width, height) => makeCanvas(width, height, false) });
   let selectedTool = 'circle', drawing = false, dragging = false, pointerId, previousPoint, freePoints = [], pieceUiSignature = '';
@@ -51,7 +52,7 @@ export function mountCollageEditor({ engine, run, toast } = {}) {
   function render() {
     const context = canvas.getContext('2d'); context.clearRect(0, 0, canvas.width, canvas.height); context.fillStyle = 'rgba(255,255,255,.36)'; context.fillRect(0, 0, canvas.width, canvas.height);
     renderer.render(canvas, model.pieces, { selectedId: model.selectedId, dragging, freePoints: drawing ? freePoints : null, showSelection: true, clear: false });
-    $('collage-stage-label').textContent = selectedTool === 'free' ? '围一圈剪下来' : '点画布放一块';
+    $('collage-stage-label').textContent = selectedTool === 'free' ? '围一圈剪下来' : model.selectedId ? '拖动彩纸调整位置' : '点一下放入形状';
     const nextPieceUiSignature = `${model.selectedId || ''}|${model.pieces.map(piece => piece.id).join(',')}`;
     if (nextPieceUiSignature !== pieceUiSignature) {
       pieceUiSignature = nextPieceUiSignature;
@@ -64,6 +65,12 @@ export function mountCollageEditor({ engine, run, toast } = {}) {
     const selected = model.selected(); $('collage-tool-hint').textContent = selected ? '拖动画布里的彩纸换位置，下面可以旋转或缩放' : selectedTool === 'free' ? '按住画出一个闭合轮廓，松手剪下来' : '点击空白处剪一块彩纸';
     for (const button of paperList.querySelectorAll('.collage-paper')) button.setAttribute('aria-pressed', String(button.dataset.paper === model.paperId));
     for (const button of patternList.querySelectorAll('.collage-pattern')) button.setAttribute('aria-pressed', String(button.dataset.pattern === model.pattern));
+  }
+
+  for (const preset of COLLAGE_PRESETS) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'collage-preset'; button.dataset.preset = preset.id; button.innerHTML = `<span aria-hidden="true">${preset.icon}</span><strong>${preset.label}</strong><small>${preset.description}</small>`;
+    button.onclick = () => { model.applyPreset(preset.id); selectedTool = 'circle'; render(); toast?.(`已经搭好${preset.label}，可以拖动每一块彩纸。`); };
+    presetList.append(button);
   }
 
   for (const paper of COLLAGE_PAPERS) {

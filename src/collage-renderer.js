@@ -202,6 +202,10 @@ export class CollageRenderer {
     const local = { ...piece, width, height };
     collageRendererPath(context, local);
     context.save(); context.clip(); collageRendererPaintPattern(context, local, getCollagePaper(piece?.paperId), this.collageRendererGetTexture(piece)); context.restore();
+    // A soft pale edge gives each cut piece the look of paper layered on the
+    // board. It is drawn into the cached raster, so dragging remains cheap.
+    collageRendererPath(context, local);
+    context.strokeStyle = 'rgba(255,255,255,.78)'; context.lineWidth = 3; context.stroke();
     context.restore();
     const entry = { canvas, pixels: width * height };
     this.collageRendererRemember(this.rasterCache, key, entry, COLLAGE_RENDERER_MAX_RASTER_ENTRIES, COLLAGE_RENDERER_MAX_RASTER_PIXELS, 'raster');
@@ -221,7 +225,10 @@ export class CollageRenderer {
     const drawWidth = Math.max(8, collageRendererNumber(piece.width, raster.width));
     const drawHeight = Math.max(8, collageRendererNumber(piece.height, raster.height));
     context.save(); context.translate(x, y); context.rotate(collageRendererNumber(piece.rotation) * Math.PI / 180); context.scale(scale * fit.scale, scale * fit.scale);
-    context.globalAlpha = collageRendererOpacity(piece.opacity); context.drawImage(raster, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight); context.restore();
+    context.globalAlpha = collageRendererOpacity(piece.opacity);
+    context.shadowColor = 'rgba(91,55,32,.24)'; context.shadowBlur = 8; context.shadowOffsetY = 4;
+    context.drawImage(raster, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+    context.restore();
   }
 
   collageRendererDragKey(pieces, selectedIndex, targetWidth, targetHeight) {

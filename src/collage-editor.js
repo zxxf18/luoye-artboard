@@ -149,6 +149,39 @@ export const COLLAGE_TEMPLATES = Object.freeze([
   ]),
 ]);
 
+// Ready-made scenes make the collage desk useful on the first click. Each
+// scene is still made from ordinary editable pieces, so children can move,
+// resize or remove any part after choosing a starting idea.
+export const COLLAGE_PRESETS = Object.freeze([
+  Object.freeze({
+    id: 'garden', label: '小花园', icon: '🌼', description: '太阳、花朵和叶子',
+    pieces: Object.freeze([
+      Object.freeze({ template: 'sun', paperId: 'sun', pattern: 'dots', x: 150, y: 120, width: 132, height: 132, rotation: -8 }),
+      Object.freeze({ template: 'flower', paperId: 'berry', pattern: 'solid', x: 258, y: 364, width: 116, height: 116, rotation: -5 }),
+      Object.freeze({ template: 'flower', paperId: 'lavender', pattern: 'stripes', x: 392, y: 354, width: 94, height: 94, rotation: 8 }),
+      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'dots', x: 328, y: 402, width: 110, height: 155, rotation: 26 }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'space', label: '小小宇宙', icon: '🚀', description: '火箭、星星和月亮',
+    pieces: Object.freeze([
+      Object.freeze({ template: 'moon', paperId: 'night', pattern: 'dots', x: 376, y: 126, width: 132, height: 132, rotation: 12 }),
+      Object.freeze({ template: 'rocket', paperId: 'berry', pattern: 'solid', x: 242, y: 278, width: 126, height: 176, rotation: -16 }),
+      Object.freeze({ template: 'star', paperId: 'sun', pattern: 'dots', x: 112, y: 142, width: 72, height: 72, rotation: 10 }),
+      Object.freeze({ template: 'star', paperId: 'lavender', pattern: 'stripes', x: 412, y: 352, width: 68, height: 68, rotation: -8 }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'undersea', label: '海底朋友', icon: '🐟', description: '小鱼、气泡和水草',
+    pieces: Object.freeze([
+      Object.freeze({ template: 'fish', paperId: 'orange', pattern: 'solid', x: 184, y: 222, width: 176, height: 126, rotation: -7 }),
+      Object.freeze({ template: 'fish', paperId: 'berry', pattern: 'dots', x: 372, y: 330, width: 132, height: 94, rotation: 8 }),
+      Object.freeze({ template: 'raindrop', paperId: 'sky', pattern: 'waves', x: 118, y: 112, width: 58, height: 76, rotation: 0 }),
+      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'stripes', x: 404, y: 432, width: 78, height: 142, rotation: -18 }),
+    ]),
+  }),
+]);
+
 export const COLLAGE_DEFAULT_PAPER = 'sun';
 export const COLLAGE_DEFAULT_TEMPLATE = 'circle';
 export const COLLAGE_MAX_PIECES = 200;
@@ -438,6 +471,28 @@ export class CollageEditorModel {
   cutFree(points, options = {}) {
     const cut = createCollageFreeCut(points, { width: options.width || 180, height: options.height || options.width || 180, maxGap: options.maxGap });
     return this.addPiece({ ...options, cut, paperId: options.paperId || this.paperId, pattern: options.pattern || this.pattern, x: options.x ?? this.width / 2, y: options.y ?? this.height / 2 });
+  }
+
+  applyPreset(preset = 'garden', { replace = true } = {}) {
+    const definition = COLLAGE_PRESETS.find(item => item.id === preset) || COLLAGE_PRESETS[0];
+    const available = COLLAGE_MAX_PIECES - (replace ? 0 : this.pieces.length);
+    if (definition.pieces.length > available) throw new Error(`最多先放 ${COLLAGE_MAX_PIECES} 块彩纸。`);
+    const pieces = definition.pieces.map(options => {
+      const width = Math.max(8, options.width * this.width / 512);
+      const height = Math.max(8, options.height * this.height / 512);
+      return createCollagePiece({
+        ...options,
+        id: `collage-piece-${this.nextId++}`,
+        cut: createCollageTemplate(options.template, { width, height }),
+        x: options.x * this.width / 512,
+        y: options.y * this.height / 512,
+      });
+    });
+    this._commit(draft => {
+      draft.pieces = replace ? pieces : draft.pieces.concat(pieces);
+      draft.selectedId = pieces.at(-1)?.id || draft.selectedId;
+    });
+    return pieces.at(-1) ? collageClonePiece(pieces.at(-1)) : null;
   }
 
   // Never expose the mutable entry stored in the history state. UI code often

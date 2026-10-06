@@ -6,6 +6,7 @@ import {
   COLLAGE_HISTORY_LIMIT,
   COLLAGE_PAPERS,
   COLLAGE_PATTERNS,
+  COLLAGE_PRESETS,
   COLLAGE_TEMPLATES,
   CollageEditorModel,
   collageBounds,
@@ -89,6 +90,20 @@ test('模型支持多块彩纸、选中、移动旋转缩放和撤销重做', ()
   assert.equal(model.undo(), true);
   assert.equal(model.pieces.length, 2);
   assert.equal(model.toJSON().pieces.length, 2);
+});
+
+test('快速组合一次生成可继续编辑的儿童场景，并且只增加一个撤销点', () => {
+  assert.ok(COLLAGE_PRESETS.length >= 3);
+  const model = new CollageEditorModel({ width: 640, height: 480 });
+  const historyLength = model.history.length;
+  const selected = model.applyPreset('garden');
+  assert.equal(model.pieces.length, 4);
+  assert.equal(model.history.length, historyLength + 1);
+  assert.equal(model.selectedId, selected.id);
+  assert.ok(model.pieces.every(piece => piece.x >= 0 && piece.x <= model.width && piece.y >= 0 && piece.y <= model.height));
+  assert.ok(model.pieces.some(piece => piece.template === 'flower'));
+  assert.equal(model.undo(), true);
+  assert.equal(model.pieces.length, 0);
 });
 
 test('自由剪可以直接进入模型，并且主画板中的位置独立于切纸尺寸', () => {

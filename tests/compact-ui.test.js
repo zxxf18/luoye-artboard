@@ -26,10 +26,23 @@ test('原生就绪信息包含新增刮刮画工具', () => {
 });
 
 test('工具栏按创作流程分为常用页和调整特效页', () => {
-  assert.match(classic, /const toolPages=\[\s*\[\['pen','画笔'\],\['eraser','橡皮'\],\['line','图形'\],\['fill','油漆桶'\],\['text','文字'\],\['stamp','魔法袋'\],\['scratch','刮刮画'\],\['picker','吸颜色'\]\],\s*\[\['select','圈选'\],\['move','移动'\],\['clone','仿制印章'\],\['warp','变形'\],\['magic','魔力棒'\],\['board-filter','滤镜'\],\['fractal','分形'\]\],\s*\]/s);
+  assert.match(classic, /const toolPages=\[\s*\[\['pen','画笔'\],\['eraser','橡皮'\],\['line','图形'\],\['fill','油漆桶'\],\['text','文字'\],\['stamp','魔法袋'\],\['scratch','刮刮画'\],\['picker','吸颜色'\]\],\s*\[\['select','圈选'\],\['move','移动'\],\['clone','仿制印章'\],\['warp','变形'\],\['magic','魔力棒'\],\['board-filter','滤镜'\],\['fractal','分形'\],\['pixel-art','像素画'\],\['animation','小动画'\],\['collage','剪贴画'\]\],\s*\]/s);
   assert.match(classic, /const tools=toolPages\.flat\(\)/);
-  assert.match(classic, /const visible=compact\?tools:toolPages\[page\]\|\|toolPages\[0\]/);
+  assert.match(classic, /const visible=toolPages\[page\]\|\|toolPages\[0\]/);
   assert.match(classic, /const pageFor=toolPageFor\(groupTool\(\)\)/);
+});
+
+test('关于按钮先关闭设置再打开关于弹窗，并且不会被设置事件拦截', () => {
+  assert.match(classic, /if\(!event\.target\.closest\('#about-open'\)\)more\.close\(\)/);
+  assert.match(classic, /aboutButton\.onclick=\(\)=>\{more\.close\(\);about\.showModal\(\);\}/);
+});
+
+test('像素画、小动画、剪贴画进入第二页工具架', () => {
+  assert.match(classic, /const featureTools=\{/);
+  assert.match(classic, /'pixel-art':\(\)=>document\.querySelector\('#pixel-art-open'\)\?\.click\(\)/);
+  assert.match(classic, /animation:\(\)=>document\.querySelector\('#animation-open'\)\?\.click\(\)/);
+  assert.match(classic, /collage:\(\)=>document\.querySelector\('#collage-open'\)\?\.click\(\)/);
+  assert.match(styles, /\.playroom \.header-actions #pixel-art-open,\.playroom \.header-actions #animation-open,\.playroom \.header-actions #collage-open\{display:none!important\}/);
 });
 
 test('进入刮刮画不会重复渲染覆盖层', () => {

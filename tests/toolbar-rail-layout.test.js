@@ -36,10 +36,11 @@ test('右侧工具架按常用工具与进阶工具稳定分组', async () => {
   assert.ok(ids.length > 8, '第二页没有进阶工具');
   assert.ok(pages[1].some(entry => entry.id === 'select'), '进阶页缺少圈选工具');
   assert.ok(pages[1].some(entry => entry.id === 'board-filter'), '进阶页缺少滤镜工具');
+  assert.deepEqual(pages[1].slice(-3).map(entry => entry.id), ['pixel-art', 'animation', 'collage'], '创作工具没有移到第二页末尾');
   assert.match(source, /const\s+toolPageCount\s*=\s*toolPages\.length/, '分页数量没有从目录派生');
   assert.match(source, /page=\(page\+1\)%toolPageCount/, '工具翻页没有循环到下一页');
   assert.match(source, /\$\{page\+1\}\s*\/\s*\$\{toolPageCount\}/, '工具分页缺少动态页码文案');
-  assert.match(source, /if\(compact\)\{if\(page!==0\)\{page=0;renderTools\(\);\}\}/, '进入紧凑布局时没有回到常用工具页');
+  assert.match(source, /const visible=toolPages\[page\]\|\|toolPages\[0\]/, '紧凑布局没有保留工具第二页');
 });
 
 test('小屏工具抽屉入口顺序和 aria 目标保持一致', async () => {
