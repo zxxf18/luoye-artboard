@@ -21,3 +21,8 @@ test('gallery opens with colored backgrounds before stickers', () => {
   assert.match(app, /let galleryLocation=\{category:'background'/);
   assert.match(app, /setColor\(color\); chooseCategory\('background'\)/);
 });
+
+test('project picker accepts supported formats and reports malformed files', () => {
+  assert.match(index, /id="file-input"[^>]*accept="\.luoyex,\.fly,application\/json"/);
+  assert.match(app, /catch \{ toast\('无法打开这个文件，请选择落叶画板的 \.luoyex 工程或旧版 \.fly 文件。'\); return; \}/);
+});

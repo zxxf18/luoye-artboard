@@ -111,6 +111,11 @@ function collageRendererCreateTexture(createCanvas, paper, pattern) {
   const canvas = createCanvas(96, 96);
   const context = canvas.getContext('2d');
   context.save(); context.setTransform?.(1, 0, 0, 1, 0, 0); context.clearRect(0, 0, 96, 96);
+  // Pattern pixels are authored around the local origin (the same coordinate
+  // system used by a piece path). Move that origin to the middle of the tile
+  // before painting; otherwise the negative half of every pattern falls
+  // outside the canvas and the texture looks clipped to one corner.
+  context.translate(48, 48);
   collageRendererPatternPixels(context, paper, pattern, 96, 96);
   context.restore();
   return canvas;
@@ -200,6 +205,11 @@ export class CollageRenderer {
     const canvas = this.createCanvas(width, height), context = canvas.getContext('2d');
     context.save(); context.setTransform?.(1, 0, 0, 1, 0, 0); context.clearRect(0, 0, width, height);
     const local = { ...piece, width, height };
+    // Piece paths are centered around (0, 0) so the same geometry can be used
+    // for transformed scene draws and selection outlines. Raster canvases have
+    // their origin at the top-left, therefore translate once before clipping
+    // and painting the cached source image.
+    context.translate(width / 2, height / 2);
     collageRendererPath(context, local);
     context.save(); context.clip(); collageRendererPaintPattern(context, local, getCollagePaper(piece?.paperId), this.collageRendererGetTexture(piece)); context.restore();
     // A soft pale edge gives each cut piece the look of paper layered on the

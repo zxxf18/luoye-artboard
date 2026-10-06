@@ -106,6 +106,14 @@ test('快速组合一次生成可继续编辑的儿童场景，并且只增加�
   assert.equal(model.pieces.length, 0);
 });
 
+test('预设彩纸都落在工作台内，预览不会把图形放到舞台外', () => {
+  for (const preset of COLLAGE_PRESETS) {
+    const model = new CollageEditorModel({ width: 512, height: 512 });
+    model.applyPreset(preset.id);
+    assert.ok(model.pieces.every(piece => piece.x >= 0 && piece.y >= 0 && piece.x + piece.width <= model.width && piece.y + piece.height <= model.height), preset.id);
+  }
+});
+
 test('自由剪可以直接进入模型，并且主画板中的位置独立于切纸尺寸', () => {
   const model = new CollageEditorModel({ width: 512 });
   const cut = model.cutFree([{ x: 10, y: 10 }, { x: 100, y: 10 }, { x: 90, y: 90 }, { x: 10, y: 10 }], { paperId: 'leaf', width: 220, height: 180 });
@@ -153,6 +161,20 @@ test('彩纸和纹理切换不写入作品撤销历史', () => {
   assert.equal(model.future.length, futureLength);
   assert.equal(model.paperId, 'sky');
   assert.equal(model.pattern, 'waves');
+});
+
+test('选择彩纸时会立即换掉当前彩纸，并且可以撤销', () => {
+  const model = new CollageEditorModel();
+  const piece = model.cutTemplate('circle');
+  const historyLength = model.history.length;
+  model.setSelectedPaper('sky', 'waves', piece.id);
+  assert.equal(model.selected().paperId, 'sky');
+  assert.equal(model.selected().pattern, 'waves');
+  assert.equal(model.paperId, 'sky');
+  assert.equal(model.history.length, historyLength + 1);
+  assert.equal(model.undo(), true);
+  assert.equal(model.selected().paperId, 'sun');
+  assert.equal(model.selected().pattern, 'dots');
 });
 
 test('拖动使用单次事务，连续更新只保留一个撤销点，取消不留下位置变化', () => {

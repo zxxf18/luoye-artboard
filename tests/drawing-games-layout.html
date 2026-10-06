@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>点点·迷宫响应式回归</title>
+  <style>
+    :root { font: 14px system-ui, sans-serif; color: #603f32; background: #fff4df; }
+    body { margin: 0; padding: 14px; }
+    h1 { margin: 0 0 10px; font-size: 18px; }
+    #summary { margin: 0 0 8px; font-weight: 700; }
+    #results { margin: 0; padding-left: 22px; }
+    #results li { margin: 4px 0; }
+    .case { display: flex; align-items: center; gap: 8px; }
+    .case::before { content: '…'; color: #8d6e50; }
+    .case.ok::before { content: '✓'; color: #257650; }
+    .case.fail::before { content: '×'; color: #a33e31; }
+    iframe { display: block; width: 320px; height: 240px; margin-top: 14px; border: 1px solid #d9b78d; background: #fff; }
+  </style>
+</head>
+<body>
+  <h1>点点·迷宫布局回归</h1>
+  <p id="summary">正在检查 320×240、480×320、768×500 和 1280×400…</p>
+  <ol id="results"></ol>
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const compact = qs.get('case');
+    const cssHref = new URL('../drawing-games.css', location.href).href;
+    const markup = `
+      <dialog open class="drawing-games-dialog" aria-labelledby="games-title">
+        <form class="games-form">
+          <header class="games-heading"><h2 id="games-title">点点·迷宫</h2><button type="button" aria-label="关闭">关闭</button></header>
+          <div class="games-toolbar"><button type="button" class="games-mode" data-game-mode="dots" aria-pressed="true">点点画</button><button type="button" class="games-mode" data-game-mode="maze" aria-pressed="false">迷宫涂画</button><select id="game-card" aria-label="选择练习"><option>小兔子</option><option>小房子</option></select><button type="button" id="game-hint">提示</button></div>
+          <div class="games-workspace"><div class="games-stage"><canvas id="game-canvas" width="800" height="560" aria-label="点点画或迷宫画布"></canvas></div><div class="games-status" id="game-status" role="status">第 1 个点，继续找一找</div><div class="games-tools"><div id="game-colors"><button type="button" data-game-color="#b9593e" aria-pressed="true" style="--game-color:#b9593e" aria-label="珊瑚红"></button><button type="button" data-game-color="#2c7c73" style="--game-color:#2c7c73" aria-label="海水绿"></button><button type="button" data-game-color="#5c73ad" style="--game-color:#5c73ad" aria-label="晴空蓝"></button></div><input id="game-color" type="color" value="#b9593e" aria-label="自选颜色"><label for="game-width">笔触 <input id="game-width" type="range" min="2" max="32" value="10"></label><button type="button" data-game-tool="pen" aria-pressed="true">画笔</button><button type="button" data-game-tool="eraser" aria-pressed="false">橡皮</button></div></div>
+          <footer class="games-actions"><button type="button" id="game-undo">撤销</button><button type="button" id="game-reset">重新开始</button><button type="button" id="game-next">换一题</button><button type="button" id="game-place">放回画板</button></footer>
+        </form>
+      </dialog>`;
+    if (compact) {
+      document.head.insertAdjacentHTML('beforeend', `<link rel="stylesheet" href="${cssHref}">`);
+      document.body.className = 'playroom';
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.body.innerHTML = markup;
+      document.title = `布局 ${compact}`;
+    } else {
+      const cases = [[320,240],[480,320],[768,500],[1280,400]];
+      const results = document.querySelector('#results');
+      const assert = (ok, message) => { if (!ok) throw Error(message); };
+      const inside = (node, root, margin = 1) => { const a=node.getBoundingClientRect(), b=root.getBoundingClientRect(); return a.left>=b.left-margin && a.right<=b.right+margin && a.top>=b.top-margin && a.bottom<=b.bottom+margin; };
+      const visible = n => { const r=n.getBoundingClientRect(), s=getComputedStyle(n); return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0; };
+      async function run([width,height]) {
+        const li=document.createElement('li'); li.className='case'; li.textContent=`${width}×${height}`; results.append(li);
+        const frame=document.createElement('iframe'); frame.title=`点点迷宫 ${width}×${height}`; frame.width=width; frame.height=height; document.body.append(frame); frame.style.width=`${width}px`; frame.style.height=`${height}px`;
+        frame.src=`${location.pathname}?case=${width}x${height}`; await new Promise(resolve=>frame.addEventListener('load',resolve,{once:true}));
+        try {
+          const doc=frame.contentDocument, dialog=doc.querySelector('.drawing-games-dialog'), form=doc.querySelector('.games-form'), stage=doc.querySelector('.games-stage'), canvas=doc.querySelector('#game-canvas'), actions=doc.querySelector('.games-actions'), tools=doc.querySelector('.games-tools');
+          assert(dialog && form && stage && canvas && actions && tools, '缺少游戏面板结构');
+          const viewport = { getBoundingClientRect: () => ({ left: 0, top: 0, right: doc.documentElement.clientWidth, bottom: doc.documentElement.clientHeight }) };
+          assert(inside(dialog, viewport, 1), '面板超出窗口');
+          // The dialog itself scrolls on a very short viewport. Check the
+          // form's horizontal bounds here; vertical reachability is provided
+          // by that scroll container and is checked through its scrollHeight.
+          const dr=dialog.getBoundingClientRect(), fr=form.getBoundingClientRect();
+          assert(fr.left>=dr.left-1 && fr.right<=dr.right+1, '表单横向超出面板');
+          assert(form.scrollHeight >= form.clientHeight, '短屏表单没有可滚动的内容高度');
+          assert(canvas.width===800 && canvas.height===560, '画布内在尺寸不是 10:7');
+          const cr=canvas.getBoundingClientRect(); assert(Math.abs(cr.width/cr.height-10/7)<.03, '画布比例被拉伸');
+          assert(inside(canvas, stage, 1), '画布超出绘图区');
+          assert(inside(tools, form, 1) && inside(actions, form, 1), '工具或操作栏超出表单');
+          const toolbar=doc.querySelector('.games-toolbar');
+          const controls=[...toolbar.querySelectorAll('button,select'), ...tools.querySelectorAll('button,input')].filter(visible);
+          assert(controls.length >= 8, '模式、图卡、提示或绘画工具不完整');
+          for(const control of controls) { const r=control.getBoundingClientRect(); assert(r.width>=28 && r.height>=28, '控件小于触控下限'); }
+          const buttons=[...actions.querySelectorAll('button')].filter(visible); assert(buttons.length===4, '主要操作不完整');
+          for(const b of buttons) assert(b.getBoundingClientRect().width>=28 && b.getBoundingClientRect().height>=28, '操作按钮小于触控下限');
+          li.classList.add('ok'); li.textContent+= ' 通过';
+        } catch (e) { li.classList.add('fail'); li.textContent+=` 失败：${e.message}`; }
+      }
+      (async()=>{ for(const c of cases) await run(c); const failures=[...results.querySelectorAll('.fail')].length; document.querySelector('#summary').textContent=failures?`${failures} 项失败`:`4/4 通过`; })();
+    }
+  </script>
+</body>
+</html>

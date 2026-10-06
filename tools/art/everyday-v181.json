@@ -1,0 +1,482 @@
+[
+  {
+    "id": "daily181-dog-watercolor",
+    "name": "玩球小狗",
+    "subject": "小狗",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a floppy-eared golden puppy in a play bow with a red ball tucked between its front paws",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a floppy-eared golden puppy in a play bow with a red ball tucked between its front paws. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-dog-oil",
+    "name": "奔跑小狗",
+    "subject": "小狗",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a little white terrier running joyfully in side profile, ears bouncing, full body",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a little white terrier running joyfully in side profile, ears bouncing, full body. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-dog-pencil",
+    "name": "打盹小狗",
+    "subject": "小狗",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a brown dachshund curled up asleep with its long nose resting on its tail",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a brown dachshund curled up asleep with its long nose resting on its tail. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-dog-sticker",
+    "name": "摇尾小狗",
+    "subject": "小狗",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a chubby black-and-white puppy sitting upright and tilting its head, one ear up, wagging tail",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a chubby black-and-white puppy sitting upright and tilting its head, one ear up, wagging tail. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-hedgehog-watercolor",
+    "name": "小刺猬",
+    "subject": "刺猬",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a gentle small hedgehog in side profile sniffing a fallen yellow leaf",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a gentle small hedgehog in side profile sniffing a fallen yellow leaf. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-hedgehog-oil",
+    "name": "采果刺猬",
+    "subject": "刺猬",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a round hedgehog walking with a tiny red apple resting on its spines",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a round hedgehog walking with a tiny red apple resting on its spines. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-hedgehog-pencil",
+    "name": "睡觉刺猬",
+    "subject": "刺猬",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a sleepy hedgehog curled into a round ball, tiny face peeking out",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a sleepy hedgehog curled into a round ball, tiny face peeking out. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-hedgehog-sticker",
+    "name": "招手刺猬",
+    "subject": "刺猬",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a happy standing hedgehog with a round body and both little paws open",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a happy standing hedgehog with a round body and both little paws open. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-squirrel-watercolor",
+    "name": "抱果松鼠",
+    "subject": "松鼠",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a red squirrel sitting and hugging a hazelnut, large fluffy tail curved behind its head",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a red squirrel sitting and hugging a hazelnut, large fluffy tail curved behind its head. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-squirrel-oil",
+    "name": "跳跃松鼠",
+    "subject": "松鼠",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a lively gray squirrel leaping sideways, all four paws visible and sweeping tail",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a lively gray squirrel leaping sideways, all four paws visible and sweeping tail. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-squirrel-pencil",
+    "name": "觅食松鼠",
+    "subject": "松鼠",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a small brown squirrel crouching and inspecting an acorn held in its paws",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small brown squirrel crouching and inspecting an acorn held in its paws. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-squirrel-sticker",
+    "name": "探头松鼠",
+    "subject": "松鼠",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a cheerful orange squirrel peeking over a small tree stump, tail curled alongside",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a cheerful orange squirrel peeking over a small tree stump, tail curled alongside. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-duck-watercolor",
+    "name": "游水小鸭",
+    "subject": "小鸭",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a yellow duckling floating in a tiny blue ripple ring, side profile",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a yellow duckling floating in a tiny blue ripple ring, side profile. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-duck-oil",
+    "name": "展翅小鸭",
+    "subject": "小鸭",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a white duck standing and spreading its small wings, orange feet visible",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a white duck standing and spreading its small wings, orange feet visible. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-duck-pencil",
+    "name": "散步小鸭",
+    "subject": "小鸭",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a fluffy yellow duckling walking in side profile with one foot raised",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a fluffy yellow duckling walking in side profile with one foot raised. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-duck-sticker",
+    "name": "回头小鸭",
+    "subject": "小鸭",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a chubby yellow duck looking back over its shoulder, wearing tiny blue rain boots",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a chubby yellow duck looking back over its shoulder, wearing tiny blue rain boots. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-umbrella-watercolor",
+    "name": "花朵雨伞",
+    "subject": "雨伞",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "an open pale yellow umbrella with a few painted blue flowers, curved wooden handle, angled left",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: an open pale yellow umbrella with a few painted blue flowers, curved wooden handle, angled left. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-umbrella-oil",
+    "name": "红色雨伞",
+    "subject": "雨伞",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "an open bright red umbrella tilted in side view, bold curved canopy and black hooked handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: an open bright red umbrella tilted in side view, bold curved canopy and black hooked handle. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-umbrella-pencil",
+    "name": "收起雨伞",
+    "subject": "雨伞",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a folded lavender umbrella tied neatly with a strap, pointed top and curved handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a folded lavender umbrella tied neatly with a strap, pointed top and curved handle. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-umbrella-sticker",
+    "name": "彩虹雨伞",
+    "subject": "雨伞",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "an open rainbow-panel umbrella viewed from a slight low angle, bright curved handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: an open rainbow-panel umbrella viewed from a slight low angle, bright curved handle. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-bicycle-watercolor",
+    "name": "小自行车",
+    "subject": "自行车",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a mint green child's bicycle in side profile with a wicker front basket holding two flowers",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a mint green child's bicycle in side profile with a wicker front basket holding two flowers. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-bicycle-oil",
+    "name": "红色单车",
+    "subject": "自行车",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a simple bright red child's bicycle at a three-quarter angle, blue saddle, no basket",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a simple bright red child's bicycle at a three-quarter angle, blue saddle, no basket. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-bicycle-pencil",
+    "name": "停放单车",
+    "subject": "自行车",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a vintage yellow bicycle leaning on its kickstand, front wheel turned slightly, complete wheels",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a vintage yellow bicycle leaning on its kickstand, front wheel turned slightly, complete wheels. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-bicycle-sticker",
+    "name": "童趣单车",
+    "subject": "自行车",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a compact sky-blue child's bicycle with small training wheels and a tiny yellow pennant",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a compact sky-blue child's bicycle with small training wheels and a tiny yellow pennant. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-clock-watercolor",
+    "name": "蓝色闹钟",
+    "subject": "闹钟",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a pale blue twin-bell alarm clock standing upright, round cream dial, hands only and no numerals",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a pale blue twin-bell alarm clock standing upright, round cream dial, hands only and no numerals. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-clock-oil",
+    "name": "方形闹钟",
+    "subject": "闹钟",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a coral red rounded-square bedside alarm clock at a three-quarter angle, plain face with hands only",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a coral red rounded-square bedside alarm clock at a three-quarter angle, plain face with hands only. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-clock-pencil",
+    "name": "圆圆闹钟",
+    "subject": "闹钟",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a classic yellow twin-bell alarm clock tilted slightly, small feet, plain dial with hands only",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a classic yellow twin-bell alarm clock tilted slightly, small feet, plain dial with hands only. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-clock-sticker",
+    "name": "摇摆闹钟",
+    "subject": "闹钟",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a cheerful green round alarm clock with a playful asymmetric tilt, plain dial and hands only",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a cheerful green round alarm clock with a playful asymmetric tilt, plain dial and hands only. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-watering-can-watercolor",
+    "name": "浇花水壶",
+    "subject": "洒水壶",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a small pale blue watering can tilted forward, a few delicate water droplets beneath its spout",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small pale blue watering can tilted forward, a few delicate water droplets beneath its spout. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-watering-can-oil",
+    "name": "红色水壶",
+    "subject": "洒水壶",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a rustic red metal watering can standing upright in side profile, wide curved handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a rustic red metal watering can standing upright in side profile, wide curved handle. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-watering-can-pencil",
+    "name": "长嘴水壶",
+    "subject": "洒水壶",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a slim yellow long-spout watering can in three-quarter view, graceful arched handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a slim yellow long-spout watering can in three-quarter view, graceful arched handle. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-watering-can-sticker",
+    "name": "胖胖水壶",
+    "subject": "洒水壶",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a plump mint green toy watering can with a short spout and round side handle",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a plump mint green toy watering can with a short spout and round side handle. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-treehouse-watercolor",
+    "name": "小小树屋",
+    "subject": "树屋",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a cozy tiny wooden treehouse nestled in one leafy branch fork, rope ladder hanging down, isolated complete tree segment",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a cozy tiny wooden treehouse nestled in one leafy branch fork, rope ladder hanging down, isolated complete tree segment. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-treehouse-oil",
+    "name": "森林树屋",
+    "subject": "树屋",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a whimsical round treehouse with a red conical roof on a thick trunk and a small balcony, isolated complete silhouette",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a whimsical round treehouse with a red conical roof on a thick trunk and a small balcony, isolated complete silhouette. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-treehouse-pencil",
+    "name": "阁楼树屋",
+    "subject": "树屋",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a small triangular treehouse on a branching trunk with a short wooden ladder and two leaves, complete silhouette",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small triangular treehouse on a branching trunk with a short wooden ladder and two leaves, complete silhouette. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-treehouse-sticker",
+    "name": "蘑菇树屋",
+    "subject": "树屋",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a playful mushroom-shaped treehouse perched on a short tree trunk with round windows and leaf accents",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a playful mushroom-shaped treehouse perched on a short tree trunk with round windows and leaf accents. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-lighthouse-watercolor",
+    "name": "海边灯塔",
+    "subject": "灯塔",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a small white lighthouse with blue bands on a compact rocky island and two tiny sea waves",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small white lighthouse with blue bands on a compact rocky island and two tiny sea waves. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-lighthouse-oil",
+    "name": "夕阳灯塔",
+    "subject": "灯塔",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a squat red-and-cream lighthouse with a glowing yellow lamp on a small rocky base, no sky background",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a squat red-and-cream lighthouse with a glowing yellow lamp on a small rocky base, no sky background. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-lighthouse-pencil",
+    "name": "细高灯塔",
+    "subject": "灯塔",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a slender white lighthouse with red stripes and a tiny adjoining keeper's cottage on a rock base",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a slender white lighthouse with red stripes and a tiny adjoining keeper's cottage on a rock base. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-lighthouse-sticker",
+    "name": "童话灯塔",
+    "subject": "灯塔",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a chubby blue-and-white lighthouse on one curved rock, golden lamp and a tiny seagull nearby",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a chubby blue-and-white lighthouse on one curved rock, golden lamp and a tiny seagull nearby. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-apple-tree-watercolor",
+    "name": "苹果小树",
+    "subject": "苹果树",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a young leafy apple tree with four bright red apples and a slim slightly bent trunk, compact grass patch",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a young leafy apple tree with four bright red apples and a slim slightly bent trunk, compact grass patch. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-apple-tree-oil",
+    "name": "丰收果树",
+    "subject": "苹果树",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a spreading mature apple tree with a broad asymmetrical crown and many apples, textured trunk",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a spreading mature apple tree with a broad asymmetrical crown and many apples, textured trunk. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-apple-tree-pencil",
+    "name": "小小果苗",
+    "subject": "苹果树",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a small apple sapling with sparse leaves, two apples and a support stick, complete roots hidden in tiny grass patch",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small apple sapling with sparse leaves, two apples and a support stick, complete roots hidden in tiny grass patch. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-apple-tree-sticker",
+    "name": "圆圆果树",
+    "subject": "苹果树",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a round lollipop-shaped apple tree with a plump green crown, three apples and a short curved trunk",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a round lollipop-shaped apple tree with a plump green crown, three apples and a short curved trunk. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-sailboat-watercolor",
+    "name": "海上帆船",
+    "subject": "帆船",
+    "style": "watercolor",
+    "styleName": "水彩",
+    "collection": "everyday-watercolor",
+    "description": "a small wooden sailboat with one pale yellow triangular sail, shown in side view on two tiny blue wave strokes",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a small wooden sailboat with one pale yellow triangular sail, shown in side view on two tiny blue wave strokes. Style/medium: Fine children's picture-book watercolor, translucent pigment pools, feathered hand-painted edges, restrained warm colors. Do not imitate a glossy cartoon. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-sailboat-oil",
+    "name": "红帆小船",
+    "subject": "帆船",
+    "style": "oil",
+    "styleName": "油画",
+    "collection": "everyday-oil",
+    "description": "a stout blue sailboat with two red sails at a three-quarter angle, curved hull and tiny waves",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a stout blue sailboat with two red sails at a three-quarter angle, curved hull and tiny waves. Style/medium: Children's storybook oil painting with bold impasto brushwork, visible thick painted strokes, rich layered colors and softly simplified shapes. Clearly painterly, not photorealistic. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-sailboat-pencil",
+    "name": "双帆小船",
+    "subject": "帆船",
+    "style": "pencil",
+    "styleName": "铅笔画",
+    "collection": "everyday-pencil",
+    "description": "a light wooden sailboat with two cream sails, side profile, slender mast and a small flag",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a light wooden sailboat with two cream sails, side profile, slender mast and a small flag. Style/medium: Hand-drawn colored pencil illustration, fine graphite contours and distinct layered pencil hatching, slightly imperfect hand-drawn lines, gentle pastel colors. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  },
+  {
+    "id": "daily181-sailboat-sticker",
+    "name": "彩色帆船",
+    "subject": "帆船",
+    "style": "sticker",
+    "styleName": "贴纸",
+    "collection": "everyday-sticker",
+    "description": "a playful red toy sailboat with one striped blue-and-white sail and a yellow flag, floating on a little curved wave",
+    "prompt": "Use case: illustration-story. Asset type: transparent reusable material for a children's drawing application. Primary request: a playful red toy sailboat with one striped blue-and-white sail and a yellow flag, floating on a little curved wave. Style/medium: Cheerful die-cut cartoon sticker, crisp simple silhouette, thick cream contour immediately around the subject, bold flat colors and small shiny accents. Composition/framing: one standalone complete subject centered on a square canvas, clear readable silhouette and generous empty transparent padding around every edge. Background: genuinely transparent alpha, no white or colored backdrop. Constraints: no text, letters, numbers, watermark, frame, decorative border outside the subject, extraneous objects, duplicated subject, collage or cut-off parts. This is a high-quality finished illustration for children, not an interface icon or stock placeholder."
+  }
+]

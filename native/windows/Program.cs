@@ -67,7 +67,7 @@ sealed class StudioWindow : Form
                     var fonts=new System.Drawing.Text.InstalledFontCollection().Families.Select(f=>f.Name).Order().ToArray();
                     await web.ExecuteScriptAsync("window.LUOYESetFonts("+JsonSerializer.Serialize(fonts)+")");break;
                 case "files": await SaveFile(body,id);break;
-                case "display": SetDisplay(body.GetProperty("action").GetString());break;
+                case "display": await SetDisplay(body.GetProperty("action").GetString());break;
                 case "music":
                     music??=new StudioMusic(Path.Combine(AppContext.BaseDirectory,"audio","GeneralUser-GS.sf2"));
                     switch(body.GetProperty("action").GetString()) {
@@ -111,17 +111,20 @@ sealed class StudioWindow : Form
         try {await File.WriteAllBytesAsync(tmp,bytes);File.Move(tmp,destination,true);}finally{if(File.Exists(tmp))File.Delete(tmp);}
         await Reply("native-file-result",new{id,saved=true});
     }
-    void SetDisplay(string? action)
+    async Task SetDisplay(string? action)
     {
         var area=Screen.FromControl(this).WorkingArea;
         if(action=="fullscreen"){
             if(!fullscreen){normalBounds=Bounds;FormBorderStyle=FormBorderStyle.None;Bounds=Screen.FromControl(this).Bounds;}
             else{FormBorderStyle=FormBorderStyle.Sizable;Bounds=normalBounds;}
-            fullscreen=!fullscreen;return;
+            fullscreen=!fullscreen;
+            await Reply("native-display-result",new {width=web.ClientSize.Width,height=web.ClientSize.Height});
+            return;
         }
         if(fullscreen){FormBorderStyle=FormBorderStyle.Sizable;fullscreen=false;}
         var desired=action switch{"1080"=>new Size(1920,1080),"2k"=>new Size(2560,1440),"fit"=>area.Size,_=>ClientSize};
         WindowState=FormWindowState.Normal;ClientSize=new Size(Math.Min(desired.Width,area.Width-16),Math.Min(desired.Height,area.Height-39));CenterToScreen();
+        await Reply("native-display-result",new {width=web.ClientSize.Width,height=web.ClientSize.Height});
     }
     async void CloseSafely(object? sender,FormClosingEventArgs e)
     {

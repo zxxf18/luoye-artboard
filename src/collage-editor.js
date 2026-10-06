@@ -157,9 +157,9 @@ export const COLLAGE_PRESETS = Object.freeze([
     id: 'garden', label: '小花园', icon: '🌼', description: '太阳、花朵和叶子',
     pieces: Object.freeze([
       Object.freeze({ template: 'sun', paperId: 'sun', pattern: 'dots', x: 150, y: 120, width: 132, height: 132, rotation: -8 }),
-      Object.freeze({ template: 'flower', paperId: 'berry', pattern: 'solid', x: 258, y: 364, width: 116, height: 116, rotation: -5 }),
-      Object.freeze({ template: 'flower', paperId: 'lavender', pattern: 'stripes', x: 392, y: 354, width: 94, height: 94, rotation: 8 }),
-      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'dots', x: 328, y: 402, width: 110, height: 155, rotation: 26 }),
+      Object.freeze({ template: 'flower', paperId: 'berry', pattern: 'solid', x: 244, y: 304, width: 116, height: 116, rotation: -5 }),
+      Object.freeze({ template: 'flower', paperId: 'lavender', pattern: 'stripes', x: 372, y: 296, width: 94, height: 94, rotation: 8 }),
+      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'dots', x: 310, y: 286, width: 110, height: 155, rotation: 26 }),
     ]),
   }),
   Object.freeze({
@@ -177,7 +177,7 @@ export const COLLAGE_PRESETS = Object.freeze([
       Object.freeze({ template: 'fish', paperId: 'orange', pattern: 'solid', x: 184, y: 222, width: 176, height: 126, rotation: -7 }),
       Object.freeze({ template: 'fish', paperId: 'berry', pattern: 'dots', x: 372, y: 330, width: 132, height: 94, rotation: 8 }),
       Object.freeze({ template: 'raindrop', paperId: 'sky', pattern: 'waves', x: 118, y: 112, width: 58, height: 76, rotation: 0 }),
-      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'stripes', x: 404, y: 432, width: 78, height: 142, rotation: -18 }),
+      Object.freeze({ template: 'leaf', paperId: 'leaf', pattern: 'stripes', x: 404, y: 300, width: 78, height: 142, rotation: -18 }),
     ]),
   }),
 ]);
@@ -453,6 +453,34 @@ export class CollageEditorModel {
   }
 
   setPattern(pattern) { this.pattern = normalizeCollagePattern(pattern); return this.pattern; }
+
+  /** Apply the selected paper style to the selected piece as well as the tool.
+   * Keeping this separate from setPaper preserves the useful default for the
+   * next piece while making a child's color choice immediately visible. */
+  setSelectedPaper(paperId, pattern = undefined, id = this.selectedId) {
+    const paper = getCollagePaper(paperId);
+    this.setPaper(paper.id, pattern);
+    const piece = this.pieces.find(item => item.id === id);
+    if (!piece) return null;
+    const nextPattern = normalizeCollagePattern(pattern || paper.pattern);
+    if (piece.paperId === paper.id && piece.pattern === nextPattern) return this.selected();
+    const next = Object.freeze({ ...piece, paperId: paper.id, pattern: nextPattern });
+    const index = this.pieces.indexOf(piece);
+    this._commit(draft => { draft.pieces[index] = next; draft.selectedId = next.id; });
+    return this.selected();
+  }
+
+  setSelectedPattern(pattern, id = this.selectedId) {
+    const nextPattern = normalizeCollagePattern(pattern);
+    this.setPattern(nextPattern);
+    const piece = this.pieces.find(item => item.id === id);
+    if (!piece) return null;
+    if (piece.pattern === nextPattern) return this.selected();
+    const next = Object.freeze({ ...piece, pattern: nextPattern });
+    const index = this.pieces.indexOf(piece);
+    this._commit(draft => { draft.pieces[index] = next; draft.selectedId = next.id; });
+    return this.selected();
+  }
 
   addPiece(piece) {
     if (this.pieces.length >= COLLAGE_MAX_PIECES) throw new Error(`最多先放 ${COLLAGE_MAX_PIECES} 块彩纸。`);

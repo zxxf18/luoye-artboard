@@ -7,7 +7,9 @@
  * remains untouched.
  */
 export const SHAPE_SNAP_STORAGE_KEY = 'luoye-shape-snap';
-export const SHAPE_SNAP_MIN_POINTS = 8;
+// Quick pointer strokes can contain only their corners. Geometry, not event
+// frequency, decides whether a stroke is safe to tidy.
+export const SHAPE_SNAP_MIN_POINTS = 2;
 
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function clamp(value, min = 0, max = 1) { return Math.max(min, Math.min(max, value)); }
@@ -133,13 +135,78 @@ function segmentEndpoints(segment) {
   return { start, end };
 }
 
+/** Return the straight edges actually drawn by the engine for a tidy shape. */
+export function getShapeSnapSegments(shape) {
+  if (!shape) return [];
+  if (shape.tool === 'line') return segmentEndpoints(shape) ? [shape] : [];
+  if (!['rect', 'triangle'].includes(shape.tool)) return [];
+  const endpoints = segmentEndpoints(shape);
+  if (!endpoints) return [];
+  const left = Math.min(endpoints.start.x, endpoints.end.x), right = Math.max(endpoints.start.x, endpoints.end.x);
+  const top = Math.min(endpoints.start.y, endpoints.end.y), bottom = Math.max(endpoints.start.y, endpoints.end.y);
+  const vertices = shape.tool === 'triangle'
+    ? [{ x: (left + right) / 2, y: top }, { x: right, y: bottom }, { x: left, y: bottom }]
+    : [{ x: left, y: top }, { x: right, y: top }, { x: right, y: bottom }, { x: left, y: bottom }];
+  return vertices.map((start, index) => ({
+    tool: 'line', start, end: vertices[(index + 1) % vertices.length],
+    // Borrow an edge without replacing its original shape (for example a
+    // triangular roof supplies the top of the rectangular house below it).
+    reusable: true, sourceShape: shape, layerId: shape.layerId, historyIndex: shape.historyIndex,
+  }));
+}
+
+function openRectangleFromPath(points, usedSegments, minConfidence = .72) {
+  // Completing three fresh straight sides is useful. Borrowed edges should
+  // only complete a genuinely closed outline, never trigger an early guess.
+  if (usedSegments.length !== 2 || usedSegments.some(segment => segment.reusable)) return null;
+  const clean = cleanPoints(points), box = bounds(clean);
+  if (box.width < 24 || box.height < 24) return null;
+  const vertices = simplify(clean, Math.max(2, box.size * .045));
+  if (vertices.length !== 4) return null;
+  if (vertices.some((point, index) => distance(point, vertices[(index + 1) % 4]) < 24)) return null;
+  const confidence = rectangleScore(vertices);
+  if (confidence < Math.max(.82, minConfidence)) return null;
+  return result('rect', box, confidence, { x: box.left, y: box.top }, { x: box.right, y: box.bottom }, '方框');
+}
+
+// A loop has no privileged starting corner. Split it at two distant samples,
+// simplify both halves, then remove a possible collinear seam. Keeping the
+// original pointerdown as a vertex made a triangle started halfway along its
+// base look like a four-sided polygon.
+function loopVertices(points, epsilon) {
+  const ring = points.slice();
+  if (ring.length > 1 && distance(ring[0], ring.at(-1)) < 1) ring.pop();
+  if (ring.length < 3) return ring;
+  const farthest = from => ring.reduce((best, point, index) => distance(point, ring[from]) > distance(ring[best], ring[from]) ? index : best, 0);
+  const first = farthest(0), second = farthest(first);
+  const arc = (from, to) => {
+    const path = [ring[from]];
+    for (let index = (from + 1) % ring.length; index !== to; index = (index + 1) % ring.length) path.push(ring[index]);
+    path.push(ring[to]);
+    return simplify(path, epsilon);
+  };
+  const vertices = [...arc(first, second), ...arc(second, first).slice(1, -1)];
+  for (let changed = true; changed && vertices.length > 3;) {
+    changed = false;
+    for (let index = 0; index < vertices.length; index++) {
+      const a = vertices[(index + vertices.length - 1) % vertices.length], b = vertices[index], c = vertices[(index + 1) % vertices.length];
+      const dx = c.x - a.x, dy = c.y - a.y, lengthSquared = dx * dx + dy * dy;
+      const projection = lengthSquared ? ((b.x - a.x) * dx + (b.y - a.y) * dy) / lengthSquared : -1;
+      if (projection >= 0 && projection <= 1 && pointLineDistance(b, a, c) <= epsilon) {
+        vertices.splice(index, 1); changed = true; break;
+      }
+    }
+  }
+  return vertices;
+}
+
 /**
  * Join the current gesture to recent line segments. The search follows
  * touching endpoints in both directions, so four separate strokes can form a
  * rectangle just like one continuous stroke. The result is still passed
  * through the conservative recognizer below before anything is replaced.
  */
-export function combineStrokeWithSegments(input, segments, { maxGap = .12 } = {}) {
+export function combineStrokeWithSegments(input, segments, { maxGap = .12, minConfidence = .72 } = {}) {
   const points = cleanPoints(input);
   if (points.length < SHAPE_SNAP_MIN_POINTS || !Array.isArray(segments)) return [];
   const box = bounds(points), scale = Math.max(1, box.size);
@@ -154,6 +221,10 @@ export function combineStrokeWithSegments(input, segments, { maxGap = .12 } = {}
       if (distance(closed.at(-1), closed[0]) > 1) closed.push({ ...closed[0] });
       candidates.push({ points: closed, segments: used.map(item => item.segment), segment: used[0].segment });
       return;
+    }
+    if (used.length === 2) {
+      const openShape = openRectangleFromPath(path, used.map(item => item.segment), minConfidence);
+      if (openShape) candidates.push({ points: path.slice(), segments: used.map(item => item.segment), segment: used[0].segment, openShape });
     }
     if (used.length >= maxSegments) return;
     for (let index = 0; index < remaining.length; index++) {
@@ -184,7 +255,7 @@ export function recognizeStroke(input, { minSize = 24, minConfidence = .72 } = {
   const points = cleanPoints(input);
   if (points.length < SHAPE_SNAP_MIN_POINTS) return null;
   const box = bounds(points), length = pathLength(points);
-  if (box.size < minSize || length < minSize * 1.7) return null;
+  if (box.size < minSize || length < minSize) return null;
   const start = points[0], end = points.at(-1);
   const directness = distance(start, end) / Math.max(1, length);
   if (directness >= .94 && distance(start, end) >= minSize * .8) {
@@ -195,8 +266,7 @@ export function recognizeStroke(input, { minSize = 24, minConfidence = .72 } = {
   if (closure > .34) return null;
   const loop = points.slice();
   if (distance(loop[0], loop.at(-1)) > 0.001) loop.push(loop[0]);
-  const simplified = simplify(loop, Math.max(2, box.size * .065));
-  const vertices = simplified.slice(0, -1);
+  const vertices = loopVertices(loop, Math.max(2, box.size * .055));
   if (vertices.length < 3) return null;
 
   const ellipse = normalizedEllipseScore(points, box) * angularCoverage(points, box);
@@ -220,9 +290,16 @@ export function recognizeStroke(input, { minSize = 24, minConfidence = .72 } = {
 
 /** Recognise a gesture that may be completed by one or more recent segments. */
 export function recognizeStrokeWithSegments(input, segments, options = {}) {
-  for (const candidate of combineStrokeWithSegments(input, segments, options)) {
-    const shape = recognizeStroke(candidate.points, options);
-    if (shape && shape.tool !== 'line') return { ...shape, mergedSegments: candidate.segments };
+  const candidates = combineStrokeWithSegments(input, segments, options);
+  // Prefer an actual closed outline over an inferred fourth side.
+  candidates.sort((a, b) => Number(Boolean(a.openShape)) - Number(Boolean(b.openShape)));
+  for (const candidate of candidates) {
+    const shape = candidate.openShape || recognizeStroke(candidate.points, options);
+    if (shape && shape.tool !== 'line') return {
+      ...shape,
+      mergedSegments: candidate.segments.filter(segment => !segment.reusable),
+      sharedSegments: candidate.segments.filter(segment => segment.reusable),
+    };
   }
   const direct = recognizeStroke(input, options);
   if (direct) return direct;

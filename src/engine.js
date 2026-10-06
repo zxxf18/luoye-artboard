@@ -158,7 +158,11 @@ export class PaintEngine {
     return this.layers.some(layer => layer.visible && layer.opacity > 0 && (layer.frames?.length || layer.sprites?.length));
   }
   ensureAnimationTimer() {
-    const shouldRun = this.playing && this.hasDynamicLayers();
+    // A hidden WebView cannot present animation frames. Avoid waking the
+    // JavaScript timer while the window is backgrounded; the visibility
+    // listener in app.js starts it again as soon as the canvas is visible.
+    const visible = typeof document === 'undefined' || document.visibilityState !== 'hidden';
+    const shouldRun = this.playing && visible && this.hasDynamicLayers();
     if (shouldRun && !this.animationTimer) {
       this.animationTimer = setInterval(() => {
         if (this.playing && this.hasDynamicLayers()) this.render();
@@ -380,6 +384,35 @@ export class PaintEngine {
     }
     return null;
   }
+  sampleColor(point) {
+    const ctx = this.hitContext;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.clearRect(0, 0, 1, 1);
+    const dynamic = this.playing && this.hasDynamicLayers();
+    if (!this.gesture && !dynamic && this.staticComposite) {
+      // The static scene is already in paper coordinates. Sampling it into
+      // the shared 1×1 readback surface avoids allocating and repainting a
+      // full-size temporary canvas for every picker click.
+      ctx.drawImage(this.staticComposite, -point.x, -point.y);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1, 1);
+      const time = this.playing ? performance.now() - this.animationStart : this.animationTime || 0;
+      for (const layer of this.layers) {
+        if (!layer.visible || layer.opacity === 0) continue;
+        const local = toLayerPoint(point, layer);
+        if (local.x < 0 || local.y < 0 || local.x >= layer.width || local.y >= layer.height) continue;
+        ctx.save();
+        ctx.globalAlpha = layer.opacity;
+        ctx.translate(-local.x, -local.y);
+        this.drawLayer(ctx, layer, time);
+        ctx.restore();
+      }
+    }
+    return ctx.getImageData(0, 0, 1, 1).data;
+  }
   captureTiles(layer, bounds, tiles) {
     const context = layer.canvas.getContext('2d'), size = 128;
     const minX = Math.max(0, Math.floor(bounds.x / size)), minY = Math.max(0, Math.floor(bounds.y / size));
@@ -461,6 +494,12 @@ export class PaintEngine {
       // duplicate dab does not change pixels but still captures readback
       // tiles and schedules a frame, which is noticeable on large tablets.
       if (g.last && local.x === g.last.x && local.y === g.last.y) return;
+      // A thick scratch brush already covers a wide footprint. Coalescing
+      // samples within a quarter of that footprint keeps adjacent reveals
+      // continuous while avoiding repeated tile readbacks for every tiny
+      // pointer move. The accumulated distance is measured from g.last, so a
+      // skipped sample is still included in the next segment.
+      if (g.options.tool === 'scratch' && g.last && Math.hypot(local.x - g.last.x, local.y - g.last.y) < Math.max(2, Math.min(64, (g.options.size / g.layer.scale) * .25))) return;
       g.end = local; if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local;
     }
     this.render();

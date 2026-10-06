@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { combineStrokeWithSegments, pathLength, recognizeStroke, recognizeStrokeWithSegments } from '../src/shape-snap.js';
+import { combineStrokeWithSegments, getShapeSnapSegments, pathLength, recognizeStroke, recognizeStrokeWithSegments } from '../src/shape-snap.js';
 
 function line(a, b, count = 16) {
   return Array.from({ length: count }, (_, index) => {
@@ -94,4 +94,71 @@ test('连续画出的四条边也能合成一个矩形', () => {
   const shape = recognizeStrokeWithSegments(current, recent);
   assert.equal(shape?.tool, 'rect');
   assert.equal(shape.mergedSegments.length, 3);
+});
+
+test('先画过三角形后，矩形画三条边也能自动补成方框', () => {
+  const triangle = loop([{ x: 420, y: 30 }, { x: 500, y: 150 }, { x: 340, y: 150 }]);
+  assert.equal(recognizeStroke(triangle)?.tool, 'triangle');
+  const corners = [{ x: 40, y: 40 }, { x: 220, y: 40 }, { x: 220, y: 150 }, { x: 40, y: 150 }];
+  const current = line(corners[2], corners[3]);
+  const recent = [
+    { tool: 'line', start: corners[0], end: corners[1] },
+    { tool: 'line', start: corners[1], end: corners[2] },
+  ];
+  const shape = recognizeStrokeWithSegments(current, recent);
+  assert.equal(shape?.tool, 'rect');
+  assert.equal(shape?.label, '方框');
+  assert.equal(shape?.mergedSegments.length, 2);
+  assert.equal(shape?.bounds.left, corners[0].x);
+  assert.equal(shape?.bounds.bottom, corners[2].y);
+});
+
+test('矩形三边识别不会被前一幅不相邻的三角形干扰', () => {
+  const roof = recognizeStroke(loop([{ x: 420, y: 30 }, { x: 500, y: 150 }, { x: 340, y: 150 }]));
+  const corners = [{ x: 40, y: 40 }, { x: 220, y: 40 }, { x: 220, y: 150 }, { x: 40, y: 150 }];
+  const shape = recognizeStrokeWithSegments(line(corners[2], corners[3]), [
+    { tool: 'line', start: corners[0], end: corners[1] },
+    { tool: 'line', start: corners[1], end: corners[2] },
+    ...getShapeSnapSegments(roof),
+  ]);
+  assert.equal(shape?.tool, 'rect');
+  assert.equal(shape?.mergedSegments.length, 2);
+  assert.equal(shape?.sharedSegments.length, 0);
+});
+
+
+test('任意起笔点的闭合三角形仍识别为三角形', () => {
+  const original = loop([{ x: 110, y: 20 }, { x: 190, y: 140 }, { x: 30, y: 140 }]);
+  const start = original.findIndex(point => point.x === 110 && point.y === 80);
+  const rotated = original.slice(start, -1).concat(original.slice(0, start));
+  rotated.push(rotated[0]);
+  assert.equal(recognizeStroke(rotated)?.tool, 'triangle');
+});
+
+test('整理后的三角形和方框暴露可复用边但不要求撤销原图', () => {
+  const triangle = recognizeStroke(loop([{ x: 110, y: 20 }, { x: 190, y: 140 }, { x: 30, y: 140 }]));
+  const rect = recognizeStroke(loop([{ x: 30, y: 160 }, { x: 190, y: 160 }, { x: 190, y: 280 }, { x: 30, y: 280 }]));
+  assert.equal(getShapeSnapSegments(triangle).length, 3);
+  assert.equal(getShapeSnapSegments(rect).length, 4);
+  assert.ok(getShapeSnapSegments(triangle).every(segment => segment.reusable));
+});
+
+test('三角形底边可以作为共享边补出房子方框，原三角形不在撤销列表', () => {
+  const roof = recognizeStroke(loop([{ x: 130, y: 40 }, { x: 220, y: 150 }, { x: 40, y: 150 }]));
+  const base = getShapeSnapSegments(roof).find(segment => Math.abs(segment.start.y - 150) < 1 && Math.abs(segment.end.y - 150) < 1);
+  const corners = [{ x: 40, y: 150 }, { x: 220, y: 150 }, { x: 220, y: 280 }, { x: 40, y: 280 }];
+  const shape = recognizeStrokeWithSegments(line(corners[2], corners[1]), [
+    { tool: 'line', start: corners[3], end: corners[2] },
+    { tool: 'line', start: corners[0], end: corners[3] },
+    base,
+  ]);
+  assert.equal(shape?.tool, 'rect');
+  assert.equal(shape?.mergedSegments.length, 2);
+  assert.equal(shape?.sharedSegments.length, 1);
+  assert.equal(shape?.sharedSegments[0], base);
+});
+
+test('采样点很少的快速直线也能整理，采样不足的短线保持原样', () => {
+  assert.equal(recognizeStroke([{ x: 30, y: 30 }, { x: 180, y: 30 }])?.tool, 'line');
+  assert.equal(recognizeStroke([{ x: 30, y: 30 }, { x: 38, y: 30 }]), null);
 });

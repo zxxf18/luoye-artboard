@@ -12,7 +12,15 @@ try{
   if(['polygon','bezier'].includes(option.value)){for(const [x,y] of [[.2,.2],[.65,.2],[.65,.65],[.2,.65]]){send('pointerdown',x,y);send('pointerup',x,y);}canvas.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));}else stroke();
   await idle();check(picture()!==before,'几何实际作画 '+option.value);$('undo').click();await idle();check(picture()===before,'几何撤销 '+option.value);
  }
- tool('fill');for(const option of [...$('fill-mode').options]){$('fill-mode').value=option.value;$('fill-mode').dispatchEvent(new Event('change'));const before=picture();stroke();await idle();check(picture()!==before,'油漆桶实际填色 '+option.value);$('undo').click();await idle();}
+ tool('fill');for(const option of [...$('fill-mode').options]){$('fill-mode').value=option.value;$('fill-mode').dispatchEvent(new Event('change'));const before=picture();let undoCount=1;
+  if(option.value==='closed'){
+   // The safe closed-fill mode intentionally rejects an open stroke. Create a
+   // real closed outline and click inside it so this acceptance case verifies
+   // the intended feature instead of expecting an unsafe whole-page fill.
+   tool('pen');$('geometry').value='rect';$('geometry').dispatchEvent(new Event('change'));stroke();await idle();const outlined=picture();
+   tool('fill');$('fill-mode').value='closed';$('fill-mode').dispatchEvent(new Event('change'));send('pointerdown',.45,.45);send('pointerup',.45,.45);await idle();check(picture()!==outlined,'油漆桶实际填色 closed');undoCount=2;
+  }else{stroke();await idle();}
+  check(picture()!==before,'油漆桶实际填色 '+option.value);for(let i=0;i<undoCount;i++){$('undo').click();await idle();}}
  tool('pen');document.querySelector('[data-brush="tube"]').click();stroke();await idle();
  $('select-all').click();await idle();$('copy').click();await idle();const count=window.LUOYEPerformance().layers;$('paste').click();await idle();check(window.LUOYEPerformance().layers===count+1,'圈选复制粘贴');$('undo').click();$('select-none').click();await idle();
  for(const kind of ['ifs','mandel','julia','norton']){

@@ -37,6 +37,25 @@ function piece(id, { x = 120, y = 140, width = 80, height = 60, scale = 1, rotat
   return { id, x, y, width, height, scale, rotation, opacity, paperId, pattern, path: [{ x: .05, y: .05 }, { x: .95, y: .05 }, { x: .95, y: .95 }, { x: .05, y: .95 }] };
 }
 
+test('piece rasters center their local path before clipping', () => {
+  const renderer = new CollageRenderer({ width: 512, height: 512, createCanvas: fakeCanvas });
+  renderer.render(fakeCanvas(512, 512), [piece('one', { width: 80, height: 60 })], { showSelection: false });
+  const rasterContext = renderer.rasterCache.values().next().value.canvas.context;
+  const translateIndex = rasterContext.ops.findIndex(op => op[0] === 'translate');
+  const clipIndex = rasterContext.ops.findIndex(op => op[0] === 'clip');
+  assert.ok(translateIndex >= 0, 'the raster path must be moved into the canvas');
+  assert.ok(translateIndex < clipIndex, 'the path transform must happen before clipping');
+  assert.deepEqual(rasterContext.ops[translateIndex].slice(1), [40, 30]);
+});
+
+test('texture tiles center their pattern so the whole tile is painted', () => {
+  const renderer = new CollageRenderer({ width: 512, height: 512, createCanvas: fakeCanvas });
+  renderer.render(fakeCanvas(512, 512), [piece('one', { pattern: 'dots' })], { showSelection: false });
+  const textureContext = renderer.textureCache.values().next().value.canvas.context;
+  const translate = textureContext.ops.find(op => op[0] === 'translate');
+  assert.deepEqual(translate?.slice(1), [48, 48]);
+});
+
 test('toCanvas returns a transparent flattened canvas at the requested size', () => {
   const renderer = new CollageRenderer({ width: 512, height: 512, createCanvas: fakeCanvas });
   const output = renderer.toCanvas([piece('one', { rotation: 35, opacity: .55 }), piece('two', { x: 360, y: 340, paperId: 'sky', pattern: 'waves' })], { width: 1024, height: 768 });

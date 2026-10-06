@@ -49,6 +49,7 @@ Object.assign(art,{
 });
 Object.assign(art,{
  pixel:'<rect x="9" y="9" width="17" height="17" rx="2" fill="#e7b167"/><rect x="31" y="9" width="17" height="17" rx="2" fill="#78b889"/><rect x="9" y="31" width="17" height="17" rx="2" fill="#7ca5d0"/><rect x="31" y="31" width="17" height="17" rx="2" fill="#ed8a75"/><path d="M15 57h38" stroke="#705142" stroke-width="5"/>',
+ games:'<path d="M12 19h44v32H12z" fill="#d8e7cf"/><path d="M20 27h28v16H20z" fill="#fff4d6"/><circle cx="28" cy="35" r="3" fill="#d9715f"/><circle cx="40" cy="35" r="3" fill="#7694b9"/><path d="M24 47h24M32 27v16" stroke="#b9593e" stroke-width="3" stroke-dasharray="3 4"/>',
  'mirror-x':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M32 9v44M10 29h14m-7-7 7 7-7 7m37-7H40m7-7-7 7 7 7" fill="none"/>',
  'mirror-y':'<rect x="12" y="15" width="40" height="28" rx="5" fill="#b7d0ba"/><path d="M9 29h46M32 9v14m-7-7 7 7 7-7m-7 37V39m-7 7 7-7 7 7" fill="none"/>',
  wave:'<path d="M7 39q9-15 18 0t18 0 18 0" fill="none" stroke="#5db7c5" stroke-width="6"/><path d="M9 51q8-11 16 0t16 0 16 0" fill="none" stroke="#9ddde1" stroke-width="4"/><circle cx="49" cy="17" r="9" fill="#ffd77d"/>',

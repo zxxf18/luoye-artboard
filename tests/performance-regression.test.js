@@ -2,6 +2,7 @@ import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { DrawingEngine } from '../src/drawing.js';
 import { History } from '../src/core.js';
+import { readFileSync } from 'node:fs';
 
 /*
  * These tests deliberately use a small canvas shim instead of a browser.  The
@@ -146,6 +147,17 @@ test('scratch history records new tile keys without iterating the full dirty set
   value.redo(); assert.ok(existing.size > 5000);
 });
 
+test('thick scratch strokes coalesce redundant pointer samples', () => {
+  const value = makeEngine(512, 512), calls = [];
+  value.prepareScratchCard();
+  value.segment = (start, end) => calls.push({ start, end });
+  value.begin({ x: 40, y: 40 }, penOptions({ tool: 'scratch', size: 240 }));
+  for (let i = 1; i <= 12; i++) value.update({ x: 40 + i * 8, y: 40 });
+  value.end();
+  assert.ok(calls.length > 0, 'the thick brush still paints a continuous gesture');
+  assert.ok(calls.length < 12, `redundant thick-brush samples were not coalesced: ${calls.length}`);
+});
+
 test('history budget evicts old snapshots while preserving undo/redo correctness', () => {
   const history = new History(4 * 1024 * 1024), state = { value: 0 };
   for (let i = 0; i < 80; i++) {
@@ -156,4 +168,37 @@ test('history budget evicts old snapshots while preserving undo/redo correctness
   assert.ok(history.pastBytes <= history.budget);
   assert.ok(history.past.length < 80, 'old snapshots are evicted instead of growing without bound');
   const before = state.value; history.undo(); assert.equal(state.value, before - 1); history.redo(); assert.equal(state.value, before);
+});
+
+test('picker samples one pixel and does not repaint a full temporary canvas', () => {
+  const app = readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+  const engine = readFileSync(new URL('../src/engine.js', import.meta.url), 'utf8');
+  const picker = app.match(/if \(tool === 'picker'\) \{([\s\S]*?)\n  \}/)?.[1];
+  assert.ok(picker, 'picker handler should remain easy to inspect');
+  assert.match(picker, /engine\.sampleColor\(\{ x, y \}\)/);
+  assert.doesNotMatch(picker, /makeCanvas\(engine\.width,engine\.height\)/);
+  assert.match(engine, /sampleColor\(point\)/);
+  assert.match(engine, /this\.hitContext/);
+});
+
+test('hidden documents stop animation wakeups and visible documents resume them', () => {
+  const engine = readFileSync(new URL('../src/engine.js', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+  assert.match(engine, /document\.visibilityState !== 'hidden'/);
+  assert.match(app, /document\.addEventListener\('visibilitychange'/);
+  assert.match(app, /engine\.ensureAnimationTimer\(\)/);
+});
+
+test('autosave coalesces revisions instead of encoding overlapping projects', () => {
+  const app = readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+  assert.match(app, /draftSaveRunning=false, draftSavePending=false/);
+  assert.match(app, /while \(draftSavePending\)/);
+  assert.match(app, /if \(draftSaveRunning\) return/);
+  assert.match(app, /if \(draftSavePending\) continue/);
+});
+
+test('context menus remain available outside the drawing surface', () => {
+  const app = readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+  assert.match(app, /\$\('painting'\)\.addEventListener\('contextmenu'/);
+  assert.doesNotMatch(app, /document\.addEventListener\('contextmenu'/);
 });

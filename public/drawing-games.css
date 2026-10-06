@@ -1,0 +1,481 @@
+/* 点点画与迷宫涂画
+   The game sheet is intentionally self-contained: the drawing canvas stays in
+   the centre while every control remains in ordinary flow below it. This keeps
+   a short WebView from covering the canvas with an overlaid toolbar. */
+.drawing-games-dialog,
+.playroom .drawing-games-dialog {
+  --games-surface: var(--theme-surface, #fffaf0);
+  --games-control: var(--theme-control, #fff9e9);
+  --games-panel: var(--theme-panel, #fff1d4);
+  --games-border: var(--theme-border, #e8c69c);
+  --games-accent: var(--theme-accent, #b9593e);
+  --games-selected: var(--theme-selected, #ffdb97);
+  --games-ink: var(--theme-strong, var(--ink, #603f32));
+  --games-backdrop: var(--theme-shadow, #65493466);
+  box-sizing: border-box;
+  width: min(1040px, calc(100% - 28px));
+  max-width: 1040px;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: clamp(14px, 2vw, 24px);
+  overflow: auto;
+  color: var(--games-ink);
+  background: var(--games-surface);
+  border: 2px solid var(--games-border);
+  border-radius: 20px;
+  box-shadow: 0 10px 28px var(--theme-shadow, #89583c33);
+}
+
+.drawing-games-dialog::backdrop {
+  background: var(--games-backdrop);
+  backdrop-filter: blur(3px);
+}
+
+.games-form {
+  display: grid;
+  gap: clamp(8px, 1.4vw, 14px);
+  min-width: 0;
+}
+
+.games-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.games-heading h2 {
+  min-width: 0;
+  margin: 0;
+  color: var(--games-accent);
+  font-size: clamp(18px, 2.1vw, 26px);
+  line-height: 1.2;
+}
+
+.games-heading > div,
+.games-card-label,
+.games-color-custom,
+.games-width {
+  min-width: 0;
+}
+
+.games-heading p {
+  margin: 3px 0 0;
+  color: var(--muted, #8d6e50);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.games-heading button,
+.games-toolbar button,
+.games-tools button,
+.games-actions button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 7px 11px;
+  color: var(--games-ink);
+  background: var(--games-control);
+  border: 2px solid var(--games-border);
+  border-radius: 11px;
+  box-shadow: 0 2px 0 var(--theme-shadow, #89583c33);
+  font-size: clamp(12px, 1.3vw, 15px);
+  line-height: 1.2;
+}
+
+.games-heading button:hover,
+.games-toolbar button:hover,
+.games-tools button:hover,
+.games-actions button:hover {
+  background: var(--theme-hover, var(--games-selected));
+}
+
+.games-heading button:focus-visible,
+.games-toolbar button:focus-visible,
+.games-tools button:focus-visible,
+.games-actions button:focus-visible,
+.games-tools input:focus-visible,
+.games-toolbar select:focus-visible {
+  outline: 3px solid var(--games-accent);
+  outline-offset: 2px;
+}
+
+.games-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px;
+  overflow-x: auto;
+  background: var(--games-panel);
+  border: 1px solid var(--games-border);
+  border-radius: 13px;
+  scrollbar-width: thin;
+}
+
+.games-modes,
+.games-pen-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.games-card-label,
+.games-color-custom,
+.games-width {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--games-ink);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.games-toolbar > * {
+  flex: 0 0 auto;
+}
+
+.games-toolbar [data-game-mode][aria-pressed="true"] {
+  color: var(--games-ink);
+  background: var(--games-selected);
+  border-color: var(--games-accent);
+}
+
+.games-toolbar select {
+  min-width: min(220px, 42vw);
+  min-height: 36px;
+  padding: 6px 10px;
+  color: var(--games-ink);
+  background: var(--games-control);
+  border: 2px solid var(--games-border);
+  border-radius: 10px;
+  font-size: clamp(12px, 1.3vw, 15px);
+}
+
+.games-card-label select {
+  width: auto;
+  min-width: 130px;
+  max-width: 220px;
+}
+
+.games-workspace {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 7px;
+  min-width: 0;
+}
+
+.games-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: min(58vh, 560px);
+  height: min(58dvh, 560px);
+  min-height: 190px;
+  padding: clamp(6px, 1vw, 12px);
+  overflow: hidden;
+  background: repeating-conic-gradient(var(--games-control) 0 25%, var(--games-surface) 0 50%) 50% / 22px 22px;
+  border: 2px solid var(--games-border);
+  border-radius: 16px;
+}
+
+/* The canvas owns the 10:7 ratio. It is never stretched to fit a short
+   viewport: when height is tight it shrinks and remains centred instead. */
+.games-stage canvas#game-canvas {
+  display: block;
+  width: min(100%, 800px, calc((min(58vh, 560px) - 28px) * 10 / 7));
+  width: min(100%, 800px, calc((min(58dvh, 560px) - 28px) * 10 / 7));
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 10 / 7;
+  object-fit: contain;
+  background: var(--theme-canvas, #fff);
+  border-radius: 7px;
+  touch-action: none;
+}
+
+.games-status {
+  min-height: 20px;
+  padding: 1px 4px;
+  overflow: hidden;
+  color: var(--muted, #8d6e50);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.games-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px;
+  overflow-x: auto;
+  background: var(--games-panel);
+  border: 1px solid var(--games-border);
+  border-radius: 13px;
+  scrollbar-width: thin;
+}
+
+.games-tools > * {
+  flex: 0 0 auto;
+}
+
+.games-tools #game-colors {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 52%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.games-tools #game-colors [data-game-color] {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 3px solid var(--games-surface);
+  border-radius: 50%;
+  background: var(--game-color, var(--games-selected));
+  box-shadow: 0 0 0 1px var(--games-border);
+}
+
+.games-tools #game-colors [data-game-color][aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--games-accent), 0 0 0 4px var(--games-surface);
+}
+
+.games-tools #game-color {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 2px;
+  border: 2px solid var(--games-border);
+  border-radius: 9px;
+  background: var(--games-control);
+}
+
+.games-color-custom input {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 2px;
+  border: 2px solid var(--games-border);
+  border-radius: 9px;
+  background: var(--games-control);
+}
+
+.games-tools .games-width {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.games-tools #game-width {
+  width: clamp(90px, 14vw, 180px);
+  min-width: 90px;
+  min-height: 28px;
+  accent-color: var(--games-accent);
+}
+
+.games-tools [data-game-tool][aria-pressed="true"] {
+  background: var(--games-selected);
+  border-color: var(--games-accent);
+}
+
+.games-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.games-actions button {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.games-actions #game-place {
+  color: var(--games-surface);
+  background: var(--games-accent);
+  border-color: var(--games-accent);
+}
+
+.games-actions #game-place:hover {
+  filter: brightness(.95);
+}
+
+@media (min-width: 720px) and (min-height: 520px) {
+  .games-stage {
+    min-height: 280px;
+  }
+}
+
+/* 320×240 and other short WebViews: compact the shell and let the dialog
+   scroll as one unit. Nothing is positioned over the canvas. */
+@media (max-width: 600px), (max-height: 500px) {
+  .drawing-games-dialog,
+  .playroom .drawing-games-dialog {
+    width: calc(100% - 8px);
+    max-height: calc(100vh - 8px);
+    max-height: calc(100dvh - 8px);
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .games-form {
+    gap: 5px;
+  }
+
+  .games-heading h2 {
+    font-size: 17px;
+  }
+
+  .games-heading p {
+    display: none;
+  }
+
+  .games-heading button,
+  .games-toolbar button,
+  .games-tools button,
+  .games-actions button {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px 7px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .games-toolbar {
+    gap: 5px;
+    padding: 4px;
+    border-radius: 9px;
+  }
+
+  .games-toolbar select {
+    min-width: 112px;
+    min-height: 28px;
+    padding: 3px 6px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+
+  .games-card-label select {
+    min-width: 92px;
+    max-width: 118px;
+  }
+
+  .games-stage {
+    height: min(55vh, 200px);
+    height: min(55dvh, 200px);
+    min-height: 78px;
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .games-stage canvas#game-canvas {
+    width: min(100%, 800px, calc((min(55vh, 200px) - 12px) * 10 / 7));
+    width: min(100%, 800px, calc((min(55dvh, 200px) - 12px) * 10 / 7));
+    height: auto;
+    max-width: 100%;
+  }
+
+  .games-status {
+    min-height: 16px;
+    font-size: 10px;
+  }
+
+  .games-tools {
+    gap: 5px;
+    padding: 4px;
+    border-radius: 9px;
+  }
+
+  .games-tools #game-colors {
+    max-width: 44%;
+    gap: 3px;
+  }
+
+  .games-tools #game-colors [data-game-color] {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-width: 2px;
+  }
+
+  .games-tools #game-color {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-radius: 7px;
+  }
+
+  .games-color-custom input {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-radius: 7px;
+  }
+
+  .games-tools .games-width {
+    min-height: 28px;
+    font-size: 10px;
+  }
+
+  .games-tools #game-width {
+    width: 74px;
+    min-width: 74px;
+    min-height: 28px;
+  }
+
+  .games-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .games-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .games-actions #game-place {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 300px) {
+  .games-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .games-actions #game-place {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawing-games-dialog *,
+  .playroom .drawing-games-dialog * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

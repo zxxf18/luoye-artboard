@@ -174,6 +174,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
       if(height>0)dock.style.setProperty('--library-reserved-height',`${height}px`);
     }else if(!open&&dock)dock.style.removeProperty('--library-reserved-height');
     document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);
+    // The wide shelf hides the parameter strip while the gallery is open.
+    // Move the pager beside the asset cards too, otherwise collections with
+    // more than one page would leave later materials unreachable on desktop.
+    syncMobileShelfControls(open?'library':'focus');
   }
   new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);if(open&&libraryGroups.children.length)title.textContent=document.body.dataset.librarySurface==='fairy'?'我的魔法袋':'找一找图案';else if(!open)sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
   el('mode-library').onclick=()=>{const opening=!document.body.classList.contains('library-open')||document.body.dataset.librarySurface==='fairy';if(opening)document.dispatchEvent(new Event('opengallery'));openLibrary(opening);};el('mode-board').addEventListener('click',()=>openLibrary(false));
@@ -188,7 +192,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   // actions used during a drawing session in the strip and move infrequent
   // actions into the existing 设置 sheet. This avoids a second horizontal
   // scroll target while preserving the same button nodes and event handlers.
-  const foldedToolbarIds = ['reset-settings','open','export','gallery','music-open','shape-snap-open'];
+  const foldedToolbarIds = ['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
   const toolbarPrimaryIds = ['new-quick','undo','redo','save','theme-open','more-open'];
   const toolbarOrder = new Map();
   let toolbarSyncFrame = 0;
@@ -230,10 +234,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     // Restore a stable, child-friendly order after dynamic modules insert
     // their buttons. About remains the final action in 设置 by design.
     if (!folded) {
-      const order = ['new-quick','undo','redo','save','theme-open','open','export','gallery','reset-settings','shape-snap-open','music-open','more-open'];
+      const order = ['new-quick','undo','redo','save','theme-open','open','export','gallery','reset-settings','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open','music-open','more-open'];
       reorderIfNeeded(header, order);
     } else {
-      const order = ['reset-settings','open','export','gallery','music-open','shape-snap-open'];
+      const order = ['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
       reorderIfNeeded(actions, order);
     }
     // The about entry is deliberately the final action in 设置. Dynamic

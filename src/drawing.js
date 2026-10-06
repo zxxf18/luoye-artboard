@@ -325,18 +325,28 @@ export class DrawingEngine extends EditorEngine {
   paint(ctx,guides=false){
     const line=this.gesture;
     if(guides&&line?.kind==='brush-line'){
-      const c=line.previewCanvas??=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d'),copies=this.assistPairs(line.start,line.end,line.options,line.layer),bounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height,copies),sourceBounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height),preview={layer:line.layer,options:{...line.options}};
-      if(!line.previewStroke||line.previewStroke.width!==bounds.width||line.previewStroke.height!==bounds.height)line.previewStroke=makeCanvas(bounds.width,bounds.height);
-      const stroke=line.previewStroke;target.clearRect(0,0,c.width,c.height);const strokeContext=stroke.getContext('2d');strokeContext.setTransform(1,0,0,1,0,0);strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,stroke.width,stroke.height);
-      target.drawImage(line.layer.canvas,0,0);
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
-      strokeContext.save();strokeContext.translate(-bounds.x,-bounds.y);
-      for (const { transformIndex } of copies) {
-        this.drawAssistSegment(strokeContext, preview, line.start, line.end, texture, paper, sourceBounds, transformIndex);
+      const copies=this.assistPairs(line.start,line.end,line.options,line.layer),preview={layer:line.layer,options:{...line.options}};
+      // A line preview is transient. Draw it directly on one preallocated
+      // full-layer surface when there is no selection mask, so every pointer
+      // move reuses the same canvas instead of reallocating a stroke-sized
+      // surface as the drag bounds change. Selection previews still use the
+      // bounded mask path below because their pixels must stay isolated from
+      // the existing artwork.
+      const c=line.previewCanvas??=makeCanvas(line.layer.width,line.layer.height),target=c.getContext('2d');
+      target.setTransform(1,0,0,1,0,0);target.globalCompositeOperation='source-over';target.globalAlpha=1;target.clearRect(0,0,c.width,c.height);target.drawImage(line.layer.canvas,0,0);
+      if(this.selectionCanvas){
+        const bounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height,copies),sourceBounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height);
+        if(!line.previewStroke||line.previewStroke.width!==bounds.width||line.previewStroke.height!==bounds.height)line.previewStroke=makeCanvas(bounds.width,bounds.height);
+        const stroke=line.previewStroke,strokeContext=stroke.getContext('2d');
+        strokeContext.setTransform(1,0,0,1,0,0);strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,stroke.width,stroke.height);strokeContext.save();strokeContext.translate(-bounds.x,-bounds.y);
+        for(const {transformIndex} of copies)this.drawAssistSegment(strokeContext,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex);
+        strokeContext.restore();const mask=line.previewMask??=this.selectionInLayer(line.layer);strokeContext.globalCompositeOperation='destination-in';strokeContext.drawImage(mask,-bounds.x,-bounds.y);strokeContext.globalCompositeOperation='source-over';target.drawImage(stroke,bounds.x,bounds.y);line.previewBounds=bounds;
+      }else{
+        const sourceBounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height);
+        for(const {transformIndex} of copies)this.drawAssistSegment(target,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex);
       }
-      strokeContext.restore();
-      if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);strokeContext.globalCompositeOperation='destination-in';strokeContext.drawImage(mask,-bounds.x,-bounds.y);strokeContext.globalCompositeOperation='source-over';}
-      target.drawImage(stroke,bounds.x,bounds.y);line.previewBounds=bounds;this.strokePreview={...line.layer,canvas:c};
+      this.strokePreview={...line.layer,canvas:c};
     }
     try{super.paint(ctx,guides);}finally{this.strokePreview=null;}if(!guides)return;
     this.drawAssistGuides(ctx);
@@ -412,7 +422,13 @@ export class DrawingEngine extends EditorEngine {
     if(options.tool==='warp'){this.assertRaster();const local=toLayerPoint(point,this.active);this.gesture={kind:'warp',layer:this.active,options,last:local,tiles:new Map()};if(options.warpKind==='zoom')this.warpDab(local);return;}
     if(options.tool==='board-filter'){if(!this.paperMode)this.assertRaster();const local=this.paperMode?point:toLayerPoint(point,this.active);this.applyBoardFilter(options.filterKind||'ripple',{...options,x:local.x,y:local.y,radius:(options.radius||120)/(this.paperMode?1:this.active.scale)});return;}
     if((options.tool==='pen'&&options.strokeMode==='line')||(options.tool==='eraser'&&options.eraserMode==='rect')){
-      this.assertRaster();const local=toLayerPoint(point,this.active);this.gesture={kind:options.tool==='pen'?'brush-line':'erase-rect',layer:this.active,options,start:local,end:local,tiles:new Map()};return;
+      this.assertRaster();const local=toLayerPoint(point,this.active);this.gesture={kind:options.tool==='pen'?'brush-line':'erase-rect',layer:this.active,options,start:local,end:local,tiles:new Map()};
+      // Allocate the line preview before pointer moves begin. The preview is
+      // reused for the entire drag; allocating it lazily in paint() made each
+      // first move pay a canvas allocation and caused repeated bounded buffers
+      // while the endpoint changed.
+      if(this.gesture.kind==='brush-line')this.gesture.previewCanvas=makeCanvas(this.active.width,this.active.height);
+      return;
     }
     if(options.tool==='stamp'&&this.fairyGroups&&this.fairyMode==='dynamic'){this.gesture={kind:'fairy-dynamic',options,start:point,end:point,last:point,stampIndex:0,travel:0,beforeLayers:this.layers.slice(),beforeActive:this.activeId};this.dynamicDab(point);return;}
     if(['stamp','clone'].includes(options.tool)){

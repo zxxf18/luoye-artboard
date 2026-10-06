@@ -23,7 +23,8 @@ import { DEFAULT_BRUSH_SIZE } from './brushes.js';
 import { mountAnimationEditor } from './animation-editor.js';
 import { mountPixelEditor } from './pixel-art.js';
 import { mountCollageEditor } from './collage-ui.js';
-import { mountShapeSnap, recognizeStrokeWithSegments } from './shape-snap.js';
+import { mountDrawingGames } from './drawing-games-ui.js';
+import { getShapeSnapSegments, mountShapeSnap, recognizeStrokeWithSegments } from './shape-snap.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -31,11 +32,11 @@ const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', scratch:
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', scratch: '先画好秘密，再刮开银色表面看看', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
-let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
+let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve(), draftSaveRunning=false, draftSavePending=false;
 let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = false, revision = 0, theme, shapeSnap;
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
-let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint, snapPoints = [], snapOptions = null;
+let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint, canvasRect, snapPoints = [], snapOptions = null;
 // Keep only the geometric gestures that can safely participate in the next
 // recognition pass. The history index prevents an old line from being joined
 // after unrelated edits have been made.
@@ -137,20 +138,38 @@ function changed() {
   revision++; renderLayers(); layoutCanvas(); $('canvas-size').textContent = `${engine.width} × ${engine.height}`;
   if (!ready) return;
   $('save-state').textContent = '正在保留这份想象…'; clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {draftInFlight=(async () => {
-    const savingRevision = revision;
-    try {
-      const project = await engine.serialize($('title').value.trim() || '我的画');
-      if(savingRevision!==revision)return;
-      await writeDraft(project, { revision: savingRevision });
-      if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
-    } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
-  })();}, 900);
+  saveTimer = setTimeout(() => {
+    draftSavePending = true;
+    if (draftSaveRunning) return;
+    draftSaveRunning = true;
+    draftInFlight = (async () => {
+      // Serialize at most one project at a time. On large canvases an
+      // overlapping autosave can otherwise encode two full PNG snapshots and
+      // briefly double the memory pressure while the child is drawing.
+      while (draftSavePending) {
+        draftSavePending = false;
+        const savingRevision = revision;
+        try {
+          const project = await engine.serialize($('title').value.trim() || '我的画');
+          if (savingRevision !== revision) {
+            // If the debounce timer fired while this snapshot was encoding,
+            // consume the pending request immediately. Otherwise the timer
+            // created by changed() is still waiting and should preserve the
+            // normal quiet-period debounce.
+            if (draftSavePending) continue;
+            return;
+          }
+          await writeDraft(project, { revision: savingRevision });
+          if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
+        } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
+      }
+    })().finally(() => { draftSaveRunning = false; });
+  }, 900);
 }
 let libraryCategory='background',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'background',collection:'',page:0};
 function libraryPageSize(){const width=document.querySelector('.studio')?.clientWidth||600;return Math.max(3,Math.floor((width-24)/Math.max(110,Math.min(184,innerWidth*.075))));}
-const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外','bg-indoor-play':'室内','bg-sports-pool':'健身','bg-school':'学校','vehicles':'交通工具','road-signs':'交通标志',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
+const collectionNames={'bg-space':'太空','bg-countryside':'田园','bg-underwater':'海底','bg-city':'城市','bg-farm':'农场','bg-forest':'森林','bg-rivers':'河湖','bg-ocean':'海洋','bg-animals':'动物','bg-weather':'天气','bg-road':'道路','bg-mall':'商场','bg-outdoor-play':'室外','bg-indoor-play':'室内','bg-sports-pool':'健身','bg-school':'学校','vehicles':'交通工具','road-signs':'交通标志','everyday-watercolor':'日常·水彩','everyday-oil':'日常·油画','everyday-pencil':'日常·铅笔画','everyday-sticker':'日常·贴纸',frame:'相框',paper:'纸样',texture:'纹理',role0:'动物',role1:'海洋动物',role2:'飞鸟',role3:'植物',role4:'人物',role5:'物品',role6:'工具',anim0:'陆地动物',anim1:'海洋动物',anim2:'飞鸟',anim3:'人物',anim4:'物品与天气'};
 function chooseCategory(category,collection='',page=0) {
   libraryCategory=category;libraryCollection=collection;libraryPage=page;
   if(category!=='fairy')galleryLocation={category,collection,page};
@@ -221,7 +240,9 @@ for (const [category, name] of Object.entries({ background: '彩色背景', stic
   const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',coloring:'pen',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
-engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('background');
+engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast;
+document.addEventListener('visibilitychange', () => { engine.ensureAnimationTimer(); if (document.visibilityState !== 'hidden') engine.render(); });
+changed(); setTool('pen'); setColor(color); chooseCategory('background');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
@@ -246,7 +267,8 @@ const animationEditor = mountAnimationEditor({
   getSecondaryColor: () => $('background-color')?.value || '#ffffff',
 });
 const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
-const collageEditor = mountCollageEditor({ engine, run, toast });
+const collageEditor = mountCollageEditor({ engine, run, toast, setTool });
+const drawingGames = mountDrawingGames({ engine, run, toast });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 shapeSnap=mountShapeSnap({toast});
@@ -304,7 +326,10 @@ $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
   if(/\.fly$/i.test(file.name)){const image=decodeLegacyFly(await file.arrayBuffer());await gallery.backup();engine.reset(image.width,image.height);engine.active.canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);$('title').value=file.name.replace(/\.fly$/i,'');changed();toast('已作为单张图片导入；旧图层与记录不在此兼容范围内');return;}
-  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); recognizedShapes=[]; $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
+  let data;
+  try { data = JSON.parse(await file.text()); }
+  catch { toast('无法打开这个文件，请选择落叶画板的 .luoyex 工程或旧版 .fly 文件。'); return; }
+  await gallery.backup();engine.end(); recognizedShapes=[]; $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
@@ -316,12 +341,12 @@ $('image-input').onchange = event => run(async () => {
 });
 $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
-  event.preventDefault(); $('painting').focus({ preventScroll: true }); const point = engine.point(event);
+  event.preventDefault(); $('painting').focus({ preventScroll: true }); canvasRect = $('painting').getBoundingClientRect(); const point = engine.point(event, canvasRect);
   if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
   if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options(),...assist.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
     const x = Math.max(0, Math.min(engine.width - 1, Math.floor(point.x))), y = Math.max(0, Math.min(engine.height - 1, Math.floor(point.y)));
-    const composite=makeCanvas(engine.width,engine.height);engine.paint(composite.getContext('2d'));const pixel = composite.getContext('2d').getImageData(x, y, 1, 1).data;
+    const pixel = engine.sampleColor({ x, y });
     const picked='#'+[...pixel.slice(0,3)].map(n=>n.toString(16).padStart(2,'0')).join('');if(event.ctrlKey){$('background-color').value=picked;$('background-color').dispatchEvent(new Event('input'));}else setColor(picked);setTool('pen');return;
   }
   if (tool === 'text') { styledText.open(point); return; }
@@ -343,7 +368,7 @@ $('painting').addEventListener('pointerdown', event => {
 });
 $('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
 // Keep drawing gestures, but suppress the embedded browser's reload menu.
-document.addEventListener('contextmenu',event=>event.preventDefault());
+$('painting').addEventListener('contextmenu',event=>event.preventDefault());
 function previewStamp(point) {
   hoverPoint=point;
   const previousPreview=engine.stampPreview;
@@ -359,10 +384,14 @@ function previewStamp(point) {
 }
 $('size').addEventListener('input',()=>previewStamp(hoverPoint));
 $('painting').addEventListener('pointermove', event => {
-  // Coalesced touch samples share one layout rectangle. Reading it once per
-  // pointer event avoids repeated getBoundingClientRect calls on tablets.
-  const rect=$('painting').getBoundingClientRect(),point=engine.point(event,rect);previewStamp(point);
-  if (event.pointerId !== pointerId) return;
+  // Coalesced touch samples share one layout rectangle. Reuse the rectangle
+  // captured at pointerdown during a stroke, and skip layout reads entirely
+  // for ordinary hover when no stamp preview is visible.
+  const drawing = event.pointerId === pointerId;
+  if (!drawing && tool !== 'stamp') return;
+  const rect = canvasRect || $('painting').getBoundingClientRect(), point = engine.point(event, rect);
+  if (tool === 'stamp' || drawing) previewStamp(point);
+  if (!drawing) return;
   const samples=event.getCoalescedEvents?.();
   for(const sample of samples?.length?samples:[event]){const next=engine.point(sample,rect);if(snapOptions)snapPoints.push(next);engine.update(next);}
 });
@@ -375,11 +404,11 @@ function finishPointer(event) {
   // The freehand stroke is committed first so the child sees immediate ink.
   // When recognition is confident, replace that one history entry with the
   // corresponding geometric gesture. Low-confidence strokes remain untouched.
-  if(!cancel&&options&&points.length>=8){
+  if(!cancel&&options&&points.length>=2){
     const currentHistoryIndex=engine.history.past.length-1;
-    const byHistory=new Map(recognizedShapes.filter(item=>item.tool==='line'&&item.layerId===engine.activeId).map(item=>[item.historyIndex,item]));
+    const byHistory=new Map(recognizedShapes.filter(item=>item.layerId===engine.activeId).map(item=>[item.historyIndex,item]));
     const mergeable=[];
-    for(let historyIndex=currentHistoryIndex-1;historyIndex>=0&&mergeable.length<3;historyIndex--){const item=byHistory.get(historyIndex);if(!item)break;mergeable.unshift(item);}
+    for(let historyIndex=currentHistoryIndex-1;historyIndex>=0&&mergeable.length<8;historyIndex--){const item=byHistory.get(historyIndex);if(!item)break;mergeable.unshift(...getShapeSnapSegments(item));}
     const shape=recognizeStrokeWithSegments(points,mergeable);
     if(shape){
       const historyBeforeUndo=engine.history.past.length;
@@ -393,17 +422,18 @@ function finishPointer(event) {
           // carried into the replacement gesture.
           const geometryOptions={tool:shape.tool,color:options.color,size:options.size,opacity:options.opacity,filled:false,dashed:false};
           engine.begin(shape.start,geometryOptions);engine.update(shape.end);engine.end();
-          recognizedShapes=recognizedShapes.filter(item=>!(shape.mergedSegments||[]).includes(item));
+          const merged=shape.mergedSegments||[];
+          recognizedShapes=recognizedShapes.filter(item=>!merged.includes(item));
           recognizedShapes.push({...shape,historyIndex:engine.history.past.length-1,layerId:engine.activeId});
           toast(shape.mergedSegments?.length?`已把这几笔合成${shape.label}`:`已整理成${shape.label}`);
         } catch(error){ for(let index=0;index<undone;index++)engine.redo?.(); toast(error.message||'一笔成形没有完成'); }
       } else for(let index=0;index<undone;index++)engine.redo?.();
     }
   }
-  pointerId=undefined;snapPoints=[];snapOptions=null;
+  pointerId=undefined;canvasRect=undefined;snapPoints=[];snapOptions=null;
 }
 $('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
-window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;snapPoints=[];snapOptions=null;previewStamp(null);});
+window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;canvasRect=undefined;snapPoints=[];snapOptions=null;previewStamp(null);});
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
