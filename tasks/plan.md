@@ -33,7 +33,7 @@ Improve one-stroke shape recognition so a new gesture can complete a shape that 
 
 - [x] Focused tests and full test suite pass.
 - [x] Windows build succeeds with version 1.10.5.
-- [ ] Working tree is clean after the intended commit.
+- [x] Working tree is clean after the intended commit.
 
 ## Risks and Mitigations
 
