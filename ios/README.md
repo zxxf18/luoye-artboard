@@ -24,7 +24,7 @@ Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arg
 
 ```sh
 CONFIGURATION=Debug npm run build:ios
-xcrun simctl install booted build/releases/v1.10.4/落叶画板-iphonesimulator.app
+xcrun simctl install booted build/releases/v1.10.5/落叶画板-iphonesimulator.app
 xcrun simctl launch booted cn.com.yebuluo.luoyeartboard \
   -LUOYE_SMOKE_SCRIPT native-child-journey.js \
   -LUOYE_SMOKE_OUTPUT child \
