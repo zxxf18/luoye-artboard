@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { pathLength, recognizeStroke } from '../src/shape-snap.js';
+import { combineStrokeWithSegments, pathLength, recognizeStroke, recognizeStrokeWithSegments } from '../src/shape-snap.js';
 
 function line(a, b, count = 16) {
   return Array.from({ length: count }, (_, index) => {
@@ -64,4 +64,34 @@ test('一笔成形对短笔迹和自由线条保持原样', () => {
 
 test('路径长度按点序计算', () => {
   assert.equal(pathLength([{ x: 0, y: 0 }, { x: 3, y: 4 }, { x: 6, y: 4 }]), 8);
+});
+
+test('已有线段可以作为新矩形的闭合边参与识别', () => {
+  const corners = [{ x: 30, y: 25 }, { x: 190, y: 25 }, { x: 190, y: 130 }, { x: 30, y: 130 }];
+  const threeSides = [];
+  for (let index = 0; index < 3; index++) threeSides.push(...line(corners[index], corners[index + 1], 10).slice(index ? 1 : 0));
+  const existing = { tool: 'line', start: corners[3], end: corners[0] };
+  const candidates = combineStrokeWithSegments(threeSides, [existing]);
+  assert.equal(candidates.length, 1);
+  assert.equal(recognizeStrokeWithSegments(threeSides, [existing])?.tool, 'rect');
+  assert.equal(recognizeStrokeWithSegments(threeSides, [existing])?.mergedSegments[0], existing);
+});
+
+test('已有线段端点距离过远时不会强行拼接', () => {
+  const threeSides = [...line({ x: 30, y: 25 }, { x: 190, y: 25 }), ...line({ x: 190, y: 25 }, { x: 190, y: 130 }).slice(1), ...line({ x: 190, y: 130 }, { x: 30, y: 130 }).slice(1)];
+  assert.equal(combineStrokeWithSegments(threeSides, [{ start: { x: 30, y: 360 }, end: { x: 190, y: 360 } }]).length, 0);
+  assert.equal(recognizeStrokeWithSegments(threeSides, [{ start: { x: 30, y: 360 }, end: { x: 190, y: 360 } }]), null);
+});
+
+test('连续画出的四条边也能合成一个矩形', () => {
+  const corners = [{ x: 30, y: 25 }, { x: 190, y: 25 }, { x: 190, y: 130 }, { x: 30, y: 130 }];
+  const current = line(corners[0], corners[1]);
+  const recent = [
+    { tool: 'line', start: corners[1], end: corners[2] },
+    { tool: 'line', start: corners[2], end: corners[3] },
+    { tool: 'line', start: corners[3], end: corners[0] },
+  ];
+  const shape = recognizeStrokeWithSegments(current, recent);
+  assert.equal(shape?.tool, 'rect');
+  assert.equal(shape.mergedSegments.length, 3);
 });

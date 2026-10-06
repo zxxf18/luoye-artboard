@@ -125,6 +125,56 @@ function result(tool, box, confidence, start, end, label) {
   return { tool, start, end, bounds: box, confidence, label };
 }
 
+function segmentEndpoints(segment) {
+  if (!segment || !segment.start || !segment.end) return null;
+  const start = { x: Number(segment.start.x), y: Number(segment.start.y) };
+  const end = { x: Number(segment.end.x), y: Number(segment.end.y) };
+  if (![start.x, start.y, end.x, end.y].every(Number.isFinite)) return null;
+  return { start, end };
+}
+
+/**
+ * Join the current gesture to recent line segments. The search follows
+ * touching endpoints in both directions, so four separate strokes can form a
+ * rectangle just like one continuous stroke. The result is still passed
+ * through the conservative recognizer below before anything is replaced.
+ */
+export function combineStrokeWithSegments(input, segments, { maxGap = .12 } = {}) {
+  const points = cleanPoints(input);
+  if (points.length < SHAPE_SNAP_MIN_POINTS || !Array.isArray(segments)) return [];
+  const box = bounds(points), scale = Math.max(1, box.size);
+  const gap = Math.max(8, scale * maxGap), candidates = [], seen = new Set(), maxSegments = Math.min(3, segments.length);
+  const usable = segments.map((segment, index) => ({ index, segment, endpoints: segmentEndpoints(segment) })).filter(item => item.endpoints);
+  const visit = (path, remaining, used) => {
+    if (used.length && distance(path.at(-1), path[0]) <= gap) {
+      const key = used.map(item => item.index).sort((a, b) => a - b).join(',');
+      if (seen.has(key)) return;
+      seen.add(key);
+      const closed = path.slice();
+      if (distance(closed.at(-1), closed[0]) > 1) closed.push({ ...closed[0] });
+      candidates.push({ points: closed, segments: used.map(item => item.segment), segment: used[0].segment });
+      return;
+    }
+    if (used.length >= maxSegments) return;
+    for (let index = 0; index < remaining.length; index++) {
+      const item = remaining[index], { start, end } = item.endpoints;
+      for (const oriented of [[start, end], [end, start]]) {
+        if (distance(path.at(-1), oriented[0]) > gap) continue;
+        const nextPath = path.slice();
+        if (distance(nextPath.at(-1), oriented[0]) > 1) nextPath.push({ ...oriented[0] });
+        nextPath.push({ ...oriented[1] });
+        visit(nextPath, remaining.filter((_, other) => other !== index), used.concat(item));
+      }
+    }
+  };
+  // Trying both directions covers a user who starts at either end of the
+  // unfinished shape. A reversed path keeps the point order meaningful for
+  // the corner simplifier.
+  visit(points, usable, []);
+  visit(points.slice().reverse(), usable, []);
+  return candidates;
+}
+
 /**
  * Recognize a single freehand stroke. Returns a shape descriptor or null.
  * Supported tools map directly to DrawingEngine geometry: line, ellipse,
@@ -165,6 +215,17 @@ export function recognizeStroke(input, { minSize = 24, minConfidence = .72 } = {
   if (star >= minConfidence) {
     return result('star', box, star, { x: box.left, y: box.top }, { x: box.right, y: box.bottom }, '星星');
   }
+  return null;
+}
+
+/** Recognise a gesture that may be completed by one or more recent segments. */
+export function recognizeStrokeWithSegments(input, segments, options = {}) {
+  for (const candidate of combineStrokeWithSegments(input, segments, options)) {
+    const shape = recognizeStroke(candidate.points, options);
+    if (shape && shape.tool !== 'line') return { ...shape, mergedSegments: candidate.segments };
+  }
+  const direct = recognizeStroke(input, options);
+  if (direct) return direct;
   return null;
 }
 

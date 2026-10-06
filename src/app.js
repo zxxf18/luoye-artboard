@@ -23,7 +23,7 @@ import { DEFAULT_BRUSH_SIZE } from './brushes.js';
 import { mountAnimationEditor } from './animation-editor.js';
 import { mountPixelEditor } from './pixel-art.js';
 import { mountCollageEditor } from './collage-ui.js';
-import { mountShapeSnap, recognizeStroke } from './shape-snap.js';
+import { mountShapeSnap, recognizeStrokeWithSegments } from './shape-snap.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -36,6 +36,10 @@ let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = fal
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint, snapPoints = [], snapOptions = null;
+// Keep only the geometric gestures that can safely participate in the next
+// recognition pass. The history index prevents an old line from being joined
+// after unrelated edits have been made.
+let recognizedShapes = [];
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
@@ -264,7 +268,7 @@ $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
 $('opacity').oninput = () => { $('opacity-value').textContent = `${$('opacity').value}%`; };
 $('title').onchange = changed;
-bind('undo', () => engine.undo()); bind('redo', () => engine.redo());
+bind('undo', () => { recognizedShapes = []; engine.undo(); }); bind('redo', () => { recognizedShapes = []; engine.redo(); });
 bind('add-layer', () => engine.addLayer(`画笔图层 ${engine.layers.length + 1}`));
 bind('delete-layer', () => engine.removeActive()); bind('layer-up', () => engine.reorder(1)); bind('layer-down', () => engine.reorder(-1));
 bind('rotate', () => engine.setProperty(engine.active, 'rotation', (engine.active.rotation + 15) % 360));
@@ -278,7 +282,7 @@ bind('fit', () => { zoom = 1; layoutCanvas(); });
 async function newBlank(width=engine.width,height=engine.height){
   clearInterval(stampTimer);pointerId=undefined;engine.end();
   await gallery.backup();
-  engine.reset(width,height);zoom=1;selectedAssetId='';selectedFairyAsset=null;
+  engine.reset(width,height);recognizedShapes=[];zoom=1;selectedAssetId='';selectedFairyAsset=null;
   $('title').value=DEFAULT_TITLE;setTool('pen');$('mode-board').click();
   changed();toast('已新建空白画纸，旧作已保留在画夹');
 }
@@ -300,7 +304,7 @@ $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
   if(/\.fly$/i.test(file.name)){const image=decodeLegacyFly(await file.arrayBuffer());await gallery.backup();engine.reset(image.width,image.height);engine.active.canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);$('title').value=file.name.replace(/\.fly$/i,'');changed();toast('已作为单张图片导入；旧图层与记录不在此兼容范围内');return;}
-  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
+  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); recognizedShapes=[]; $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
@@ -372,18 +376,28 @@ function finishPointer(event) {
   // When recognition is confident, replace that one history entry with the
   // corresponding geometric gesture. Low-confidence strokes remain untouched.
   if(!cancel&&options&&points.length>=8){
-    const shape=recognizeStroke(points);
+    const currentHistoryIndex=engine.history.past.length-1;
+    const byHistory=new Map(recognizedShapes.filter(item=>item.tool==='line'&&item.layerId===engine.activeId).map(item=>[item.historyIndex,item]));
+    const mergeable=[];
+    for(let historyIndex=currentHistoryIndex-1;historyIndex>=0&&mergeable.length<3;historyIndex--){const item=byHistory.get(historyIndex);if(!item)break;mergeable.unshift(item);}
+    const shape=recognizeStrokeWithSegments(points,mergeable);
     if(shape){
       const historyBeforeUndo=engine.history.past.length;
-      engine.undo();
-      if(engine.history.past.length<historyBeforeUndo)try {
-        // Recreate a deliberately small geometry option set. The freehand
-        // brush options include material and assist state that should not be
-        // carried into the replacement gesture.
-        const geometryOptions={tool:shape.tool,color:options.color,size:options.size,opacity:options.opacity,filled:false,dashed:false};
-        engine.begin(shape.start,geometryOptions);engine.update(shape.end);engine.end();toast(`已整理成${shape.label}`);
-      }
-      catch(error){ engine.redo?.(); toast(error.message||'一笔成形没有完成'); }
+      const undoCount=1+(shape.mergedSegments?.length||0);
+      for(let index=0;index<undoCount;index++)engine.undo();
+      const undone=historyBeforeUndo-engine.history.past.length;
+      if(undone===undoCount){
+        try {
+          // Recreate a deliberately small geometry option set. The freehand
+          // brush options include material and assist state that should not be
+          // carried into the replacement gesture.
+          const geometryOptions={tool:shape.tool,color:options.color,size:options.size,opacity:options.opacity,filled:false,dashed:false};
+          engine.begin(shape.start,geometryOptions);engine.update(shape.end);engine.end();
+          recognizedShapes=recognizedShapes.filter(item=>!(shape.mergedSegments||[]).includes(item));
+          recognizedShapes.push({...shape,historyIndex:engine.history.past.length-1,layerId:engine.activeId});
+          toast(shape.mergedSegments?.length?`已把这几笔合成${shape.label}`:`已整理成${shape.label}`);
+        } catch(error){ for(let index=0;index<undone;index++)engine.redo?.(); toast(error.message||'一笔成形没有完成'); }
+      } else for(let index=0;index<undone;index++)engine.redo?.();
     }
   }
   pointerId=undefined;snapPoints=[];snapOptions=null;
@@ -395,8 +409,8 @@ document.addEventListener('keydown', event => {
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
   if (event.key === 'Escape') { clearInterval(stampTimer); previewStamp(null); engine.finishPath(true);engine.end(true); pointerId = undefined; snapPoints=[]; snapOptions=null; return; }
   if (event.metaKey || event.ctrlKey) {
-    if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? engine.redo() : engine.undo(); }
-    if (event.key.toLowerCase() === 'y') { event.preventDefault(); engine.redo(); }
+    if (event.key.toLowerCase() === 'z') { event.preventDefault(); recognizedShapes=[]; event.shiftKey ? engine.redo() : engine.undo(); }
+    if (event.key.toLowerCase() === 'y') { event.preventDefault(); recognizedShapes=[]; engine.redo(); }
     if (event.key.toLowerCase() === 's') { event.preventDefault(); $('save').click(); }
     if (event.key.toLowerCase() === 'o') { event.preventDefault(); $('open').click(); }
   }
