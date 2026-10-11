@@ -175,7 +175,8 @@ export class DrawingEngine extends EditorEngine {
       x: Number.isFinite(config.centerX) ? config.centerX : this.width / 2,
       y: Number.isFinite(config.centerY) ? config.centerY : this.height / 2,
     };
-    const geometry={ config, center: this.paperMode ? world : toLayerPoint(world, layer), transforms: assistTransformDescriptors(config) };
+    const center = this.paperMode ? world : toLayerPoint(world, layer);
+    const geometry={ config, center, transforms: assistTransformDescriptors(config, center) };
     cache.set(options,{assist,layer,width:this.width,height:this.height,paperMode:!!this.paperMode,geometry});
     return geometry;
   }
@@ -190,6 +191,11 @@ export class DrawingEngine extends EditorEngine {
   }
   applyAssistTransform(ctx, geometry, copyIndex) {
     if (!geometry) return;
+    const descriptor = geometry.transforms?.[copyIndex];
+    if (descriptor?.a !== undefined && typeof ctx.transform === 'function') {
+      ctx.transform(descriptor.a, descriptor.b, descriptor.c, descriptor.d, descriptor.e, descriptor.f);
+      return;
+    }
     const { config, center } = geometry;
     ctx.translate(center.x, center.y);
     if (config.mode === 'radial') ctx.rotate(Math.PI * 2 * copyIndex / config.axes);
@@ -202,7 +208,7 @@ export class DrawingEngine extends EditorEngine {
     }
     ctx.translate(-center.x, -center.y);
   }
-  drawAssistSegment(ctx, gesture, start, end, texture, paper, bounds, transformIndex = 0) {
+  drawAssistSegment(ctx, gesture, start, end, texture, paper, bounds, transformIndex = 0, gradientStops = null) {
     const geometry = this.assistGeometry(gesture.options, gesture.layer);
     if (!gesture.gradientOrigin && gesture.start) gesture.gradientOrigin = { x: gesture.start.x, y: gesture.start.y };
     if (!geometry) {
@@ -212,7 +218,7 @@ export class DrawingEngine extends EditorEngine {
       return;
     }
     const states = gesture.assistStates ??= [];
-    const gradientStops = prepareGradientStops(gesture, start, end);
+    gradientStops ||= prepareGradientStops(gesture, start, end);
     const state = states[transformIndex] ?? (states[transformIndex] = {});
     // Keep one copy object per assisted transform. Pointer events can arrive
     // dozens of times per frame; rebuilding the whole gesture object for each
@@ -329,6 +335,7 @@ export class DrawingEngine extends EditorEngine {
     if(guides&&line?.kind==='brush-line'){
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
       const copies=this.assistPairs(line.start,line.end,line.options,line.layer),preview={layer:line.layer,options:{...line.options}};
+      const previewGradientStops=prepareGradientStops(preview,line.start,line.end);
       // A line preview is transient. Draw it directly on one preallocated
       // full-layer surface when there is no selection mask, so every pointer
       // move reuses the same canvas instead of reallocating a stroke-sized
@@ -342,11 +349,11 @@ export class DrawingEngine extends EditorEngine {
         if(!line.previewStroke||line.previewStroke.width!==bounds.width||line.previewStroke.height!==bounds.height)line.previewStroke=makeCanvas(bounds.width,bounds.height);
         const stroke=line.previewStroke,strokeContext=stroke.getContext('2d');
         strokeContext.setTransform(1,0,0,1,0,0);strokeContext.globalCompositeOperation='source-over';strokeContext.clearRect(0,0,stroke.width,stroke.height);strokeContext.save();strokeContext.translate(-bounds.x,-bounds.y);
-        for(const {transformIndex} of copies)this.drawAssistSegment(strokeContext,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex);
+        for(const {transformIndex} of copies)this.drawAssistSegment(strokeContext,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex,previewGradientStops);
         strokeContext.restore();const mask=line.previewMask??=this.selectionInLayer(line.layer);strokeContext.globalCompositeOperation='destination-in';strokeContext.drawImage(mask,-bounds.x,-bounds.y);strokeContext.globalCompositeOperation='source-over';target.drawImage(stroke,bounds.x,bounds.y);line.previewBounds=bounds;
       }else{
         const sourceBounds=previewBoundsForLine(line.start,line.end,line.options.size,line.layer.scale,c.width,c.height);
-        for(const {transformIndex} of copies)this.drawAssistSegment(target,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex);
+        for(const {transformIndex} of copies)this.drawAssistSegment(target,preview,line.start,line.end,texture,paper,sourceBounds,transformIndex,previewGradientStops);
       }
       this.strokePreview={...line.layer,canvas:c};
     }
@@ -458,14 +465,31 @@ export class DrawingEngine extends EditorEngine {
     const steps=Math.max(1,Math.ceil(distance/Math.max(1,maxSpan)));
     for(let part=0;part<steps;part++){
       const from=part/steps,to=(part+1)/steps,startPoint={x:a.x+(b.x-a.x)*from,y:a.y+(b.y-a.y)*from},endPoint={x:a.x+(b.x-a.x)*to,y:a.y+(b.y-a.y)*to};
-      // assistPairs receives the untransformed source segment and the draw
-      // helper applies the selected transform exactly once.
-      for(const { start, end, transformIndex } of this.assistPairs(startPoint,endPoint,g.options,g.layer)){
-        const bounds={x:Math.min(start.x,end.x)-pad,y:Math.min(start.y,end.y)-pad,width:Math.abs(end.x-start.x)+pad*2,height:Math.abs(end.y-start.y)+pad*2};
-        const sourceBounds={x:Math.min(startPoint.x,endPoint.x)-pad,y:Math.min(startPoint.y,endPoint.y)-pad,width:Math.abs(endPoint.x-startPoint.x)+pad*2,height:Math.abs(endPoint.y-startPoint.y)+pad*2};
+      const sourceBounds={x:Math.min(startPoint.x,endPoint.x)-pad,y:Math.min(startPoint.y,endPoint.y)-pad,width:Math.abs(endPoint.x-startPoint.x)+pad*2,height:Math.abs(endPoint.y-startPoint.y)+pad*2};
+      const gradientStops=prepareGradientStops(g,startPoint,endPoint);
+      const copies=this.assistPairs(startPoint,endPoint,g.options,g.layer);
+      if(copies.length===1){
+        const { start, end, transformIndex }=copies[0],bounds={x:Math.min(start.x,end.x)-pad,y:Math.min(start.y,end.y)-pad,width:Math.abs(end.x-start.x)+pad*2,height:Math.abs(end.y-start.y)+pad*2};
         this.captureTiles(g.layer,bounds,g.tiles);
-        this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex);
+        this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex,gradientStops);
         maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+        continue;
+      }
+      const copyBounds=[]; let unionMinX=Infinity,unionMinY=Infinity,unionMaxX=-Infinity,unionMaxY=-Infinity;
+      // assistPairs receives the untransformed source segment and the draw
+      // helper applies the selected transform exactly once. Keep each copy's
+      // bounds separate so distant radial copies do not trigger a union-sized
+      // readback; the gesture tile map still deduplicates overlapping tiles.
+      for(const { start, end, transformIndex } of copies){
+        const minX=Math.min(start.x,end.x)-pad,minY=Math.min(start.y,end.y)-pad,maxX=Math.max(start.x,end.x)+pad,maxY=Math.max(start.y,end.y)+pad;
+        copyBounds.push({x:minX,y:minY,width:maxX-minX,height:maxY-minY});
+        unionMinX=Math.min(unionMinX,minX);unionMinY=Math.min(unionMinY,minY);unionMaxX=Math.max(unionMaxX,maxX);unionMaxY=Math.max(unionMaxY,maxY);
+      }
+      if(copies.length){
+        const bounds={x:unionMinX,y:unionMinY,width:unionMaxX-unionMinX,height:unionMaxY-unionMinY};
+        this.captureTilesMany(g.layer,copyBounds,g.tiles);
+        maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+        for(const { transformIndex } of copies) this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex,gradientStops);
       }
     }
     if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();

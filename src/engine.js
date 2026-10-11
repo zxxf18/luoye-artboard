@@ -424,6 +424,24 @@ export class PaintEngine {
       tiles.set(key, { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) });
     }
   }
+  captureTilesMany(layer, boundsList, tiles) {
+    if (boundsList.length === 1) { this.captureTiles(layer, boundsList[0], tiles); return; }
+    const context = layer.canvas.getContext('2d'), size = 128, pending = [], seen = new Set();
+    for (const bounds of boundsList) {
+      if (!bounds || bounds.width <= 0 || bounds.height <= 0) continue;
+      const minX = Math.max(0, Math.floor(bounds.x / size)), minY = Math.max(0, Math.floor(bounds.y / size));
+      const maxX = Math.min(Math.ceil(layer.width / size) - 1, Math.floor((bounds.x + bounds.width) / size));
+      const maxY = Math.min(Math.ceil(layer.height / size) - 1, Math.floor((bounds.y + bounds.height) / size));
+      for (let y = minY; y <= maxY; y++) for (let x = minX; x <= maxX; x++) {
+        const key = `${x}:${y}`; if (tiles.has(key) || seen.has(key)) continue;
+        seen.add(key); pending.push({ key, x, y });
+      }
+    }
+    for (const { key, x, y } of pending) {
+      const left = x * size, top = y * size;
+      tiles.set(key, { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) });
+    }
+  }
   recordPixels(layer, tiles) {
     if (!tiles.size) return;
     const context = layer.canvas.getContext('2d'); let bytes = 0;
@@ -444,8 +462,10 @@ export class PaintEngine {
     if (!layer?.visible) throw new Error('先显示当前图层，或选择另一个图层。');
     if ((layer.frames?.length || layer.sprites) && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
     const local = toLayerPoint(point, layer);
-    this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
+    const gesture = { layer, options: { ...options }, start: local, last: local, end: local,
       origin: point, x: layer.x, y: layer.y, tiles: new Map(), engineMetrics: this.metrics };
+    gesture.coalesceDistance = this.strokeCoalesceDistance(gesture);
+    this.gesture = gesture;
     if (['pen', 'eraser', 'scratch'].includes(options.tool)) this.segment(local, local);
     if (options.tool === 'fill') {
       const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height);
@@ -461,12 +481,29 @@ export class PaintEngine {
   }
   strokeCoalesceDistance(gesture) {
     const options = gesture?.options;
-    if (!options || options.tool !== 'pen' || !['rainbow', 'duotone'].includes(options.brush)) return 0;
-    // A thick gradient brush already covers this footprint. Coalescing nearby
-    // samples keeps the stroke continuous while avoiding one full 16-way
-    // raster pass for every high-frequency pointer event.
+    if (!options || options.tool !== 'pen' || options.brushVersion !== 2) return 0;
+    // A wide brush covers a small neighbourhood around every sample. Keep
+    // the source path at that visual resolution instead of sending every
+    // high-frequency pointer sample through all assisted copies. Dabs and
+    // gradients get a slightly larger tolerance because their own spacing
+    // already fills the skipped interval; line-like brushes use a smaller
+    // tolerance to retain their contour.
+    const factor = {
+      rainbow: .28, duotone: .28,
+      spray: .32, watercolor: .32, crayon: .34, chalk: .34, effect: .32,
+      pencil: .18, brush: .18, marker: .18, tube: .18,
+    }[options.brush];
+    if (!factor) return 0;
+    const gradient = options.brush === 'rainbow' || options.brush === 'duotone';
+    const assist = options.assist;
+    const highFanout = assist?.enabled === true && assist.mode === 'radial' && Number(assist.axes) >= 8;
+    // Gradient brushes already had this path because their colour stops are
+    // expensive even without symmetry. Other brush textures only coalesce
+    // when a high-fanout assist would multiply the same work eight or more
+    // times; ordinary single-copy strokes keep their original sample density.
+    if (!gradient && !highFanout) return 0;
     const width = Math.max(1, Number(options.size || 0) / Math.max(.01, Number(gesture.layer?.scale) || 1));
-    return Math.max(2, Math.min(72, width * .28));
+    return Math.max(2, Math.min(72, width * factor));
   }
   segment(a, b) {
     const { layer, options: o, tiles } = this.gesture;
@@ -504,7 +541,7 @@ export class PaintEngine {
       // tiles and schedules a frame, which is noticeable on large tablets.
       if (g.last && local.x === g.last.x && local.y === g.last.y) return;
       g.end = local;
-      const coalesceDistance = this.strokeCoalesceDistance(g);
+      const coalesceDistance = g.coalesceDistance ?? this.strokeCoalesceDistance(g);
       if (coalesceDistance && g.last) {
         const now = performance.now();
         // Never hold ink for more than one frame. This keeps a slow finger or
@@ -536,6 +573,23 @@ export class PaintEngine {
           if (!g.pending) g.pendingAt = now;
           g.pending = local;
           return;
+        }
+        // The current sample crossed the coalescing radius. Commit the held
+        // point only when it represents a real turn. A smooth gradient path
+        // can skip that intermediate point; submitting it would split one
+        // visually equivalent segment into two expensive gradient passes.
+        if (g.pending) {
+          const pending = g.pending;
+          const ax = pending.x - g.last.x, ay = pending.y - g.last.y;
+          const bx = local.x - pending.x, by = local.y - pending.y;
+          const firstLength = Math.hypot(ax, ay), secondLength = Math.hypot(bx, by);
+          const sharpTurn = firstLength > 0 && secondLength > 0 && (ax * bx + ay * by) < firstLength * secondLength * .55;
+          g.pending = null;
+          g.pendingAt = 0;
+          if (sharpTurn) {
+            this.segment(g.last, pending);
+            g.last = pending;
+          }
         }
       }
       // A thick scratch brush already covers a wide footprint. Coalescing

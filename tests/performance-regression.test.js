@@ -121,6 +121,57 @@ test('sixteen-way rainbow strokes calculate each gradient stop once per source s
   assert.equal(value.active.canvas.context.stats.gradients, (segments - 1) * 16, 'each transformed segment keeps its own CanvasGradient');
 });
 
+test('wide dab brushes coalesce dense pointer samples without losing the endpoint', () => {
+  for (const brush of ['spray', 'watercolor', 'crayon', 'chalk', 'effect']) {
+    const value = makeEngine(512, 512), calls = [];
+    value.segment = (start, end) => calls.push({ start, end });
+    value.begin({ x: 40, y: 40 }, penOptions({ brush, size: 240, assist: { enabled: true, mode: 'radial', axes: 16, centerX: 256, centerY: 256 } }));
+    for (let i = 1; i <= 12; i++) value.update({ x: 40 + i * 8, y: 40 });
+    value.end();
+    assert.ok(calls.length < 12, `${brush} 的密集采样没有合并：${calls.length}`);
+    assert.equal(calls.at(-1).end.x, 136, `${brush} 没有保留最终端点`);
+  }
+});
+
+test('wide dab coalescing commits a sharp turn before holding the next sample', () => {
+  const value = makeEngine(512, 512), calls = [];
+  value.segment = (start, end) => calls.push({ start, end });
+  value.begin({ x: 40, y: 40 }, penOptions({ brush: 'crayon', size: 240, assist: { enabled: true, mode: 'radial', axes: 16, centerX: 256, centerY: 256 } }));
+  value.update({ x: 48, y: 40 });
+  value.update({ x: 56, y: 40 });
+  value.update({ x: 56, y: 48 });
+  value.end();
+  assert.equal(calls.length, 3, '粗笔刷转弯时仍然保留转向点和最终端点');
+  assert.deepEqual(calls.slice(1).map(call => call.end), [{ x: 56, y: 40 }, { x: 56, y: 48 }]);
+});
+
+test('ordinary wide dab strokes keep their original sample density without assist fanout', () => {
+  const value = makeEngine(512, 512), calls = [];
+  value.segment = (start, end) => calls.push({ start, end });
+  value.begin({ x: 40, y: 40 }, penOptions({ brush: 'crayon', size: 240 }));
+  for (let i = 1; i <= 12; i++) value.update({ x: 40 + i * 8, y: 40 });
+  value.end();
+  assert.equal(calls.length, 13, '普通单副本笔划不改变已有采样密度');
+});
+
+test('radial assist batches disjoint tile capture without expanding the undo area', () => {
+  const value = makeEngine(1920, 1080), original = value.captureTilesMany.bind(value), batches = [];
+  value.captureTilesMany = (layer, bounds, tiles) => { batches.push(bounds.length); return original(layer, bounds, tiles); };
+  value.begin({ x: 220, y: 240 }, penOptions({ brush: 'rainbow', size: 24, assist: { enabled: true, mode: 'radial', axes: 16, centerX: 960, centerY: 540 } }));
+  value.update({ x: 310, y: 264 });
+  value.end();
+  assert.deepEqual(batches, [16, 16], '每个源笔划只批量收集一次，且保留分散的副本范围');
+  assert.equal(value.history.past.length, 1);
+  assert.ok(value.history.past[0].bytes < 1920 * 1080 * 8, '分散副本不会退化为整张画布历史快照');
+});
+
+test('captureTilesMany keeps separated bounds separate instead of reading their union', () => {
+  const value = makeEngine(512, 512), tiles = new Map(), before = value.active.canvas.context.stats.reads;
+  value.captureTilesMany(value.active, [{ x: 4, y: 4, width: 8, height: 8 }, { x: 260, y: 260, width: 8, height: 8 }], tiles);
+  assert.deepEqual([...tiles.keys()], ['0:0', '2:2']);
+  assert.equal(value.active.canvas.context.stats.reads - before, 2);
+});
+
 test('large 1920×1080 projects keep layer capacity bounded before edits', () => {
   const value = makeEngine();
   for (let i = 0; i < 20; i++) value.addLayer(`图层 ${i}`, fakeCanvas(value.width, value.height), false);

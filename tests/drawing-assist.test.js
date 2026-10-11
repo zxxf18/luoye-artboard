@@ -16,6 +16,7 @@ function makeSpyCanvas(width, height) {
     translate(x, y) { state.x = x; state.y = y; calls.push({ type: 'translate', x, y }); },
     scale(x, y) { state.scaleX *= x; state.scaleY *= y; calls.push({ type: 'scale', x, y }); },
     rotate(angle) { state.angle += angle; calls.push({ type: 'rotate', angle }); },
+    transform(a, b, c, d, e, f) { calls.push({ type: 'transform', a, b, c, d, e, f }); },
     drawImage(...args) { calls.push({ type: 'drawImage', args, transform: { ...state } }); },
     clearRect() {},
     setTransform() {},
@@ -121,4 +122,17 @@ test('assist geometry maps world center through a transformed layer before paint
   engine.active.y = 40;
   const geometry = engine.assistGeometry(engine.gesture.options, engine.active);
   assert.deepEqual(geometry.center, { x: 55, y: 40 });
+});
+
+test('supported canvas contexts receive one affine assist transform per copy', () => {
+  const radial = makeStampEngine({ enabled: true, mode: 'radial', axes: 4, centerX: 50, centerY: 40, stamp: true });
+  const geometry = radial.engine.assistGeometry(radial.engine.gesture.options, radial.layer);
+  radial.layer.ctx.calls.length = 0;
+  radial.engine.applyAssistTransform(radial.layer.ctx, geometry, 1);
+  assert.equal(radial.layer.ctx.calls.length, 1);
+  const call = radial.layer.ctx.calls[0];
+  assert.equal(call.type, 'transform');
+  for (const [key, expected] of Object.entries({ a: 0, b: 1, c: -1, d: 0, e: 90, f: -10 })) {
+    assert.ok(Math.abs(call[key] - expected) < 1e-9, `${key} preserves the original rotation`);
+  }
 });

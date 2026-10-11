@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assistCopies, assistGuideLines, assistPointSets, assistSegments, assistSegmentCopies, normalizeAssistConfig } from '../src/assist.js';
+import { assistCopies, assistGuideLines, assistPointSets, assistSegments, assistSegmentCopies, assistTransformDescriptors, normalizeAssistConfig } from '../src/assist.js';
 
 const center = { x: 50, y: 40 };
 
@@ -76,6 +76,35 @@ test('radial guides are centered on the configured point and span the full canva
     assert.ok(Math.abs((line.start.x + line.end.x) / 2 - 20) < 0.0001);
     assert.ok(Math.abs((line.start.y + line.end.y) / 2 - 30) < 0.0001);
     assert.ok(Math.hypot(line.end.x - line.start.x, line.end.y - line.start.y) > 200);
+  }
+});
+
+test('assist geometry exposes affine transforms for one-call canvas application', () => {
+  const radial = assistTransformDescriptors({ enabled: true, mode: 'radial', axes: 4 }, center);
+  assert.deepEqual(radial[0], { cos: 1, sin: 0, a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 });
+  assert.ok(Math.abs(radial[1].a) < 0.0001 && Math.abs(radial[1].b - 1) < 0.0001);
+  assert.ok(Math.abs(radial[1].c + 1) < 0.0001 && Math.abs(radial[1].d) < 0.0001);
+  assert.equal(radial[1].e, 90);
+  assert.ok(Math.abs(radial[1].f + 10) < 1e-9);
+  const vertical = assistTransformDescriptors({ enabled: true, mode: 'vertical' }, center);
+  assert.deepEqual(vertical[1], { flipX: true, flipY: false, a: -1, b: 0, c: 0, d: 1, e: 100, f: 0 });
+});
+
+test('radial affine matrices match the original rotation for arbitrary points', () => {
+  const origin = { x: 317.25, y: 142.5 }, point = { x: 481.75, y: -38.25 };
+  const descriptors = assistTransformDescriptors({ enabled: true, mode: 'radial', axes: 16 }, origin);
+  for (const descriptor of descriptors) {
+    const matrixPoint = {
+      x: descriptor.a * point.x + descriptor.c * point.y + descriptor.e,
+      y: descriptor.b * point.x + descriptor.d * point.y + descriptor.f,
+    };
+    const dx = point.x - origin.x, dy = point.y - origin.y;
+    const expected = {
+      x: origin.x + dx * descriptor.cos - dy * descriptor.sin,
+      y: origin.y + dx * descriptor.sin + dy * descriptor.cos,
+    };
+    assert.ok(Math.abs(matrixPoint.x - expected.x) < 1e-9);
+    assert.ok(Math.abs(matrixPoint.y - expected.y) < 1e-9);
   }
 });
 

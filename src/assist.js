@@ -19,22 +19,30 @@ function addUnique(points, point) {
   if (!points.some(existing => samePoint(existing, point))) points.push(point);
 }
 
-function transformDescriptors(options) {
-  if (options.mode === 'vertical') return [{ flipX: false, flipY: false }, { flipX: true, flipY: false }];
-  if (options.mode === 'horizontal') return [{ flipX: false, flipY: false }, { flipX: false, flipY: true }];
-  if (options.mode === 'four') return [
+function transformDescriptors(options, center = null) {
+  let descriptors;
+  if (options.mode === 'vertical') descriptors = [{ flipX: false, flipY: false }, { flipX: true, flipY: false }];
+  else if (options.mode === 'horizontal') descriptors = [{ flipX: false, flipY: false }, { flipX: false, flipY: true }];
+  else if (options.mode === 'four') descriptors = [
     { flipX: false, flipY: false }, { flipX: true, flipY: false },
     { flipX: false, flipY: true }, { flipX: true, flipY: true },
   ];
-  if (options.mode === 'radial') return Array.from({ length: options.axes }, (_, index) => {
+  else if (options.mode === 'radial') descriptors = Array.from({ length: options.axes }, (_, index) => {
     const angle = Math.PI * 2 * index / options.axes;
     return { cos: Math.cos(angle), sin: Math.sin(angle) };
   });
-  return [{ flipX: false, flipY: false }];
+  else descriptors = [{ flipX: false, flipY: false }];
+  if (!center) return descriptors;
+  return descriptors.map(descriptor => {
+    const a = descriptor.cos ?? (descriptor.flipX ? -1 : 1), b = descriptor.sin ?? 0;
+    const isRadial = descriptor.cos !== undefined;
+    const c = isRadial ? (-descriptor.sin || 0) : 0, d = isRadial ? descriptor.cos : (descriptor.flipY ? -1 : 1);
+    return { ...descriptor, a, b, c, d, e: center.x - a * center.x - c * center.y, f: center.y - b * center.x - d * center.y };
+  });
 }
 
-export function assistTransformDescriptors(config = {}) {
-  return transformDescriptors(normalizeAssistConfig(config));
+export function assistTransformDescriptors(config = {}, center = null) {
+  return transformDescriptors(normalizeAssistConfig(config), center);
 }
 
 function transformPoint(point, origin, descriptor) {
