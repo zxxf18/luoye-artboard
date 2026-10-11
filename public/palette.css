@@ -1,0 +1,211 @@
+/* Compact colour controls. The colour station is shared by the brush and text
+   tools, so keep it readable without allowing a small options sheet to be
+   consumed by one oversized swatch row. Loaded after the workbench sheets so
+   these constraints are stable across themes and WebView breakpoints. */
+.playroom .primary-brush-options #paint-color-open {
+  flex: 0 1 150px;
+  width: min(150px, 100%);
+  max-width: 150px;
+  min-height: 32px;
+  height: 32px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+.playroom .primary-brush-options #paint-color-open i {
+  width: 18px;
+  height: 18px;
+}
+.playroom #palette-dialog .preset-color {
+  min-height: 48px;
+  padding: 5px;
+  gap: 5px;
+}
+.playroom #palette-dialog .preset-color i {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 860px), (max-height: 600px) {
+  /* A quick palette is a colour shortcut, not a second toolbar. */
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette {
+    flex-basis: 44px;
+    height: 44px !important;
+    min-height: 44px;
+    padding: 2px 4px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette .swatches {
+    gap: 3px;
+    padding: 2px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette .swatch {
+    /* Keep a 32px touch target while reducing the old 44px visual weight. */
+    flex-basis: 32px;
+    width: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    height: 32px;
+    border-width: 3px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .more-colors {
+    min-height: 32px;
+    height: 32px;
+    padding: 2px 5px;
+    font-size: 11px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .more-colors .playful-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .playroom .primary-brush-options #paint-color-open {
+    flex-basis: 128px;
+    width: min(128px, 100%);
+    max-width: 128px;
+    min-height: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+  .playroom .primary-brush-options #paint-color-open i {
+    width: 16px;
+    height: 16px;
+  }
+  .playroom #palette-dialog .palette-presets {
+    grid-auto-columns: minmax(58px, 1fr);
+    flex-basis: 40px;
+    height: 40px;
+    max-height: 40px;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .playroom #palette-dialog .preset-color {
+    min-height: 34px;
+    padding: 3px;
+    gap: 3px;
+    font-size: 10px;
+  }
+  .playroom #palette-dialog .preset-color i {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+  }
+}
+
+/* Category navigation is a vertical rail on desktop. Mobile moves the same
+   nodes into a horizontal strip: set its axis explicitly so desktop flex
+   tracks cannot expand to 112px-high rows inside a short drawer. */
+.playroom #library-groups .subtool-card {
+  min-width: 0;
+  min-height: 48px;
+  gap: 6px;
+  padding: 4px 6px;
+  line-height: 1.25;
+}
+.playroom #library-groups .subtool-card > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.playroom #library-groups .subtool-card > img {
+  flex: none;
+  width: 36px;
+  height: 28px;
+}
+.playroom #library-groups [data-fairy-mode] .playful-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+.playroom .fairy-modes {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+}
+.playroom .fairy-modes .subtool-card {
+  flex-direction: row;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding: 4px 6px;
+  gap: 6px;
+}
+.playroom .fairy-modes .playful-icon { width: 26px; height: 26px; }
+
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="library"] #library-groups:not(:empty) {
+    flex-direction: row;
+    flex: 0 0 50px;
+    min-height: 50px;
+    max-height: 50px;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .playroom[data-mobile-panel="library"] #library-groups .subtool-card {
+    flex: 0 0 110px;
+    min-width: 110px;
+    min-height: 42px;
+    height: 42px;
+    padding: 3px 5px;
+    font-size: 11px;
+    gap: 4px;
+    white-space: normal;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups {
+    display: flex !important;
+    flex-direction: row;
+    flex: 0 0 50px;
+    min-height: 50px;
+    max-height: 50px;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups .subtool-card {
+    flex: 1 0 96px;
+    min-width: 96px;
+    flex-direction: row;
+    justify-content: center;
+    min-height: 42px;
+    height: 42px;
+    font-size: 11px;
+  }
+  .playroom[data-mobile-panel="library"][data-library-surface="fairy"] #library-groups .playful-icon { width: 22px; height: 22px; }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset span {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .playroom .fairy-modes .subtool-card { font-size: 11px; }
+  /* One vertical scroll owner preserves usable card and button sizes even
+     on 240px-high screens. No nested fixed-height clipping of the pager. */
+  .playroom[data-mobile-panel="library"] .tool-dock .right-panel {
+    overflow: hidden !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .library {
+    overflow-y: auto !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock .asset-grid {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .playroom[data-mobile-panel="library"] .tool-dock #library-pagination {
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 520px), (max-height: 500px) {
+  .playroom #palette-dialog[open] {
+    height: auto !important;
+    max-height: calc(100dvh - 8px) !important;
+    overflow: auto !important;
+  }
+  .playroom #palette-dialog .palette-presets {
+    grid-template-columns: none;
+    grid-template-rows: minmax(0, 1fr);
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .playroom #palette-dialog .palette-editor { flex-basis: 92px; min-height: 92px; }
+  .playroom #palette-dialog .palette-editor > div:last-child { flex-basis: 148px; }
+  .playroom #palette-dialog .dialog-actions { flex-basis: 34px; }
+  .playroom #palette-dialog .dialog-actions button { min-height: 34px; }
+}

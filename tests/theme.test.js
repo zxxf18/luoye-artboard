@@ -110,6 +110,12 @@ test('brand and about use the illustrated child logo with dedicated theme slots'
   assert.match(palette, /color-history-value/);
 });
 
+test('brush card samples switch to a readable ink on dark themes', () => {
+  assert.match(classic, /const previewInk=.*mechanical.*space.*#ffffff.*#000000/);
+  assert.match(classic, /brushPreview\(b\.dataset\.brush,ink,140,34,DEFAULT_BRUSH_SIZE,ink\)/);
+  assert.match(classic, /document\.addEventListener\('themechange',sync\)/);
+});
+
 test('theme entry uses the shared command size and the final Chinese label', () => {
   assert.match(theme, /setAttribute\('aria-label', '主题'\)/);
   assert.match(theme, /<span>主题<\/span>/);

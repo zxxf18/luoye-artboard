@@ -3,6 +3,27 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
 function assert(value,message){if(!value)throw Error(message);}
 function isVisible(el){return el.getClientRects().length>0;}
 function inside(el,root){const a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1;}
+async function checkPalette(doc,label){
+ const button=[...doc.querySelectorAll('#paint-color-open, #foreground-palette, #palette-open')].find(isVisible);
+ assert(button,`${label}缺少可见的选颜色入口`);
+ button.click();await pause(25);
+ const palette=doc.querySelector('#palette-dialog');assert(palette?.open,`${label}颜色选择框没有打开`);assert(inside(palette,doc.body),`${label}颜色选择框超出窗口`);
+ const presets=[...palette.querySelectorAll('.preset-color')],strip=palette.querySelector('.palette-presets');
+ assert(presets.length>10,`${label}常用颜色缺失`);
+ for(const preset of presets){
+  preset.scrollIntoView({block:'nearest',inline:'nearest'});await pause(5);
+  assert(inside(preset,strip),`${label}颜色预设无法通过滚动访问`);
+  assert(preset.getBoundingClientRect().height<=56,`${label}颜色预设过高`);
+ }
+ strip.scrollLeft=0;
+ const actions=palette.querySelector('.dialog-actions');actions.scrollIntoView({block:'nearest'});await pause(5);
+ assert(inside(palette.querySelector('#palette-apply'),palette),`${label}确认颜色按钮被裁切`);
+ palette.querySelector('#palette-cancel').click();await pause(15);
+}
+async function openPanel(doc,panel){
+ const button=doc.querySelector(`.mobile-command[data-mobile-panel="${panel}"]`);
+ if(button&&!button.matches('[aria-pressed="true"]')){button.click();await pause(60);}
+}
 async function checkTools(doc){
  const narrow=doc.defaultView.innerWidth<=640||doc.defaultView.innerHeight<=500;
  const mobilePanel=async panel=>{const button=doc.querySelector(`.mobile-command[data-mobile-panel="${panel}"]`);if(button&&!button.matches('[aria-pressed="true"]')){button.click();await pause(60);}};
@@ -72,9 +93,9 @@ async function checkAssist(doc,width,height){
  if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`径向辅助面板仍需滚动 ${width}×${height}`);
  form.querySelector('.assist-close')?.click();await pause(20);assert(!dialog.open,'辅助面板关闭失败');
 }
-for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080],[2560,1440]]){
+for(const [width,height] of [[375,240],[540,320],[900,500],[900,650],[1280,500],[1280,720],[1920,1080],[2560,1440]]){
  frame.style.width=width+'px';frame.style.height=height+'px';frame.style.transform=`scale(${Math.min(1,1100/width)})`;
- await new Promise(resolve=>{frame.onload=resolve;frame.src='/';});const doc=frame.contentDocument;
+ await new Promise(resolve=>{frame.onload=resolve;frame.src=`/?layout-regression=${Date.now()}-${width}-${height}`;});const doc=frame.contentDocument;
  for(let i=0;i<200&&doc.body.dataset.appReady!=='true';i++)await pause(30);
  if(doc.body.dataset.appReady!=='true'){results.push({name:`${width}×${height} 完整启动`,passed:false,error:'应用未完成初始化，无法进入界面验收'});continue;}
  await pause(200);doc.querySelector('#recover-dialog[open] [value="cancel"]')?.click();
@@ -119,21 +140,56 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080
    if(width<=900||height<=720)await checkAssist(doc,width,height);
    assert(![...doc.querySelectorAll('select')].some(isVisible),'出现默认下拉框');
    doc.querySelector('.mobile-command[data-mobile-panel="focus"]')?.click();await pause(20);doc.querySelector('#mode-library').click();await pause(100);
+   const brushPage=doc.querySelector('.brush-box'),subtoolPage=doc.querySelector('.subtool-box'),groupBox=doc.querySelector('#library-groups'),compactGallery=width<=860||height<=600;
+   assert(brushPage.hidden||!isVisible(brushPage),'选择图库后左侧仍显示画笔页面');
+   assert(subtoolPage.hidden||!isVisible(subtoolPage),'选择图库后左侧仍显示工具参数页面');
+   if(groupBox?.children.length){
+    const expectedParent=compactGallery?doc.querySelector('.library'):doc.querySelector('.classic-left');
+    assert(groupBox.parentElement===expectedParent,'图库分类按钮没有归位到对应侧栏');
+   }
+   const fairyCategory=doc.querySelector('[data-category="fairy"]');
+   if(fairyCategory){
+    fairyCategory.click();await pause(50);
+    const fairyModes=[...groupBox.querySelectorAll('[data-fairy-mode]')].filter(isVisible);
+    assert(fairyModes.length===3,'魔法袋缺少单张、组合或会动图案入口');
+    for(let i=0;i<fairyModes.length;i++){
+     const card=fairyModes[i],rect=card.getBoundingClientRect();
+     assert(inside(card,groupBox),'魔法袋入口超出左侧分类区域');
+     assert(card.querySelector('span')?.textContent?.trim(),'魔法袋入口缺少可读文案');
+     for(let j=i+1;j<fairyModes.length;j++){
+      const other=fairyModes[j].getBoundingClientRect();
+      assert(rect.right<=other.left+1||other.right<=rect.left+1||rect.bottom<=other.top+1||other.bottom<=rect.top+1,'魔法袋入口互相重叠');
+     }
+    }
+    doc.querySelector('[data-category="background"]')?.click();await pause(30);
+   }
    const tray=doc.querySelector('.right-panel').getBoundingClientRect(),paper=viewport.getBoundingClientRect();
    // On a short phone the drawer intentionally overlays the canvas so its
    // controls remain usable; on a tall window it should reserve a shelf below
    // the paper. In both cases the drawer itself must stay inside the viewport.
-   if(height>=500)assert(tray.top>=paper.bottom-1,'素材遮挡画纸');
+   if(height>=600)assert(tray.top>=paper.bottom-1,'素材遮挡画纸');
    else assert(tray.bottom<=doc.defaultView.innerHeight+1,'素材栏超出窗口');
    assert(paper.width>=200&&paper.height>=100,'素材栏挤掉画纸');
    assert(inside(doc.querySelector('.right-panel'),doc.body),'素材栏超出窗口');
-   for(const asset of doc.querySelectorAll('#asset-grid .asset'))assert(inside(asset,doc.querySelector('#asset-grid')),'素材分页中存在被裁切的卡片');
+   for(const asset of doc.querySelectorAll('#asset-grid .asset')){
+    asset.scrollIntoView({block:'nearest',inline:'nearest'});await pause(5);
+    assert(inside(asset,doc.querySelector('#asset-grid')),'素材卡片无法通过滚动完整查看');
+    assert(inside(asset.querySelector('span'),asset),'素材名称超出卡片');
+   }
    if(width>640&&height>500)assert(inside(doc.querySelector('#size'),parameters),'素材打开后大小滑杆被裁切');
    // The gallery owns its pager on wide layouts as well as mobile drawers;
    // validate it against the live parent instead of the old parameter strip.
    const pagerRoot=doc.querySelector('#library-pagination')?.parentElement||doc.querySelector('.right-panel');
-   for(const b of doc.querySelectorAll('#library-pagination button'))assert(inside(b,pagerRoot),'素材翻页按钮被裁切');
+   for(const b of doc.querySelectorAll('#library-pagination button')){
+    b.scrollIntoView({block:'nearest',inline:'nearest'});await pause(5);assert(inside(b,pagerRoot),'素材翻页按钮无法滚动到可视区域');
+   }
    doc.querySelector('#mode-board').click();await pause(25);
+   assert(!brushPage.hidden,'关闭图库后画笔页面没有恢复');
+   if(width<=640||height<=500)await openPanel(doc,'brushes');
+   await checkPalette(doc,'画笔');
+   if(width<=640||height<=500)await openPanel(doc,'options');
+   const textTool=doc.querySelector('.tool-button[data-tool="text"]');
+   if(textTool){textTool.click();await pause(25);if(width<=640||height<=500)await openPanel(doc,'brushes');await checkPalette(doc,'文字');}
    await checkTools(doc);
    results.push({name,passed:true,canvas:{width:Math.round(r.width),height:Math.round(r.height)},expandedBrushBox:clipped});
   }catch(error){results.push({name,passed:false,error:error.message});for(const dialog of doc.querySelectorAll('dialog[open]'))dialog.close();doc.querySelector('#mode-board').click();}

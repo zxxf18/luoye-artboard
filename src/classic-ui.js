@@ -135,7 +135,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   function renderTools(){
     const visible=toolPages[page]||toolPages[0];
     bar.replaceChildren();
-    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;if(featureTools[id]){featureTools[id]();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);}
+    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;if(featureTools[id]){featureTools[id]();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes',false);};bar.append(b);}
     flip.hidden=false;
     flip.setAttribute('aria-hidden','false');
     const nextLabel=page===0?'更多工具 →':'常用工具 →';
@@ -143,10 +143,19 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     bar.after(flip);
   }
   renderTools();
-  let lastColor='',lastSecondary='',showEraserShapes=false;
-  function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
+  let lastPreviewInk='',showEraserShapes=false;
+  // The brush cards are teaching samples, not a preview of the currently
+  // selected paint. Keep their mark readable against the themed chrome while
+  // leaving the actual canvas and selected colour untouched.
+  const previewInk=()=>['mechanical','space'].includes(document.body.dataset.theme||'')?'#ffffff':'#000000';
+  function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value),libraryOpen=document.body.classList.contains('library-open');title.textContent=libraryOpen?(document.body.dataset.librarySurface==='fairy'?'魔法袋':'找一找图案'):tool==='pen'?'我的画笔盒':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';
+    // The gallery is a separate surface. Hide the brush controls while it is
+    // open even when its collection buttons have been moved into the shelf
+    // for a narrow drawer; relying on :has(#library-groups) made the brush
+    // page reappear after that DOM move.
+    pens.hidden=libraryOpen||tool!=='pen';subtools.hidden=libraryOpen;subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
-    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,DEFAULT_BRUSH_SIZE,secondary));}
+    const secondary=el('background-color').value,ink=previewInk();if(ink!==lastPreviewInk){lastPreviewInk=ink;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,ink,140,34,DEFAULT_BRUSH_SIZE,ink));}
     const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,getColor(),140,50,Math.min(36,Number(el('size').value)),secondary):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
     primary.hidden=false;modes.hidden=tool!=='pen';
     // Scratch uses the same size control as a brush. Keeping this visible is
@@ -164,7 +173,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     }
     if(tool==='eraser'){const clear=document.createElement('button');clear.id='clear-animations';clear.className='subtool-card';clear.innerHTML=playfulIcon('eraser')+'<span>清除所有动图</span>';clear.title='保留背景和画笔；可以撤销';clear.onclick=clearAnimations;subtools.append(clear);}
   }
-  document.addEventListener('toolchange',()=>{const pageFor=toolPageFor(groupTool());if(pageFor>=0&&pageFor!==page){page=pageFor;renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',()=>{if(el('painting').dataset.tool==='pen')sync();});
+  document.addEventListener('toolchange',()=>{const pageFor=toolPageFor(groupTool());if(pageFor>=0&&pageFor!==page){page=pageFor;renderTools();}sync();});document.addEventListener('themechange',sync);document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',()=>{if(el('painting').dataset.tool==='pen')sync();});
   function openLibrary(open){
     // The wide layout keeps the gallery in the existing bottom shelf. Record
     // the shelf's closed height before revealing the gallery so loading its
@@ -174,13 +183,18 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
       const height=Math.round(dock.getBoundingClientRect().height);
       if(height>0)dock.style.setProperty('--library-reserved-height',`${height}px`);
     }else if(!open&&dock)dock.style.removeProperty('--library-reserved-height');
-    document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);
+    document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);left.setAttribute('aria-label',open?'素材分类':'画笔盒');
+    // Opening the gallery from the canvas tab must also select its mobile
+    // drawer. Otherwise the gallery DOM is present but the brush drawer keeps
+    // the visible surface on a short window.
+    if(narrowWindow){const panel=open?'library':'focus';if(document.body.dataset.mobilePanel!==panel)setMobilePanel(panel,false);}
     // The wide shelf hides the parameter strip while the gallery is open.
     // Move the pager beside the asset cards too, otherwise collections with
     // more than one page would leave later materials unreachable on desktop.
     syncMobileShelfControls(open?'library':'focus');
+    if(open){pens.hidden=true;subtools.hidden=true;}else sync();
   }
-  new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);if(open&&libraryGroups.children.length)title.textContent=document.body.dataset.librarySurface==='fairy'?'我的魔法袋':'找一找图案';else if(!open)sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);left.setAttribute('aria-label',open?'素材分类':'画笔盒');if(open)title.textContent=document.body.dataset.librarySurface==='fairy'?'魔法袋':'找一找图案';else sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
   el('mode-library').onclick=()=>{const opening=!document.body.classList.contains('library-open')||document.body.dataset.librarySurface==='fairy';if(opening)document.dispatchEvent(new Event('opengallery'));openLibrary(opening);};el('mode-board').addEventListener('click',()=>openLibrary(false));
   for(const [id,icon,label] of [['mode-board','paper','画板'],['darkroom','board-filter','暗房'],['mode-library','forest','图库']])el(id).innerHTML=playfulIcon(icon)+'<span>'+label+'</span>';
   const library=document.querySelector('.right-panel');dock.prepend(library);document.querySelector('.panel-heading h2').textContent='灵感百宝箱';
@@ -309,10 +323,16 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     const pager=document.querySelector('#library-pagination');
     const instruction=document.querySelector('#library-instruction');
     const fairyGroups=document.querySelector('#library-groups');
+    // Desktop/iOS keeps collection and magic-bag choices in the left rail so
+    // the gallery still reads as “categories on the left, artwork on the
+    // right”. Only the compact web drawer moves them into the shelf; moving
+    // them unconditionally was the regression that left the brush page
+    // visible beside the gallery.
+    const moveGroupsToShelf=panel==='library'&&narrowWindow&&!iosDesktopShell;
     if(fairyGroups){
-      if(panel==='library'&&fairyGroups.parentElement!==library){
+      if(moveGroupsToShelf&&fairyGroups.parentElement!==library){
         library?.prepend(fairyGroups);
-      }else if(panel!=='library'&&fairyGroups.parentElement!==left){
+      }else if(!moveGroupsToShelf&&fairyGroups.parentElement!==left){
         left.insertBefore(fairyGroups,subtools);
       }
     }
@@ -326,7 +346,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   }
   function setMobilePanel(panel,manual=true){
     if(!narrowWindow&&panel!=='focus')return;
-    if(panel!=='focus'&&document.body.dataset.mobilePanel===panel)panel='focus';
+    // Only another tap on a drawer tab closes it. Tool and resize handlers
+    // request a definite surface and may safely select that surface twice.
+    if(manual&&panel!=='focus'&&document.body.dataset.mobilePanel===panel)panel='focus';
     if(panel==='library'&&!document.body.classList.contains('library-open'))el('mode-library').click();
     if(panel!=='library'&&document.body.classList.contains('library-open'))el('mode-board').click();
     document.body.dataset.mobilePanel=panel;
@@ -340,10 +362,20 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   function syncMobileLayout(){
     const next=!iosDesktopShell && matchMedia('(max-width: 860px), (max-height: 600px)').matches;
     const changed=next!==narrowWindow;
-    if(next&&!narrowWindow){document.body.removeAttribute('data-mobile-user');setMobilePanel('focus',false);}
-    if(!next&&narrowWindow){document.body.removeAttribute('data-mobile-panel');document.body.removeAttribute('data-mobile-focus');document.body.removeAttribute('data-mobile-user');for(const node of [left,document.querySelector('.tool-rail'),dock])node?.removeAttribute('aria-hidden');syncMobileShelfControls('focus');}
+    // Shelf ownership uses narrowWindow, so update it before moving nodes.
+    // Keep the current gallery open while crossing either breakpoint.
     narrowWindow=next;
-    if(changed){page=0;renderTools();}
+    if(changed){
+      const libraryOpen=document.body.classList.contains('library-open');
+      document.body.removeAttribute('data-mobile-user');
+      if(next)setMobilePanel(libraryOpen?'library':'focus',false);
+      else{
+        document.body.removeAttribute('data-mobile-panel');document.body.removeAttribute('data-mobile-focus');
+        for(const node of [left,document.querySelector('.tool-rail'),dock])node?.removeAttribute('aria-hidden');
+        syncMobileShelfControls(libraryOpen?'library':'focus');
+      }
+      page=0;renderTools();
+    }
     if(next&&document.body.dataset.mobilePanel!=='focus'&&document.body.dataset.mobilePanel!=='brushes'&&document.body.dataset.mobilePanel!=='tools'&&document.body.dataset.mobilePanel!=='options'&&document.body.dataset.mobilePanel!=='library')setMobilePanel('focus',false);
   }
   mobileScrim.onclick=()=>setMobilePanel('focus');
