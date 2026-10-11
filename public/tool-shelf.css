@@ -333,11 +333,21 @@
 .playroom[data-theme] dialog input:not([type="checkbox"]):not([type="range"]):not([type="file"]):not([type="color"]),
 .playroom[data-theme] dialog textarea,
 .playroom[data-theme] dialog select,
-.playroom[data-theme] .assist-section select {
+.playroom[data-theme] .assist-section select,
+.playroom[data-theme] .assist-mode-trigger,
+.playroom[data-theme] .assist-mode-menu {
   background: var(--theme-control) !important;
   border-color: var(--theme-border) !important;
   color: var(--ink) !important;
 }
+.playroom[data-theme] .assist-mode-menu button { color: var(--ink) !important; }
+.playroom[data-theme] .assist-mode-menu button:hover,
+.playroom[data-theme] .assist-mode-menu button:focus-visible,
+.playroom[data-theme] .assist-mode-menu button[aria-selected="true"] {
+  background: var(--theme-selected) !important;
+  border-color: var(--theme-border) !important;
+}
+.playroom[data-theme] .assist-mode-trigger-arrow { color: var(--theme-accent) !important; }
 .playroom[data-theme] .assist-card,
 .playroom[data-theme] .assist-switch,
 .playroom[data-theme] .assist-form label.assist-check,

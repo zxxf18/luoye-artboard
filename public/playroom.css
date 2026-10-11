@@ -2021,7 +2021,7 @@
 .playroom .assist-dialog {
   width: min(620px, calc(100vw - 16px));
   max-height: min(420px, calc(100dvh - 12px));
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
   border-width: 2px;
   border-radius: 18px;
@@ -2032,7 +2032,7 @@
   gap: 8px;
   min-height: 0;
   padding: 10px;
-  overflow: hidden;
+  overflow: visible;
 }
 .playroom .assist-header {
   min-height: 38px;
@@ -2117,6 +2117,60 @@
   border-radius: 8px;
   font-size: 11px;
 }
+.playroom .assist-mode-source[hidden] { display: none !important; }
+.playroom .assist-mode-trigger {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid #dfb57e;
+  border-radius: 8px;
+  background: #fffdf7;
+  color: #684832;
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.playroom .assist-mode-trigger:disabled { opacity: .55; cursor: default; }
+.playroom .assist-mode-trigger-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playroom .assist-mode-trigger-arrow { flex: none; color: #a0643d; font-size: 14px; line-height: 1; }
+.playroom .assist-mode-menu {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  gap: 3px;
+  max-height: 190px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid #dfb57e;
+  border-radius: 9px;
+  background: #fffdf7;
+  box-shadow: 0 8px 22px #6c452d3d;
+}
+.playroom .assist-mode-menu[hidden] { display: none !important; }
+.playroom .assist-mode-menu button {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #684832;
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.playroom .assist-mode-menu button:hover,
+.playroom .assist-mode-menu button:focus-visible,
+.playroom .assist-mode-menu button[aria-selected="true"] { background: #ffe0a8; border-color: #d9ad7a; outline: none; }
 .playroom .assist-section input[type="range"] {
   width: 100%;
   min-width: 0;

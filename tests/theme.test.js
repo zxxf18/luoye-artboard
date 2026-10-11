@@ -14,6 +14,8 @@ const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 const toolStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
 const materials = readFileSync(new URL('src/materials-ui.js', root), 'utf8');
+const assist = readFileSync(new URL('src/assist-ui.js', root), 'utf8');
+const playfulControls = readFileSync(new URL('src/playful-controls.js', root), 'utf8');
 
 test('theme picker defines eight stable themes with autumn as the default', () => {
   const ids = [...theme.matchAll(/id:\s*'([^']+)'/g)].map(match => match[1]);
@@ -148,4 +150,15 @@ test('paper grain control explains that it changes brush texture rather than the
   assert.match(materials, /笔触纸感/);
   assert.match(materials, /模拟纸张颗粒/);
   assert.match(materials, /纸感强度/);
+});
+
+test('assist symmetry uses an anchored dropdown without hijacking the global choice dialog', () => {
+  assert.match(assist, /id="assist-mode"[^>]*data-direct-choice="true"[^>]*hidden/);
+  assert.match(assist, /id="assist-mode-trigger"[^>]*aria-haspopup="listbox"/);
+  assert.match(assist, /id="assist-mode-menu"[^>]*role="listbox"/);
+  assert.match(assist, /data-assist-mode-option="radial"/);
+  assert.match(assist, /modeSelect\.dispatchEvent\(new Event\('change'/);
+  assert.match(playfulControls, /select\.dataset\.directChoice/);
+  assert.match(styles, /\.assist-mode-menu\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.assist-mode-menu button\[aria-selected="true"\]/);
 });

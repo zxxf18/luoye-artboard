@@ -58,8 +58,13 @@ async function checkAssist(doc,width,height){
  const compact=width>=500&&height<=400;
  if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`矮窗口辅助面板仍需滚动 ${width}×${height}`);
  const enabled=doc.querySelector('#assist-enabled');if(!enabled.checked)enabled.click();await pause(20);assert(enabled.checked,'辅助开关无法操作');
- const modeButton=doc.querySelector('#assist-mode-choose');assert(modeButton&&!modeButton.disabled,'辅助模式选择不可操作');modeButton.click();await pause(20);
- const radial=doc.querySelector('#choice-dialog .choice-card[data-value="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
+ const mode=doc.querySelector('#assist-mode'),modeButton=doc.querySelector('#assist-mode-trigger');
+ assert(mode&&!isVisible(mode),'辅助模式原生下拉框不应直接显示');
+ assert(modeButton&&isVisible(modeButton)&&!modeButton.disabled,'辅助模式下拉入口不可操作');
+ modeButton.click();await pause(20);
+ const menu=doc.querySelector('#assist-mode-menu');assert(menu&&!menu.hidden,'辅助模式下拉菜单没有打开');
+ const radial=menu.querySelector('[data-assist-mode-option="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
+ assert(mode.value==='radial','径向模式选择没有回写源控件');
  assert(dialog.dataset.assistMode==='radial','辅助模式没有切换到径向');assert(doc.querySelector('#assist-axes-value').textContent.includes('8'),'径向份数没有显示');
  for(const [id,value] of [['assist-center-x','36'],['assist-center-y','64']]){const input=doc.querySelector('#'+id);input.value=value;input.dispatchEvent(new frame.contentWindow.Event('input',{bubbles:true}));}
  for(const id of ['assist-grid','assist-stamp']){const input=doc.querySelector('#'+id);if(!input.checked)input.click();}
