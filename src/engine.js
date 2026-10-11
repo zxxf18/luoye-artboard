@@ -541,6 +541,8 @@ export class PaintEngine {
       // tiles and schedules a frame, which is noticeable on large tablets.
       if (g.last && local.x === g.last.x && local.y === g.last.y) return;
       g.end = local;
+      const dx = g.last ? local.x - g.last.x : 0, dy = g.last ? local.y - g.last.y : 0;
+      const distanceSquared = dx * dx + dy * dy;
       const coalesceDistance = g.coalesceDistance ?? this.strokeCoalesceDistance(g);
       if (coalesceDistance && g.last) {
         const now = performance.now();
@@ -554,7 +556,7 @@ export class PaintEngine {
           g.pending = null;
           g.pendingAt = 0;
         }
-        if (Math.hypot(local.x - g.last.x, local.y - g.last.y) < coalesceDistance) {
+        if (distanceSquared < coalesceDistance * coalesceDistance) {
           if (g.pending) {
             const ax = g.pending.x - g.last.x, ay = g.pending.y - g.last.y;
             const bx = local.x - g.pending.x, by = local.y - g.pending.y;
@@ -597,7 +599,10 @@ export class PaintEngine {
       // continuous while avoiding repeated tile readbacks for every tiny
       // pointer move. The accumulated distance is measured from g.last, so a
       // skipped sample is still included in the next segment.
-      if (g.options.tool === 'scratch' && g.last && Math.hypot(local.x - g.last.x, local.y - g.last.y) < Math.max(2, Math.min(64, (g.options.size / g.layer.scale) * .25))) return;
+      if (g.options.tool === 'scratch' && g.last) {
+        const scratchDistance = Math.max(2, Math.min(64, (g.options.size / g.layer.scale) * .25));
+        if (distanceSquared < scratchDistance * scratchDistance) return;
+      }
       if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; g.pending = null; g.pendingAt = 0;
     }
     this.render();
