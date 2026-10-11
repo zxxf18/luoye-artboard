@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = name => readFile(path.join(root, name), 'utf8');
 
-test('iOS target declares a universal iPhone/iPad, landscape-first app', async () => {
+test('iOS target declares a universal iPhone/iPad landscape-only app', async () => {
   const plist = await read('ios/Info.plist');
   const index = await read('public/index.html');
   assert.match(plist, /UIDeviceFamily/);
@@ -16,8 +16,38 @@ test('iOS target declares a universal iPhone/iPad, landscape-first app', async (
   assert.match(plist, /UISupportedInterfaceOrientations/);
   assert.match(plist, /UIInterfaceOrientationLandscapeLeft/);
   assert.match(plist, /UIInterfaceOrientationLandscapeRight/);
-  assert.match(plist, /UIInterfaceOrientationPortrait/);
+  assert.doesNotMatch(plist, /UIInterfaceOrientationPortrait/);
+  assert.doesNotMatch(plist, /UIInterfaceOrientationPortraitUpsideDown/);
+  assert.match(plist, /UIApplicationSupportsMultipleScenes<\/key>\s*<false\/>/);
   assert.match(index, /viewport-fit=cover/);
+});
+
+test('iOS shell keeps the desktop workspace and scales every control surface in landscape', async () => {
+  const styles = await read('public/playroom.css');
+  assert.match(styles, /html\.ios-shell \.playroom/);
+  assert.match(styles, /grid-template-columns:\s*var\(--left\)\s+minmax\(0,1fr\)\s+var\(--right\)/);
+  assert.match(styles, /--ios-ui-scale/);
+  assert.match(styles, /transform:\s*scale\(var\(--ios-ui-scale\)\)/);
+  assert.match(styles, /position:\s*absolute/);
+  assert.match(styles, /width:\s*calc\(100vw\s*\/\s*var\(--ios-ui-scale\)\)/);
+  assert.match(styles, /height:\s*calc\(100%\s*-\s*var\(--header\)/);
+  assert.match(styles, /html\.ios-shell dialog/);
+  assert.match(styles, /html\.ios-shell dialog[\s\S]*transform:\s*scale\(var\(--ios-ui-scale\)\)/);
+  assert.match(styles, /html\.ios-shell \.playroom \.playful-icon/);
+});
+
+test('Xcode target defaults to iPhone and iPad platforms instead of macOS', async () => {
+  const project = await read('ios/LuoyeArtboard.xcodeproj/project.pbxproj');
+  assert.equal((project.match(/SDKROOT = iphoneos;/g) || []).length, 2);
+  assert.equal((project.match(/SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";/g) || []).length, 2);
+});
+
+test('iOS keeps the desktop workspace instead of enabling the web mobile drawer layout', async () => {
+  const source = await read('src/classic-ui.js');
+  assert.match(source, /const iosDesktopShell=window\.LUOYE_PLATFORM==='ios'/);
+  assert.match(source, /document\.documentElement\.classList\.add\('ios-shell'\)/);
+  assert.match(source, /const compact = !iosDesktopShell &&/);
+  assert.match(source, /const next=!iosDesktopShell &&/);
 });
 
 test('iOS bridge handles every native channel used by the web app', async () => {
@@ -43,13 +73,25 @@ test('iOS host keeps local resources sandboxed and enables safe-area layout', as
   assert.match(source, /webView\.topAnchor\.constraint\(equalTo: safe\.topAnchor\)/);
   assert.doesNotMatch(source, /\.app-header \{ padding-top/);
   assert.match(source, /preferredInterfaceOrientationForPresentation:\s*UIInterfaceOrientation\s*\{\s*\.landscapeRight\s*\}/);
+  assert.match(source, /supportedInterfaceOrientations:\s*UIInterfaceOrientationMask\s*\{\s*\[\.landscapeLeft,\s*\.landscapeRight\]\s*\}/);
+  assert.match(source, /document\.documentElement\?\.classList\.add\('ios-shell'\)/);
+  assert.match(source, /DOMContentLoaded/);
+  assert.match(source, /injectionTime:\s*\.atDocumentStart/);
+  assert.doesNotMatch(source, /case "portrait":/);
   assert.match(source, /initialGeometryRequested/);
   assert.match(source, /WKWebsiteDataStore\.default/);
   assert.match(source, /sceneWillResignActive/);
   assert.match(source, /LUOYEFlushBeforeClose/);
   assert.match(source, /LUOYE_PLATFORM = 'ios'/);
+  assert.match(source, /final class LuoyeSceneDelegate/);
+  assert.match(source, /requestLandscape/);
+  assert.match(source, /sizeRestrictions/);
+  assert.match(source, /sceneDidBecomeActive/);
   assert.match(display, /isIOS/);
   assert.match(display, /windowChoices=isIOS/);
+  assert.match(display, /--ios-user-scale/);
+  assert.match(display, /syncIOSViewportScale/);
+  assert.match(display, /requestAnimationFrame\(\(\)=>requestAnimationFrame/);
 });
 
 test('Debug iOS host can run bundled native smoke scripts and export evidence', async () => {

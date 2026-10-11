@@ -11,7 +11,7 @@ export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ff
 }
 
 export function mountClassic({setTool,getColor,setColor,clearAnimations}){
-  const el=id=>document.getElementById(id);document.body.classList.add('playroom');
+  const el=id=>document.getElementById(id);const iosDesktopShell=window.LUOYE_PLATFORM==='ios';if(iosDesktopShell)document.documentElement.classList.add('ios-shell');document.body.classList.add('playroom');
   const workspace=document.querySelector('.workspace'),studio=document.querySelector('.studio');
   const left=document.createElement('aside');left.id='classic-left';left.className='classic-left';left.setAttribute('aria-label','画笔盒');workspace.prepend(left);
   const heading=document.createElement('div');heading.className='canvas-topbar';const tabs=document.querySelector('.workspace-tabs');heading.append(tabs);const tip=document.createElement('span');tip.className='canvas-welcome';tip.textContent='每一笔，都是新发现';heading.append(tip);studio.prepend(heading);
@@ -195,6 +195,13 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const foldedToolbarIds = ['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
   const toolbarPrimaryIds = ['new-quick','undo','redo','save','theme-open','more-open'];
   const toolbarOrder = new Map();
+  // Keep an estimate of the un-folded strip width. Measuring only
+  // `header.scrollWidth` after moving commands into 设置 makes the result
+  // self-invalidating: the strip fits once folded, so the next observer pass
+  // unfolds it again. That feedback loop is visible as a flashing toolbar on
+  // iOS. Cache each command's width while it is in the header and include it
+  // in subsequent measurements, even while the command is folded.
+  const toolbarItemWidths = new Map();
   let toolbarSyncFrame = 0;
   const reorderIfNeeded = (container, ids) => {
     const current = [...container.children].map(child => child.id).filter(id => ids.includes(id));
@@ -213,11 +220,35 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     toolbarSyncFrame = 0;
     const actions = document.querySelector('.more-actions');
     if (!actions || !header) return;
-    const compact = matchMedia('(max-width: 1080px), (max-height: 600px)').matches;
-    const hasOverflow = header.scrollWidth > header.clientWidth + 2;
-    const folded = compact || hasOverflow;
-    header.dataset.folded = String(folded);
+    const compact = !iosDesktopShell && matchMedia('(max-width: 1080px), (max-height: 600px)').matches;
     const candidates = foldedToolbarIds.map(id => el(id)).filter(Boolean);
+    const availableWidth = header.clientWidth;
+    // During the first layout pass WebKit can briefly report a zero-width
+    // header while the native view settles its orientation. Keep the current
+    // state until a real measurement is available instead of moving controls
+    // back and forth through the top-right edge.
+    let fullHeaderWidth = header.scrollWidth;
+    if (availableWidth > 0) {
+      const headerStyle = getComputedStyle(header);
+      const headerGap = Number.parseFloat(headerStyle.columnGap || headerStyle.gap) || 0;
+      for (const button of candidates) {
+        if (button.parentElement === header) {
+          // offsetWidth is intentionally used here: iOS scales the whole
+          // desktop shell with CSS transform, while scrollWidth/clientWidth
+          // stay in the element's unscaled layout coordinate space.
+          const width = button.offsetWidth || button.getBoundingClientRect().width;
+          if (width > 0) toolbarItemWidths.set(button.id, width);
+        } else {
+          const width = toolbarItemWidths.get(button.id) || button.offsetWidth || button.getBoundingClientRect().width;
+          if (width > 0) fullHeaderWidth += width + headerGap;
+        }
+      }
+    }
+    const hasOverflow = availableWidth > 0 && fullHeaderWidth > availableWidth + 2;
+    const folded = availableWidth > 0
+      ? compact || hasOverflow
+      : compact || header.dataset.folded === 'true';
+    header.dataset.folded = String(folded);
     // Dynamic feature entries mount after this classic shell. Keep their
     // original order in the header until they are ready, then fold them as a
     // group; a missing entry is simply ignored.
@@ -303,7 +334,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     syncMobileShelfControls(panel);
   }
   function syncMobileLayout(){
-    const next=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
+    const next=!iosDesktopShell && matchMedia('(max-width: 860px), (max-height: 600px)').matches;
     const changed=next!==narrowWindow;
     if(next&&!narrowWindow){document.body.removeAttribute('data-mobile-user');setMobilePanel('focus',false);}
     if(!next&&narrowWindow){document.body.removeAttribute('data-mobile-panel');document.body.removeAttribute('data-mobile-focus');document.body.removeAttribute('data-mobile-user');for(const node of [left,document.querySelector('.tool-rail'),dock])node?.removeAttribute('aria-hidden');syncMobileShelfControls('focus');}

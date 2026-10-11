@@ -16,6 +16,14 @@ test('小屏幕限制主题入口图标尺寸，避免被界面缩放放大', ()
   assert.match(styles, /\.playroom(?:\[data-theme\])?\s+\.header-actions \.theme-entry > \.playful-icon\s*\{[^}]*width:\s*20px\s*!important[^}]*height:\s*20px\s*!important/);
 });
 
+test('工具栏折叠判断缓存完整宽度，避免折叠后测量反馈造成闪烁', () => {
+  assert.match(classic, /const toolbarItemWidths = new Map\(\)/);
+  assert.match(classic, /fullHeaderWidth = header\.scrollWidth/);
+  assert.match(classic, /button\.offsetWidth \|\| button\.getBoundingClientRect\(\)\.width/);
+  assert.match(classic, /toolbarItemWidths\.get\(button\.id\)/);
+  assert.match(classic, /header\.dataset\.folded === 'true'/);
+});
+
 test('刮刮画提供可调的笔尖粗细', () => {
   assert.match(classic, /!\['pen','eraser','stamp','clone',\.\.\.geometries,'scratch'\]\.includes\(tool\)/);
 });

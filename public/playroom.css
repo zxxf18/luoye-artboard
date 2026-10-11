@@ -2878,3 +2878,227 @@
   .playroom .collage-preset-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .playroom .collage-paper-list { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
+
+/* iOS keeps the desktop workbench in landscape and scales the whole visual
+   surface around one value. A transformed root is used instead of the
+   browser's non-standard body zoom: WebKit treats body zoom inconsistently,
+   while a top-left transform scales controls, text, SVG icons, asset previews,
+   canvas chrome and dynamically mounted dialogs together. The inverse
+   dimensions keep the scaled workbench exactly inside the native WebView. */
+html.ios-shell { overflow: hidden; }
+html.ios-shell .playroom {
+  /* Fit against both axes. 610 CSS px is the compact desktop workbench
+     height (header, canvas chrome, palette and parameter shelf included),
+     so a short landscape phone receives the same proportional reduction for
+     text, icons, controls and asset previews instead of clipping the shelf. */
+  --ios-base-scale: clamp(.62, min(calc(100vw / 1100), calc(100dvh / 610)), .82);
+  --ios-user-scale: 1;
+  --ios-ui-scale: calc(var(--ios-base-scale) * var(--ios-user-scale));
+  --u: 1 !important;
+  -webkit-text-size-adjust: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(var(--ios-ui-scale));
+  transform-origin: top left;
+  width: calc(100vw / var(--ios-ui-scale));
+  height: calc(100dvh / var(--ios-ui-scale));
+  min-height: 0;
+  overflow: hidden;
+}
+html.ios-shell .playroom .workspace {
+  display: grid !important;
+  grid-template-columns: var(--left) minmax(0, 1fr) var(--right) !important;
+  grid-template-rows: minmax(0, 1fr);
+  height: calc(100% - var(--header)) !important;
+  padding: 12px !important;
+  gap: 12px !important;
+  min-height: 0;
+  overflow: hidden !important;
+}
+html.ios-shell .playroom .classic-left,
+html.ios-shell .playroom .tool-rail,
+html.ios-shell .playroom .studio { min-height: 0; }
+html.ios-shell .playroom .classic-left {
+  grid-column: 1;
+  grid-row: 1;
+  width: auto !important;
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  padding: 10px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+html.ios-shell .playroom .classic-left > * { flex: 0 1 auto; }
+html.ios-shell .playroom .classic-left > h2 { flex: none; }
+html.ios-shell .playroom .classic-left .classic-colors {
+  width: 100% !important;
+  flex: none !important;
+}
+html.ios-shell .playroom .classic-left #palette-open {
+  display: block !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  font-size: 12px !important;
+}
+html.ios-shell .playroom .classic-left .brush-box {
+  display: grid !important;
+  width: auto !important;
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  align-content: start !important;
+}
+html.ios-shell .playroom .classic-left .brush-card {
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: calc(80px * var(--u)) !important;
+  height: auto !important;
+}
+html.ios-shell .playroom .classic-left .left-actions {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: none !important;
+  margin-top: auto !important;
+}
+html.ios-shell .playroom .classic-left .subtool-box {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+html.ios-shell .playroom .studio {
+  grid-column: 2;
+  grid-row: 1;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+html.ios-shell .playroom .tool-rail {
+  grid-column: 3;
+  grid-row: 1;
+  width: auto !important;
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  padding: 10px 8px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+html.ios-shell .playroom .tool-rail #tools {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+html.ios-shell .playroom .tool-button {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: calc(62px * var(--u)) !important;
+  max-height: calc(108px * var(--u)) !important;
+}
+html.ios-shell .playroom .tool-page {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
+html.ios-shell .playroom .right-panel { display: none; }
+html.ios-shell .playroom.library-open .right-panel { display: flex; }
+html.ios-shell .playroom .playful-icon { max-width: 100%; max-height: 100%; }
+html.ios-shell .playroom .app-header { height: var(--header) !important; min-height: var(--header); }
+html.ios-shell .playroom .canvas-topbar { min-height: 48px !important; height: 48px !important; }
+html.ios-shell .playroom .viewport {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+}
+html.ios-shell .playroom .quick-palette { height: 64px !important; min-height: 64px !important; }
+html.ios-shell .playroom .canvas-footer { height: 24px !important; min-height: 24px !important; }
+html.ios-shell .playroom .mobile-commands,
+html.ios-shell .playroom .mobile-scrim { display: none !important; }
+html.ios-shell .playroom button { min-width: 52px; min-height: 52px; }
+html.ios-shell .playroom .brand { min-width: 142px; }
+html.ios-shell .playroom .header-actions { gap: 8px; }
+html.ios-shell .playroom .header-actions button { min-width: 62px; min-height: 62px; height: 64px; padding: 3px 8px; font-size: 14px !important; }
+html.ios-shell .playroom .tool-button { width: 100%; height: 62px; min-height: 62px; font-size: 14px; }
+html.ios-shell .playroom .tool-button .playful-icon { width: 40px; height: 40px; }
+/* Dialogs are promoted to the WebKit top layer and therefore do not inherit
+   the transformed workbench's visual matrix. Apply the same matrix directly
+   so headings, labels, controls and previews stay in the one UI scale. Their
+   logical dimensions are inverse-scaled before the transform, which keeps the
+   resulting physical dialog inside the safe viewport. */
+html.ios-shell dialog {
+  max-width: calc(100vw / var(--ios-ui-scale) - 36px);
+  max-height: calc(100dvh / var(--ios-ui-scale) - 24px);
+  transform: scale(var(--ios-ui-scale));
+  transform-origin: center;
+}
+html.ios-shell .playroom .choice-grid,
+html.ios-shell .playroom .asset-grid,
+html.ios-shell .playroom .brush-box,
+html.ios-shell .playroom .tool-rail #tools { scrollbar-width: thin; }
+
+/* A short landscape phone still needs a usable brush list when the user
+   chooses a larger reading size. Keep the colour station compact, reserve a
+   real two-row brush viewport, and let the left rail scroll as one surface if
+   the enlarged controls cannot all fit at once. */
+@media (max-height: 500px) {
+  html.ios-shell .playroom {
+    --left: calc(clamp(164px, 18vw, 196px) * var(--u));
+    --right: calc(clamp(92px, 8.5vw, 116px) * var(--u));
+    --header: 56px;
+  }
+  html.ios-shell .playroom .workspace { padding: 6px !important; gap: 6px !important; }
+  html.ios-shell .playroom .app-header { padding: 3px 6px !important; gap: 6px !important; }
+  html.ios-shell .playroom .brand { min-width: 112px !important; }
+  html.ios-shell .playroom .brand > .playful-icon { width: 38px; height: 38px; }
+  html.ios-shell .playroom .brand strong { font-size: 17px !important; }
+  html.ios-shell .playroom .header-actions { gap: 4px !important; }
+  html.ios-shell .playroom .header-actions button {
+    min-width: 54px !important;
+    min-height: 54px !important;
+    height: 54px !important;
+    padding: 2px 5px !important;
+    font-size: 12px !important;
+  }
+  html.ios-shell .playroom .header-actions button .playful-icon,
+  html.ios-shell .playroom .header-actions button svg { width: 27px; height: 27px; }
+  html.ios-shell .playroom .classic-left { padding: 6px !important; gap: 6px !important; }
+  html.ios-shell .playroom .tool-rail { padding: 6px !important; gap: 6px !important; }
+  html.ios-shell .playroom .tool-button {
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 70px !important;
+    font-size: 12px !important;
+  }
+  html.ios-shell .playroom .tool-button .playful-icon { width: 32px; height: 32px; }
+  html.ios-shell .playroom .canvas-topbar { height: 42px !important; min-height: 42px !important; }
+  html.ios-shell .playroom .tool-dock { height: 112px !important; }
+  html.ios-shell .playroom .quick-palette { height: 50px !important; min-height: 50px !important; }
+  html.ios-shell .playroom .classic-left { overflow-y: auto !important; }
+  html.ios-shell .playroom .classic-left .classic-colors {
+    height: 132px !important;
+    min-height: 132px !important;
+    overflow: hidden !important;
+    padding: 6px !important;
+    gap: 3px !important;
+  }
+  html.ios-shell .playroom .classic-left #foreground-history,
+  html.ios-shell .playroom .classic-left #background-history { display: none !important; }
+  html.ios-shell .playroom .classic-left .brush-box {
+    min-height: 150px !important;
+    flex: 1 1 auto !important;
+  }
+}

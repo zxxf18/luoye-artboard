@@ -19,6 +19,32 @@ function addUnique(points, point) {
   if (!points.some(existing => samePoint(existing, point))) points.push(point);
 }
 
+function transformDescriptors(options) {
+  if (options.mode === 'vertical') return [{ flipX: false, flipY: false }, { flipX: true, flipY: false }];
+  if (options.mode === 'horizontal') return [{ flipX: false, flipY: false }, { flipX: false, flipY: true }];
+  if (options.mode === 'four') return [
+    { flipX: false, flipY: false }, { flipX: true, flipY: false },
+    { flipX: false, flipY: true }, { flipX: true, flipY: true },
+  ];
+  if (options.mode === 'radial') return Array.from({ length: options.axes }, (_, index) => {
+    const angle = Math.PI * 2 * index / options.axes;
+    return { cos: Math.cos(angle), sin: Math.sin(angle) };
+  });
+  return [{ flipX: false, flipY: false }];
+}
+
+export function assistTransformDescriptors(config = {}) {
+  return transformDescriptors(normalizeAssistConfig(config));
+}
+
+function transformPoint(point, origin, descriptor) {
+  if (descriptor.cos !== undefined) {
+    const dx = point.x - origin.x, dy = point.y - origin.y;
+    return { x: origin.x + dx * descriptor.cos - dy * descriptor.sin, y: origin.y + dx * descriptor.sin + dy * descriptor.cos };
+  }
+  return { x: descriptor.flipX ? origin.x * 2 - point.x : point.x, y: descriptor.flipY ? origin.y * 2 - point.y : point.y };
+}
+
 function transforms(options, origin) {
   const mirrorX = point => ({ x: origin.x * 2 - point.x, y: point.y });
   const mirrorY = point => ({ x: point.x, y: origin.y * 2 - point.y });
@@ -77,6 +103,17 @@ export function assistPointSets(points, config, center) {
 
 export function assistSegmentCopies(start, end, config, center) {
   return assistPointSetCopies([start, end], config, center).map(copy => ({ start: copy.points[0], end: copy.points[1], transformIndex: copy.transformIndex }));
+}
+
+/** Fast path for a gesture whose normalized symmetry geometry is already cached. */
+export function assistSegmentCopiesFromGeometry(start, end, geometry) {
+  if (!geometry?.config?.enabled) return [{ start, end, transformIndex: 0 }];
+  const origin = geometry.center, descriptors = geometry.transforms || transformDescriptors(geometry.config), copies = [];
+  for (const [transformIndex, descriptor] of descriptors.entries()) {
+    const copy = { start: transformPoint(start, origin, descriptor), end: transformPoint(end, origin, descriptor), transformIndex };
+    if (!copies.some(existing => samePoint(existing.start, copy.start) && samePoint(existing.end, copy.end))) copies.push(copy);
+  }
+  return copies;
 }
 
 export function assistSegments(start, end, config, center) {

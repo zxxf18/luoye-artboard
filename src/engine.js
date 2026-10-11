@@ -146,7 +146,7 @@ export class PaintEngine {
     // reuse a cached composite of the lower layers and redraw only the active
     // layer for each frame. This keeps input latency independent of layer count.
     this.gestureComposite=null;
-    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0};
+    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0,gradientStopCalculations:0};
     // Do not keep a timer alive for ordinary static drawings. Mobile WebViews
     // pay for every wake-up even when there is no animated layer to repaint.
     // The timer is started lazily by changed()/toggleAnimation() once a
@@ -445,7 +445,7 @@ export class PaintEngine {
     if ((layer.frames?.length || layer.sprites) && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
     const local = toLayerPoint(point, layer);
     this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
-      origin: point, x: layer.x, y: layer.y, tiles: new Map() };
+      origin: point, x: layer.x, y: layer.y, tiles: new Map(), engineMetrics: this.metrics };
     if (['pen', 'eraser', 'scratch'].includes(options.tool)) this.segment(local, local);
     if (options.tool === 'fill') {
       const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height);
@@ -458,6 +458,15 @@ export class PaintEngine {
       }
       this.gesture = null; this.changed();
     }
+  }
+  strokeCoalesceDistance(gesture) {
+    const options = gesture?.options;
+    if (!options || options.tool !== 'pen' || !['rainbow', 'duotone'].includes(options.brush)) return 0;
+    // A thick gradient brush already covers this footprint. Coalescing nearby
+    // samples keeps the stroke continuous while avoiding one full 16-way
+    // raster pass for every high-frequency pointer event.
+    const width = Math.max(1, Number(options.size || 0) / Math.max(.01, Number(gesture.layer?.scale) || 1));
+    return Math.max(2, Math.min(72, width * .28));
   }
   segment(a, b) {
     const { layer, options: o, tiles } = this.gesture;
@@ -494,13 +503,48 @@ export class PaintEngine {
       // duplicate dab does not change pixels but still captures readback
       // tiles and schedules a frame, which is noticeable on large tablets.
       if (g.last && local.x === g.last.x && local.y === g.last.y) return;
+      g.end = local;
+      const coalesceDistance = this.strokeCoalesceDistance(g);
+      if (coalesceDistance && g.last) {
+        const now = performance.now();
+        // Never hold ink for more than one frame. This keeps a slow finger or
+        // stylus stroke feeling live even when every sample is inside the
+        // thick-brush footprint.
+        if (g.pending && now - g.pendingAt >= 16) {
+          const pending = g.pending;
+          this.segment(g.last, pending);
+          g.last = pending;
+          g.pending = null;
+          g.pendingAt = 0;
+        }
+        if (Math.hypot(local.x - g.last.x, local.y - g.last.y) < coalesceDistance) {
+          if (g.pending) {
+            const ax = g.pending.x - g.last.x, ay = g.pending.y - g.last.y;
+            const bx = local.x - g.pending.x, by = local.y - g.pending.y;
+            const firstLength = Math.hypot(ax, ay), secondLength = Math.hypot(bx, by);
+            // A sharp turn inside the coalescing window is visually meaningful.
+            // Commit the previous point before holding the new one so a thick
+            // brush does not cut a corner into a straight chord.
+            if (firstLength > 0 && secondLength > 0 && (ax * bx + ay * by) < firstLength * secondLength * .55) {
+              const turn = g.pending;
+              this.segment(g.last, turn);
+              g.last = turn;
+              g.pending = null;
+              g.pendingAt = 0;
+            }
+          }
+          if (!g.pending) g.pendingAt = now;
+          g.pending = local;
+          return;
+        }
+      }
       // A thick scratch brush already covers a wide footprint. Coalescing
       // samples within a quarter of that footprint keeps adjacent reveals
       // continuous while avoiding repeated tile readbacks for every tiny
       // pointer move. The accumulated distance is measured from g.last, so a
       // skipped sample is still included in the next segment.
       if (g.options.tool === 'scratch' && g.last && Math.hypot(local.x - g.last.x, local.y - g.last.y) < Math.max(2, Math.min(64, (g.options.size / g.layer.scale) * .25))) return;
-      g.end = local; if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local;
+      if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; g.pending = null; g.pendingAt = 0;
     }
     this.render();
   }
@@ -523,6 +567,12 @@ export class PaintEngine {
       if (after.x !== g.x || after.y !== g.y) this.history.push({ bytes: 0,
         undo: () => Object.assign(g.layer, { x: g.x, y: g.y }), redo: () => Object.assign(g.layer, after) });
     } else {
+      if (g.pending && ['pen', 'eraser', 'scratch'].includes(g.options.tool) && (g.pending.x !== g.last.x || g.pending.y !== g.last.y)) {
+        const pending = g.pending;
+        g.pending = null;
+        this.segment(g.last, pending);
+        g.last = pending;
+      }
       if (['line', 'rect', 'ellipse'].includes(g.options.tool)) {
         const padding = g.options.size / g.layer.scale + 2;
         this.captureTiles(g.layer, { x: Math.min(g.start.x, g.end.x) - padding, y: Math.min(g.start.y, g.end.y) - padding,

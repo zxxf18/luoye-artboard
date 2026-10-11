@@ -54,18 +54,48 @@ function gradientOrigin(gesture,point){
   if(gesture.start&&Number.isFinite(gesture.start.x)&&Number.isFinite(gesture.start.y))return gesture.gradientOrigin={x:gesture.start.x,y:gesture.start.y};
   return gesture.gradientOrigin??=({...point});
 }
-function segmentGradient(ctx,a,b,colorAt){
+function segmentGradient(ctx,a,b,stops){
   if(a.x===b.x&&a.y===b.y)return null;
   const gradient=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
   // Several stops keep the hue smooth even when a segment spans a full color
   // cycle. Every stop is derived from its position, so pointer event density
   // cannot change the result.
-  for(let i=0;i<=8;i++){const t=i/8;gradient.addColorStop(t,colorAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}));}
+  for(let i=0;i<stops.length;i++)gradient.addColorStop(i/8,stops[i]);
   return gradient;
 }
-function gradientRibbon(ctx,a,b,width,colorAt,alpha){
-  if(a.x===b.x&&a.y===b.y){ribbon(ctx,a,b,width,colorAt(a),alpha);return;}
-  ribbon(ctx,a,b,width,segmentGradient(ctx,a,b,colorAt),alpha);
+function gradientRibbon(ctx,a,b,width,stops,alpha){
+  if(a.x===b.x&&a.y===b.y){ribbon(ctx,a,b,width,stops[0],alpha);return;}
+  ribbon(ctx,a,b,width,segmentGradient(ctx,a,b,stops),alpha);
+}
+
+/**
+ * Prepare the nine colour stops used by a gradient brush. The source segment
+ * is shared by all assisted copies, while each copy still creates its own
+ * CanvasGradient so its transformed coordinates keep the original visual
+ * direction. Keeping this cache on the gesture removes the expensive colour
+ * conversion work from every symmetry copy without sharing mutable brush
+ * state such as randomness or dab travel.
+ */
+export function prepareGradientStops(gesture, a, b) {
+  const key=gesture?.options?.brush;
+  if(key!=='rainbow'&&key!=='duotone')return null;
+  const origin=gradientOrigin(gesture,a);
+  if(!origin.direction&&(a.x!==b.x||a.y!==b.y)){
+    const distance=Math.hypot(b.x-a.x,b.y-a.y);
+    if(distance)origin.direction={x:(b.x-a.x)/distance,y:(b.y-a.y)/distance};
+  }
+  const width=Math.max(1,Number(gesture.options.size||0)/Math.max(.01,Number(gesture.layer?.scale)||1));
+  const length=Math.max(96,width*5),seed=gesture.options.seed??0;
+  const signature=[key,a.x,a.y,b.x,b.y,origin.x,origin.y,origin.direction?.x||0,origin.direction?.y||0,length,seed,gesture.options.color,gesture.options.secondaryColor||'#ffffff'].join('|');
+  if(gesture.gradientStopsSignature===signature&&gesture.gradientStops?.length===9)return gesture.gradientStops;
+  const colorAt=key==='rainbow'
+    ?point=>rainbowColorAt(point,origin,seed,length)
+    :point=>gradientColorAt(point,origin,gesture.options.color,gesture.options.secondaryColor||'#ffffff',length,seed);
+  const stops=[];
+  for(let i=0;i<=8;i++){const t=i/8;stops.push(colorAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}));}
+  gesture.gradientStopsSignature=signature;gesture.gradientStops=stops;
+  if(gesture.engineMetrics)gesture.engineMetrics.gradientStopCalculations=(gesture.engineMetrics.gradientStopCalculations||0)+stops.length;
+  return stops;
 }
 
 export function brushSegment(ctx,g,a,b){
@@ -78,10 +108,8 @@ export function brushSegment(ctx,g,a,b){
     const origin=gradientOrigin(g,a);if(!origin.direction&&(a.x!==b.x||a.y!==b.y)){const distance=Math.hypot(b.x-a.x,b.y-a.y);if(distance)origin.direction={x:(b.x-a.x)/distance,y:(b.y-a.y)/distance};}
     // Keep the colour journey visible on a child's short stroke while still
     // giving long strokes room to show several rainbow bands.
-    const length=Math.max(96,w*5),colorAt=key==='rainbow'
-      ?point=>rainbowColorAt(point,origin,o.seed??0,length)
-      :point=>gradientColorAt(point,origin,o.color,o.secondaryColor||'#ffffff',length,o.seed??0);
-    gradientRibbon(ctx,a,b,Math.max(1,w*.72)*ratio,colorAt,alpha);
+    const stops=g.gradientStops?.length===9?g.gradientStops:prepareGradientStops(g,a,b);
+    gradientRibbon(ctx,a,b,Math.max(1,w*.72)*ratio,stops,alpha);
   }else if(key==='pencil'){
     ribbon(ctx,a,b,Math.max(1,w*.26)*ratio,o.color,alpha*.94);
     ribbon(ctx,a,b,Math.max(.5,w*.05),o.color,alpha*.24,-w*.13,-w*.1);

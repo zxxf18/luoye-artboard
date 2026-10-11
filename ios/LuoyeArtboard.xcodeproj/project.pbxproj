@@ -7,24 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10000010000000000000001 /* LuoyeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000001 /* LuoyeBridge.swift */; };
-		A10000010000000000000002 /* LuoyeMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000002 /* LuoyeMusic.swift */; };
-		A10000010000000000000003 /* LuoyeWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000003 /* LuoyeWebViewController.swift */; };
-		A10000010000000000000005 /* site in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000005 /* site */; };
-		A10000010000000000000006 /* audio in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000006 /* audio */; };
-		A10000010000000000000007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000007 /* Assets.xcassets */; };
-		A10000010000000000000008 /* smoke in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000008 /* smoke */; };
+		A10000010000000000000001 /* ../native/ios/LuoyeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000001 /* ../native/ios/LuoyeBridge.swift */; };
+		A10000010000000000000002 /* ../native/ios/LuoyeMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000002 /* ../native/ios/LuoyeMusic.swift */; };
+		A10000010000000000000003 /* ../native/ios/LuoyeWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000003 /* ../native/ios/LuoyeWebViewController.swift */; };
+		A10000010000000000000005 /* Resources/site in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000005 /* Resources/site */; };
+		A10000010000000000000006 /* Resources/audio in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000006 /* Resources/audio */; };
+		A10000010000000000000007 /* Resources/Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000007 /* Resources/Assets.xcassets */; };
+		A10000010000000000000008 /* Resources/smoke in Resources */ = {isa = PBXBuildFile; fileRef = A10000110000000000000008 /* Resources/smoke */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A10000110000000000000001 /* LuoyeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeBridge.swift; sourceTree = "<group>"; };
-		A10000110000000000000002 /* LuoyeMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeMusic.swift; sourceTree = "<group>"; };
-		A10000110000000000000003 /* LuoyeWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeWebViewController.swift; sourceTree = "<group>"; };
+		A10000110000000000000001 /* ../native/ios/LuoyeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeBridge.swift; sourceTree = "<group>"; };
+		A10000110000000000000002 /* ../native/ios/LuoyeMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeMusic.swift; sourceTree = "<group>"; };
+		A10000110000000000000003 /* ../native/ios/LuoyeWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../native/ios/LuoyeWebViewController.swift; sourceTree = "<group>"; };
 		A10000110000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A10000110000000000000005 /* site */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/site; sourceTree = "<group>"; };
-		A10000110000000000000006 /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/audio; sourceTree = "<group>"; };
-		A10000110000000000000007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
-		A10000110000000000000008 /* smoke */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/smoke; sourceTree = "<group>"; };
+		A10000110000000000000005 /* Resources/site */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/site; sourceTree = "<group>"; };
+		A10000110000000000000006 /* Resources/audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/audio; sourceTree = "<group>"; };
+		A10000110000000000000007 /* Resources/Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		A10000110000000000000008 /* Resources/smoke */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/smoke; sourceTree = "<group>"; };
 		A10000110000000000000009 /* 落叶画板.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "落叶画板.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -42,15 +42,15 @@
 		A10000310000000000000001 = {
 			isa = PBXGroup;
 			children = (
-				A10000110000000000000001,
-				A10000110000000000000002,
-				A10000110000000000000003,
-				A10000110000000000000004,
-				A10000110000000000000005,
-				A10000110000000000000006,
-				A10000110000000000000007,
-				A10000110000000000000008,
-				A10000310000000000000002,
+				A10000110000000000000001 /* ../native/ios/LuoyeBridge.swift */,
+				A10000110000000000000002 /* ../native/ios/LuoyeMusic.swift */,
+				A10000110000000000000003 /* ../native/ios/LuoyeWebViewController.swift */,
+				A10000110000000000000004 /* Info.plist */,
+				A10000110000000000000005 /* Resources/site */,
+				A10000110000000000000006 /* Resources/audio */,
+				A10000110000000000000007 /* Resources/Assets.xcassets */,
+				A10000110000000000000008 /* Resources/smoke */,
+				A10000310000000000000002 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,19 +90,27 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				TargetAttributes = {
-					A10000410000000000000001 = { CreatedOnToolsVersion = 16.0; };
+					A10000410000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
 				};
 			};
 			buildConfigurationList = A10000510000000000000001 /* Build configuration list for PBXProject "LuoyeArtboard" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = zh_CN;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, zh_CN, Base);
+			knownRegions = (
+				en,
+				zh_CN,
+				Base,
+			);
 			mainGroup = A10000310000000000000001;
 			productRefGroup = A10000310000000000000002 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (A10000410000000000000001 /* LuoyeArtboard */);
+			targets = (
+				A10000410000000000000001 /* LuoyeArtboard */,
+			);
 		};
 /* End PBXProject section */
 
@@ -111,10 +119,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000010000000000000005 /* site in Resources */,
-				A10000010000000000000006 /* audio in Resources */,
-				A10000010000000000000007 /* Assets.xcassets in Resources */,
-				A10000010000000000000008 /* smoke in Resources */,
+				A10000010000000000000005 /* Resources/site in Resources */,
+				A10000010000000000000006 /* Resources/audio in Resources */,
+				A10000010000000000000007 /* Resources/Assets.xcassets in Resources */,
+				A10000010000000000000008 /* Resources/smoke in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,9 +133,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000010000000000000001 /* LuoyeBridge.swift in Sources */,
-				A10000010000000000000002 /* LuoyeMusic.swift in Sources */,
-				A10000010000000000000003 /* LuoyeWebViewController.swift in Sources */,
+				A10000010000000000000001 /* ../native/ios/LuoyeBridge.swift in Sources */,
+				A10000010000000000000002 /* ../native/ios/LuoyeMusic.swift in Sources */,
+				A10000010000000000000003 /* ../native/ios/LuoyeWebViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,12 +145,16 @@
 		A10000710000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGNING_ALLOWED = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A2RFBK55CG;
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yebuluo.luoyeartboard;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				PRODUCT_NAME = "落叶画板";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -152,25 +164,37 @@
 		A10000710000000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGNING_ALLOWED = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = A2RFBK55CG;
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yebuluo.luoyeartboard;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				PRODUCT_NAME = "落叶画板";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
-		A10000710000000000000003 /* Project Debug */ = {
+		A10000710000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; };
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
 			name = Debug;
 		};
-		A10000710000000000000004 /* Project Release */ = {
+		A10000710000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
-			buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SWIFT_OPTIMIZATION_LEVEL = "-O"; };
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
@@ -178,13 +202,19 @@
 /* Begin XCConfigurationList section */
 		A10000510000000000000001 /* Build configuration list for PBXProject "LuoyeArtboard" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (A10000710000000000000003 /* Project Debug */, A10000710000000000000004 /* Project Release */);
+			buildConfigurations = (
+				A10000710000000000000003 /* Debug */,
+				A10000710000000000000004 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		A10000510000000000000002 /* Build configuration list for PBXNativeTarget "LuoyeArtboard" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (A10000710000000000000001 /* Debug */, A10000710000000000000002 /* Release */);
+			buildConfigurations = (
+				A10000710000000000000001 /* Debug */,
+				A10000710000000000000002 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};

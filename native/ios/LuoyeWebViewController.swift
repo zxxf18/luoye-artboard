@@ -75,24 +75,26 @@ final class LuoyeWebViewController: UIViewController {
         view.backgroundColor = .systemBackground
         // The bundled page declares viewport-fit=cover; this injected rule
         // keeps the same safe-area contract when an older cached page loads.
+        webView.configuration.userContentController.addUserScript(WKUserScript(
+            source: "window.LUOYE_PLATFORM = 'ios'; const applyLuoyeShell = () => document.documentElement?.classList.add('ios-shell'); applyLuoyeShell(); document.addEventListener('DOMContentLoaded', applyLuoyeShell, { once: true });",
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        ))
         let script = WKUserScript(source: """
         (() => {
-          window.LUOYE_PLATFORM = 'ios';
-          document.documentElement.classList.add('ios-shell');
           const style = document.createElement('style');
           style.textContent = `
             :root { --ios-safe-top: env(safe-area-inset-top); --ios-safe-right: env(safe-area-inset-right); --ios-safe-bottom: env(safe-area-inset-bottom); --ios-safe-left: env(safe-area-inset-left); }
-            html.ios-shell dialog { max-height: calc(100dvh - var(--ios-safe-top) - var(--ios-safe-bottom) - 24px); }
+            html.ios-shell dialog {
+              max-height: calc(100dvh / var(--ios-ui-scale) - var(--ios-safe-top) - var(--ios-safe-bottom) - 24px);
+              transform: scale(var(--ios-ui-scale));
+              transform-origin: center;
+            }
           `;
           document.head.append(style);
         })();
         """, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(script)
-        webView.configuration.userContentController.addUserScript(WKUserScript(
-            source: "window.LUOYE_PLATFORM = 'ios';",
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        ))
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true) else {
             showError("应用内没有找到画板资源。"); return
         }
@@ -101,6 +103,7 @@ final class LuoyeWebViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool { immersive }
     override var prefersHomeIndicatorAutoHidden: Bool { immersive }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask { [.landscapeLeft, .landscapeRight] }
     override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .landscapeRight }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -222,7 +225,6 @@ final class LuoyeWebViewController: UIViewController {
         let output = documents.appendingPathComponent(outputName.isEmpty ? "luoye-smoke" : outputName)
         let orientation: UIInterfaceOrientationMask? = switch value("LUOYE_SMOKE_ORIENTATION") {
         case "landscape": .landscapeLeft
-        case "portrait": .portrait
         default: nil
         }
         try? FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
@@ -249,13 +251,37 @@ final class LuoyeWebViewController: UIViewController {
 final class LuoyeSceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
+    private func requestLandscape(_ windowScene: UIWindowScene) {
+        // On iPhone, iOS 26 can restore a small windowed scene session even
+        // when the app only supports landscape. Pin the phone scene to the
+        // display's landscape bounds before requesting the orientation so the
+        // WebView cannot be letterboxed in a centered portrait-sized window.
+        if UIDevice.current.userInterfaceIdiom == .phone,
+           let restrictions = windowScene.sizeRestrictions {
+            let bounds = windowScene.screen.bounds.size
+            let fullLandscape = CGSize(width: max(bounds.width, bounds.height),
+                                       height: min(bounds.width, bounds.height))
+            restrictions.minimumSize = fullLandscape
+            restrictions.maximumSize = fullLandscape
+        }
+        guard #available(iOS 16.0, *) else { return }
+        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: [.landscapeLeft, .landscapeRight])) { error in
+            NSLog("Luoye scene landscape request failed: %@", error.localizedDescription)
+        }
+    }
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
+        requestLandscape(windowScene)
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = LuoyeWebViewController()
         self.window = window
         window.makeKeyAndVisible()
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        if let windowScene = scene as? UIWindowScene { requestLandscape(windowScene) }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

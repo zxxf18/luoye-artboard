@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
  * Browser acceptance scripts still exercise the actual Canvas implementation.
  */
 function fakeContext(width, height) {
-  const stats = { reads: 0, writes: 0, draws: 0, gradients: 0 };
+  const stats = { reads: 0, writes: 0, draws: 0, gradients: 0, gradientStops: 0 };
   const image = (w, h) => ({ width: w, height: h, data: new Uint8ClampedArray(Math.max(1, w * h * 4)) });
   return {
     stats,
@@ -21,7 +21,7 @@ function fakeContext(width, height) {
     clearRect() {}, fillRect() {}, strokeRect() {},
     beginPath() {}, closePath() {}, arc() {}, ellipse() {}, fill() {}, stroke() {},
     moveTo() {}, lineTo() {}, rect() {}, setLineDash() {},
-    createLinearGradient() { stats.gradients++; return { addColorStop() {} }; },
+    createLinearGradient() { stats.gradients++; return { addColorStop() { stats.gradientStops++; } }; },
     createRadialGradient() { stats.gradients++; return { addColorStop() {} }; },
     createPattern() { return {}; },
     getImageData(_x, _y, w, h) { stats.reads++; return image(Math.max(1, w), Math.max(1, h)); },
@@ -70,6 +70,55 @@ function makeEngine(width = 1920, height = 1080) {
 const penOptions = (extra = {}) => ({
   tool: 'pen', brush: 'pencil', brushVersion: 2, size: 22, opacity: 1,
   color: '#285b49', secondaryColor: '#ef8572', seed: 42, ...extra,
+});
+
+test('thick rainbow strokes coalesce redundant pointer samples without losing the endpoint', () => {
+  const value = makeEngine(1920, 1080), calls = [];
+  value.segment = (start, end) => calls.push({ start, end });
+  value.begin({ x: 40, y: 40 }, penOptions({ brush: 'rainbow', size: 240 }));
+  for (let i = 1; i <= 12; i++) value.update({ x: 40 + i * 8, y: 40 });
+  value.end();
+  assert.ok(calls.length < 12, `redundant rainbow samples were not coalesced: ${calls.length}`);
+  assert.equal(calls.at(-1).end.x, 136, 'the final coalesced endpoint is flushed on pointerup');
+});
+
+test('coalescing flushes a turning point so thick rainbow strokes keep their curve', () => {
+  const value = makeEngine(512, 512), calls = [];
+  value.segment = (start, end) => calls.push({ start, end });
+  value.begin({ x: 40, y: 40 }, penOptions({ brush: 'rainbow', size: 240 }));
+  value.update({ x: 48, y: 40 });
+  value.update({ x: 56, y: 40 });
+  value.update({ x: 56, y: 48 });
+  value.end();
+  assert.equal(calls.length, 3, 'straight samples coalesce but the turn and endpoint are retained');
+  assert.deepEqual(calls.slice(1).map(call => call.end), [{ x: 56, y: 40 }, { x: 56, y: 48 }]);
+});
+
+test('thick rainbow coalescing flushes at a frame boundary for slow strokes', () => {
+  const value = makeEngine(512, 512), calls = [];
+  value.segment = (start, end) => calls.push({ start, end });
+  let clock = 0;
+  Object.defineProperty(performance, 'now', { configurable: true, value: () => clock });
+  try {
+    value.begin({ x: 40, y: 40 }, penOptions({ brush: 'rainbow', size: 240 }));
+    value.update({ x: 48, y: 40 });
+    clock = 20;
+    value.update({ x: 56, y: 40 });
+    value.end();
+  } finally { delete performance.now; }
+  assert.equal(calls.length, 3, 'slow strokes still emit ink every frame and flush their endpoint');
+  assert.deepEqual(calls.slice(1).map(call => call.end), [{ x: 48, y: 40 }, { x: 56, y: 40 }]);
+});
+
+test('sixteen-way rainbow strokes calculate each gradient stop once per source segment', () => {
+  const value = makeEngine(1920, 1080);
+  const options = penOptions({ brush: 'rainbow', size: 240, assist: { enabled: true, mode: 'radial', axes: 16, centerX: 960, centerY: 540 } });
+  value.begin({ x: 220, y: 240 }, options);
+  for (let i = 1; i <= 4; i++) value.update({ x: 220 + i * 90, y: 240 + i * 24 });
+  value.end();
+  const segments = 5; // initial dab plus four pointer updates
+  assert.equal(value.metrics.gradientStopCalculations, segments * 9, 'gradient colours are shared by the assisted copies');
+  assert.equal(value.active.canvas.context.stats.gradients, (segments - 1) * 16, 'each transformed segment keeps its own CanvasGradient');
 });
 
 test('large 1920×1080 projects keep layer capacity bounded before edits', () => {

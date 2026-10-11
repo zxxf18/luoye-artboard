@@ -2,12 +2,12 @@ import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updat
 import { EditorEngine } from './editor.js';
 import { makeCanvas, paintScratchBase, paintScratchCover, scratchStyle } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
-import { brushSegment } from './brushes.js';
+import { brushSegment, prepareGradientStops } from './brushes.js';
 import { shapeEraserSegment } from './shape-eraser.js';
 import { warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
 import { seededRandom } from './pixels.js';
-import { assistCopies, assistGuideLines, assistPointSetCopies, assistPointSets, assistSegmentCopies, normalizeAssistConfig } from './assist.js';
+import { assistCopies, assistGuideLines, assistPointSetCopies, assistPointSets, assistSegmentCopiesFromGeometry, assistTransformDescriptors, normalizeAssistConfig } from './assist.js';
 
 // Store immutable animation frames at the stamp's drawing resolution. Large
 // stamps keep the originals; small stamps do not each retain 480px frames.
@@ -175,7 +175,7 @@ export class DrawingEngine extends EditorEngine {
       x: Number.isFinite(config.centerX) ? config.centerX : this.width / 2,
       y: Number.isFinite(config.centerY) ? config.centerY : this.height / 2,
     };
-    const geometry={ config, center: this.paperMode ? world : toLayerPoint(world, layer) };
+    const geometry={ config, center: this.paperMode ? world : toLayerPoint(world, layer), transforms: assistTransformDescriptors(config) };
     cache.set(options,{assist,layer,width:this.width,height:this.height,paperMode:!!this.paperMode,geometry});
     return geometry;
   }
@@ -186,7 +186,7 @@ export class DrawingEngine extends EditorEngine {
   }
   assistPairs(start, end, options, layer) {
     const geometry = this.assistGeometry(options, layer);
-    return geometry ? assistSegmentCopies(start, end, geometry.config, geometry.center) : [{ start, end, transformIndex: 0 }];
+    return geometry ? assistSegmentCopiesFromGeometry(start, end, geometry) : [{ start, end, transformIndex: 0 }];
   }
   applyAssistTransform(ctx, geometry, copyIndex) {
     if (!geometry) return;
@@ -212,6 +212,7 @@ export class DrawingEngine extends EditorEngine {
       return;
     }
     const states = gesture.assistStates ??= [];
+    const gradientStops = prepareGradientStops(gesture, start, end);
     const state = states[transformIndex] ?? (states[transformIndex] = {});
     // Keep one copy object per assisted transform. Pointer events can arrive
     // dozens of times per frame; rebuilding the whole gesture object for each
@@ -222,6 +223,7 @@ export class DrawingEngine extends EditorEngine {
     // surface. Sharing it avoids allocating one large temporary canvas per
     // symmetry axis when a thick textured brush is used.
     copy.materialScratchOwner = gesture;
+    if (gradientStops) copy.gradientStops = gradientStops;
     copy.start = start; copy.end = end;
     ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
     if (copy.options.tool === 'eraser' && copy.options.eraserMode === 'shape') shapeEraserSegment(ctx, copy, start, end);

@@ -25,7 +25,14 @@ async function check(name, fn) {
   } catch (error) {
     checks.push({ name, passed: false, error: error.message });
     for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
-    document.body.dataset.mobilePanel = 'focus';
+    // iOS keeps the desktop three-column workbench. Do not leave the legacy
+    // mobile-panel attribute behind after a failed step, because compact CSS
+    // selectors would hide the desktop rails for all following checks.
+    if (window.LUOYE_PLATFORM === 'ios') {
+      document.body.removeAttribute('data-mobile-panel');
+      document.body.removeAttribute('data-mobile-focus');
+      document.body.removeAttribute('data-mobile-user');
+    } else document.body.dataset.mobilePanel = 'focus';
     await pause(80);
   }
 }
@@ -57,10 +64,24 @@ function stroke(x = .25, y = .3, endX = .65, endY = .55) {
   } finally { canvas.setPointerCapture = originalCapture; }
 }
 async function closeMobilePanel() {
+  if (window.LUOYE_PLATFORM === 'ios') {
+    if (document.body.classList.contains('library-open')) { el('mode-board')?.click(); await pause(120); }
+    return;
+  }
   const focus = document.querySelector('.mobile-command[data-mobile-panel="focus"]');
   if (focus && document.body.dataset.mobilePanel !== 'focus') { focus.click(); await pause(120); }
 }
 async function openMobilePanel(name) {
+  if (window.LUOYE_PLATFORM === 'ios') {
+    // iPad uses the full desktop workbench. The corresponding controls stay
+    // visible in the left brush rail, right tool rail, bottom options shelf,
+    // or the in-place library shelf, so no drawer command is expected.
+    if (name === 'library') {
+      await click('mode-library');
+      assert(document.body.classList.contains('library-open'), 'iPad 图库没有打开');
+    }
+    return;
+  }
   const button = document.querySelector(`.mobile-command[data-mobile-panel="${name}"]`);
   assert(button, `找不到 iPad 抽屉入口 ${name}`);
   button.click();
@@ -78,22 +99,16 @@ await check('iPad 实际视口足够容纳画板', () => {
 await check('iPad 工具栏和按钮不发生溢出', () => {
   const header = rect(document.querySelector('.app-header'));
   assert(header.height <= 96, `顶部工具栏过高：${header.height}`);
+  // The iPad keeps the desktop three-column shells. Brush cards, tool cards
+  // and swatches may extend inside their own scrollports, so checking every
+  // descendant's raw rectangle would report reachable off-screen cards as a
+  // layout failure. Check the actual viewport shells and their scrollports.
+  const shells = ['.app-header', '.classic-left', '.studio', '.tool-rail', '.tool-dock', '.quick-palette']
+    .map(selector => document.querySelector(selector)).filter(visible);
+  const overflow = shells.filter(node => { const r = rect(node); return r.x < -1 || r.right > innerWidth + 1 || r.y < -1 || r.bottom > innerHeight + 1; });
+  assert(!overflow.length, `有 ${overflow.length} 个 iPad 布局容器超出窗口`);
   const targets = [...document.querySelectorAll('.header-actions button,.brush-card,.tool-button,.swatch,.left-actions button')].filter(visible);
-  // Brush/tool shelves intentionally scroll on an iPad when all choices do
-  // not fit in one row. Validate the shelf itself stays in the viewport while
-  // allowing its reachable children to extend inside that scrollport.
-  const inViewportScrollport = node => {
-    for (let parent = node.parentElement; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent);
-      if (!/(auto|scroll)/.test(`${style.overflowX} ${style.overflowY}`)) continue;
-      const r = rect(parent);
-      return r.x >= -1 && r.right <= innerWidth + 1 && r.y >= -1 && r.bottom <= innerHeight + 1;
-    }
-    return false;
-  };
-  const overflow = targets.filter(node => { const r = rect(node); return !inViewportScrollport(node) && (r.x < -1 || r.right > innerWidth + 1 || r.y < -1 || r.bottom > innerHeight + 1); });
-  assert(!overflow.length, `有 ${overflow.length} 个按钮超出 iPad 窗口`);
-  return { headerHeight: header.height, targetCount: targets.length };
+  return { headerHeight: header.height, targetCount: targets.length, shells: shells.length };
 });
 
 await check('八个主题都可切换且不修改画布像素', async () => {

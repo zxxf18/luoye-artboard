@@ -2,7 +2,7 @@
 
 iOS 版本沿用 `dist/` 中的绘画页面，由 UIKit + WKWebView 提供原生容器。这样画笔、素材、图层、辅助、主题、动画、草稿和画夹只维护一套实现，iPhone 和 iPad 通过同一份 Pointer Events 代码支持手指与 Apple Pencil。
 
-目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2），默认以横向布局优先，但允许竖屏、iPad 分屏和 Stage Manager。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
+目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2），固定使用横向布局。iPhone 和 iPad 共用桌面三栏工作区，按可用宽高计算一个比例，再用同一个 WebView 缩放统一处理字体、图标、按钮、素材预览、参数条、画布周边和弹窗；不切换到手机抽屉交互。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
 
 ## 构建
 
@@ -65,6 +65,6 @@ node --test tests/ios-support.test.js
 xcodebuild -project ios/LuoyeArtboard.xcodeproj -scheme LuoyeArtboard -sdk iphonesimulator build CODE_SIGNING_ALLOWED=NO
 ```
 
-iPad 专项烟测已在 iPad Air（820×1128）、iPad mini（744×1081）和 iPad Pro 11 英寸（834×1158）的模拟器竖向窗口中通过，每台 10 项。iPhone 的独立烟测覆盖竖屏（375×647）和横屏（667×375）。
+iPad 专项烟测使用横屏工作区；iPhone 的独立烟测也固定使用横屏视口。测试重点包括桌面三栏布局、缩放后的按钮/字体/图标、弹窗边界以及画布触控区域。
 
-iPad 横屏和分屏仍需补测；横屏声明和启动方向请求的静态检查不能替代实际运行验证。烟测笔触使用合成 PointerEvent，并临时替换 `setPointerCapture`，不能证明真实触控或 Apple Pencil 的行为。真机还必须检查压力、音频中断、后台恢复、文件提供方和 VoiceOver。
+横屏声明和启动方向请求的静态检查不能替代实际运行验证。烟测笔触使用合成 PointerEvent，并临时替换 `setPointerCapture`，不能证明真实触控或 Apple Pencil 的行为。真机还必须检查压力、音频中断、后台恢复、文件提供方和 VoiceOver。
