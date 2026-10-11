@@ -496,12 +496,15 @@ export class PaintEngine {
     if (!factor) return 0;
     const gradient = options.brush === 'rainbow' || options.brush === 'duotone';
     const assist = options.assist;
-    const highFanout = assist?.enabled === true && assist.mode === 'radial' && Number(assist.axes) >= 8;
+    const assistFanout = assist?.mode === 'radial'
+      ? Math.max(2, Math.min(16, Math.round(Number(assist.axes) || 8)))
+      : assist?.mode === 'four' ? 4 : 2;
+    const multiCopyAssist = assist?.enabled === true && assistFanout > 1;
     // Gradient brushes already had this path because their colour stops are
-    // expensive even without symmetry. Other brush textures only coalesce
-    // when a high-fanout assist would multiply the same work eight or more
-    // times; ordinary single-copy strokes keep their original sample density.
-    if (!gradient && !highFanout) return 0;
+    // expensive even without symmetry. Other brush textures coalesce whenever
+    // an enabled assist mode paints more than one copy; ordinary single-copy
+    // strokes keep their original sample density.
+    if (!gradient && !multiCopyAssist) return 0;
     const width = Math.max(1, Number(options.size || 0) / Math.max(.01, Number(gesture.layer?.scale) || 1));
     return Math.max(2, Math.min(72, width * factor));
   }

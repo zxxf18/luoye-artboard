@@ -145,6 +145,24 @@ test('wide dab coalescing commits a sharp turn before holding the next sample', 
   assert.deepEqual(calls.slice(1).map(call => call.end), [{ x: 56, y: 40 }, { x: 56, y: 48 }]);
 });
 
+test('wide dab brushes coalesce for every multi-copy assist mode', () => {
+  const assists = [
+    { enabled: true, mode: 'vertical', centerX: 256, centerY: 256 },
+    { enabled: true, mode: 'horizontal', centerX: 256, centerY: 256 },
+    { enabled: true, mode: 'four', centerX: 256, centerY: 256 },
+    { enabled: true, mode: 'radial', axes: 4, centerX: 256, centerY: 256 },
+  ];
+  for (const assist of assists) {
+    const value = makeEngine(512, 512), calls = [];
+    value.segment = (start, end) => calls.push({ start, end });
+    value.begin({ x: 40, y: 40 }, penOptions({ brush: 'crayon', size: 240, assist }));
+    for (let i = 1; i <= 12; i++) value.update({ x: 40 + i * 8, y: 40 });
+    value.end();
+    assert.ok(calls.length < 12, `${assist.mode} 辅助没有合并密集采样：${calls.length}`);
+    assert.equal(calls.at(-1).end.x, 136, `${assist.mode} 辅助没有保留最终端点`);
+  }
+});
+
 test('ordinary wide dab strokes keep their original sample density without assist fanout', () => {
   const value = makeEngine(512, 512), calls = [];
   value.segment = (start, end) => calls.push({ start, end });
