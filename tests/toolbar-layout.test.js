@@ -8,12 +8,16 @@ const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 const shelfStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 
 test('compact header folds infrequent actions into the existing settings sheet', () => {
-  assert.match(classic, /const foldedToolbarIds = \['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'\]/);
+  assert.match(classic, /const foldedToolbarIds = \['reset-settings','open','export','gallery','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'\]/);
   assert.match(classic, /matchMedia\('\(max-width: 1080px\), \(max-height: 600px\)'\)/);
   assert.match(classic, /toolbarObserver\.observe\(header, \{ childList: true \}\)/);
   assert.match(classic, /toolbarResize\.observe\(header\)/);
   assert.match(classic, /button\.dataset\.toolbarFolded = 'true'/);
-  assert.match(classic, /const about = el\('about-open'\);[\s\S]*actions\.append\(about\)/, '关于按钮没有固定在设置末尾');
+  assert.match(classic, /const about = el\('about-open'\);[\s\S]*settingsActions\.append\(about\)/, '关于按钮没有固定在设置末尾');
+  assert.match(classic, /more-tools-actions/, '工具组没有独立容器');
+  assert.match(classic, /more-settings-actions/, '设置组没有独立容器');
+  assert.match(classic, /const target = \['reset-settings','open','export','gallery'\]\.includes\(button\.id\)/, '折叠操作没有按组归位');
+  assert.match(classic, /'theme-open','music-open'/, '音乐入口没有保留在顶部快捷区');
 });
 
 test('folded header keeps compact touch targets and removes horizontal scroll affordance', () => {

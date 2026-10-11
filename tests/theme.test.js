@@ -68,7 +68,7 @@ test('theme and settings entries stay in their intended containers', () => {
   assert.doesNotMatch(theme, /more-dialog \\.more-actions/);
   assert.match(display, /id='display-open'/);
   assert.match(classic, /id='about-open'/);
-  assert.match(classic, /actions\.append\(aboutButton\)/);
+  assert.match(classic, /settingsActions\.append\(aboutButton\)/);
   assert.match(app, /mountDisplay\(\)/);
 });
 
@@ -122,6 +122,8 @@ test('theme CSS exposes global control surfaces and excludes artwork pixels', ()
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.detail-bar/);
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.subtool-card/);
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.quick-palette/);
+  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-group/);
+  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-group-actions button/);
   assert.match(skinStyles, /--theme-control\s*:/);
   assert.match(skinStyles, /--theme-selected\s*:/);
   assert.doesNotMatch(styles, /\.playroom\[data-theme\][^{}]*#painting/);
@@ -152,13 +154,13 @@ test('paper grain control explains that it changes brush texture rather than the
   assert.match(materials, /纸感强度/);
 });
 
-test('assist symmetry uses an anchored dropdown without hijacking the global choice dialog', () => {
+test('assist symmetry uses an inline expandable choice without hijacking the global choice dialog', () => {
   assert.match(assist, /id="assist-mode"[^>]*data-direct-choice="true"[^>]*hidden/);
-  assert.match(assist, /id="assist-mode-trigger"[^>]*aria-haspopup="listbox"/);
-  assert.match(assist, /id="assist-mode-menu"[^>]*role="listbox"/);
+  assert.match(assist, /id="assist-mode-toggle"[^>]*aria-expanded="false"/);
+  assert.match(assist, /id="assist-mode-options"[^>]*role="radiogroup"/);
   assert.match(assist, /data-assist-mode-option="radial"/);
   assert.match(assist, /modeSelect\.dispatchEvent\(new Event\('change'/);
   assert.match(playfulControls, /select\.dataset\.directChoice/);
-  assert.match(styles, /\.assist-mode-menu\s*\{[\s\S]*position:\s*fixed/);
-  assert.match(styles, /\.assist-mode-menu button\[aria-selected="true"\]/);
+  assert.match(styles, /\.assist-mode-options\s*\{[\s\S]*grid-template-columns/);
+  assert.match(styles, /\.assist-mode-options button\[aria-pressed="true"\]/);
 });

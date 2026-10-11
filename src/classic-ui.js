@@ -116,8 +116,8 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   // adjustment and generative tools. Defining the groups explicitly avoids
   // silently moving a new tool between pages when the list grows.
   const toolPages=[
-    [['pen','画笔'],['eraser','橡皮'],['line','图形'],['fill','油漆桶'],['text','文字'],['stamp','魔法袋'],['scratch','刮刮画'],['picker','吸颜色']],
-    [['select','圈选'],['move','移动'],['clone','仿制印章'],['warp','变形'],['magic','魔力棒'],['board-filter','滤镜'],['fractal','分形'],['pixel-art','像素画'],['animation','小动画'],['collage','剪贴画']],
+    [['pen','画笔'],['eraser','橡皮'],['line','图形'],['fill','油漆桶'],['text','文字'],['stamp','魔法袋'],['picker','吸颜色'],['board-filter','滤镜']],
+    [['select','圈选'],['move','移动'],['clone','仿制印章'],['warp','变形'],['magic','魔力棒'],['fractal','分形'],['pixel-art','像素画'],['assist','辅助'],['scratch','刮刮画']],
   ];
   const tools=toolPages.flat();
   const toolPageCount=toolPages.length;
@@ -126,6 +126,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const featureTools={
     'pixel-art':()=>document.querySelector('#pixel-art-open')?.click(),
+    assist:()=>document.querySelector('#assist-open')?.click(),
     animation:()=>document.querySelector('#animation-open')?.click(),
     collage:()=>document.querySelector('#collage-open')?.click(),
   };
@@ -184,15 +185,15 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   for(const [id,icon,label] of [['mode-board','paper','画板'],['darkroom','board-filter','暗房'],['mode-library','forest','图库']])el(id).innerHTML=playfulIcon(icon)+'<span>'+label+'</span>';
   const library=document.querySelector('.right-panel');dock.prepend(library);document.querySelector('.panel-heading h2').textContent='灵感百宝箱';
   const layer=el('layer-menu');layer.innerHTML=playfulIcon('layers')+'<span>我的图层</span>';footer.append(layer);const newPaper=el('new');newPaper.innerHTML=playfulIcon('new-paper')+'<span>新画纸</span>';footer.append(newPaper);
-  const more=document.createElement('dialog');more.id='more-dialog';more.className='wide-dialog';more.innerHTML='<h2>设置</h2><div class="more-actions"></div><div class="dialog-actions"><button id="more-done">返回画纸</button></div>';document.body.append(more);const actions=more.querySelector('.more-actions');const paperSize=document.createElement('button');paperSize.id='paper-size-open';paperSize.type='button';paperSize.innerHTML=playfulIcon('paper')+'<span>画纸尺寸</span>';actions.append(paperSize);for(const id of ['copy','cut','paste','selection-menu','recordings','import-image'])actions.append(el(id));const aboutButton=document.createElement('button');aboutButton.id='about-open';aboutButton.type='button';aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';actions.append(aboutButton);actions.addEventListener('click',event=>{if(!event.target.closest('#about-open'))more.close();},true);el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p><p class="about-links"><a href="https://github.com/zxxf18/luoye-artboard" target="_blank" rel="noopener noreferrer">项目地址</a><span class="about-links-sep" aria-hidden="true">·</span><a href="https://index.yebuluo.com.cn/donate/" target="_blank" rel="noopener noreferrer">支持作者</a></p><p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>{more.close();about.showModal();};about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
-  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='给画起名字';rename.onclick=()=>titleDialog.showModal();actions.append(rename);actions.append(aboutButton);el('title-done').onclick=()=>titleDialog.close();
+  const more=document.createElement('dialog');more.id='more-dialog';more.className='wide-dialog';more.innerHTML='<h2>设置</h2><div class="more-actions"><section class="more-group more-tools" aria-labelledby="more-tools-title"><h3 id="more-tools-title">工具</h3><div class="more-group-actions" id="more-tools-actions"></div></section><section class="more-group more-settings" aria-labelledby="more-settings-title"><h3 id="more-settings-title">设置</h3><div class="more-group-actions" id="more-settings-actions"></div></section></div><div class="dialog-actions"><button id="more-done">返回画纸</button></div>';document.body.append(more);const actions=more.querySelector('.more-actions');const toolsActions=more.querySelector('#more-tools-actions');const settingsActions=more.querySelector('#more-settings-actions');const paperSize=document.createElement('button');paperSize.id='paper-size-open';paperSize.type='button';paperSize.innerHTML=playfulIcon('paper')+'<span>画纸尺寸</span>';settingsActions.append(paperSize);for(const id of ['copy','cut','paste','selection-menu','recordings','import-image'])toolsActions.append(el(id));const aboutButton=document.createElement('button');aboutButton.id='about-open';aboutButton.type='button';aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';settingsActions.append(aboutButton);actions.addEventListener('click',event=>{if(!event.target.closest('#about-open'))more.close();},true);el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p><p class="about-links"><a href="https://github.com/zxxf18/luoye-artboard" target="_blank" rel="noopener noreferrer">项目地址</a><span class="about-links-sep" aria-hidden="true">·</span><a href="https://index.yebuluo.com.cn/donate/" target="_blank" rel="noopener noreferrer">支持作者</a></p><p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>{more.close();about.showModal();};about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
+  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='给画起名字';rename.onclick=()=>titleDialog.showModal();settingsActions.append(rename);settingsActions.append(aboutButton);el('title-done').onclick=()=>titleDialog.close();
   const header=document.querySelector('.header-actions');header.prepend(el('new-quick'),el('undo'),el('redo'));for(const [id,icon,name] of [['undo','undo','撤销'],['redo','redo','重做'],['new-quick','new-paper','新画纸'],['reset-settings','reset-settings','重置'],['open','folder','打开'],['save','save','保存'],['export','download','导出'],['gallery','folder','画夹']]){el(id).innerHTML=playfulIcon(icon)+`<span>${name}</span>`;el(id).className='header-command';}
   const moreButton=document.createElement('button');moreButton.id='more-open';moreButton.className='header-command';moreButton.innerHTML=playfulIcon('more')+'<span>设置</span>';moreButton.onclick=()=>more.showModal();header.append(moreButton);
   // The header is a finite-width control strip. On compact windows, keep the
   // actions used during a drawing session in the strip and move infrequent
   // actions into the existing 设置 sheet. This avoids a second horizontal
   // scroll target while preserving the same button nodes and event handlers.
-  const foldedToolbarIds = ['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
+  const foldedToolbarIds = ['reset-settings','open','export','gallery','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
   const toolbarPrimaryIds = ['new-quick','undo','redo','save','theme-open','more-open'];
   const toolbarOrder = new Map();
   // Keep an estimate of the un-folded strip width. Measuring only
@@ -219,7 +220,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   function syncToolbar() {
     toolbarSyncFrame = 0;
     const actions = document.querySelector('.more-actions');
-    if (!actions || !header) return;
+    const toolsActions = document.querySelector('#more-tools-actions');
+    const settingsActions = document.querySelector('#more-settings-actions');
+    if (!actions || !toolsActions || !settingsActions || !header) return;
     const compact = !iosDesktopShell && matchMedia('(max-width: 1080px), (max-height: 600px)').matches;
     const candidates = foldedToolbarIds.map(id => el(id)).filter(Boolean);
     const availableWidth = header.clientWidth;
@@ -255,7 +258,8 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     for (const button of candidates) {
       if (!toolbarOrder.has(button.id)) toolbarOrder.set(button.id, toolbarOrder.size);
       if (folded) {
-        if (button.parentElement !== actions) actions.append(button);
+        const target = ['reset-settings','open','export','gallery'].includes(button.id) ? settingsActions : toolsActions;
+        if (button.parentElement !== target) target.append(button);
         button.dataset.toolbarFolded = 'true';
       } else {
         button.removeAttribute('data-toolbar-folded');
@@ -265,17 +269,17 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     // Restore a stable, child-friendly order after dynamic modules insert
     // their buttons. About remains the final action in 设置 by design.
     if (!folded) {
-      const order = ['new-quick','undo','redo','save','theme-open','open','export','gallery','reset-settings','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open','music-open','more-open'];
+      const order = ['new-quick','undo','redo','save','theme-open','music-open','open','export','gallery','reset-settings','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open','more-open'];
       reorderIfNeeded(header, order);
     } else {
-      const order = ['reset-settings','open','export','gallery','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
-      reorderIfNeeded(actions, order);
+      reorderIfNeeded(settingsActions, ['reset-settings','open','export','gallery']);
+      reorderIfNeeded(toolsActions, ['animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open']);
     }
     // The about entry is deliberately the final action in 设置. Dynamic
     // feature buttons are appended after the classic actions, so pin the
     // about button back to the end on every synchronization pass.
     const about = el('about-open');
-    if (about?.parentElement === actions) actions.append(about);
+    if (about?.parentElement === settingsActions) settingsActions.append(about);
     for (const id of toolbarPrimaryIds) {
       const button = el(id);
       if (button?.parentElement === header) button.dataset.toolbarPrimary = 'true';
@@ -283,7 +287,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   }
   const toolbarObserver = new MutationObserver(scheduleToolbarSync);
   toolbarObserver.observe(header, { childList: true });
-  toolbarObserver.observe(more.querySelector('.more-actions'), { childList: true });
+  toolbarObserver.observe(more.querySelector('.more-actions'), { childList: true, subtree: true });
   const toolbarResize = new ResizeObserver(scheduleToolbarSync);
   toolbarResize.observe(header);
   window.addEventListener('resize', scheduleToolbarSync, { passive: true });

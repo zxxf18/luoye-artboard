@@ -131,7 +131,7 @@ function checkToolDrawer(doc) {
   const drawer = assertDrawerFrame(doc, 'tools');
   const bar = drawer.querySelector('#tools');
   const cards = [...drawer.querySelectorAll('.tool-button')];
-  assert(bar && cards.length >= 10, '工具抽屉缺少工具');
+  assert(bar && cards.length >= 8, '工具抽屉缺少工具');
   noOverlap(cards, '工具卡片');
   for (const card of cards) assert(rect(card).height <= rect(drawer).height + 1, '工具卡片纵向溢出');
   const page = drawer.querySelector('#tool-page');
@@ -188,7 +188,7 @@ function checkLibraryDrawer(doc) {
   assertScrollReachable(library, library.querySelector('.panel-heading'), assets.at(-1), '图库内容');
 }
 function checkAssistDialog(doc) {
-  const open = doc.querySelector('#assist-open');
+  const open = doc.querySelector('.tool-button[data-tool="assist"]') || doc.querySelector('#assist-open');
   assert(open && visible(open), '辅助入口不可见');
   open.click();
   const dialog = doc.querySelector('#assist-dialog');
@@ -199,18 +199,18 @@ function checkAssistDialog(doc) {
   const rows = [...form.children].filter(visible);
   noOverlap(rows, '辅助面板分区');
   for (const row of rows) assert(inside(row, form), '辅助面板分区超出表单');
-  const mode = dialog.querySelector('#assist-mode'), modeButton = dialog.querySelector('#assist-mode-trigger'), axes = dialog.querySelector('#assist-axes');
+  const mode = dialog.querySelector('#assist-mode'), modeButton = dialog.querySelector('#assist-mode-toggle'), axes = dialog.querySelector('#assist-axes');
   assert(mode && modeButton && axes, '辅助模式控件缺失');
-  assert(!visible(mode) && visible(modeButton), '辅助模式下拉框没有收纳到局部下拉');
+  assert(!visible(mode) && visible(modeButton), '辅助模式源控件没有收纳到展开式选项');
   const enabled = dialog.querySelector('#assist-enabled');
   if (!enabled.checked) enabled.click();
   modeButton.click();
-  const menu = doc.querySelector('#assist-mode-menu');
-  assert(menu && !menu.hidden, '辅助模式下拉菜单没有打开');
-  const radial = menu.querySelector('[data-assist-mode-option="radial"]');
+  const options = doc.querySelector('#assist-mode-options');
+  assert(options && !options.hidden, '辅助方式选项没有展开');
+  const radial = options.querySelector('[data-assist-mode-option="radial"]');
   assert(radial, '辅助模式缺少径向选项');
   radial.click();
-  assert(mode.value === 'radial', '辅助模式下拉没有更新源控件');
+  assert(mode.value === 'radial', '辅助方式选项没有更新源控件');
   axes.value = '8'; axes.dispatchEvent(new frame.contentWindow.Event('input', { bubbles: true }));
   assert(dialog.querySelector('#assist-axes-value')?.textContent.includes('8'), '辅助轴数控件未生效');
   dialog.querySelector('.assist-close')?.click();

@@ -167,7 +167,8 @@
 .playroom[data-theme] #selection-combination,
 .playroom[data-theme] #selection-actions,
 .playroom[data-theme] .detail-bar > label,
-.playroom[data-theme] .creative-options > label {
+.playroom[data-theme] .creative-options > label,
+.playroom[data-theme] .more-group {
   background: var(--theme-classic-control) !important;
   border-color: var(--theme-border) !important;
   color: var(--ink);
@@ -208,6 +209,7 @@
 .playroom[data-theme] .number-stepper button,
 .playroom[data-theme] #palette-open,
 .playroom[data-theme] .more-colors,
+.playroom[data-theme] .more-group-actions button,
 .playroom[data-theme] .categories button,
 .playroom[data-theme] .display-options button,
 .playroom[data-theme] .music-transport button,
@@ -216,6 +218,7 @@
   border-color: var(--theme-border) !important;
   color: var(--ink) !important;
 }
+.playroom[data-theme] .more-group h3 { color: var(--theme-strong) !important; }
 .playroom[data-theme] .parameter-slider button:hover:not(:disabled),
 .playroom[data-theme] #brush-options button:hover:not(:disabled),
 .playroom[data-theme] .primary-brush-options button:hover:not(:disabled),
@@ -334,20 +337,20 @@
 .playroom[data-theme] dialog textarea,
 .playroom[data-theme] dialog select,
 .playroom[data-theme] .assist-section select,
-.playroom[data-theme] .assist-mode-trigger,
-.playroom[data-theme] .assist-mode-menu {
+.playroom[data-theme] .assist-mode-toggle,
+.playroom[data-theme] .assist-mode-options {
   background: var(--theme-control) !important;
   border-color: var(--theme-border) !important;
   color: var(--ink) !important;
 }
-.playroom[data-theme] .assist-mode-menu button { color: var(--ink) !important; }
-.playroom[data-theme] .assist-mode-menu button:hover,
-.playroom[data-theme] .assist-mode-menu button:focus-visible,
-.playroom[data-theme] .assist-mode-menu button[aria-selected="true"] {
+.playroom[data-theme] .assist-mode-options button { color: var(--ink) !important; }
+.playroom[data-theme] .assist-mode-options button:hover,
+.playroom[data-theme] .assist-mode-options button:focus-visible,
+.playroom[data-theme] .assist-mode-options button[aria-pressed="true"] {
   background: var(--theme-selected) !important;
   border-color: var(--theme-border) !important;
 }
-.playroom[data-theme] .assist-mode-trigger-arrow { color: var(--theme-accent) !important; }
+.playroom[data-theme] .assist-mode-toggle-arrow { color: var(--theme-accent) !important; }
 .playroom[data-theme] .assist-card,
 .playroom[data-theme] .assist-switch,
 .playroom[data-theme] .assist-form label.assist-check,
@@ -376,4 +379,17 @@
   background: var(--theme-selected) !important;
   border-color: var(--theme-border) !important;
   box-shadow: 0 5px 0 var(--theme-shadow) !important;
+}
+
+/* A wide, short desktop window has only the compact 164px gallery shelf.
+   Reserve the pager row explicitly so the asset grid cannot consume its
+   space and push the controls below the shelf's clipped edge. */
+@media (min-width: 861px) and (min-height: 601px) and (max-height: 740px) {
+  .playroom.library-open .tool-dock .asset-grid {
+    min-height: 0 !important;
+  }
+  .playroom.library-open .tool-dock #library-pagination {
+    flex: 0 0 38px !important;
+    min-height: 38px !important;
+  }
 }

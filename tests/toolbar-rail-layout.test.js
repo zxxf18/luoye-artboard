@@ -31,12 +31,15 @@ test('右侧工具架按常用工具与进阶工具稳定分组', async () => {
   const ids = entries.map(entry => entry.id);
   assert.equal(new Set(ids).size, ids.length, '工具目录存在重复入口');
   assert.deepEqual(pages[0].map(entry => entry.id), [
-    'pen', 'eraser', 'line', 'fill', 'text', 'stamp', 'scratch', 'picker',
-  ], '第一页应优先放置儿童最常用工具');
+    'pen', 'eraser', 'line', 'fill', 'text', 'stamp', 'picker', 'board-filter',
+  ], '第一页应优先放置儿童最常用工具并把滤镜放在末尾');
   assert.ok(ids.length > 8, '第二页没有进阶工具');
   assert.ok(pages[1].some(entry => entry.id === 'select'), '进阶页缺少圈选工具');
-  assert.ok(pages[1].some(entry => entry.id === 'board-filter'), '进阶页缺少滤镜工具');
-  assert.deepEqual(pages[1].slice(-3).map(entry => entry.id), ['pixel-art', 'animation', 'collage'], '创作工具没有移到第二页末尾');
+  assert.ok(pages[0].at(-1)?.id === 'board-filter', '滤镜没有放在第一页末尾');
+  assert.ok(pages[1].some(entry => entry.id === 'assist'), '第二页缺少辅助绘画');
+  assert.ok(pages[1].some(entry => entry.id === 'scratch'), '第二页缺少刮刮画');
+  assert.ok(pages[1].some(entry => entry.id === 'pixel-art'), '第二页缺少像素画');
+  assert.ok(!ids.includes('animation') && !ids.includes('collage'), '小动画和剪贴画不应进入右侧工具栏');
   assert.match(source, /const\s+toolPageCount\s*=\s*toolPages\.length/, '分页数量没有从目录派生');
   assert.match(source, /page=\(page\+1\)%toolPageCount/, '工具翻页没有循环到下一页');
   assert.match(source, /\$\{page\+1\}\s*\/\s*\$\{toolPageCount\}/, '工具分页缺少动态页码文案');

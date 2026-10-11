@@ -42,7 +42,7 @@ async function checkTools(doc){
  doc.querySelector('.tool-button[data-tool="pen"]').click();details.scrollTop=0;
 }
 async function checkAssist(doc,width,height){
- const trigger=doc.querySelector('#assist-open');if(!trigger)return;
+ const trigger=doc.querySelector('.tool-button[data-tool="assist"]')||doc.querySelector('#assist-open');if(!trigger)return;
  trigger.click();await pause(40);const dialog=doc.querySelector('#assist-dialog'),form=dialog?.querySelector('.assist-form');
  assert(dialog?.open&&form,'辅助面板没有打开');
  const viewport=doc.defaultView,box=dialog.getBoundingClientRect(),margin=4;
@@ -58,12 +58,12 @@ async function checkAssist(doc,width,height){
  const compact=width>=500&&height<=400;
  if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`矮窗口辅助面板仍需滚动 ${width}×${height}`);
  const enabled=doc.querySelector('#assist-enabled');if(!enabled.checked)enabled.click();await pause(20);assert(enabled.checked,'辅助开关无法操作');
- const mode=doc.querySelector('#assist-mode'),modeButton=doc.querySelector('#assist-mode-trigger');
+ const mode=doc.querySelector('#assist-mode'),modeButton=doc.querySelector('#assist-mode-toggle');
  assert(mode&&!isVisible(mode),'辅助模式原生下拉框不应直接显示');
- assert(modeButton&&isVisible(modeButton)&&!modeButton.disabled,'辅助模式下拉入口不可操作');
+ assert(modeButton&&isVisible(modeButton)&&!modeButton.disabled,'辅助模式展开入口不可操作');
  modeButton.click();await pause(20);
- const menu=doc.querySelector('#assist-mode-menu');assert(menu&&!menu.hidden,'辅助模式下拉菜单没有打开');
- const radial=menu.querySelector('[data-assist-mode-option="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
+ const options=doc.querySelector('#assist-mode-options');assert(options&&!options.hidden,'辅助方式选项没有展开');
+ const radial=options.querySelector('[data-assist-mode-option="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
  assert(mode.value==='radial','径向模式选择没有回写源控件');
  assert(dialog.dataset.assistMode==='radial','辅助模式没有切换到径向');assert(doc.querySelector('#assist-axes-value').textContent.includes('8'),'径向份数没有显示');
  for(const [id,value] of [['assist-center-x','36'],['assist-center-y','64']]){const input=doc.querySelector('#'+id);input.value=value;input.dispatchEvent(new frame.contentWindow.Event('input',{bubbles:true}));}
@@ -114,7 +114,7 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080
    for(const card of doc.querySelectorAll('.parameter-slider')){const css=frame.contentWindow.getComputedStyle(card);assert(parseFloat(css.paddingLeft)>=4&&parseFloat(css.paddingTop)>=4,'文案留边不足');}
    const sliders=[...doc.querySelectorAll('.parameter-slider')].filter(isVisible);for(let i=1;i<sliders.length;i++){const previous=sliders[i-1].getBoundingClientRect(),current=sliders[i].getBoundingClientRect();if(width<=640||height<=500)assert(previous.bottom<=current.top+1||previous.right<=current.left+1,'滑杆卡片互相覆盖');else assert(previous.right+5<=current.left,'滑杆卡片互相覆盖');}
    const pens=doc.querySelector('.brush-box'),cards=[...pens.children],clipped=cards.some(c=>!inside(c,pens));
-   assert(!doc.querySelector('#all-brushes-open'),'仍有展开画笔盒入口');assert(cards.length===9,'原笔盒不足九支画笔');for(const card of cards){card.scrollIntoView({block:'nearest'});assert(inside(card,pens),'画笔无法滚动访问');}pens.scrollTop=0;
+   assert(!doc.querySelector('#all-brushes-open'),'仍有展开画笔盒入口');assert(cards.length>=11,'画笔盒缺少新增画笔');for(const card of cards){card.scrollIntoView({block:'nearest'});assert(inside(card,pens),'画笔无法滚动访问');}pens.scrollTop=0;
    const targets=[...doc.querySelectorAll('.header-actions button,.brush-card,.tool-button,.swatch,.left-actions button')].filter(isVisible),minTarget=(width<=640||height<=500)?30:43.5;assert(targets.every(b=>b.getBoundingClientRect().width>=minTarget&&b.getBoundingClientRect().height>=minTarget),'点击区域过小');
    if(width<=900||height<=720)await checkAssist(doc,width,height);
    assert(![...doc.querySelectorAll('select')].some(isVisible),'出现默认下拉框');
@@ -129,7 +129,9 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080
    assert(inside(doc.querySelector('.right-panel'),doc.body),'素材栏超出窗口');
    for(const asset of doc.querySelectorAll('#asset-grid .asset'))assert(inside(asset,doc.querySelector('#asset-grid')),'素材分页中存在被裁切的卡片');
    if(width>640&&height>500)assert(inside(doc.querySelector('#size'),parameters),'素材打开后大小滑杆被裁切');
-   const pagerRoot=width>640&&height>500?parameters:doc.querySelector('.right-panel');
+   // The gallery owns its pager on wide layouts as well as mobile drawers;
+   // validate it against the live parent instead of the old parameter strip.
+   const pagerRoot=doc.querySelector('#library-pagination')?.parentElement||doc.querySelector('.right-panel');
    for(const b of doc.querySelectorAll('#library-pagination button'))assert(inside(b,pagerRoot),'素材翻页按钮被裁切');
    doc.querySelector('#mode-board').click();await pause(25);
    await checkTools(doc);
