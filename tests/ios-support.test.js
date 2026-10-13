@@ -14,6 +14,7 @@ test('iOS target declares a universal iPhone/iPad landscape-only app', async () 
   assert.match(plist, /<integer>1<\/integer>/);
   assert.match(plist, /<integer>2<\/integer>/);
   assert.match(plist, /UISupportedInterfaceOrientations/);
+  assert.match(plist, /<key>UILaunchScreen<\/key>\s*<dict\s*\/>/);
   assert.match(plist, /UIInterfaceOrientationLandscapeLeft/);
   assert.match(plist, /UIInterfaceOrientationLandscapeRight/);
   assert.doesNotMatch(plist, /UIInterfaceOrientationPortrait/);
@@ -62,15 +63,19 @@ test('iOS bridge handles every native channel used by the web app', async () => 
   assert.match(source, /native-asset-result/);
 });
 
-test('iOS host keeps local resources sandboxed and enables safe-area layout', async () => {
+test('iOS host fills the window and lets CSS own safe-area insets', async () => {
   const source = await read('native/ios/LuoyeWebViewController.swift');
+  const styles = await read('public/playroom.css');
   const display = await read('src/display-ui.js');
   assert.match(source, /loadFileURL/);
   assert.match(source, /allowingReadAccessTo/);
   assert.match(source, /viewport-fit=cover/);
-  assert.match(source, /safe-area-inset/);
-  assert.match(source, /view\.safeAreaLayoutGuide/);
-  assert.match(source, /webView\.topAnchor\.constraint\(equalTo: safe\.topAnchor\)/);
+  assert.match(source, /view\.backgroundColor\s*=\s*\.clear/);
+  assert.match(source, /webView\.topAnchor\.constraint\(equalTo: view\.topAnchor\)/);
+  assert.match(source, /webView\.leadingAnchor\.constraint\(equalTo: view\.leadingAnchor\)/);
+  assert.match(source, /webView\.trailingAnchor\.constraint\(equalTo: view\.trailingAnchor\)/);
+  assert.match(source, /webView\.bottomAnchor\.constraint\(equalTo: view\.bottomAnchor\)/);
+  assert.doesNotMatch(source, /safeAreaLayoutGuide/);
   assert.doesNotMatch(source, /\.app-header \{ padding-top/);
   assert.match(source, /preferredInterfaceOrientationForPresentation:\s*UIInterfaceOrientation\s*\{\s*\.landscapeRight\s*\}/);
   assert.match(source, /supportedInterfaceOrientations:\s*UIInterfaceOrientationMask\s*\{\s*\[\.landscapeLeft,\s*\.landscapeRight\]\s*\}/);
@@ -92,6 +97,10 @@ test('iOS host keeps local resources sandboxed and enables safe-area layout', as
   assert.match(display, /--ios-user-scale/);
   assert.match(display, /syncIOSViewportScale/);
   assert.match(display, /requestAnimationFrame\(\(\)=>requestAnimationFrame/);
+  assert.match(styles, /--ios-safe-top:\s*env\(safe-area-inset-top/);
+  assert.match(styles, /--ios-safe-left:\s*env\(safe-area-inset-left/);
+  assert.match(styles, /html\.ios-shell \.playroom[\s\S]*padding:\s*var\(--ios-safe-top-logical\)/);
+  assert.match(styles, /html\.ios-shell \.playroom \.canvas-sheet[\s\S]*aspect-ratio:\s*auto\s*!important/);
 });
 
 test('Debug iOS host can run bundled native smoke scripts and export evidence', async () => {

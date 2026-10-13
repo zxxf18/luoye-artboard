@@ -247,7 +247,7 @@ studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:(
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 applyStoredTheme();
-mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
+const classic=mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
 document.addEventListener('scratch-reset',()=>run(()=>engine.resetScratchCard?.()));
 // The compact scratch drawer emits a serializable style patch. Keep raster
 // updates in the engine so each palette click is one undoable redraw and is
@@ -270,7 +270,7 @@ const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color
 const collageEditor = mountCollageEditor({ engine, run, toast, setTool });
 const drawingGames = mountDrawingGames({ engine, run, toast });
 theme = mountTheme();
-assist=mountAssist({engine,toast});
+assist=mountAssist({engine,toast,parameter:classic.parameter});
 shapeSnap=mountShapeSnap({toast});
 chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);

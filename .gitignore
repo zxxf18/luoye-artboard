@@ -31,6 +31,8 @@ local-only/
 *.luoyex
 *.luoyer
 *.archive/
+**/xcuserdata/
+*.xcuserstate
 design/**/evidence/*.png
 design/**/evidence/*.jpg
 design/**/evidence/*.jpeg

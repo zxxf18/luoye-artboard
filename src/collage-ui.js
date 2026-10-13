@@ -159,7 +159,7 @@ export function mountCollageEditor({ engine, run, toast, setTool } = {}) {
   dialog.addEventListener('close', () => { drawing = false; if (dragging) model.cancelTransform(); dragging = false; freePoints = []; previousPoint = undefined; pointerId = undefined; });
   function open() { if (!hasOpened) { model.applyPreset('garden'); activePresetId = 'garden'; hasOpened = true; } render(); dialog.showModal(); }
   const entry = document.createElement('button'); entry.type = 'button'; entry.id = 'collage-open'; entry.className = 'header-command'; entry.innerHTML = `${playfulIcon('cut')}<span>彩色剪贴</span>`; entry.onclick = open;
-  document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#pixel-art-open') || document.querySelector('#animation-open') || document.querySelector('#more-open'));
+  document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#pixel-art-open') || document.querySelector('#animation-open') || document.querySelector('#tools-open'));
   render();
   return { open, dialog, model, destroy: () => { renderer.destroy(); dialog.remove(); } };
 }

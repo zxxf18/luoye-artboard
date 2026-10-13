@@ -37,6 +37,7 @@ test('右侧工具架按常用工具与进阶工具稳定分组', async () => {
   assert.ok(pages[1].some(entry => entry.id === 'select'), '进阶页缺少圈选工具');
   assert.ok(pages[0].at(-1)?.id === 'board-filter', '滤镜没有放在第一页末尾');
   assert.ok(pages[1].some(entry => entry.id === 'assist'), '第二页缺少辅助绘画');
+  assert.equal(entries.find(entry => entry.id === 'assist')?.label, '对称画', '辅助入口应命名为对称画');
   assert.ok(pages[1].some(entry => entry.id === 'scratch'), '第二页缺少刮刮画');
   assert.ok(pages[1].some(entry => entry.id === 'pixel-art'), '第二页缺少像素画');
   assert.ok(!ids.includes('animation') && !ids.includes('collage'), '小动画和剪贴画不应进入右侧工具栏');

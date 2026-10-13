@@ -56,7 +56,7 @@ function themedControlResiduals(doc) {
     '.header-actions button', '.workspace-tabs button', '.tool-button',
     '.brush-card', '.subtool-card', '.detail-bar > label', '.parameter-slider',
     '.left-actions button', '.more-colors',
-    '#palette-open', '#more-open', '#theme-open', '#display-open',
+    '#palette-open', '#tools-open', '#settings-open', '#theme-open', '#display-open',
     '.tool-page',
   ].join(',');
   return [...doc.querySelectorAll(selector)].filter(visible).filter(node => {
@@ -67,7 +67,7 @@ function themedControlResiduals(doc) {
 async function inspectAboutIcon(doc, themeId) {
   const themeDialog = doc.querySelector('#theme-dialog');
   if (themeDialog?.open) themeDialog.close();
-  doc.querySelector('#more-open')?.click();
+  doc.querySelector('#settings-open')?.click();
   await pause(20);
   const aboutButton = doc.querySelector('#about-open');
   assert(visible(aboutButton), `关于入口不可见：${themeId}`);
@@ -134,7 +134,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     const aboutVariants = [];
     const aboutSignatures = [];
     assert(doc.querySelector('#theme-open')?.closest('.header-actions'), '换肤入口不在主工具栏');
-    assert(doc.querySelector('#display-open')?.closest('#more-dialog .more-actions'), '界面大小入口未放入设置');
+    assert(doc.querySelector('#display-open')?.closest('#settings-dialog .more-actions'), '界面大小入口未放入设置');
     assert(doc.querySelector('#about-open')?.parentElement?.lastElementChild === doc.querySelector('#about-open'), '关于必须是设置最后一项');
     assert(inside(brandIcon, doc.querySelector('.app-header')), '左上应用图标超出顶部栏边界');
     for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {

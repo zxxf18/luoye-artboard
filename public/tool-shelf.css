@@ -167,8 +167,7 @@
 .playroom[data-theme] #selection-combination,
 .playroom[data-theme] #selection-actions,
 .playroom[data-theme] .detail-bar > label,
-.playroom[data-theme] .creative-options > label,
-.playroom[data-theme] .more-group {
+.playroom[data-theme] .creative-options > label {
   background: var(--theme-classic-control) !important;
   border-color: var(--theme-border) !important;
   color: var(--ink);
@@ -209,7 +208,7 @@
 .playroom[data-theme] .number-stepper button,
 .playroom[data-theme] #palette-open,
 .playroom[data-theme] .more-colors,
-.playroom[data-theme] .more-group-actions button,
+.playroom[data-theme] .more-actions button,
 .playroom[data-theme] .categories button,
 .playroom[data-theme] .display-options button,
 .playroom[data-theme] .music-transport button,
@@ -218,7 +217,6 @@
   border-color: var(--theme-border) !important;
   color: var(--ink) !important;
 }
-.playroom[data-theme] .more-group h3 { color: var(--theme-strong) !important; }
 .playroom[data-theme] .parameter-slider button:hover:not(:disabled),
 .playroom[data-theme] #brush-options button:hover:not(:disabled),
 .playroom[data-theme] .primary-brush-options button:hover:not(:disabled),

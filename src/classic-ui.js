@@ -117,7 +117,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   // silently moving a new tool between pages when the list grows.
   const toolPages=[
     [['pen','画笔'],['eraser','橡皮'],['line','图形'],['fill','油漆桶'],['text','文字'],['stamp','魔法袋'],['picker','吸颜色'],['board-filter','滤镜']],
-    [['select','圈选'],['move','移动'],['clone','仿制印章'],['warp','变形'],['magic','魔力棒'],['fractal','分形'],['pixel-art','像素画'],['assist','辅助'],['scratch','刮刮画']],
+    [['select','圈选'],['move','移动'],['clone','仿制印章'],['warp','变形'],['magic','魔力棒'],['fractal','分形'],['pixel-art','像素画'],['assist','对称画'],['scratch','刮刮画']],
   ];
   const tools=toolPages.flat();
   const toolPageCount=toolPages.length;
@@ -199,16 +199,20 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   for(const [id,icon,label] of [['mode-board','paper','画板'],['darkroom','board-filter','暗房'],['mode-library','forest','图库']])el(id).innerHTML=playfulIcon(icon)+'<span>'+label+'</span>';
   const library=document.querySelector('.right-panel');dock.prepend(library);document.querySelector('.panel-heading h2').textContent='灵感百宝箱';
   const layer=el('layer-menu');layer.innerHTML=playfulIcon('layers')+'<span>我的图层</span>';footer.append(layer);const newPaper=el('new');newPaper.innerHTML=playfulIcon('new-paper')+'<span>新画纸</span>';footer.append(newPaper);
-  const more=document.createElement('dialog');more.id='more-dialog';more.className='wide-dialog';more.innerHTML='<h2>设置</h2><div class="more-actions"><section class="more-group more-tools" aria-labelledby="more-tools-title"><h3 id="more-tools-title">工具</h3><div class="more-group-actions" id="more-tools-actions"></div></section><section class="more-group more-settings" aria-labelledby="more-settings-title"><h3 id="more-settings-title">设置</h3><div class="more-group-actions" id="more-settings-actions"></div></section></div><div class="dialog-actions"><button id="more-done">返回画纸</button></div>';document.body.append(more);const actions=more.querySelector('.more-actions');const toolsActions=more.querySelector('#more-tools-actions');const settingsActions=more.querySelector('#more-settings-actions');const paperSize=document.createElement('button');paperSize.id='paper-size-open';paperSize.type='button';paperSize.innerHTML=playfulIcon('paper')+'<span>画纸尺寸</span>';settingsActions.append(paperSize);for(const id of ['copy','cut','paste','selection-menu','recordings','import-image'])toolsActions.append(el(id));const aboutButton=document.createElement('button');aboutButton.id='about-open';aboutButton.type='button';aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';settingsActions.append(aboutButton);actions.addEventListener('click',event=>{if(!event.target.closest('#about-open'))more.close();},true);el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p><p class="about-links"><a href="https://github.com/zxxf18/luoye-artboard" target="_blank" rel="noopener noreferrer">项目地址</a><span class="about-links-sep" aria-hidden="true">·</span><a href="https://index.yebuluo.com.cn/donate/" target="_blank" rel="noopener noreferrer">支持作者</a></p><p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>{more.close();about.showModal();};about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
+  function createMenuDialog(id,title,actionsId,doneId){const dialog=document.createElement('dialog');dialog.id=id;dialog.className='wide-dialog menu-dialog';dialog.innerHTML=`<h2>${title}</h2><div class="more-actions" id="${actionsId}"></div><div class="dialog-actions"><button id="${doneId}">返回画纸</button></div>`;document.body.append(dialog);const actions=dialog.querySelector(`#${actionsId}`);dialog.addEventListener('click',event=>{if(event.target.closest('button')&&!event.target.closest('#about-open'))dialog.close();},true);dialog.querySelector(`#${doneId}`).onclick=()=>dialog.close();return {dialog,actions};}
+  const toolsMenu=createMenuDialog('tools-dialog','工具','tools-actions','tools-done'),settingsMenu=createMenuDialog('settings-dialog','设置','settings-actions','settings-done');
+  const toolsDialog=toolsMenu.dialog,toolsActions=toolsMenu.actions,settingsDialog=settingsMenu.dialog,settingsActions=settingsMenu.actions;
+  const paperSize=document.createElement('button');paperSize.id='paper-size-open';paperSize.type='button';paperSize.innerHTML=playfulIcon('paper')+'<span>画纸尺寸</span>';settingsActions.append(paperSize);for(const id of ['reset-settings','open','export','gallery'])settingsActions.append(el(id));for(const id of ['copy','cut','paste','selection-menu','recordings','import-image'])toolsActions.append(el(id));const aboutButton=document.createElement('button');aboutButton.id='about-open';aboutButton.type='button';aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p><p class="about-links"><a href="https://github.com/zxxf18/luoye-artboard" target="_blank" rel="noopener noreferrer">项目地址</a><span class="about-links-sep" aria-hidden="true">·</span><a href="https://index.yebuluo.com.cn/donate/" target="_blank" rel="noopener noreferrer">支持作者</a></p><p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>{settingsDialog.close();about.showModal();};about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
   const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.textContent='给画起名字';rename.onclick=()=>titleDialog.showModal();settingsActions.append(rename);settingsActions.append(aboutButton);el('title-done').onclick=()=>titleDialog.close();
   const header=document.querySelector('.header-actions');header.prepend(el('new-quick'),el('undo'),el('redo'));for(const [id,icon,name] of [['undo','undo','撤销'],['redo','redo','重做'],['new-quick','new-paper','新画纸'],['reset-settings','reset-settings','重置'],['open','folder','打开'],['save','save','保存'],['export','download','导出'],['gallery','folder','画夹']]){el(id).innerHTML=playfulIcon(icon)+`<span>${name}</span>`;el(id).className='header-command';}
-  const moreButton=document.createElement('button');moreButton.id='more-open';moreButton.className='header-command';moreButton.innerHTML=playfulIcon('more')+'<span>设置</span>';moreButton.onclick=()=>more.showModal();header.append(moreButton);
+  const toolsButton=document.createElement('button');toolsButton.id='tools-open';toolsButton.className='header-command';toolsButton.setAttribute('aria-label','工具');toolsButton.setAttribute('aria-haspopup','dialog');toolsButton.innerHTML=playfulIcon('more')+'<span>工具</span>';toolsButton.onclick=()=>toolsDialog.showModal();
+  const settingsButton=document.createElement('button');settingsButton.id='settings-open';settingsButton.className='header-command';settingsButton.setAttribute('aria-label','设置');settingsButton.setAttribute('aria-haspopup','dialog');settingsButton.innerHTML=playfulIcon('gear')+'<span>设置</span>';settingsButton.onclick=()=>settingsDialog.showModal();header.append(toolsButton,settingsButton);
   // The header is a finite-width control strip. On compact windows, keep the
   // actions used during a drawing session in the strip and move infrequent
-  // actions into the existing 设置 sheet. This avoids a second horizontal
-  // scroll target while preserving the same button nodes and event handlers.
+  // actions into the separate 工具／设置 menus. This preserves the same button
+  // nodes and event handlers while keeping each top-level menu focused.
   const foldedToolbarIds = ['reset-settings','open','export','gallery','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open'];
-  const toolbarPrimaryIds = ['new-quick','undo','redo','save','theme-open','more-open'];
+  const toolbarPrimaryIds = ['new-quick','undo','redo','save','theme-open','music-open','tools-open','settings-open'];
   const toolbarOrder = new Map();
   // Keep an estimate of the un-folded strip width. Measuring only
   // `header.scrollWidth` after moving commands into 设置 makes the result
@@ -233,10 +237,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   };
   function syncToolbar() {
     toolbarSyncFrame = 0;
-    const actions = document.querySelector('.more-actions');
-    const toolsActions = document.querySelector('#more-tools-actions');
-    const settingsActions = document.querySelector('#more-settings-actions');
-    if (!actions || !toolsActions || !settingsActions || !header) return;
+    const toolsActions = document.querySelector('#tools-actions');
+    const settingsActions = document.querySelector('#settings-actions');
+    if (!toolsActions || !settingsActions || !header) return;
     const compact = !iosDesktopShell && matchMedia('(max-width: 1080px), (max-height: 600px)').matches;
     const candidates = foldedToolbarIds.map(id => el(id)).filter(Boolean);
     const availableWidth = header.clientWidth;
@@ -283,7 +286,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     // Restore a stable, child-friendly order after dynamic modules insert
     // their buttons. About remains the final action in 设置 by design.
     if (!folded) {
-      const order = ['new-quick','undo','redo','save','theme-open','music-open','open','export','gallery','reset-settings','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open','more-open'];
+      const order = ['new-quick','undo','redo','save','theme-open','music-open','animation-open','pixel-art-open','collage-open','drawing-games-open','shape-snap-open','tools-open','settings-open','open','export','gallery','reset-settings'];
       reorderIfNeeded(header, order);
     } else {
       reorderIfNeeded(settingsActions, ['reset-settings','open','export','gallery']);
@@ -293,7 +296,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     // feature buttons are appended after the classic actions, so pin the
     // about button back to the end on every synchronization pass.
     const about = el('about-open');
-    if (about?.parentElement === settingsActions) settingsActions.append(about);
+    if (about?.parentElement === settingsActions && settingsActions.lastElementChild !== about) settingsActions.append(about);
     for (const id of toolbarPrimaryIds) {
       const button = el(id);
       if (button?.parentElement === header) button.dataset.toolbarPrimary = 'true';
@@ -301,7 +304,8 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   }
   const toolbarObserver = new MutationObserver(scheduleToolbarSync);
   toolbarObserver.observe(header, { childList: true });
-  toolbarObserver.observe(more.querySelector('.more-actions'), { childList: true, subtree: true });
+  toolbarObserver.observe(toolsActions, { childList: true, subtree: true });
+  toolbarObserver.observe(settingsActions, { childList: true, subtree: true });
   const toolbarResize = new ResizeObserver(scheduleToolbarSync);
   toolbarResize.observe(header);
   window.addEventListener('resize', scheduleToolbarSync, { passive: true });
@@ -392,5 +396,5 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   const moveSelected=document.createElement('button');moveSelected.id='move-selected-layer';moveSelected.innerHTML=playfulIcon('move')+'<span>移动</span>';moveSelected.onclick=()=>{setTool('move');layerDialog.close();};layerActions.prepend(moveSelected);
   el('add-layer').innerHTML=playfulIcon('paper')+'<span>加一张透明画纸</span>';el('add-layer').setAttribute('aria-label','加一张透明画纸');
   layerDialog.querySelector('[data-close]').textContent='选好了，返回画纸';
-  mountPalette({getColor,setColor});sync();return {groups:tools,sync};
+  mountPalette({getColor,setColor});sync();return {groups:tools,sync,parameter,primary};
 }

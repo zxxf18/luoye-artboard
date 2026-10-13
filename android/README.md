@@ -35,4 +35,4 @@ APK 输出在 `android/app/build/outputs/apk/debug/app-debug.apk`。若使用 An
 
 ## 资源体积
 
-完整 `dist/` 当前约 425MB。技术验证可以生成包含完整素材的 debug APK；正式发布应把素材拆成核心资源与 Play Asset Delivery/受控 CDN，避免全部进入 base APK。
+按当前 v1.10.5 工作区测量，完整 `dist/` 约 507MB（素材 6,608 个文件，目录索引 1,694 条）。技术验证可以生成包含完整素材的 debug APK；正式发布应把素材拆成核心资源与 Play Asset Delivery/受控 CDN，避免全部进入 base APK。

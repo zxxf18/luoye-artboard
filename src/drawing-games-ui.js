@@ -106,6 +106,6 @@ export function mountDrawingGames({ engine, run, toast } = {}) {
   $('#game-place').onclick = () => run ? run(place) : place();
   function open() { createModel(); fillCards(); sync(); dialog.showModal(); fitCanvas(); }
   dialog.addEventListener('close', () => { drawing = false; pointerId = undefined; lastPoint = null; eraseApplied = false; clearTimeout(hintTimer); });
-  const entry = gameButton('点点·迷宫', 'games', 'drawing-games-open', 'header-command'); entry.onclick = open; document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#animation-open') || document.querySelector('#more-open'));
+  const entry = gameButton('点点·迷宫', 'games', 'drawing-games-open', 'header-command'); entry.onclick = open; document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#animation-open') || document.querySelector('#tools-open'));
   createModel(); fillCards(); sync(); fitCanvas(); return { open, dialog, get model() { return model; }, destroy: () => { stageObserver?.disconnect(); dialog.remove(); } };
 }

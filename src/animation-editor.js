@@ -233,6 +233,6 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   $('animation-play').onclick = () => playing ? stopPlayback() : startPlayback(); $('animation-place').onclick = () => run(place);
   dialog.addEventListener('close', stopPlayback); dialog.addEventListener('cancel', stopPlayback);
   $('animation-color').value = getColor?.() || '#285b49'; $('animation-size').value = DEFAULT_BRUSH_SIZE; $('animation-size-value').textContent = DEFAULT_BRUSH_SIZE; updateUi();
-  const entry = button('小动画', 'butterfly', 'animation-open'); entry.id = 'animation-open'; entry.onclick = open; document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#more-open'));
+  const entry = button('小动画', 'butterfly', 'animation-open'); entry.id = 'animation-open'; entry.onclick = open; document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#tools-open'));
   return { open, dialog, timeline, editor, destroy: () => { stopPlayback(); clearInterval(editor.animationTimer); dialog.remove(); } };
 }

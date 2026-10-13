@@ -68,6 +68,8 @@ test('theme and settings entries stay in their intended containers', () => {
   assert.doesNotMatch(theme, /more-dialog \\.more-actions/);
   assert.match(display, /id='display-open'/);
   assert.match(classic, /id='about-open'/);
+  assert.match(classic, /settingsButton\.id='settings-open'/);
+  assert.match(classic, /toolsButton\.id='tools-open'/);
   assert.match(classic, /settingsActions\.append\(aboutButton\)/);
   assert.match(app, /mountDisplay\(\)/);
 });
@@ -128,8 +130,8 @@ test('theme CSS exposes global control surfaces and excludes artwork pixels', ()
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.detail-bar/);
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.subtool-card/);
   assert.match(skinStyles, /\.playroom\[data-theme\][\s\S]*\.quick-palette/);
-  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-group/);
-  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-group-actions button/);
+  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-actions/);
+  assert.match(toolStyles, /\.playroom\[data-theme\][\s\S]*\.more-actions button/);
   assert.match(skinStyles, /--theme-control\s*:/);
   assert.match(skinStyles, /--theme-selected\s*:/);
   assert.doesNotMatch(styles, /\.playroom\[data-theme\][^{}]*#painting/);
@@ -160,13 +162,17 @@ test('paper grain control explains that it changes brush texture rather than the
   assert.match(materials, /纸感强度/);
 });
 
-test('assist symmetry uses an inline expandable choice without hijacking the global choice dialog', () => {
+test('对称画把全部设置放在底部参数区并默认展开对称方式', () => {
   assert.match(assist, /id="assist-mode"[^>]*data-direct-choice="true"[^>]*hidden/);
-  assert.match(assist, /id="assist-mode-toggle"[^>]*aria-expanded="false"/);
+  assert.match(assist, /id="assist-mode-toggle"[^>]*aria-expanded="true"/);
   assert.match(assist, /id="assist-mode-options"[^>]*role="radiogroup"/);
   assert.match(assist, /data-assist-mode-option="radial"/);
   assert.match(assist, /modeSelect\.dispatchEvent\(new Event\('change'/);
+  assert.match(assist, /parameter\.append\(dialog\)/);
+  assert.match(assist, /dialog\.show\(\)/);
+  assert.match(assist, /dialog\.close\(\)/);
   assert.match(playfulControls, /select\.dataset\.directChoice/);
   assert.match(styles, /\.assist-mode-options\s*\{[\s\S]*grid-template-columns/);
   assert.match(styles, /\.assist-mode-options button\[aria-pressed="true"\]/);
+  assert.match(styles, /\.classic-parameters\.assist-panel-open[\s\S]*\.assist-dialog/);
 });

@@ -55,24 +55,20 @@ final class LuoyeWebViewController: UIViewController {
 
     override func loadView() {
         view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .clear
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
-        // Keep the complete web viewport inside the system safe area. CSS
-        // padding alone clips a fixed-height toolbar on compact iPhones.
-        // https://developer.apple.com/documentation/uikit/uiview/safearealayoutguide
-        let safe = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: safe.topAnchor),
-            webView.leadingAnchor.constraint(equalTo: safe.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: safe.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: safe.bottomAnchor)
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .clear
         // The bundled page declares viewport-fit=cover; this injected rule
         // keeps the same safe-area contract when an older cached page loads.
         webView.configuration.userContentController.addUserScript(WKUserScript(

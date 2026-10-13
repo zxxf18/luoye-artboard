@@ -6,10 +6,24 @@ import { PaintEngine } from '../src/engine.js';
 test('static delivery enables gzip for startup resources', () => {
   const nginx = readFileSync(new URL('../deploy/nginx.conf', import.meta.url), 'utf8');
   const server = readFileSync(new URL('../tools/server.mjs', import.meta.url), 'utf8');
+  const dockerfile = readFileSync(new URL('../Dockerfile', import.meta.url), 'utf8');
+  const headers = readFileSync(new URL('../deploy/security-headers.conf', import.meta.url), 'utf8');
   assert.match(nginx, /gzip\s+on\s*;/);
   assert.match(nginx, /gzip_types[\s\S]*application\/javascript/);
   assert.match(server, /gzipAsync/);
   assert.match(server, /Content-Encoding['\"]:'gzip'/);
+  assert.match(dockerfile, /COPY deploy\/security-headers\.conf \/etc\/nginx\/security-headers\.conf/);
+  assert.match(nginx, /include \/etc\/nginx\/security-headers\.conf;/);
+  assert.match(headers, /X-Content-Type-Options/);
+  assert.match(headers, /Referrer-Policy/);
+  assert.match(headers, /Permissions-Policy/);
+});
+
+test('static delivery serves the root document without masking missing assets', () => {
+  const nginx = readFileSync(new URL('../deploy/nginx.conf', import.meta.url), 'utf8');
+  assert.match(nginx, /location = \/\s*\{[\s\S]*try_files \/index\.html =404;/);
+  assert.match(nginx, /location \/\s*\{[\s\S]*try_files \$uri \$uri\/ =404;/);
+  assert.doesNotMatch(nginx, /location \/\s*\{[\s\S]*try_files \$uri \$uri\/ \/index\.html;/);
 });
 
 test('catalog assets have a bounded decode cache and duplicate-load guard', () => {

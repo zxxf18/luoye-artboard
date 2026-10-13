@@ -223,6 +223,6 @@ export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
   updateTools(); render();
 
   const entry = pixelButton('像素画', 'pixel'); entry.id = 'pixel-art-open'; entry.classList.add('header-command'); entry.onclick = open;
-  document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#animation-open') || document.querySelector('#more-open'));
+  document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#animation-open') || document.querySelector('#tools-open'));
   return { open, dialog, get model() { return model; }, destroy: () => dialog.remove() };
 }

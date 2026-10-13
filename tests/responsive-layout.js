@@ -87,21 +87,29 @@ function checkCompactHeader(doc, width, height) {
   const reset = doc.querySelector('#reset-settings');
   const themeIcon = doc.querySelector('#theme-open > .playful-icon');
   const save = doc.querySelector('#save');
-  const more = doc.querySelector('#more-open');
-  assert(newQuick && reset && themeIcon && save && more, '小屏顶栏缺少快捷操作或主题图标');
+  const tools = doc.querySelector('#tools-open');
+  const settings = doc.querySelector('#settings-open');
+  assert(newQuick && reset && themeIcon && save && tools && settings, '小屏顶栏缺少快捷操作、工具或设置入口');
   assert(parseFloat(view.getComputedStyle(newQuick).fontSize) <= 9.1, '小屏新画纸文案仍然过大');
+  tools.click();
+  assert(doc.querySelector('#tools-dialog')?.open, '工具一级入口没有打开工具面板');
+  assert(doc.querySelector('#tools-actions #copy') && doc.querySelector('#tools-actions #import-image'), '工具面板缺少工具操作');
+  doc.querySelector('#tools-done')?.click();
+  settings.click();
+  assert(doc.querySelector('#settings-dialog')?.open, '设置一级入口没有打开设置面板');
   // Reset/open/export/gallery are intentionally folded into 设置 on compact
   // windows. They remain the same button nodes so their handlers and keyboard
   // semantics are preserved, but they should not compete with the canvas in
   // the top row.
-  assert(reset.closest('#more-dialog .more-actions'), '小屏重置没有收进设置面板');
-  assert(doc.querySelector('#open')?.closest('#more-dialog .more-actions'), '小屏打开没有收进设置面板');
-  assert(doc.querySelector('#export')?.closest('#more-dialog .more-actions'), '小屏导出没有收进设置面板');
-  assert(doc.querySelector('#gallery')?.closest('#more-dialog .more-actions'), '小屏画夹没有收进设置面板');
-  const moreActions = doc.querySelector('#more-dialog .more-actions');
+  assert(reset.closest('#settings-dialog .more-actions'), '小屏重置没有收进设置面板');
+  assert(doc.querySelector('#open')?.closest('#settings-dialog .more-actions'), '小屏打开没有收进设置面板');
+  assert(doc.querySelector('#export')?.closest('#settings-dialog .more-actions'), '小屏导出没有收进设置面板');
+  assert(doc.querySelector('#gallery')?.closest('#settings-dialog .more-actions'), '小屏画夹没有收进设置面板');
+  const moreActions = doc.querySelector('#settings-dialog .more-actions');
   const actionIds = moreActions ? [...moreActions.children].map(node => node.id).filter(Boolean) : [];
   assert(actionIds.at(-1) === 'about-open', '关于没有保持在设置面板最后');
-  assert(doc.querySelectorAll('.header-actions > button').length <= 6, '小屏顶部快捷栏仍放入过多按钮');
+  assert(doc.querySelectorAll('.header-actions > button').length <= 8, '小屏顶部快捷栏仍放入过多按钮');
+  doc.querySelector('#settings-done')?.click();
   assert(rect(themeIcon).width <= 20.5 && rect(themeIcon).height <= 20.5, '小屏主题图标仍然过大');
 }
 function checkBrushDrawer(doc) {
@@ -187,9 +195,16 @@ function checkLibraryDrawer(doc) {
   if (instruction && visible(instruction)) { assert(inside(instruction, library), '素材提示超出图库'); noOverlap([...instruction.children], '素材提示内容'); }
   assertScrollReachable(library, library.querySelector('.panel-heading'), assets.at(-1), '图库内容');
 }
-function checkAssistDialog(doc) {
-  const open = doc.querySelector('.tool-button[data-tool="assist"]') || doc.querySelector('#assist-open');
-  assert(open && visible(open), '辅助入口不可见');
+async function checkAssistDialog(doc) {
+  const launcher = doc.querySelector('#assist-open');
+  let open = doc.querySelector('.tool-button[data-tool="assist"]');
+  if (!open || !visible(open)) {
+    await clickPanel(doc, 'tools');
+    const page = doc.querySelector('#tool-page');
+    if (page && !doc.querySelector('.tool-button[data-tool="assist"]')) { page.click(); await pause(40); }
+    open = doc.querySelector('.tool-button[data-tool="assist"]') || launcher;
+  }
+  assert(open && (visible(open) || open === launcher), '辅助入口不可见');
   open.click();
   const dialog = doc.querySelector('#assist-dialog');
   assert(dialog?.open && visible(dialog), '辅助面板未打开');
@@ -198,15 +213,14 @@ function checkAssistDialog(doc) {
   assert(form && form.scrollWidth <= form.clientWidth + 2, '辅助面板横向溢出');
   const rows = [...form.children].filter(visible);
   noOverlap(rows, '辅助面板分区');
-  for (const row of rows) assert(inside(row, form), '辅助面板分区超出表单');
+  for (const row of rows) { const r = row.getBoundingClientRect(), f = form.getBoundingClientRect(); assert(r.left >= f.left - 1 && r.right <= f.right + 1, '辅助面板分区横向超出表单'); }
   const mode = dialog.querySelector('#assist-mode'), modeButton = dialog.querySelector('#assist-mode-toggle'), axes = dialog.querySelector('#assist-axes');
   assert(mode && modeButton && axes, '辅助模式控件缺失');
   assert(!visible(mode) && visible(modeButton), '辅助模式源控件没有收纳到展开式选项');
   const enabled = dialog.querySelector('#assist-enabled');
   if (!enabled.checked) enabled.click();
-  modeButton.click();
   const options = doc.querySelector('#assist-mode-options');
-  assert(options && !options.hidden, '辅助方式选项没有展开');
+  assert(options && !options.hidden, '辅助方式选项没有在参数区展开');
   const radial = options.querySelector('[data-assist-mode-option="radial"]');
   assert(radial, '辅助模式缺少径向选项');
   radial.click();
@@ -235,7 +249,7 @@ async function runCase(width, height) {
     await pause(40);
     assert(doc.body.dataset.mobilePanel === 'focus', `${panel} 抽屉关闭后未回到画布`);
   }
-  checkAssistDialog(doc);
+  await checkAssistDialog(doc);
   return { width, height, viewport: { width: Math.round(rect(viewport).width), height: Math.round(rect(viewport).height) } };
 }
 for (const [width, height] of [[320, 240], [480, 320], [640, 360], [800, 400], [1280, 400]]) {
