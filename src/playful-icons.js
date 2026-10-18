@@ -28,6 +28,7 @@ const art={
  fractal:'<path d="M31 61V25M31 50 15 37m16 2 19-19M22 44 8 43m14 1-4-19m22 6 17-1M40 31l-1-18M31 32 20 15m11 11L40 8" stroke="#87ac83" stroke-width="5" fill="none"/><circle cx="31" cy="59" r="3" fill="#e1b578"/>',
  palette:'<path fill="#ffdb94" d="M8 25c10-27 54-17 51 10-1 10-14 3-18 12-4 18-27 12-32-2-2-6-3-12-1-20z"/><circle cx="22" cy="22" r="5" fill="#ee8b79"/><circle cx="39" cy="18" r="5" fill="#91bda4"/><circle cx="48" cy="31" r="5" fill="#a6aed7"/><circle cx="18" cy="39" r="5" fill="#efb45b"/><circle cx="32" cy="43" r="5" fill="#fff5dc"/>',
  music:'<path d="M27 45V13l28-6v30" stroke-width="5" fill="none"/><path d="m28 22 26-6" stroke-width="5"/><ellipse cx="18" cy="49" rx="11" ry="8" fill="#e79daf"/><ellipse cx="46" cy="41" rx="11" ry="8" fill="#e79daf"/>',
+ pixel:'<rect x="9" y="9" width="17" height="17" rx="2" fill="#e7b167"/><rect x="31" y="9" width="17" height="17" rx="2" fill="#78b889"/><rect x="9" y="31" width="17" height="17" rx="2" fill="#7ca5d0"/><rect x="31" y="31" width="17" height="17" rx="2" fill="#ed8a75"/><path d="M15 57h38" stroke="#705142" stroke-width="5"/>',
  save:'<path fill="#a9c9ae" d="M10 8h39l9 10v42H10z"/><path fill="#fff2d3" d="M20 8h24v19H20zm-1 32h30v20H19z"/><path d="M36 12v10m-10 25h15m-15 7h15"/>',
  folder:'<path fill="#ffc979" d="M7 15h22l7 8h22v35H7z"/><path fill="#ffe0a0" d="M8 30h53l-8 29H5z"/>',
  download:'<path fill="#a6c6c5" d="M25 7h14v25h12L32 51 13 32h12z"/><path d="M8 48v13h48V48" fill="none"/>',

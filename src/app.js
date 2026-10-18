@@ -20,6 +20,7 @@ import { mountMaterials } from './materials-ui.js';
 import { mountAssist } from './assist-ui.js';
 import { applyStoredTheme, mountTheme } from './theme-ui.js';
 import { DEFAULT_BRUSH_SIZE } from './brushes.js';
+import { mountPixelEditor } from './pixel-art.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -204,6 +205,7 @@ const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 applyStoredTheme();
 mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
+const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 chooseCategory(libraryCategory);
