@@ -37,8 +37,8 @@ android {
         applicationId 'cn.com.yebuluo'
         minSdk 23
         targetSdk 35
-        versionCode 11004
-        versionName '1.10.4'
+        versionCode 11100
+        versionName '1.11.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 

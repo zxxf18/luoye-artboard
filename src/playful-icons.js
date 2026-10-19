@@ -26,6 +26,7 @@ const art={
  'board-filter':'<circle cx="31" cy="31" r="24" fill="#f9dba0"/><circle cx="31" cy="31" r="14" fill="#ef9a8f"/><path d="M31 8c31 26-25 48-16 12m29 31C13 27 59 13 49 40" fill="none"/>',
  clone:'<path fill="#e1b489" d="M14 42h38l6 14H8z"/><path fill="#b5a8cc" d="M22 42v-8q18-5 6-16-6-9 5-13 15-2 15 9 0 9-7 13v15z"/><path d="M10 61h46" stroke="#dc8c79" stroke-width="4"/>',
  fractal:'<path d="M31 61V25M31 50 15 37m16 2 19-19M22 44 8 43m14 1-4-19m22 6 17-1M40 31l-1-18M31 32 20 15m11 11L40 8" stroke="#87ac83" stroke-width="5" fill="none"/><circle cx="31" cy="59" r="3" fill="#e1b578"/>',
+ scratch:'<path d="m13 48 30-30 10 10-30 30z" fill="#cbd8dc"/><path d="m17 44 24-24m-18 34 24-24" stroke="#fff7df" stroke-width="3"/><path d="M8 56h48" stroke="#d98b67" stroke-width="5"/><path d="M17 15q15-9 30 0" fill="none" stroke="#efbd62" stroke-width="4"/>',
  palette:'<path fill="#ffdb94" d="M8 25c10-27 54-17 51 10-1 10-14 3-18 12-4 18-27 12-32-2-2-6-3-12-1-20z"/><circle cx="22" cy="22" r="5" fill="#ee8b79"/><circle cx="39" cy="18" r="5" fill="#91bda4"/><circle cx="48" cy="31" r="5" fill="#a6aed7"/><circle cx="18" cy="39" r="5" fill="#efb45b"/><circle cx="32" cy="43" r="5" fill="#fff5dc"/>',
  music:'<path d="M27 45V13l28-6v30" stroke-width="5" fill="none"/><path d="m28 22 26-6" stroke-width="5"/><ellipse cx="18" cy="49" rx="11" ry="8" fill="#e79daf"/><ellipse cx="46" cy="41" rx="11" ry="8" fill="#e79daf"/>',
  pixel:'<rect x="9" y="9" width="17" height="17" rx="2" fill="#e7b167"/><rect x="31" y="9" width="17" height="17" rx="2" fill="#78b889"/><rect x="9" y="31" width="17" height="17" rx="2" fill="#7ca5d0"/><rect x="31" y="31" width="17" height="17" rx="2" fill="#ed8a75"/><path d="M15 57h38" stroke="#705142" stroke-width="5"/>',
@@ -36,6 +37,7 @@ const art={
  undo:'<path fill="#f2b97b" d="M25 10 5 28l20 16V32c21-5 28 8 22 24 17-14 10-39-22-37z"/>',
  redo:'<g transform="translate(64 0) scale(-1 1)"><path fill="#a9c9c0" d="M25 10 5 28l20 16V32c21-5 28 8 22 24 17-14 10-39-22-37z"/></g>',
  paper:'<path fill="#fff8e7" d="M13 5h31l10 12v44H13z"/><path fill="#ffd188" d="M44 5v14h10"/><path d="M33 31v19M23 41h20" stroke="#d18161" stroke-width="4"/>',
+ image:'<rect x="8" y="12" width="48" height="42" rx="7" fill="#d4e8dc"/><circle cx="42" cy="25" r="6" fill="#f3c879"/><path d="m12 48 13-14 9 9 8-8 14 13" fill="#8ebfa5"/><path d="M8 54h48" stroke="#6b9b82" stroke-width="3"/>',
  display:'<rect x="6" y="10" width="52" height="37" rx="7" fill="#a9c5cd"/><path fill="#fff4d6" d="M12 16h40v25H12z"/><path d="M26 48v9h13v-9m-21 13h29"/><path d="m18 24 6-3m-6 12 6 3m17-15 5 3m-5 12 5-3" stroke="#ce835e"/>',
  more:'<path fill="#eeb591" d="M8 23h48v35H8z"/><path fill="#f8d592" d="M21 23V10h24v13"/><path d="M8 37h48m-29-5v10h10V32" fill="#fff3cd"/>',
 };

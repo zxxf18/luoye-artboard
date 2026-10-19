@@ -70,6 +70,28 @@ test('theme and settings entries stay in their intended containers', () => {
   assert.match(app, /mountDisplay\(\)/);
 });
 
+test('settings drawer gives every action a shared icon and aligned text slot', () => {
+  for (const [id, icon] of [['copy', 'copy'], ['cut', 'cut'], ['paste', 'paste'], ['selection-menu', 'select'], ['recordings', 'play'], ['import-image', 'image']]) {
+    assert.match(classic, new RegExp(`'${id}','${icon}'`), `设置缺少 ${id} 或图标 ${icon}`);
+  }
+  assert.match(classic, /paperSize\.id='paper-size-open'/);
+  assert.match(classic, /aboutButton\.id='about-open'/);
+  assert.match(classic, /rename\.id='rename-open'/);
+  assert.match(classic, /settingButton\(paperSize,'paper','画纸尺寸'\)/);
+  assert.match(classic, /settingButton\(button,icon,label\)/);
+  assert.match(classic, /settingButton\(aboutButton,'palette','关于'\)/);
+  assert.match(classic, /settingButton\(rename,'pencil','给画起名字'\)/);
+  assert.match(display, /button\.className='more-action'/);
+  assert.match(icons, /image:'<rect/);
+  assert.match(styles, /#more-dialog \.more-actions[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(styles, /#more-dialog \.more-action[\s\S]*display:\s*grid/);
+  assert.match(styles, /#more-dialog \.more-action[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(0,\s*1fr\)/);
+  assert.match(styles, /#more-dialog \.more-action > \.playful-icon/);
+  assert.match(styles, /#more-dialog \.more-action > span[\s\S]*width:\s*100%/);
+  assert.match(styles, /#more-dialog \{[\s\S]*width:\s*min\(800px,\s*calc\(100vw - 48px\)\)/);
+  assert.match(styles, /#more-dialog \.more-action > span[\s\S]*text-align:\s*left/);
+});
+
 test('classic color surfaces are themed separately from actual color controls', () => {
   assert.match(styles, /classic-colors/);
   for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {

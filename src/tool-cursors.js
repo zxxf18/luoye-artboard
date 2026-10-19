@@ -6,7 +6,7 @@ const iconContacts = {
   pencil:[13,61], crayon:[17,60], watercolor:[11,56], brush:[22,57],
   marker:[12,54], chalk:[26,58], spray:[42,14], tube:[36,62], effect:[45,8], rainbow:[32,48], duotone:[32,48],
   stamp:[34,44], friend:[35,38], butterfly:[35,33], picker:[10,61],
-  magic:[44,7], move:[32,27], text:[28,61], clone:[34,57], fractal:[33,62],
+  magic:[44,7], move:[32,27], text:[28,61], clone:[34,57], fractal:[33,62], scratch:[18,54],
 };
 const cursorShapes = {
   line:'M8 52 56 12',rect:'M10 14h46v36H10z',roundrect:'M19 12h28q10 0 10 10v22q0 10-10 10H19q-10 0-10-10V22q0-10 10-10z',

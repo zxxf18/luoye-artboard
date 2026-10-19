@@ -13,7 +13,7 @@ export const BRUSHES=[
   {id:'tube',name:'颜料管',hint:'挤出颜料，亮亮的',size:20,color:'#f4ac59'},
   {id:'effect',name:'星光笔',hint:'拖一拖，撒下星星',size:28,color:'#df91b7'},
   {id:'rainbow',name:'彩虹笔',hint:'一笔画出彩虹',size:24,color:'#ef5350'},
-  {id:'duotone',name:'双色渐变',hint:'两种颜色慢慢变',size:24,color:'#ef5350'},
+  {id:'duotone',name:'渐变色',hint:'两种颜色慢慢变',size:24,color:'#ef5350'},
 ];
 const brushTau=Math.PI*2;
 function tint(hex,amount){return '#'+hex.slice(1).match(/../g).map(n=>{const c=parseInt(n,16);return Math.round(amount>0?c+(255-c)*amount:c*(1+amount)).toString(16).padStart(2,'0');}).join('');}
@@ -71,7 +71,7 @@ function gradientRibbon(ctx,a,b,width,colorAt,alpha){
 export function brushSegment(ctx,g,a,b){
   const o=g.options;
   // Recordings without a version keep the 0.2/0.3 rendering rules.
-  if(o.brushVersion!==2||o.tool==='eraser')return legacyBrushSegment(ctx,g,a,b);
+  if(o.brushVersion!==2||o.tool==='eraser'||o.tool==='scratch')return legacyBrushSegment(ctx,g,a,b);
   const key=o.brush||'pencil',w=o.size/g.layer.scale,ratio=Math.max(.15,Math.min(2,o.ratio??1)),alpha=o.opacity,random=g.random||(g.random=seededRandom(o.seed??1));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=alpha;
   if(key==='rainbow'||key==='duotone'){

@@ -1,6 +1,6 @@
 import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp, endPaperWarp } from './paper-tools.js';
 import { EditorEngine } from './editor.js';
-import { makeCanvas } from './engine.js';
+import { makeCanvas, paintScratchBase, paintScratchCover, scratchStyle } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
 import { brushSegment } from './brushes.js';
 import { shapeEraserSegment } from './shape-eraser.js';
@@ -38,6 +38,63 @@ function stampGroup(group,size){
 }
 
 export class DrawingEngine extends EditorEngine {
+  ensureScratchBase(style = {}, record = false) {
+    const existing = this.layers.find(layer => layer.role === 'scratch-base');
+    if (existing) return existing;
+    const canvas = makeCanvas(this.width, this.height);
+    paintScratchBase(canvas.getContext('2d'), this.width, this.height, style);
+    const firstArtwork = this.layers.findIndex(layer => layer.role !== 'background' && layer.role !== 'scratch-base');
+    return this.addLayer('刮刮画底色', canvas, record, { role: 'scratch-base', sourceId: 'scratch-base', insertAt: firstArtwork < 0 ? this.layers.length : firstArtwork });
+  }
+  createScratchCard(options = {}) {
+    const style = scratchStyle(options), before = this.layers.slice(), previous = this.activeId;
+    const base = this.ensureScratchBase(style, false), cover = super.createScratchCard({ ...style, record: false });
+    const after = this.layers.slice(), active = this.activeId;
+    this.history.push({ bytes: (base.width * base.height + cover.width * cover.height) * 4, undo: () => { this.layers = before.slice(); this.activeId = previous; }, redo: () => { this.layers = after.slice(); this.activeId = active; } });
+    this.changed(); return cover;
+  }
+  setScratchStyle(next = {}) {
+    const cover = this.layers.find(layer => layer.role === 'scratch');
+    if (!cover) return this.createScratchCard(next);
+    const style = scratchStyle({ ...cover.scratchStyle, ...next }), base = this.ensureScratchBase(style);
+    const beforeCover = cover.canvas, beforeBase = base.canvas, beforeStyle = scratchStyle(cover.scratchStyle);
+    if (JSON.stringify(beforeStyle) === JSON.stringify(style)) return cover;
+    const nextCover = makeCanvas(this.width, this.height), coverContext = nextCover.getContext('2d');
+    paintScratchCover(coverContext, this.width, this.height, style);
+    coverContext.globalCompositeOperation = 'destination-in'; coverContext.drawImage(beforeCover, 0, 0);
+    const nextBase = makeCanvas(this.width, this.height); paintScratchBase(nextBase.getContext('2d'), this.width, this.height, style);
+    cover.canvas = nextCover; cover.scratchStyle = style; base.canvas = nextBase;
+    this.history.push({ bytes: this.width * this.height * 4 * 4, undo: () => { cover.canvas = beforeCover; cover.scratchStyle = beforeStyle; base.canvas = beforeBase; }, redo: () => { cover.canvas = nextCover; cover.scratchStyle = style; base.canvas = nextBase; } });
+    this.changed(); return cover;
+  }
+  ensureDrawingLayer(name = '我的画笔') {
+    const scratchIndex = this.layers.findIndex(layer => layer.role === 'scratch');
+    if (scratchIndex < 0) return super.ensureDrawingLayer(name);
+    const active = this.active, index = this.layers.indexOf(active);
+    const reusable = active && index >= 0 && index < scratchIndex && active.visible && active.opacity > 0 && !active.frames?.length && !active.sprites && !active.eraseMask && !active.sourceId && !active.role && active.width === this.width && active.height === this.height && active.scale === 1 && active.rotation === 0 && active.x === this.width / 2 && active.y === this.height / 2;
+    if (reusable) return active;
+    return this.addLayer(name, makeCanvas(this.width, this.height), true, { insertAt: scratchIndex });
+  }
+  prepareScratchCard() {
+    const existing = this.layers.find(layer => layer.role === 'scratch');
+    if (!existing) return this.createScratchCard();
+    this.ensureScratchBase(scratchStyle(existing.scratchStyle));
+    const index = this.layers.indexOf(existing), previous = this.activeId, visible = existing.visible;
+    if (index !== this.layers.length - 1) this.layers.splice(this.layers.length - 1, 0, this.layers.splice(index, 1)[0]);
+    existing.visible = true; this.activeId = existing.id;
+    if (index !== this.layers.length - 1 || !visible) this.changed(); else this.render();
+    return existing;
+  }
+  resetScratchCard() {
+    const layer = this.layers.find(item => item.role === 'scratch');
+    if (!layer) return this.prepareScratchCard();
+    const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height), style = scratchStyle(layer.scratchStyle);
+    ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, layer.width, layer.height); paintScratchCover(ctx, layer.width, layer.height, style); ctx.restore();
+    layer.scratchDirtyTiles = new Set();
+    const after = ctx.getImageData(0, 0, layer.width, layer.height);
+    this.history.push({ bytes: before.data.byteLength * 2, undo: () => ctx.putImageData(before, 0, 0), redo: () => ctx.putImageData(after, 0, 0) });
+    this.changed(); return layer;
+  }
   assistGeometry(options, layer) {
     const assist=options?.assist;
     if(!assist||typeof options!=='object')return null;

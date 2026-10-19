@@ -13,6 +13,229 @@
   overflow: auto; scrollbar-width: thin;
 }
 .playroom .classic-parameters:has(.options-bar > label[data-option=pen]:not([hidden])) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.playroom[data-classic-tool="scratch"] .tool-dock,
+.playroom .tool-dock:has(.scratch-style-panel:not([hidden])) { grid-template-rows: 48px minmax(0, 1fr); }
+.playroom[data-classic-tool="scratch"] .tool-dock .quick-palette { display: flex !important; }
+.playroom[data-classic-tool="scratch"] .tool-dock .classic-parameters { flex: 1 1 auto; min-height: 0; }
+.playroom[data-classic-tool="scratch"][data-mobile-panel="options"] .tool-dock .classic-parameters { overflow: hidden !important; }
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom[data-classic-tool="scratch"][data-mobile-panel="options"] .tool-dock .classic-parameters .scratch-style-panel {
+    position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important;
+    width: auto; margin: 0; align-self: stretch; flex: 0 0 auto;
+  }
+}
+.playroom[data-classic-tool="scratch"] .classic-parameters { position: relative; overflow: hidden; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.playroom[data-classic-tool="scratch"] .classic-parameters .choice-button,
+.playroom[data-classic-tool="scratch"] .classic-parameters .detail-bar,
+.playroom[data-classic-tool="scratch"] .classic-parameters .opacity-control,
+.playroom[data-classic-tool="scratch"] .classic-parameters #stroke-buttons,
+.playroom[data-classic-tool="scratch"] .classic-parameters label[for="brush-ratio"] { display: none !important; }
+.playroom[data-classic-tool="scratch"] .classic-parameters #brush-options { grid-column: 1; grid-row: 2; }
+.playroom[data-classic-tool="scratch"] .scratch-style-panel { position: static; display: grid !important; min-height: 0; grid-column: 1; grid-row: 1; align-self: stretch; overflow: hidden; }
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) { position: relative; overflow: hidden; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) .choice-button,
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) .detail-bar,
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) .opacity-control,
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) #stroke-buttons,
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) label[for="brush-ratio"] { display: none !important; }
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) #brush-options { grid-column: 1; grid-row: 2; }
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) .scratch-style-panel { position: static; display: grid !important; min-height: 0; grid-column: 1; grid-row: 1; overflow: hidden; }
+.playroom[data-classic-tool="scratch"] .classic-parameters .options-bar[hidden],
+.playroom[data-classic-tool="scratch"] .classic-parameters .primary-brush-options[hidden] { display: none !important; }
+
+/* Scratch keeps the shared color shelf in the dock's first row. Its own
+   settings use a two-by-two arrangement: cover and scratch colors occupy the
+   left two-thirds in separate rows, while the stroke-size card occupies the
+   right third and spans both rows. The section is surface-less so these cards
+   read at the same level as the other parameter controls. */
+.playroom .scratch-style-panel {
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: auto;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.playroom .scratch-color-grid {
+  display: grid;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+.playroom .scratch-style-group {
+  grid-column: 1;
+  grid-row: auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--theme-border, #e8c69c);
+  border-radius: 10px;
+  background: var(--theme-classic-control, #fff2db);
+  overflow: visible;
+}
+.playroom .scratch-style-group[data-scratch-kind="cover"] { grid-row: 1; }
+.playroom .scratch-style-group[data-scratch-kind="base"] { grid-row: 2; }
+.playroom .scratch-style-label {
+  flex: none;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink, #603f32);
+}
+.playroom .scratch-size-row #brush-options > label {
+  flex: none;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink, #603f32);
+  white-space: nowrap;
+}
+.playroom .scratch-style-choices {
+  min-width: 0;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  gap: 5px;
+  overflow: visible;
+  padding-inline: 1px;
+}
+.playroom .scratch-size-row {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  min-height: 0;
+}
+.playroom .scratch-size-row #brush-options {
+  display: flex !important;
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  height: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--theme-border, #e8c69c);
+  border-radius: 10px;
+  background: var(--theme-classic-control, #fff2db);
+}
+.playroom .scratch-size-row #brush-options select,
+.playroom .scratch-size-row #brush-options .divider { display: none !important; }
+
+/* The scratch-specific placement rules above predate the two-row layout and
+   carry a stronger selector. Keep the size card in the right column while it
+   spans both color rows. */
+.playroom[data-classic-tool="scratch"] .classic-parameters .scratch-size-row #brush-options,
+.playroom .classic-parameters:has(.scratch-style-panel:not([hidden])) .scratch-size-row #brush-options {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* The scratch card uses an explicit grid display while active. Keep the
+   native hidden contract stronger than that active-state rule when another
+   tool is selected. */
+.playroom .scratch-style-panel[hidden] { display: none !important; }
+
+/* The smallest WebView sheet has only a short strip above the canvas. Keep
+   the shared colors visible there too by shrinking both rows together; the
+   desktop/Mac layout keeps its normal touch targets. */
+@media (max-width: 420px), (max-height: 360px) {
+  .playroom[data-classic-tool="scratch"] .classic-parameters .options-bar[hidden],
+  .playroom[data-classic-tool="scratch"] .classic-parameters .primary-brush-options[hidden] {
+    display: none !important;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette {
+    flex-basis: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 1px 3px !important;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .quick-palette .swatch {
+    flex-basis: 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    border-width: 2px;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .more-colors {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 1px 3px !important;
+    font-size: 9px !important;
+  }
+  .playroom[data-mobile-panel="options"] .tool-dock .more-colors .playful-icon { width: 18px; height: 18px; }
+  .playroom[data-mobile-panel="options"] .tool-dock .classic-parameters { gap: 2px !important; padding: 2px !important; }
+  .playroom[data-mobile-panel="options"] .classic-parameters .scratch-style-panel,
+  .playroom[data-classic-tool="scratch"][data-mobile-panel="options"] .tool-dock .classic-parameters .scratch-style-panel {
+    position: static !important;
+    inset: auto !important;
+    display: grid !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    padding: 0 !important;
+    gap: 2px !important;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-color-grid {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-size-row {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 0;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-style-group {
+    gap: 2px;
+    padding: 2px 3px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-style-group[data-scratch-kind="cover"] { grid-column: 1; grid-row: 1; }
+  .playroom[data-mobile-panel="options"] .scratch-style-group[data-scratch-kind="base"] { grid-column: 1; grid-row: 2; }
+  .playroom[data-mobile-panel="options"] .scratch-style-label { font-size: 9px; text-align: center; }
+  .playroom[data-mobile-panel="options"] .scratch-style-choices { gap: 3px; overflow: visible; padding: 2px; justify-content: center; }
+  .playroom[data-mobile-panel="options"] .scratch-style-chip,
+  .playroom[data-mobile-panel="options"] .scratch-style-custom {
+    width: 14px; height: 14px; min-width: 14px; min-height: 14px; flex-basis: 14px;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-size-row #brush-options {
+    grid-column: 1; grid-row: 1;
+    min-height: 24px; height: 100%; padding: 1px 3px; gap: 3px;
+  }
+  .playroom[data-mobile-panel="options"] .scratch-size-row #brush-options input[type="range"] {
+    min-height: 18px; height: 18px;
+  }
+}
 .playroom .brush-inspector, .playroom .sidebar-choice-source, .playroom .deprecated-stroke-control,
 .playroom .options-bar .history-buttons, .playroom .options-bar .divider { display: none !important; }
 .playroom .classic-parameters .options-bar,
@@ -26,6 +249,43 @@
   border: 1px solid #e8c69c; border-radius: 10px; background: #fff2db;
   font: inherit; white-space: nowrap;
 }
+/* Geometry toggles use the same readable label scale as filter parameters. */
+.playroom .primary-brush-options label:has(#shape-filled),
+.playroom .primary-brush-options label:has(#shape-dashed) {
+  font-size: calc(17px * var(--u));
+  line-height: 1.3;
+}
+/* Keep the dashed toggle at the original compact geometry-label scale. */
+.playroom .primary-brush-options label:has(#shape-dashed) {
+  font-size: inherit;
+  line-height: inherit;
+}
+/* Text opacity and paint-bucket controls use the same readable parameter
+   treatment as the filter controls.  These controls are otherwise rendered
+   through the shared small detail-bar scale, which makes their labels
+   noticeably smaller than adjacent parameters. */
+.playroom[data-classic-tool="text"] .classic-parameters .opacity-control,
+.playroom[data-classic-tool="fill"] .classic-parameters .opacity-control,
+.playroom[data-classic-tool="fill"] .classic-parameters label:has(#fill-gradient),
+.playroom[data-classic-tool="fill"] .classic-parameters label:has(#tolerance) {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  /* Keep these labels aligned at one readable scale: fill controls come down
+     slightly from the oversized 17px treatment while text opacity comes up
+     from the shared 15px base. */
+  font-size: calc(16px * var(--u));
+  line-height: 1.3;
+}
+.playroom[data-classic-tool="text"] .classic-parameters .opacity-control output,
+.playroom[data-classic-tool="fill"] .classic-parameters .opacity-control output,
+.playroom[data-classic-tool="fill"] .classic-parameters label:has(#fill-gradient) output,
+.playroom[data-classic-tool="fill"] .classic-parameters label:has(#tolerance) output {
+  min-width: 2.5em;
+  font-size: calc(16px * var(--u));
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
 .playroom .parameter-slider > label { margin: 0; padding: 0; white-space: nowrap; font: inherit; }
 .playroom .parameter-slider > output, .playroom .primary-brush-options label > output { font-size: 13px; color: #8e573e; }
 .playroom .parameter-slider > input[type=range], .playroom .primary-brush-options input[type=range] { flex: 1; width: 60px; min-width: 25px; max-width: 220px; margin: 0; }
@@ -35,6 +295,57 @@
 .playroom .primary-brush-options .choice-picture { width: 22px; height: 22px; flex: none; }
 .playroom .primary-brush-options .choice-picture svg { width: 100%; height: 100%; }
 .playroom .primary-brush-options .number-stepper { flex: 1; min-width: 0; max-width: 200px; margin: 0; gap: 2px; }
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] {
+  justify-content: flex-start; align-items: center; align-self: start;
+  min-height: 56px; font-size: 18px;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters {
+  /* The wand exposes one setting, but the shared parameter shelf always has
+     the same two-row height as the other tools. Let the tolerance card use
+     both rows so it does not collapse into a short card in the first cell. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  min-height: 0;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] .number-stepper {
+  flex: 0 0 auto; width: 220px; max-width: none; margin-left: 8px; gap: 6px;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] .number-stepper button {
+  width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; font-size: 22px;
+}
+.playroom[data-classic-tool="magic"] #tolerance {
+  width: 112px; min-width: 112px; height: 40px; padding: 3px 6px; font-size: 18px; text-align: center;
+}
+.playroom[data-classic-tool="clone"] .classic-parameters {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+.playroom[data-classic-tool="clone"] .classic-parameters #brush-options {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 17px;
+}
+.playroom[data-classic-tool="clone"] .classic-parameters .opacity-control {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 17px;
+}
+.playroom[data-classic-tool="clone"] .classic-parameters #clone-source {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  min-height: 40px;
+  justify-self: stretch;
+  font-size: 17px;
+  line-height: 1.25;
+}
 .playroom .primary-brush-options .number-stepper button { width: 32px; min-width: 32px; min-height: 32px; height: 32px; padding: 0; flex: none; }
 .playroom .primary-brush-options .number-stepper input { min-width: 0; width: 100%; padding: 2px 0; border: 0; background: transparent; font: inherit; }
 .playroom .primary-brush-options label:has(input[type=checkbox]) input { margin: 0; width: 24px; min-width: 24px; height: 24px; min-height: 24px; }
@@ -68,8 +379,142 @@
 .playroom #library-pagination button { min-width: 38px; min-height: 38px; padding: 4px; font-size: 12px; gap: 4px; }
 .playroom #library-pagination .playful-icon { width: 22px; height: 22px; }
 .playroom #library-pagination > span { font-size: 12px; white-space: nowrap; }
+.playroom #library-pagination { min-width: 0; max-width: 100%; }
+
+/* The fairy shelf already exposes its three modes in the left column. Hide
+   the duplicate gallery category row so the bottom shelf keeps the same
+   usable height as the other tools. On desktop, reserve the normal parameter
+   row for stamp controls instead of the compact 58px gallery footer. */
+.playroom[data-library-surface="fairy"] .categories { display: none !important; }
+@media (min-width: 861px) and (min-height: 601px) {
+  .playroom.library-open[data-classic-tool="stamp"] .tool-dock {
+    /* The gallery drawer used to raise this shelf to 210px, while every
+       other tool reserves the normal compact dock. Keep the asset grid and
+       its parameter row inside that same outer height. */
+    height: clamp(164px, 17dvh, 190px);
+    min-height: 164px;
+    max-height: 190px;
+    /* Keep the gallery row tall enough for the original thumbnail cards;
+       compress only the size/pagination row below it. */
+    grid-template-rows: minmax(0, 1fr) 54px;
+  }
+  .playroom.library-open[data-classic-tool="stamp"] .classic-parameters {
+    min-height: 0;
+    padding: 2px 4px;
+  }
+  /* The gallery stylesheet gives asset-grid a 100px minimum.  The fairy
+     shelf reserves the original thumbnail row above a shorter parameter row.
+     Keep the gallery cards at their original height and constrain only the
+     lower size/pagination controls to the shorter row. */
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] .tool-dock .right-panel {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] .tool-dock .asset-grid {
+    height: 100%;
+    min-height: 100px;
+    max-height: 100%;
+    overflow: hidden;
+    padding-bottom: 6px;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] .tool-dock .asset {
+    min-height: 0;
+    height: calc(100% - 2px);
+    align-self: start;
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] #library-pagination {
+    min-height: 0;
+    height: 100%;
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] #library-pagination button {
+    min-height: 28px;
+    height: 28px;
+    padding: 1px 3px;
+    font-size: 11px;
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] #library-pagination .playful-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .playroom.library-open[data-classic-tool="stamp"][data-library-surface="fairy"] #library-pagination > span {
+    font-size: 11px;
+  }
+}
+@media (max-width: 1000px) {
+  /* The compact parameter shelf cannot fit the page count beside two touch
+     buttons at larger UI scales. Keep both navigation buttons inside the
+     shelf and let the surrounding gallery still expose the current items. */
+  .playroom #library-pagination > span { display: none; }
+  .playroom #library-pagination { width: auto; min-width: 82px; justify-content: flex-end; }
+}
 .playroom.library-open .classic-parameters:has(#brush-options[hidden]) #library-instruction { display: flex; gap: 8px; align-items: center; min-width: 0; font-size: 14px; }
 .playroom #library-instruction .playful-icon { width: 26px; height: 26px; }
+.playroom.library-open[data-library-surface="gallery"] #brush-options { display: none !important; }
+@media (min-width: 861px) and (min-height: 601px) {
+  /* Gallery keeps the same dock height as ordinary tools. Its asset row
+     remains 100px tall; the category strip and pagination row absorb the
+     compression so a previous fairy size control cannot reappear. */
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock {
+    height: clamp(164px, 17dvh, 190px);
+    min-height: 164px;
+    max-height: 190px;
+    grid-template-rows: minmax(0, 1fr) 32px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .classic-parameters {
+    min-height: 0;
+    padding: 2px 4px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock .right-panel {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock .categories {
+    flex: 0 0 24px;
+    height: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    margin: 0 0 1px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock .categories button {
+    min-height: 22px;
+    height: 22px;
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock .categories .playful-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] .tool-dock .asset-grid {
+    height: calc(100% - 4px);
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .playroom.library-open[data-library-surface="gallery"] #library-pagination {
+    min-height: 0;
+    height: 100%;
+  }
+  .playroom.library-open[data-library-surface="gallery"] #library-pagination button {
+    min-height: 22px;
+    height: 22px;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] #library-pagination .playful-icon {
+    width: 14px;
+    height: 14px;
+  }
+  .playroom.library-open[data-library-surface="gallery"] #library-pagination > span {
+    font-size: 10px;
+  }
+}
 .playroom #object-controls { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; min-width: 0; padding: 4px 10px; }
 .playroom #object-controls > div { min-width: 0; flex: 1; }
 .playroom #object-controls strong { display: block; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

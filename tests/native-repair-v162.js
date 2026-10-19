@@ -9,7 +9,7 @@ try{
  check($('library-groups').querySelectorAll('[data-fairy-mode]').length===3,'魔法袋左侧有三个原版分类');
  document.querySelector('#library-groups [data-fairy-mode=dynamic]').click();await pause(60);
  check([...$('asset-grid').children].every(e=>e.dataset.assetId.startsWith('girl-2-')),'会动图案只展示动态组合');
- check([...$('categories').children].filter(visible).length===1,'魔法袋不混用图库导航');
+ check(!visible($('categories')),'魔法袋不显示重复的图库分类栏');
  check(Math.abs(box($('viewport')).height-paper.height)<1,'开关素材不压缩画纸');
  $('mode-library').click();await pause(60);
  check(document.querySelector('[data-category=background]').getAttribute('aria-pressed')==='true','图库恢复自己的背景分类');

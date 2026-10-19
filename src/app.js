@@ -24,8 +24,8 @@ import { mountPixelEditor } from './pixel-art.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
-const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形' };
-const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色' };
+const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形',scratch:'刮刮画' };
+const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色', scratch:'在覆盖层上刮开一条路，看看下面的颜色' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
@@ -53,6 +53,7 @@ function setTool(next) {
   if(tool === 'stamp') { stampSize = Number($('size').value); if(next!==tool) engine?.resetStampProgress?.(); }
   if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
   engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
+  if (next === 'scratch' && tool !== 'scratch') engine?.prepareScratchCard?.();
   if(engine?.path&&next!==tool)engine.finishPath(true);
   if(next!==tool)engine?.clearSelection();
   if(!shapeTools.has(tool)&&shapeTools.has(next)){
@@ -69,6 +70,7 @@ function setTool(next) {
   if(tool==='warp')$('tool-hint').textContent='推拉：拖动变形；缩放：点击或拖动。负速度用于反向变形';
   if(tool==='board-filter')$('tool-hint').textContent='点击画纸设置效果中心，或在底部预览后确定';
   if(tool==='fractal')$('tool-hint').textContent='点击画纸或底部按钮，选择分形样式与尺寸';
+  if(tool==='scratch')$('tool-hint').textContent=hints.scratch;
   studio?.toolChanged(tool);
   document.dispatchEvent(new Event('toolchange'));
 }
@@ -95,19 +97,22 @@ function renderLayers() {
     context.drawImage(layer.canvas, (64 - layer.width * fit) / 2, (42 - layer.height * fit) / 2, layer.width * fit, layer.height * fit);
     for(const mask of [layer.eraseMask,layer.spriteClip])if(mask){context.globalCompositeOperation='destination-in';context.drawImage(mask,(64-layer.width*fit)/2,(42-layer.height*fit)/2,layer.width*fit,layer.height*fit);}
     const name = document.createElement('button'); name.className = 'layer-name'; name.innerHTML = ''; const caption = document.createElement('span'); caption.textContent = (layer.role === 'background' ? '画纸背景 · ' : '') + layer.name; name.append(thumb,caption); name.setAttribute('aria-pressed', layer.id === engine.activeId);
-    name.onclick = () => { if (busy) return; engine.activeId = layer.id; renderLayers(); document.dispatchEvent(new Event('controlschange')); };
+    name.disabled = ['scratch-base'].includes(layer.role);
+    name.onclick = () => { if (busy || name.disabled) return; engine.activeId = layer.id; renderLayers(); document.dispatchEvent(new Event('controlschange')); };
     const eye = document.createElement('button'); eye.className = 'eye-button'; eye.innerHTML = icon(layer.visible ? 'eye' : 'hidden'); eye.setAttribute('aria-label', `${layer.visible ? '藏起来：' : '显示：'}${layer.name}`);
+    eye.disabled = ['scratch','scratch-base'].includes(layer.role);
     eye.onclick = () => run(() => engine.setProperty(layer, 'visible', !layer.visible));
     eye.append(document.createTextNode(layer.visible ? '藏起来' : '显示')); row.append(name, eye); $('layer-list').append(row);
   }
   document.dispatchEvent(new Event('objectchange'));
-  $('smaller').disabled=$('bigger').disabled=engine.active.role==='background';
-  for(const id of ['rotate','mirror-x','mirror-y']) if($(id)) $(id).disabled=engine.active.role==='background';
+  const protectedLayer=['background','scratch','scratch-base'].includes(engine.active.role);
+  $('smaller').disabled=$('bigger').disabled=protectedLayer;
+  for(const id of ['rotate','mirror-x','mirror-y']) if($(id)) $(id).disabled=protectedLayer;
   $('undo').disabled = !engine.history.past.length; $('redo').disabled = !engine.history.future.length;
-  $('delete-layer').disabled = engine.layers.length < 2;
-  $('layer-up').disabled = engine.active === engine.layers.at(-1) || engine.active.role === 'background';
-  $('layer-down').disabled = engine.layers.indexOf(engine.active) === 0 || engine.active.role === 'background' || engine.layers[engine.layers.indexOf(engine.active)-1]?.role === 'background';
-  if($('move-selected-layer')) $('move-selected-layer').disabled = engine.active.role === 'background';
+  $('delete-layer').disabled = engine.layers.length < 2 || protectedLayer;
+  $('layer-up').disabled = engine.active === engine.layers.at(-1) || protectedLayer;
+  $('layer-down').disabled = engine.layers.indexOf(engine.active) === 0 || protectedLayer || ['background','scratch-base'].includes(engine.layers[engine.layers.indexOf(engine.active)-1]?.role);
+  if($('move-selected-layer')) $('move-selected-layer').disabled = protectedLayer;
 }
 function changed() {
   if (!engine) return;
@@ -208,6 +213,11 @@ mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>en
 const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
+document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));
+document.addEventListener('scratch-style-change', event => run(() => {
+  const cover = engine.setScratchStyle(event.detail || {});
+  document.dispatchEvent(new CustomEvent('scratch-style-updated', { detail: cover?.scratchStyle || event.detail || {} }));
+}));
 chooseCategory(libraryCategory);
 const selectionReset=document.createElement('button');selectionReset.id='selection-reset';selectionReset.hidden=true;selectionReset.innerHTML=playfulIcon('select')+'<span>已选中画面<br>点这里取消圈选</span>';selectionReset.onclick=()=>{engine.clearSelection();toast('圈选已取消，整张画纸都可以画了');};document.querySelector('.left-actions').prepend(selectionReset);
 engine.onSelectionChange=()=>{selectionReset.hidden=!engine.selection;};

@@ -80,6 +80,40 @@ function framePNG(frame,width=frame.width,height=frame.height){
   return value;
 }
 
+export function scratchStyle(options = {}) {
+  return {
+    color: typeof options.color === 'string' && options.color.trim() ? options.color : '#c99559',
+    secondaryColor: typeof options.secondaryColor === 'string' ? options.secondaryColor.trim() : '#f0d49f',
+    baseMode: options.baseMode === 'rainbow' ? 'rainbow' : 'solid',
+    baseColor: typeof options.baseColor === 'string' && options.baseColor.trim() ? options.baseColor : '#fffdf8',
+    baseSecondaryColor: typeof options.baseSecondaryColor === 'string' ? options.baseSecondaryColor.trim() : '',
+  };
+}
+const SCRATCH_RAINBOW = ['#ff6b6b', '#ffb347', '#ffe66d', '#8bd17c', '#67c5e8', '#8d8de8', '#d18bd5'];
+function paintScratchRainbow(ctx, width, height) {
+  if (typeof ctx.createLinearGradient !== 'function') { ctx.fillStyle = SCRATCH_RAINBOW[0]; ctx.fillRect(0, 0, width, height); return; }
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  SCRATCH_RAINBOW.forEach((color, index) => gradient.addColorStop(index / (SCRATCH_RAINBOW.length - 1), color));
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+}
+export function paintScratchBase(ctx, width, height, style = {}) {
+  const base = scratchStyle(style);
+  if (base.baseMode === 'rainbow') paintScratchRainbow(ctx, width, height);
+  else if (base.baseSecondaryColor && typeof ctx.createLinearGradient === 'function') {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, base.baseColor); gradient.addColorStop(1, base.baseSecondaryColor);
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+  } else { ctx.fillStyle = base.baseColor; ctx.fillRect(0, 0, width, height); }
+}
+export function paintScratchCover(ctx, width, height, style = {}) {
+  const cover = scratchStyle(style);
+  if (cover.secondaryColor && typeof ctx.createLinearGradient === 'function') {
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, cover.color); gradient.addColorStop(1, cover.secondaryColor); ctx.fillStyle = gradient;
+  } else ctx.fillStyle = cover.color;
+  ctx.fillRect(0, 0, width, height);
+}
+
 export class PaintEngine {
   constructor(canvas, onChange) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
@@ -130,6 +164,13 @@ export class PaintEngine {
       undo: () => { this.layers = this.layers.filter(l => l.id !== layer.id); this.activeId = previous; },
       redo: () => { this.layers.splice(position, 0, layer); this.activeId = layer.id; } });
     this.changed(); return layer;
+  }
+  createScratchCard(options = {}) {
+    const style = scratchStyle(options), canvas = makeCanvas(this.width, this.height);
+    paintScratchCover(canvas.getContext('2d'), this.width, this.height, style);
+    const layer = this.addLayer(options.name || '刮刮画', canvas, options.record !== false, { role: 'scratch', scratchStyle: style });
+    layer.scratchDirtyTiles = new Set();
+    return layer;
   }
   removeActive() {
     if (this.layers.length === 1) throw new Error('请至少保留一个图层。');
@@ -299,7 +340,7 @@ export class PaintEngine {
     const local = toLayerPoint(point, layer);
     this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
       origin: point, x: layer.x, y: layer.y, tiles: new Map() };
-    if (['pen', 'eraser'].includes(options.tool)) this.segment(local, local);
+    if (['pen', 'eraser', 'scratch'].includes(options.tool)) this.segment(local, local);
     if (options.tool === 'fill') {
       const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height);
       const next = new ImageData(new Uint8ClampedArray(before.data), layer.width, layer.height);
@@ -319,7 +360,7 @@ export class PaintEngine {
       width: Math.abs(a.x - b.x) + padding * 2, height: Math.abs(a.y - b.y) + padding * 2 }, tiles);
     const ctx = layer.canvas.getContext('2d'); ctx.save(); ctx.strokeStyle = o.color; ctx.fillStyle = o.color;
     ctx.globalAlpha = o.opacity; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (o.tool === 'eraser') ctx.globalCompositeOperation = 'destination-out';
+    if (o.tool === 'eraser' || o.tool === 'scratch') ctx.globalCompositeOperation = 'destination-out';
     if (o.brush === 'soft' && o.tool !== 'eraser') { ctx.shadowColor = o.color; ctx.shadowBlur = width / 3; ctx.globalAlpha *= .5; }
     if (o.brush === 'crayon' && o.tool !== 'eraser') {
       const distance = Math.hypot(b.x - a.x, b.y - a.y), steps = Math.max(1, Math.ceil(distance / 2));
@@ -339,7 +380,7 @@ export class PaintEngine {
   update(point) {
     const g = this.gesture; if (!g) return;
     if (g.options.tool === 'move') { g.layer.x = g.x + point.x - g.origin.x; g.layer.y = g.y + point.y - g.origin.y; }
-    else { const local = toLayerPoint(point, g.layer); g.end = local; if (['pen', 'eraser'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; }
+    else { const local = toLayerPoint(point, g.layer); g.end = local; if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; }
     this.render();
   }
   drawShape(ctx, g) {
@@ -424,8 +465,9 @@ export class PaintEngine {
   async serialize(title) {
     const widthAtStart=this.width,heightAtStart=this.height;
     const jobs = this.layers.map(layer => {
-      const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role } = layer;
+      const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role, scratchStyle: coverStyle } = layer;
       const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX: !!flipX, flipY: !!flipY, sourceId, role };
+      if (role === 'scratch' && coverStyle) item.scratchStyle = coverStyle;
       // Start every mutable-canvas snapshot before yielding, so drawing can
       // continue while PNG encoding completes without mixing document revisions.
       const jobs=[canvasPNG(layer.canvas).then(value=>{item.image=value;})];
@@ -453,6 +495,7 @@ export class PaintEngine {
       if (image.width !== info.width || image.height !== info.height) throw new Error('图层图片与记录尺寸不一致。');
       const canvas = makeCanvas(info.width, info.height); canvas.getContext('2d').drawImage(image, 0, 0);
       const layer = { ...info, canvas }; delete layer.image;
+      if (layer.role === 'scratch') layer.scratchDirtyTiles = new Set();
       if (!layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')) layer.role = 'background';
       if(info.eraseMask){const mask=await loadImage(info.eraseMask);layer.eraseMask=makeCanvas(info.width,info.height);layer.eraseMask.getContext('2d').drawImage(mask,0,0);}
       if (info.frames) {

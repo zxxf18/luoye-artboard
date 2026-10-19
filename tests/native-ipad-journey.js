@@ -141,8 +141,7 @@ await check('辅助绘画在 iPad 弹窗中可设置并驱动新笔触', async (
   assert(el('assist-dialog').open, '辅助绘画弹窗没有打开');
   el('assist-enabled').checked = true;
   el('assist-enabled').dispatchEvent(new Event('change', { bubbles: true }));
-  el('assist-mode').value = 'radial';
-  el('assist-mode').dispatchEvent(new Event('change', { bubbles: true }));
+  document.querySelector('.assist-mode-button[data-assist-mode="radial"]').click();
   el('assist-axes').value = 6;
   el('assist-axes').dispatchEvent(new Event('input', { bubbles: true }));
   assert(document.body.dataset.assistEnabled === 'true', '辅助状态没有开启');

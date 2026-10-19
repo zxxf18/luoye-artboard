@@ -46,7 +46,9 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                               styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self
         window.title = "落叶画板"
-        window.contentMinSize = NSSize(width: 900, height: 650)
+        // Keep the native floor large enough for the three-column studio and
+        // parameter shelf to retain their readable controls when resized.
+        window.contentMinSize = NSSize(width: 1024, height: 720)
         window.contentView = view
         window.center()
         window.makeKeyAndOrderFront(nil)
@@ -55,7 +57,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         if smokePath != nil,
            let width = Double(ProcessInfo.processInfo.environment["LUOYE_SMOKE_WIDTH"] ?? ""),
            let height = Double(ProcessInfo.processInfo.environment["LUOYE_SMOKE_HEIGHT"] ?? ""),
-           (900...2560).contains(width), (650...1440).contains(height) {
+           (1024...2560).contains(width), (720...1440).contains(height) {
             // Isolated UI checks can inspect a workspace larger than this display.
             window.setContentSize(NSSize(width: width, height: height))
         }

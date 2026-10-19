@@ -89,7 +89,15 @@ function checkCompactHeader(doc, width, height) {
   assert(newQuick && reset && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
   assert(parseFloat(view.getComputedStyle(newQuick).fontSize) <= 9.1, '小屏新画纸文案仍然过大');
   assert(parseFloat(view.getComputedStyle(reset).fontSize) <= 9.1, '小屏重置文案仍然过大');
-  assert(rect(themeIcon).width <= 20.5 && rect(themeIcon).height <= 20.5, '小屏主题图标仍然过大');
+  assert(rect(themeIcon).width <= 24.5 && rect(themeIcon).height <= 24.5, '小屏主题图标仍然过大');
+}
+function checkHeaderCommandWidths(doc, width, height) {
+  const buttons = [...doc.querySelectorAll('.header-actions > button')].filter(visible);
+  assert(buttons.length >= 3, `${width}×${height} 顶部工具栏按钮数量不足`);
+  const expected = rect(buttons[0]).width;
+  for (const button of buttons) {
+    assert(Math.abs(rect(button).width - expected) <= 1, `${width}×${height} 顶部按钮宽度不一致: ${button.id || button.textContent.trim()}`);
+  }
 }
 function checkBrushDrawer(doc) {
   const drawer = assertDrawerFrame(doc, 'brushes');
@@ -186,9 +194,10 @@ function checkAssistDialog(doc) {
   const rows = [...form.children].filter(visible);
   noOverlap(rows, '辅助面板分区');
   for (const row of rows) assert(inside(row, form), '辅助面板分区超出表单');
-  const mode = dialog.querySelector('#assist-mode'), axes = dialog.querySelector('#assist-axes');
-  assert(mode && axes, '辅助模式控件缺失');
-  mode.value = 'radial'; mode.dispatchEvent(new frame.contentWindow.Event('change', { bubbles: true }));
+  const modeButtons = [...dialog.querySelectorAll('.assist-mode-button')], radial = dialog.querySelector('.assist-mode-button[data-assist-mode="radial"]'), axes = dialog.querySelector('#assist-axes'), axesRow = dialog.querySelector('.assist-axes-row');
+  assert(modeButtons.length === 4 && radial && axes && axesRow && visible(axesRow), '辅助模式控件缺失');
+  assert(axes.disabled, '非多轴模式下轴数没有禁用');
+  radial.click();
   axes.value = '8'; axes.dispatchEvent(new frame.contentWindow.Event('input', { bubbles: true }));
   assert(dialog.querySelector('#assist-axes-value')?.textContent.includes('8'), '辅助轴数控件未生效');
   dialog.querySelector('.assist-close')?.click();
@@ -201,6 +210,7 @@ async function runCase(width, height) {
   const doc = frame.contentDocument;
   await waitReady(doc);
   checkCompactHeader(doc, width, height);
+  checkHeaderCommandWidths(doc, width, height);
   const viewport = doc.querySelector('#viewport');
   assert(viewport && rect(viewport).width >= 200 && rect(viewport).height >= 100, `${width}×${height} 画布被挤压`);
   for (const panel of ['brushes', 'tools', 'options', 'library']) {

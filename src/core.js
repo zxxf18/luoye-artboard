@@ -177,7 +177,14 @@ export function validateProject(value) {
     if (typeof layer.visible !== 'boolean') fail('图层可见性无效。');
     if (layer.flipX !== undefined && typeof layer.flipX !== 'boolean') fail('图层镜像参数无效。');
     if (layer.flipY !== undefined && typeof layer.flipY !== 'boolean') fail('图层镜像参数无效。');
-    if (layer.role !== undefined && layer.role !== 'background') fail('图层类型无效。');
+    if (layer.role !== undefined && !['background', 'scratch', 'scratch-base'].includes(layer.role)) fail('图层类型无效。');
+    if (layer.scratchStyle !== undefined) {
+      if (layer.role !== 'scratch' || !layer.scratchStyle || typeof layer.scratchStyle !== 'object') fail('刮刮画样式无效。');
+      for (const key of ['color', 'secondaryColor', 'baseColor', 'baseSecondaryColor']) {
+        if (layer.scratchStyle[key] !== undefined && (typeof layer.scratchStyle[key] !== 'string' || layer.scratchStyle[key].length > 128)) fail('刮刮画颜色无效。');
+      }
+      if (layer.scratchStyle.baseMode !== undefined && !['solid', 'rainbow'].includes(layer.scratchStyle.baseMode)) fail('刮刮画底色模式无效。');
+    }
     png(layer.image, layer.width, layer.height);
     bytes += layer.image.length;
     if(layer.eraseMask!==undefined){png(layer.eraseMask,layer.width,layer.height);bytes+=layer.eraseMask.length;pixels+=layer.width*layer.height;}

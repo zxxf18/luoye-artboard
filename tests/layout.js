@@ -31,15 +31,150 @@ async function checkTools(doc){
    else assert(inside(el,parameters),'参数不可滚动到可视区域 '+id);
    const card=el.closest('label');if(card&&details.contains(card)){const css=frame.contentWindow.getComputedStyle(card);assert(parseFloat(css.paddingLeft)>=4&&parseFloat(css.paddingTop)>=4,'参数卡片文案贴边 '+id);}
   }
+  if(tool==='text'){
+   const opacity=doc.querySelector('#opacity'),control=opacity?.closest('.opacity-control'),label=control?.querySelector('label');
+   assert(opacity&&control&&label&&isVisible(control),'文字工具不透明度控件缺失');
+   const opacityFont=parseFloat(frame.contentWindow.getComputedStyle(control).fontSize), opacityLabelFont=parseFloat(frame.contentWindow.getComputedStyle(label).fontSize);
+   assert(opacityFont>=16&&opacityLabelFont>=16,'文字工具不透明度文案过小');
+   assert(Math.abs(opacityFont-opacityLabelFont)<=.1,'文字工具不透明度标签与控件字号不一致');
+  }
+  if(tool==='fill'){
+   for(const id of ['fill-gradient','tolerance']){
+    const control=doc.querySelector('#'+id),label=control?.closest('label');
+    assert(control&&label&&isVisible(label),'油漆桶参数控件缺失 '+id);
+    const labelFont=parseFloat(frame.contentWindow.getComputedStyle(label).fontSize), inputFont=parseFloat(frame.contentWindow.getComputedStyle(control).fontSize);
+    assert(labelFont>=16&&inputFont>=16,'油漆桶参数文案过小 '+id);
+    assert(Math.abs(labelFont-inputFont)<=.1,'油漆桶参数标签与输入字号不一致 '+id);
+    if(id==='tolerance')assert(inputFont>=16,'油漆桶公差数值过小');
+   }
+   const opacity=doc.querySelector('#opacity'),opacityControl=opacity?.closest('.opacity-control'),opacityLabel=opacityControl?.querySelector('label');
+   assert(opacity&&opacityControl&&opacityLabel,'油漆桶不透明度控件缺失');
+   if(!narrow){
+    assert(isVisible(opacityControl),'桌面油漆桶不透明度控件未显示');
+    const opacityFont=parseFloat(frame.contentWindow.getComputedStyle(opacityControl).fontSize),opacityLabelFont=parseFloat(frame.contentWindow.getComputedStyle(opacityLabel).fontSize);
+    assert(opacityFont>=16&&opacityLabelFont>=16,'油漆桶不透明度文案过小');
+    assert(Math.abs(opacityFont-opacityLabelFont)<=.1,'油漆桶不透明度标签与控件字号不一致');
+   }
+  }
+  if(tool==='magic'){
+   const tolerance=doc.querySelector('#tolerance'),label=tolerance?.closest('label');
+   assert(tolerance&&label,'魔力棒公差控件缺失');
+   const labelBox=label.getBoundingClientRect(),parameterBox=parameters.getBoundingClientRect();
+   assert(labelBox.left<=parameterBox.left+14,'魔力棒公差没有靠左');
+   assert(parseFloat(frame.contentWindow.getComputedStyle(label).fontSize)>=16,'魔力棒公差文案过小');
+   assert(parseFloat(frame.contentWindow.getComputedStyle(tolerance).fontSize)>=16&&tolerance.getBoundingClientRect().width>=100,'魔力棒公差输入框过小');
+   if(!narrow){
+    const parameterStyle=frame.contentWindow.getComputedStyle(parameters),labelStyle=frame.contentWindow.getComputedStyle(label);
+    const rows=parameterStyle.gridTemplateRows.trim().split(/\s+/).filter(Boolean);
+    assert(rows.length>=2,'魔力棒参数区没有保留两行高度');
+    assert(/1\s*\/\s*(?:span\s*)?2/.test(labelStyle.gridRow),'魔力棒公差没有跨越参数区两行');
+    assert(labelBox.height>=parameterBox.height*.72,'魔力棒公差没有占满两行参数区');
+   }
+  }
+  if(tool==='line'){
+   const filled=doc.querySelector('#shape-filled')?.closest('label');
+   const dashed=doc.querySelector('#shape-dashed')?.closest('label');
+   assert(filled&&dashed,'图形实心/虚线控件缺失');
+   assert(parseFloat(frame.contentWindow.getComputedStyle(filled).fontSize)>=16,'图形实心文案过小');
+   const compactFont=parseFloat(frame.contentWindow.getComputedStyle(dashed.parentElement).fontSize);
+   assert(Math.abs(parseFloat(frame.contentWindow.getComputedStyle(dashed).fontSize)-compactFont)<=.1,'图形虚线没有保持原来的紧凑字号');
+  }
+  if(tool==='clone'){
+   const cloneSource=doc.querySelector('#clone-source'),size=doc.querySelector('#size'),opacity=doc.querySelector('#opacity');
+   assert(cloneSource&&size&&opacity,'仿制印章参数控件缺失');
+   const sourceBox=cloneSource.getBoundingClientRect(),sizeBox=size.getBoundingClientRect(),opacityBox=opacity.getBoundingClientRect();
+   // Compact option sheets intentionally stack controls vertically, so the
+   // desktop two-row placement is asserted only where the grid is active.
+   if(!narrow)assert(Math.abs(sizeBox.top-opacityBox.top)<=1&&sourceBox.top>sizeBox.bottom-1,'仿制印章设置源点没有独占第二排');
+   assert(parseFloat(frame.contentWindow.getComputedStyle(cloneSource).fontSize)>=16,'仿制印章设置源点文案过小');
+   assert(parseFloat(frame.contentWindow.getComputedStyle(size.closest('label')||size).fontSize)>=16&&parseFloat(frame.contentWindow.getComputedStyle(opacity.closest('label')||opacity).fontSize)>=16,'仿制印章参数文案过小');
+  }
   const cards=[...details.querySelectorAll('label')].filter(isVisible);
   for(let a=0;a<cards.length;a++)for(let b=a+1;b<cards.length;b++){
    const x=cards[a].getBoundingClientRect(),y=cards[b].getBoundingClientRect();
    assert(x.right<=y.left+1||y.right<=x.left+1||x.bottom<=y.top+1||y.bottom<=x.top+1,'参数卡片重叠 '+tool);
   }
  }
- if(narrow)await mobilePanel('focus');
+ if(narrow)await mobilePanel('tools');
+ if(!doc.querySelector('.tool-button[data-tool="stamp"]'))doc.querySelector('#tool-page').click();
+ const stampButton=doc.querySelector('.tool-button[data-tool="stamp"]');
+ assert(stampButton&&isVisible(stampButton),'魔法袋工具不可见');
+ stampButton.click();await pause(25);
+ if(narrow)await mobilePanel('library');
+ const fairyCategories=doc.querySelector('#categories'),fairyModes=doc.querySelectorAll('#library-groups [data-fairy-mode]');
+ assert(fairyCategories&&!isVisible(fairyCategories),'魔法袋素材面板仍显示重复的图库分类栏');
+ assert(fairyModes.length===3&&[...fairyModes].every(isVisible),'魔法袋左侧三种素材模式不可见');
+ const stampParameters=doc.querySelector('.classic-parameters');
+ const stampPanel=doc.querySelector('.right-panel'),stampAssets=doc.querySelector('#asset-grid'),stampPager=doc.querySelector('#library-pagination');
+ let stampDockHeight=0;
+ if(!narrow){
+  stampDockHeight=doc.querySelector('.tool-dock')?.getBoundingClientRect().height||0;
+  assert(stampDockHeight>=164&&stampDockHeight<=190,`魔法袋素材区与参数区总高度异常: ${stampDockHeight}`);
+  const stampHeight=stampParameters?.getBoundingClientRect().height||0;
+  assert(stampHeight>=46&&stampHeight<=64,`魔法袋参数区高度未压缩到独立控件行: ${stampHeight}`);
+  const stampSize=doc.querySelector('#brush-options');
+  assert(stampSize&&isVisible(stampSize)&&inside(stampSize,stampParameters),'魔法袋图案大小控件未位于标准参数区');
+  assert(stampAssets.getBoundingClientRect().height>=88,'魔法袋素材卡片高度被错误压缩');
+  const firstStampAsset=stampAssets.querySelector('.asset');
+  assert(firstStampAsset&&firstStampAsset.getBoundingClientRect().bottom<=stampAssets.getBoundingClientRect().bottom-3,'魔法袋素材内框与外框底边过近');
+  assert(stampSize.getBoundingClientRect().height<=52,'魔法袋素材大小拖拉条控件过高');
+  assert(stampPager.getBoundingClientRect().height<=52,'魔法袋翻页控件过高');
+  assert(stampPanel&&stampAssets&&stampPager&&stampAssets.getBoundingClientRect().bottom<=stampPanel.getBoundingClientRect().bottom+1,'魔法袋素材卡片溢出素材区');
+  assert(stampAssets.getBoundingClientRect().bottom<=stampParameters.getBoundingClientRect().top+1,'魔法袋素材卡片与参数区重叠');
+  assert(inside(stampPager,stampParameters),'魔法袋翻页控件未位于参数区');
+ }
+ // Switching from the fairy shelf to 图库 must clear the fairy-only size
+ // control while keeping the gallery inside the normal dock height.
+ const libraryTab=doc.querySelector('#mode-library');libraryTab.click();await pause(40);
+ doc.querySelector('#categories [data-category="background"]')?.click();await pause(40);
+ const galleryDock=doc.querySelector('.tool-dock'),galleryPanel=doc.querySelector('.right-panel'),galleryCategories=doc.querySelector('#categories'),galleryAssets=doc.querySelector('#asset-grid'),galleryPager=doc.querySelector('#library-pagination'),galleryBrush=doc.querySelector('#brush-options');
+ assert(galleryBrush&&!isVisible(galleryBrush),'图库仍显示魔法袋图案大小控件');
+ if(!narrow){
+  const galleryDockHeight=galleryDock.getBoundingClientRect().height,galleryParameters=doc.querySelector('.classic-parameters');
+  assert(galleryDockHeight>=164&&galleryDockHeight<=190,`图库工具区总高度异常: ${galleryDockHeight}`);
+  assert(galleryCategories&&galleryCategories.getBoundingClientRect().height<=28,'图库分类行过高');
+  assert(galleryAssets&&galleryPanel&&galleryAssets.getBoundingClientRect().bottom<=galleryPanel.getBoundingClientRect().bottom+1,'图库素材行溢出素材区');
+  assert(galleryAssets.getBoundingClientRect().bottom<=galleryParameters.getBoundingClientRect().top+1,'图库素材行与参数区重叠');
+  assert(galleryPager&&inside(galleryPager,galleryParameters)&&galleryPager.getBoundingClientRect().height<=30,'图库翻页行过高或未位于参数区');
+ }
  if(!doc.querySelector('.tool-button[data-tool="pen"]'))doc.querySelector('#tool-page').click();
- doc.querySelector('.tool-button[data-tool="pen"]').click();details.scrollTop=0;
+ const penButton=doc.querySelector('.tool-button[data-tool="pen"]');penButton.click();await pause(25);if(narrow)await mobilePanel('options');
+ const dock=doc.querySelector('.tool-dock'),penDockHeight=dock.getBoundingClientRect().height;
+ if(!narrow)assert(Math.abs(penDockHeight-stampDockHeight)<=1,`魔法袋工具区总高度未与普通工具一致: ${stampDockHeight} / ${penDockHeight}`);
+ if(narrow)await mobilePanel('tools');
+ if(!doc.querySelector('.tool-button[data-tool="scratch"]'))doc.querySelector('#tool-page').click();
+ const scratchButton=doc.querySelector('.tool-button[data-tool="scratch"]');assert(scratchButton&&isVisible(scratchButton),'刮刮画工具不可见');scratchButton.click();await pause(25);if(narrow)await mobilePanel('options');
+ assert(Math.abs(dock.getBoundingClientRect().height-penDockHeight)<=1,'刮刮画参数栏高度没有与其他工具统一');
+ const scratchPanel=doc.querySelector('.scratch-style-panel'),chips=[...doc.querySelectorAll('.scratch-style-chip,.scratch-style-custom')],palette=doc.querySelector('.quick-palette');
+ assert(scratchPanel&&isVisible(scratchPanel)&&inside(scratchPanel,dock),'刮刮画颜色面板越出工具区');
+ if(palette&&isVisible(palette)){const a=scratchPanel.getBoundingClientRect(),b=palette.getBoundingClientRect();assert(a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1,'刮刮画颜色面板覆盖普通颜色栏');}
+ assert(chips.length>=9,'刮刮画候选颜色不足');
+ for(const chip of chips){const box=chip.getBoundingClientRect(),css=frame.contentWindow.getComputedStyle(chip),group=chip.closest('.scratch-style-group');assert(Math.abs(box.width-box.height)<=1&&css.borderRadius==='50%','刮刮画候选颜色不是圆形');assert(group&&inside(chip,group),'刮刮画候选颜色被卡片边缘裁切');}
+ const groups=[...scratchPanel.querySelectorAll('.scratch-style-group')].map(node=>node.getBoundingClientRect()),colorGrid=scratchPanel.querySelector('.scratch-color-grid')?.getBoundingClientRect(),sizeControl=scratchPanel.querySelector('.scratch-size-row #brush-options')?.getBoundingClientRect(),panelRect=scratchPanel.getBoundingClientRect();
+ assert(groups.length===2&&colorGrid&&sizeControl,'刮刮画缺少两种颜色或粗细控件');
+ // The two colors occupy the left two thirds as a vertical stack. They must
+ // have the same width and share a column, while the size card occupies the
+ // right third and spans both rows.
+ assert(Math.abs(groups[0].left-groups[1].left)<=1&&Math.abs(groups[0].width-groups[1].width)<=1,'刮刮画覆盖色与刮笔色没有同宽左侧两行排列');
+ assert(groups[0].top<groups[1].top-1&&groups[0].bottom<=groups[1].top+1,'刮刮画两种颜色没有上下两行排列');
+ assert(Math.abs(sizeControl.top-groups[0].top)<=1&&Math.abs(sizeControl.bottom-groups[1].bottom)<=2,'刮笔粗细没有跨越两行并与颜色区等高');
+ assert(sizeControl.left>groups[0].right-1,'刮笔粗细没有位于颜色区右侧');
+ for(const group of scratchPanel.querySelectorAll('.scratch-style-group')){
+  const groupBox=group.getBoundingClientRect(),choices=group.querySelector('.scratch-style-choices'),choicesBox=choices?.getBoundingClientRect(),choiceStyle=choices&&frame.contentWindow.getComputedStyle(choices);
+  assert(choices&&choicesBox&&choiceStyle&&choiceStyle.overflowX!=='hidden'&&choiceStyle.overflowY!=='hidden','刮刮画候选颜色容器会裁切圆形边缘');
+  for(const chip of group.querySelectorAll('.scratch-style-chip,.scratch-style-custom')){
+   const box=chip.getBoundingClientRect();
+   assert(box.left>=groupBox.left-1&&box.right<=groupBox.right+1&&box.top>=groupBox.top-1&&box.bottom<=groupBox.bottom+1,'刮刮画候选圆形超出颜色卡片而被遮挡');
+   assert(box.left>=choicesBox.left-1&&box.right<=choicesBox.right+1&&box.top>=choicesBox.top-1&&box.bottom<=choicesBox.bottom+1,'刮刮画候选圆形没有完整位于候选区');
+  }
+ }
+ // Measure the visible left color column from either card. The wrapper is a
+ // real grid so the check remains valid in native WebViews as well.
+ const colorWidth=Math.max(groups[0].width,groups[1].width),colorRatio=colorWidth/panelRect.width,sizeRatio=sizeControl.width/panelRect.width;
+ assert(colorRatio>=.58&&colorRatio<=.74&&sizeRatio>=.24&&sizeRatio<=.42,'刮刮画颜色区与粗细区没有保持约 2:1 宽度比例');
+ const custom=doc.querySelector('.scratch-style-custom'),beforeColor=doc.querySelector('#color').value,beforeBackground=doc.querySelector('#background-color').value;assert(custom,'刮刮画缺少共享调色入口');custom.click();await pause(20);assert(doc.querySelector('#palette-dialog')?.open,'刮刮画没有打开共享调色板');doc.querySelector('#palette-dialog .preset-color[aria-label="苹果红"]')?.click();doc.querySelector('#palette-apply')?.click();await pause(20);assert(doc.querySelector('#color').value===beforeColor&&doc.querySelector('#background-color').value===beforeBackground,'刮刮画选色污染了画笔颜色');assert(custom.getAttribute('aria-pressed')==='true','刮刮画自选颜色没有保持选中');
+ if(!doc.querySelector('.tool-button[data-tool="pen"]'))doc.querySelector('#tool-page').click();
+ doc.querySelector('.tool-button[data-tool="pen"]').click();details.scrollTop=0;if(narrow)await mobilePanel('focus');
 }
 async function checkAssist(doc,width,height){
  const trigger=doc.querySelector('#assist-open');if(!trigger)return;
@@ -58,16 +193,16 @@ async function checkAssist(doc,width,height){
  const compact=width>=500&&height<=400;
  if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`矮窗口辅助面板仍需滚动 ${width}×${height}`);
  const enabled=doc.querySelector('#assist-enabled');if(!enabled.checked)enabled.click();await pause(20);assert(enabled.checked,'辅助开关无法操作');
- const modeButton=doc.querySelector('#assist-mode-choose');assert(modeButton&&!modeButton.disabled,'辅助模式选择不可操作');modeButton.click();await pause(20);
- const radial=doc.querySelector('#choice-dialog .choice-card[data-value="radial"]');assert(radial,'径向模式选项缺失');radial.click();await pause(20);
- assert(dialog.dataset.assistMode==='radial','辅助模式没有切换到径向');assert(doc.querySelector('#assist-axes-value').textContent.includes('8'),'径向份数没有显示');
+ const vertical=doc.querySelector('.assist-mode-button[data-assist-mode="vertical"]'),radial=doc.querySelector('.assist-mode-button[data-assist-mode="radial"]'),axes=doc.querySelector('#assist-axes'),axesRow=doc.querySelector('.assist-axes-row');
+ assert(vertical&&radial&&!vertical.disabled&&!radial.disabled&&axesRow&&isVisible(axesRow),'辅助模式按钮或轴数行不可操作');vertical.click();await pause(10);assert(axes&&axes.disabled,'非多轴模式下轴数没有禁用');assert(vertical.getAttribute('aria-pressed')==='true','默认对称方式没有选中');radial.click();await pause(20);
+ assert(dialog.dataset.assistMode==='radial'&&radial.getAttribute('aria-pressed')==='true','辅助模式没有切换到多轴');assert(!axes.disabled,'多轴模式下轴数仍被禁用');assert(doc.querySelector('#assist-axes-value').textContent.includes('8'),'多轴份数没有显示');
  for(const [id,value] of [['assist-center-x','36'],['assist-center-y','64']]){const input=doc.querySelector('#'+id);input.value=value;input.dispatchEvent(new frame.contentWindow.Event('input',{bubbles:true}));}
  for(const id of ['assist-grid','assist-stamp']){const input=doc.querySelector('#'+id);if(!input.checked)input.click();}
  assert(doc.querySelector('#assist-center-x-value').textContent==='36%'&&doc.querySelector('#assist-center-y-value').textContent==='64%','辅助中心位置没有更新');assert(doc.querySelector('#assist-grid').checked&&doc.querySelector('#assist-stamp').checked,'辅助预览选项无法操作');checkLayout();
  if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`径向辅助面板仍需滚动 ${width}×${height}`);
  form.querySelector('.assist-close')?.click();await pause(20);assert(!dialog.open,'辅助面板关闭失败');
 }
-for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080],[2560,1440]]){
+for(const [width,height] of [[375,240],[540,320],[900,650],[1024,720],[1280,720],[1920,1080],[2560,1440]]){
  frame.style.width=width+'px';frame.style.height=height+'px';frame.style.transform=`scale(${Math.min(1,1100/width)})`;
  await new Promise(resolve=>{frame.onload=resolve;frame.src='/';});const doc=frame.contentDocument;
  for(let i=0;i<200&&doc.body.dataset.appReady!=='true';i++)await pause(30);
@@ -109,7 +244,7 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080
    for(const card of doc.querySelectorAll('.parameter-slider')){const css=frame.contentWindow.getComputedStyle(card);assert(parseFloat(css.paddingLeft)>=4&&parseFloat(css.paddingTop)>=4,'文案留边不足');}
    const sliders=[...doc.querySelectorAll('.parameter-slider')].filter(isVisible);for(let i=1;i<sliders.length;i++){const previous=sliders[i-1].getBoundingClientRect(),current=sliders[i].getBoundingClientRect();if(width<=640||height<=500)assert(previous.bottom<=current.top+1||previous.right<=current.left+1,'滑杆卡片互相覆盖');else assert(previous.right+5<=current.left,'滑杆卡片互相覆盖');}
    const pens=doc.querySelector('.brush-box'),cards=[...pens.children],clipped=cards.some(c=>!inside(c,pens));
-   assert(!doc.querySelector('#all-brushes-open'),'仍有展开画笔盒入口');assert(cards.length===9,'原笔盒不足九支画笔');for(const card of cards){card.scrollIntoView({block:'nearest'});assert(inside(card,pens),'画笔无法滚动访问');}pens.scrollTop=0;
+   assert(!doc.querySelector('#all-brushes-open'),'仍有展开画笔盒入口');assert(cards.length>=9,'原笔盒不足九支画笔');for(const card of cards){card.scrollIntoView({block:'nearest'});assert(inside(card,pens),'画笔无法滚动访问');}pens.scrollTop=0;
    const targets=[...doc.querySelectorAll('.header-actions button,.brush-card,.tool-button,.swatch,.left-actions button')].filter(isVisible),minTarget=(width<=640||height<=500)?30:43.5;assert(targets.every(b=>b.getBoundingClientRect().width>=minTarget&&b.getBoundingClientRect().height>=minTarget),'点击区域过小');
    if(width<=900||height<=720)await checkAssist(doc,width,height);
    assert(![...doc.querySelectorAll('select')].some(isVisible),'出现默认下拉框');
@@ -123,7 +258,10 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1280,720],[1920,1080
    assert(paper.width>=200&&paper.height>=100,'素材栏挤掉画纸');
    assert(inside(doc.querySelector('.right-panel'),doc.body),'素材栏超出窗口');
    for(const asset of doc.querySelectorAll('#asset-grid .asset'))assert(inside(asset,doc.querySelector('#asset-grid')),'素材分页中存在被裁切的卡片');
-   if(width>640&&height>500)assert(inside(doc.querySelector('#size'),parameters),'素材打开后大小滑杆被裁切');
+   if(width>640&&height>500){
+    if(doc.body.dataset.librarySurface==='fairy')assert(inside(doc.querySelector('#size'),parameters),'魔法袋素材打开后大小滑杆被裁切');
+    else assert(!isVisible(doc.querySelector('#brush-options')),'普通图库错误显示魔法袋大小滑杆');
+   }
    const pagerRoot=width>640&&height>500?parameters:doc.querySelector('.right-panel');
    for(const b of doc.querySelectorAll('#library-pagination button'))assert(inside(b,pagerRoot),'素材翻页按钮被裁切');
    doc.querySelector('#mode-board').click();await pause(25);
