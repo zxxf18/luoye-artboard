@@ -54,7 +54,8 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
-  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画']];
+  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画']];
+  const featureTools={animation:()=>document.querySelector('#animation-open')?.click()};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
@@ -66,7 +67,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
     const visible=compact?tools:(page===0?tools.slice(0,7):tools.slice(7));
     bar.replaceChildren();
-    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);}
+    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;if(featureTools[id]){featureTools[id]();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);}
     flip.hidden=compact;
     flip.setAttribute('aria-hidden',String(compact));
     flip.innerHTML=page?'<span>← 常用工具</span>':'<span>更多工具 →</span>';
