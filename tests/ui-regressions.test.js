@@ -23,7 +23,7 @@ test('对称方式直接展开四个按钮，不再使用下拉或全局选择�
 });
 
 test('刮刮画面板将两种颜色上下排列并让粗细控件跨两行占右侧三分之一', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/classic-ui.js') + read('src/classic-scratch.js');
   const shelf = read('public/tool-shelf.css');
   const surface = read('public/playroom.css');
   for (const label of ['我的刮刮画', '重新覆盖', '覆盖层颜色', '刮笔颜色', '粗细']) assert.match(classic, new RegExp(label));
@@ -38,7 +38,7 @@ test('刮刮画面板将两种颜色上下排列并让粗细控件跨两行占�
 });
 
 test('刮刮画候选色直接写入色块背景，避免被主题控件色覆盖', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/classic-scratch.js');
   assert.match(classic, /button\.style\.setProperty\('\-\-scratch-chip',background\)/);
   assert.match(classic, /button\.style\.background=background/);
   assert.match(classic, /linear-gradient\(135deg,#74a99e,#b7ded7\)/);
@@ -78,10 +78,10 @@ test('刮刮画复用公共参数栏高度，候选颜色保持圆形', () => {
 
 test('刮刮画自选颜色复用我的颜色共享调色板', () => {
   const palette = read('src/palette-ui.js');
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/classic-ui.js') + read('src/classic-scratch.js');
   assert.match(palette, /openCustom/);
-  assert.match(classic, /const paletteApi=mountPalette/);
-  assert.match(classic, /paletteApi\.openCustom/);
+  assert.match(classic, /mountPalette/);
+  assert.match(classic, /palette\.openCustom/);
   assert.match(classic, /scratch-color-grid/);
   assert.match(classic, /scratch-size-row/);
   assert.doesNotMatch(classic, /input\.type='color'/);

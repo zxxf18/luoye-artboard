@@ -54,7 +54,8 @@ test('工程 schema 接受可保存的 scratch 与 scratch-base 图层', () => {
 });
 
 test('刮刮画位于第二页，左侧与参数区文案固定', () => {
-  const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
+  const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8')
+    + readFileSync(new URL('src/classic-scratch.js', root), 'utf8');
   const app = readFileSync(new URL('src/app.js', root), 'utf8');
   assert.match(classic, /\['scratch','刮刮画'\]/);
   assert.match(classic, /我的刮刮画/);
@@ -67,27 +68,12 @@ test('刮刮画位于第二页，左侧与参数区文案固定', () => {
 });
 
 // —— 去掉刮刮画：整体移除覆盖层与底色，原作与背景可完整恢复 ——
-class ScratchContext {
-  constructor(canvas) { this.canvas = canvas; }
-  clearRect() {} fillRect() {} drawImage() {} setTransform() {} save() {} restore() {}
-  translate() {} scale() {} rotate() {} beginPath() {} moveTo() {} lineTo() {} stroke() {} fill() {}
-  arc() {} rect() {} ellipse() {} clip() {} putImageData() {}
-  getImageData(x, y, w, h) { return { data: new Uint8ClampedArray(w * h * 4), width: w, height: h }; }
-}
-class ScratchCanvas {
-  constructor(width = 4, height = 4) { this.width = width; this.height = height; this.context = new ScratchContext(this); }
-  getContext() { return this.context; }
-}
 test('去掉刮刮画一次性移除覆盖层和底色，撤销可整卡找回', async () => {
-  const previousDocument = globalThis.document, previousRaf = globalThis.requestAnimationFrame, previousCancel = globalThis.cancelAnimationFrame;
-  globalThis.document = { createElement: () => new ScratchCanvas() };
-  globalThis.requestAnimationFrame = () => 0; globalThis.cancelAnimationFrame = () => {};
-  try {
+  const { withCanvasDouble, silenceEngine, CanvasDouble } = await import('./helpers/canvas-double.js');
+  await withCanvasDouble(async () => {
     const { DrawingEngine } = await import('../src/drawing.js');
-    const engine = new DrawingEngine(new ScratchCanvas(8, 8), () => {});
-    clearInterval(engine.animationTimer);
-    engine.render = () => {};
-    clearTimeout(engine.renderDeadline);
+    const engine = new DrawingEngine(new CanvasDouble(8, 8), () => {});
+    silenceEngine(engine);
     const artwork = engine.active;
     engine.createScratchCard();
     assert.deepEqual(engine.layers.map(layer => layer.role), ['scratch-base', undefined, 'scratch'], '建卡后应为 底色/画笔/覆盖层 三层（底色垫在画作下）');
@@ -100,11 +86,7 @@ test('去掉刮刮画一次性移除覆盖层和底色，撤销可整卡找回',
     engine.redo();
     assert.deepEqual(engine.layers.map(layer => layer.role), [undefined]);
     assert.equal(engine.removeScratchCard(), false, '没有刮刮画时再次移除应无效果');
-  } finally {
-    if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument;
-    if (previousRaf === undefined) delete globalThis.requestAnimationFrame; else globalThis.requestAnimationFrame = previousRaf;
-    if (previousCancel === undefined) delete globalThis.cancelAnimationFrame; else globalThis.cancelAnimationFrame = previousCancel;
-  }
+  });
 });
 
 test('去掉刮刮画的入口与提示文案已接线', () => {

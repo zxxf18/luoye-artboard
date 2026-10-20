@@ -108,7 +108,7 @@ test('iOS build helper refuses to claim a build without Xcode and copies the cur
 });
 
 test('compact mobile library keeps fairy mode choices reachable', async () => {
-  const classic = await read('src/classic-ui.js');
+  const classic = await read('src/classic-mobile.js');
   const styles = await read('public/playroom.css');
   assert.match(classic, /fairyGroups\.parentElement!==library/);
   assert.match(classic, /library\?\.prepend\(fairyGroups\)/);

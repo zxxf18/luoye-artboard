@@ -1,0 +1,30 @@
+/**
+ * 刮刮画的专属参数面板：覆盖层颜色、刮笔颜色的选择卡片与自定色入口，
+ * 以及它在工具参数架上的独占布局（两行网格 + 粗细卡跨行）。
+ * 面板构建与布局切换集中在此；通用参数架的其余部分仍由 classic-ui 组织。
+ */
+
+export function buildScratchPanel({ palette }) {
+const scratchChoices={cover:[['ginkgo','银杏金','linear-gradient(135deg,#c99559,#f0d49f)',{color:'#c99559',secondaryColor:'#f0d49f'}],['mint','薄荷青','linear-gradient(135deg,#74a99e,#b7ded7)',{color:'#74a99e',secondaryColor:'#b7ded7'}],['space','星空紫','linear-gradient(135deg,#55557a,#a29ac4)',{color:'#55557a',secondaryColor:'#a29ac4'}],['peach','蜜桃橙','linear-gradient(135deg,#df8a68,#f4c39b)',{color:'#df8a68',secondaryColor:'#f4c39b'}],['ocean','海风蓝','linear-gradient(135deg,#4b88b8,#9ed1e4)',{color:'#4b88b8',secondaryColor:'#9ed1e4'}]],base:[['white','白色','#fffdf8',{baseMode:'solid',baseColor:'#fffdf8',baseSecondaryColor:''}],['cream','奶油','#f9e7be',{baseMode:'solid',baseColor:'#f9e7be',baseSecondaryColor:''}],['sky','天空','#cfe9f5',{baseMode:'solid',baseColor:'#cfe9f5',baseSecondaryColor:''}],['rainbow','彩虹','linear-gradient(135deg,#f47e7e,#f3c96a,#8bcf9b,#8abde8,#b89ad9)',{baseMode:'rainbow',baseColor:'',baseSecondaryColor:''}]]};
+const scratchSelection={cover:'ginkgo',base:'white'},scratchCustom={cover:'#c99559',base:'#fffdf8'};
+const scratchPanel=document.createElement('section');scratchPanel.className='scratch-style-panel';scratchPanel.setAttribute('aria-label','刮刮画参数');scratchPanel.style.gridTemplateColumns='minmax(0,2fr) minmax(0,1fr)';scratchPanel.style.gridTemplateRows='repeat(2,minmax(0,1fr))';const scratchColorGrid=document.createElement('div');scratchColorGrid.className='scratch-color-grid';scratchColorGrid.style.gridColumn='1';scratchColorGrid.style.gridRow='1 / span 2';scratchColorGrid.style.gridTemplateColumns='minmax(0,1fr)';scratchColorGrid.style.gridTemplateRows='repeat(2,minmax(0,1fr))';scratchPanel.append(scratchColorGrid);const scratchSizeRow=document.createElement('div');scratchSizeRow.className='scratch-size-row';scratchSizeRow.style.gridColumn='2';scratchSizeRow.style.gridRow='1 / span 2';scratchPanel.append(scratchSizeRow);
+for(const [kind,label] of [['cover','覆盖层颜色'],['base','刮笔颜色']]){const group=document.createElement('div');group.className='scratch-style-group';group.dataset.scratchKind=kind;group.style.gridColumn='1';group.style.gridRow=kind==='cover'?'1':'2';const titleNode=document.createElement('span');titleNode.className='scratch-style-label';titleNode.textContent=label;const row=document.createElement('div');row.className='scratch-style-choices';row.setAttribute('role','group');row.setAttribute('aria-label',label);for(const [id,name,background,style] of scratchChoices[kind]){const button=document.createElement('button');button.type='button';button.className='scratch-style-chip';button.dataset.scratchStyle=id;button.title=name;button.setAttribute('aria-label',name);button.setAttribute('aria-pressed',String(scratchSelection[kind]===id));button.style.setProperty('--scratch-chip',background);button.style.background=background;button.onclick=()=>{scratchSelection[kind]=id;for(const item of row.children)item.setAttribute('aria-pressed',String(item===button));document.dispatchEvent(new CustomEvent('scratch-style-change',{detail:style}));};row.append(button);}const custom=document.createElement('button');custom.type='button';custom.className='scratch-style-custom';custom.title='自选颜色';custom.setAttribute('aria-label',`${label}自选颜色`);const mark=document.createElement('span');mark.className='scratch-plus-mark';mark.textContent='+';custom.append(mark);custom.onclick=()=>palette.openCustom({value:scratchCustom[kind],title:`${label} · 选颜色`,onApply:value=>{scratchSelection[kind]='custom';scratchCustom[kind]=value;custom.style.setProperty('--scratch-chip',value);custom.style.background=value;custom.dataset.hasColor='true';for(const item of row.children)item.setAttribute('aria-pressed','false');custom.setAttribute('aria-pressed','true');const style=kind==='cover'?{color:value,secondaryColor:''}:{baseMode:'solid',baseColor:value,baseSecondaryColor:''};document.dispatchEvent(new CustomEvent('scratch-style-change',{detail:style}));}});row.append(custom);group.append(titleNode,row);scratchColorGrid.append(group);}
+  return { panel: scratchPanel, sizeRow: scratchSizeRow };
+}
+
+/** 进入刮刮画工具时，把共享参数架让位给刮刮画面板。 */
+export function applyScratchShelf({ parameter, brushOptions, options, primary, panel, sizeRow }) {
+  const scratchPanel = panel, scratchSizeRow = sizeRow;
+  parameter.scrollTop=0;parameter.style.position='relative';parameter.style.overflow='hidden';parameter.style.gridTemplateColumns='minmax(0,1fr)';parameter.style.gridTemplateRows='minmax(0,1fr)';if(brushOptions.parentElement!==scratchSizeRow)scratchSizeRow.append(brushOptions);parameter.scrollTop=0;brushOptions.hidden=false;brushOptions.style.gridColumn='1';brushOptions.style.gridRow='1';brushOptions.style.height='100%';options.hidden=true;primary.hidden=true;scratchPanel.style.display='grid';for(const property of ['position','left','right','bottom','z-index','min-height'])scratchPanel.style.removeProperty(property);
+  for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.setProperty('display','none','important');
+}
+
+/** 离开刮刮画工具时，恢复共享参数架的常规布局。 */
+export function releaseScratchShelf({ parameter, brushOptions, panel, brushOptionsParent, dock }) {
+  const scratchPanel = panel;
+  if(brushOptions.parentElement!==brushOptionsParent)brushOptionsParent.append(brushOptions);for(const property of ['grid-column','grid-row','height'])brushOptions.style.removeProperty(property);
+  dock.style.removeProperty('height');dock.style.removeProperty('grid-template-rows');
+  for(const property of ['height','position','overflow','grid-template-columns','grid-template-rows'])parameter.style.removeProperty(property);
+  for(const property of ['display','position','left','right','bottom','z-index','min-height'])scratchPanel.style.removeProperty(property);
+  for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.removeProperty('display');
+}

@@ -1,5 +1,7 @@
 import { choiceArt } from './choice-art.js';
 import { mountPalette } from './palette-ui.js';
+import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './classic-scratch.js';
+import { mountMobileShelf } from './classic-mobile.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment } from './brushes.js';
 import { makeCanvas } from './engine.js';
@@ -39,10 +41,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const showRatio=()=>{ratioValue.textContent=Number(el('brush-ratio').value).toFixed(2);};el('brush-ratio').addEventListener('input',showRatio);showRatio();parameter.append(primary);
   const brushOptions=el('brush-options'),brushOptionsParent=brushOptions.parentElement;
   const moreColor=document.createElement('button');moreColor.className='more-colors';moreColor.innerHTML=playfulIcon('palette')+'<span>更多颜色</span>';moreColor.onclick=()=>el('palette-open').click();palette.append(moreColor);
-  const scratchChoices={cover:[['ginkgo','银杏金','linear-gradient(135deg,#c99559,#f0d49f)',{color:'#c99559',secondaryColor:'#f0d49f'}],['mint','薄荷青','linear-gradient(135deg,#74a99e,#b7ded7)',{color:'#74a99e',secondaryColor:'#b7ded7'}],['space','星空紫','linear-gradient(135deg,#55557a,#a29ac4)',{color:'#55557a',secondaryColor:'#a29ac4'}],['peach','蜜桃橙','linear-gradient(135deg,#df8a68,#f4c39b)',{color:'#df8a68',secondaryColor:'#f4c39b'}],['ocean','海风蓝','linear-gradient(135deg,#4b88b8,#9ed1e4)',{color:'#4b88b8',secondaryColor:'#9ed1e4'}]],base:[['white','白色','#fffdf8',{baseMode:'solid',baseColor:'#fffdf8',baseSecondaryColor:''}],['cream','奶油','#f9e7be',{baseMode:'solid',baseColor:'#f9e7be',baseSecondaryColor:''}],['sky','天空','#cfe9f5',{baseMode:'solid',baseColor:'#cfe9f5',baseSecondaryColor:''}],['rainbow','彩虹','linear-gradient(135deg,#f47e7e,#f3c96a,#8bcf9b,#8abde8,#b89ad9)',{baseMode:'rainbow',baseColor:'',baseSecondaryColor:''}]]};
-  const scratchSelection={cover:'ginkgo',base:'white'},scratchCustom={cover:'#c99559',base:'#fffdf8'};
-  const scratchPanel=document.createElement('section');scratchPanel.className='scratch-style-panel';scratchPanel.setAttribute('aria-label','刮刮画参数');scratchPanel.style.gridTemplateColumns='minmax(0,2fr) minmax(0,1fr)';scratchPanel.style.gridTemplateRows='repeat(2,minmax(0,1fr))';const scratchColorGrid=document.createElement('div');scratchColorGrid.className='scratch-color-grid';scratchColorGrid.style.gridColumn='1';scratchColorGrid.style.gridRow='1 / span 2';scratchColorGrid.style.gridTemplateColumns='minmax(0,1fr)';scratchColorGrid.style.gridTemplateRows='repeat(2,minmax(0,1fr))';scratchPanel.append(scratchColorGrid);const scratchSizeRow=document.createElement('div');scratchSizeRow.className='scratch-size-row';scratchSizeRow.style.gridColumn='2';scratchSizeRow.style.gridRow='1 / span 2';scratchPanel.append(scratchSizeRow);
-  for(const [kind,label] of [['cover','覆盖层颜色'],['base','刮笔颜色']]){const group=document.createElement('div');group.className='scratch-style-group';group.dataset.scratchKind=kind;group.style.gridColumn='1';group.style.gridRow=kind==='cover'?'1':'2';const titleNode=document.createElement('span');titleNode.className='scratch-style-label';titleNode.textContent=label;const row=document.createElement('div');row.className='scratch-style-choices';row.setAttribute('role','group');row.setAttribute('aria-label',label);for(const [id,name,background,style] of scratchChoices[kind]){const button=document.createElement('button');button.type='button';button.className='scratch-style-chip';button.dataset.scratchStyle=id;button.title=name;button.setAttribute('aria-label',name);button.setAttribute('aria-pressed',String(scratchSelection[kind]===id));button.style.setProperty('--scratch-chip',background);button.style.background=background;button.onclick=()=>{scratchSelection[kind]=id;for(const item of row.children)item.setAttribute('aria-pressed',String(item===button));document.dispatchEvent(new CustomEvent('scratch-style-change',{detail:style}));};row.append(button);}const custom=document.createElement('button');custom.type='button';custom.className='scratch-style-custom';custom.title='自选颜色';custom.setAttribute('aria-label',`${label}自选颜色`);const mark=document.createElement('span');mark.className='scratch-plus-mark';mark.textContent='+';custom.append(mark);custom.onclick=()=>paletteApi.openCustom({value:scratchCustom[kind],title:`${label} · 选颜色`,onApply:value=>{scratchSelection[kind]='custom';scratchCustom[kind]=value;custom.style.setProperty('--scratch-chip',value);custom.style.background=value;custom.dataset.hasColor='true';for(const item of row.children)item.setAttribute('aria-pressed','false');custom.setAttribute('aria-pressed','true');const style=kind==='cover'?{color:value,secondaryColor:''}:{baseMode:'solid',baseColor:value,baseSecondaryColor:''};document.dispatchEvent(new CustomEvent('scratch-style-change',{detail:style}));}});row.append(custom);group.append(titleNode,row);scratchColorGrid.append(group);}
+  const {panel:scratchPanel,sizeRow:scratchSizeRow}=buildScratchPanel({palette:paletteApi});
   scratchPanel.hidden=true;parameter.append(scratchPanel);
   const status=document.querySelector('.canvas-footer');studio.append(status);const zoom=document.querySelector('.zoom-controls');heading.append(zoom);
   document.querySelector('.canvas-heading').hidden=true;
@@ -77,7 +76,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
         // Programmatic or assistive activation can target a button from
         // another page; reveal its page first so the rail follows the action.
         if(b.hidden){page=Math.floor(index/7);renderTools();}
-        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
+        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
     }
     flip.hidden=compact;
     flip.setAttribute('aria-hidden',String(compact));
@@ -103,14 +102,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     // from every other drawing tool.
     scratchPanel.hidden=tool!=='scratch';palette.hidden=false;moreColor.hidden=false;
     if(tool==='scratch'){
-      parameter.scrollTop=0;parameter.style.position='relative';parameter.style.overflow='hidden';parameter.style.gridTemplateColumns='minmax(0,1fr)';parameter.style.gridTemplateRows='minmax(0,1fr)';if(brushOptions.parentElement!==scratchSizeRow)scratchSizeRow.append(brushOptions);parameter.scrollTop=0;brushOptions.hidden=false;brushOptions.style.gridColumn='1';brushOptions.style.gridRow='1';brushOptions.style.height='100%';options.hidden=true;primary.hidden=true;scratchPanel.style.display='grid';for(const property of ['position','left','right','bottom','z-index','min-height'])scratchPanel.style.removeProperty(property);
-      for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.setProperty('display','none','important');
+      applyScratchShelf({parameter,brushOptions,options,primary,panel:scratchPanel,sizeRow:scratchSizeRow});
     } else {
-      if(brushOptions.parentElement!==brushOptionsParent)brushOptionsParent.append(brushOptions);for(const property of ['grid-column','grid-row','height'])brushOptions.style.removeProperty(property);
-      dock.style.removeProperty('height');dock.style.removeProperty('grid-template-rows');
-      for(const property of ['height','position','overflow','grid-template-columns','grid-template-rows'])parameter.style.removeProperty(property);
-      for(const property of ['display','position','left','right','bottom','z-index','min-height'])scratchPanel.style.removeProperty(property);
-      for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.removeProperty('display');
+      releaseScratchShelf({parameter,brushOptions,panel:scratchPanel,brushOptionsParent,dock});
     }
     if(tool==='eraser'){const clear=document.createElement('button');clear.id='clear-animations';clear.className='subtool-card';clear.innerHTML=playfulIcon('eraser')+'<span>清除所有动图</span>';clear.title='保留背景和画笔；可以撤销';clear.onclick=clearAnimations;subtools.append(clear);}
     if(tool==='scratch'){const reset=document.createElement('button');reset.className='subtool-card scratch-reset-card';reset.innerHTML=playfulIcon('scratch')+'<span>重新覆盖</span>';reset.title='恢复覆盖层，可以再次刮开';reset.onclick=()=>document.dispatchEvent(new Event('scratch-reset'));subtools.append(reset);
@@ -143,59 +137,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   // full tool groups available as drawers instead of shrinking the paper into
   // a thumbnail. The same controls remain in their original DOM containers,
   // so existing keyboard focus and event wiring continue to work.
-  const mobileScrim=document.createElement('div');mobileScrim.className='mobile-scrim';mobileScrim.setAttribute('aria-hidden','true');document.body.append(mobileScrim);
-  const mobileCommands=document.createElement('div');mobileCommands.className='mobile-commands';mobileCommands.setAttribute('aria-label','小屏工具栏');
-  const mobileItems=[['brushes','画笔','classic-left'],['tools','工具','tool-rail'],['options','参数','tool-dock'],['library','素材','tool-dock']];
-  const mobileButtons=new Map();
-  for(const [panel,label,target] of mobileItems){const button=document.createElement('button');button.type='button';button.className='mobile-command';button.dataset.mobilePanel=panel;button.textContent=label;button.setAttribute('aria-controls',target);button.setAttribute('aria-expanded','false');button.onclick=()=>setMobilePanel(panel);mobileCommands.append(button);mobileButtons.set(panel,button);}
-  const focusButton=document.createElement('button');focusButton.type='button';focusButton.className='mobile-command mobile-focus-command';focusButton.textContent='画布';focusButton.setAttribute('aria-controls','viewport');focusButton.setAttribute('aria-expanded','true');focusButton.onclick=()=>setMobilePanel('focus');mobileCommands.append(focusButton);mobileButtons.set('focus',focusButton);
-  document.querySelector('.canvas-topbar').append(mobileCommands);
-  let narrowWindow=false;
-  function syncMobileShelfControls(panel){
-    const library=document.querySelector('.library');
-    const pager=document.querySelector('#library-pagination');
-    const instruction=document.querySelector('#library-instruction');
-    const fairyGroups=document.querySelector('#library-groups');
-    if(fairyGroups){
-      if(panel==='library'&&fairyGroups.parentElement!==library){
-        library?.prepend(fairyGroups);
-      }else if(panel!=='library'&&fairyGroups.parentElement!==left){
-        left.insertBefore(fairyGroups,subtools);
-      }
-    }
-    if(panel==='library'){
-      if(pager&&library&&pager.parentElement!==library)library.append(pager);
-      if(instruction&&library&&instruction.parentElement!==library)library.append(instruction);
-    }else{
-      if(pager&&pager.parentElement!==parameter)parameter.append(pager);
-      if(instruction&&instruction.parentElement!==parameter)parameter.append(instruction);
-    }
-  }
-  function setMobilePanel(panel,manual=true){
-    if(!narrowWindow&&panel!=='focus')return;
-    if(panel!=='focus'&&document.body.dataset.mobilePanel===panel)panel='focus';
-    if(panel==='library'&&!document.body.classList.contains('library-open'))el('mode-library').click();
-    if(panel!=='library'&&document.body.classList.contains('library-open'))el('mode-board').click();
-    document.body.dataset.mobilePanel=panel;
-    document.body.dataset.mobileFocus=String(panel==='focus');
-    if(manual)document.body.dataset.mobileUser='true';
-    for(const [name,button] of mobileButtons){const active=name===panel;button.setAttribute('aria-expanded',String(active));button.setAttribute('aria-pressed',String(active));}
-    const toolRail=document.querySelector('.tool-rail');
-    for(const [name,node] of [['brushes',left],['tools',toolRail],['dock',dock]]){const open=node===dock?(panel==='options'||panel==='library'):panel===name;node?.setAttribute('aria-hidden',String(!open));}
-    syncMobileShelfControls(panel);
-  }
-  function syncMobileLayout(){
-    const next=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
-    const changed=next!==narrowWindow;
-    if(next&&!narrowWindow){document.body.removeAttribute('data-mobile-user');setMobilePanel('focus',false);}
-    if(!next&&narrowWindow){document.body.removeAttribute('data-mobile-panel');document.body.removeAttribute('data-mobile-focus');document.body.removeAttribute('data-mobile-user');for(const node of [left,document.querySelector('.tool-rail'),dock])node?.removeAttribute('aria-hidden');syncMobileShelfControls('focus');}
-    narrowWindow=next;
-    if(changed){page=0;renderTools();}
-    if(next&&document.body.dataset.mobilePanel!=='focus'&&document.body.dataset.mobilePanel!=='brushes'&&document.body.dataset.mobilePanel!=='tools'&&document.body.dataset.mobilePanel!=='options'&&document.body.dataset.mobilePanel!=='library')setMobilePanel('focus',false);
-  }
-  mobileScrim.onclick=()=>setMobilePanel('focus');
-  window.addEventListener('resize',syncMobileLayout);document.addEventListener('keydown',event=>{if(event.key==='Escape'&&narrowWindow&&document.body.dataset.mobilePanel!=='focus')setMobilePanel('focus');});
-  syncMobileLayout();
+  const {setMobilePanel,syncMobileLayout,isNarrow}=mountMobileShelf({left,subtools,parameter,dock,onNarrowChanged:()=>{page=0;renderTools();}});
   document.querySelector('.brand').innerHTML=brandIcon(document.body.dataset.theme||'autumn')+'<span><strong>落叶画板</strong><small>我的暖暖画室</small></span>';
   const layerDialog=el('layer-dialog');layerDialog.querySelector('h2').textContent='我的图层';
   const help=document.createElement('p');help.className='layer-guide';help.textContent='每张小卡片都是画里的一部分。先点卡片，再移动或调整它。上面的会挡住下面的，背景一直在最下面。';

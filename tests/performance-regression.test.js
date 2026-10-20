@@ -7,36 +7,25 @@ import {
   assistTransformDescriptors,
   normalizeAssistConfig,
 } from '../src/assist.js';
+import { CanvasDouble, silenceEngine } from './helpers/canvas-double.js';
 
 const root = new URL('../', import.meta.url);
 const read = file => readFileSync(new URL(file, root), 'utf8');
 
-// The engine instantiates canvases and schedules animation frames. Neither
-// exists under node:test, so a tiny double keeps the pure decision logic
-// testable while the browser build keeps the real surfaces.
-class FakeContext {
-  constructor(canvas) { this.canvas = canvas; }
-  clearRect() {} fillRect() {} drawImage() {} setTransform() {} save() {} restore() {}
-  translate() {} scale() {} rotate() {} beginPath() {} moveTo() {} lineTo() {}
-  stroke() {} fill() {} arc() {} rect() {} ellipse() {} clip() {}
-  getImageData(x, y, w, h) { return { data: new Uint8ClampedArray(w * h * 4), width: w, height: h }; }
-  putImageData() {}
-}
-class FakeCanvas {
-  constructor(width = 1, height = 1) { this.width = width; this.height = height; this.context = new FakeContext(this); }
-  getContext() { return this.context; }
-}
+// The engine instantiates canvases and schedules animation frames; the shared
+// double installs both for the whole suite while the browser build keeps the
+// real surfaces.
 const previousDocument = globalThis.document;
 const previousRaf = globalThis.requestAnimationFrame;
 const previousCancelRaf = globalThis.cancelAnimationFrame;
 let engine;
 before(async () => {
-  globalThis.document = { createElement: () => new FakeCanvas() };
+  globalThis.document = { createElement: () => new CanvasDouble() };
   globalThis.requestAnimationFrame = () => 0;
   globalThis.cancelAnimationFrame = () => {};
   const { PaintEngine } = await import('../src/engine.js');
-  engine = new PaintEngine(new FakeCanvas(), () => {});
-  clearInterval(engine.animationTimer);
+  engine = new PaintEngine(new CanvasDouble(), () => {});
+  silenceEngine(engine);
 });
 after(() => {
   // The render fallback timer may still be scheduled; cancel it before the
@@ -104,7 +93,7 @@ test('渐变画笔的九个颜色停靠点按段缓存并在对称副本间共�
 
 test('动画播放时静态前缀只合成一次并按帧复用', () => {
   const staticLayer = engine.layers[0];
-  const frame = new FakeCanvas(480, 480);
+  const frame = new CanvasDouble(480, 480);
   engine.addLayer('会动的小伙伴', frame, false, { frames: [frame], frameDuration: 120, insertAt: 1 });
   const prefix = engine.scenePrefixFor(true);
   assert.ok(prefix, '动画场景应返回静态前缀缓存');
