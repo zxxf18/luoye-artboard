@@ -128,7 +128,7 @@ export class PaintEngine {
     // reuse a cached composite of the lower layers and redraw only the active
     // layer for each frame. This keeps input latency independent of layer count.
     this.gestureComposite=null;
-    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0};
+    this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0,scenePrefixBuilds:0,scenePrefixHits:0,gradientStopCalculations:0};
     this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
@@ -138,7 +138,7 @@ export class PaintEngine {
     this.addLayer('我的画笔', makeCanvas(width, height), false); this.changed();
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
-  changed() { this.staticComposite=null; this.gestureComposite=null; this.render(); this.onChange?.(); }
+  changed() { this.staticComposite=null; this.gestureComposite=null; this.scenePrefixComposite=null; this.render(); this.onChange?.(); }
   layerPixels(layer) {
     return layer.width*layer.height*(1+(layer.frames?.length||0)+(layer.spriteClip?1:0)+(layer.eraseMask?1:0))+(layer.spriteGroups||[]).reduce((n,g)=>n+g.frames.reduce((s,f)=>s+f.width*f.height,0),0);
   }
@@ -277,7 +277,15 @@ export class PaintEngine {
       if(cached){
         ctx.drawImage(cached,0,0);
         if(gestureLayer.visible){ctx.save();ctx.globalAlpha=gestureLayer.opacity;this.transform(ctx,gestureLayer);this.drawLayer(ctx,gestureLayer);ctx.restore();}
-      }else this.drawLayers(ctx,null,frameTime);
+      } else {
+        // With animated layers in the scene the full painter order still runs
+        // every frame. Everything below the first animated layer is static
+        // during playback, so blit that prefix from one cached surface and
+        // repaint only the animated layers (and any layers above them).
+        const prefix=this.scenePrefixFor(hasPlayingDynamic,gestureLayer);
+        if(prefix){ ctx.drawImage(prefix.canvas,0,0); this.drawLayers(ctx,null,frameTime,prefix.count); }
+        else this.drawLayers(ctx,null,frameTime);
+      }
     }
     const g = this.gesture;
     if (guides && g && ['line', 'rect', 'ellipse'].includes(g.options.tool)) {
@@ -293,8 +301,38 @@ export class PaintEngine {
     cachedCtx.setTransform(1,0,0,1,0,0);cachedCtx.globalCompositeOperation='source-over';cachedCtx.globalAlpha=1;cachedCtx.clearRect(0,0,this.width,this.height);
     this.drawLayers(cachedCtx,layer,frameTime);this.gestureComposite={layer,canvas};this.metrics.gestureCacheBuilds++;return canvas;
   }
-  drawLayers(ctx,skipLayer=null,time=this.playing?performance.now()-this.animationStart:this.animationTime||0) {
-    for (const layer of this.layers) {
+  /**
+   * Cache the layers below the first animated layer while animations play.
+   * A scene with a background, artwork and several animated stamps would
+   * otherwise re-composite every static layer on each animation tick and on
+   * every drawing frame. Returns null when there is no worthwhile prefix or
+   * when the active gesture edits inside the prefix (its cached pixels would
+   * go stale mid-stroke).
+   */
+  scenePrefixFor(hasPlayingDynamic, gestureLayer = null) {
+    if (!hasPlayingDynamic) return null;
+    let first = -1;
+    for (let index = 0; index < this.layers.length; index++) {
+      const layer = this.layers[index];
+      if (layer.frames?.length || layer.sprites) { first = index; break; }
+    }
+    if (first <= 0) return null;
+    if (gestureLayer && this.layers.indexOf(gestureLayer) < first) return null;
+    const cached = this.scenePrefixComposite;
+    if (cached && cached.count === first && cached.canvas.width === this.width && cached.canvas.height === this.height) {
+      this.metrics.scenePrefixHits++;
+      return cached;
+    }
+    const canvas = makeCanvas(this.width, this.height, false), cachedCtx = canvas.getContext('2d');
+    cachedCtx.fillStyle = '#ffffff'; cachedCtx.fillRect(0, 0, this.width, this.height);
+    this.drawLayers(cachedCtx, null, 0, 0, first);
+    this.scenePrefixComposite = { canvas, count: first };
+    this.metrics.scenePrefixBuilds++;
+    return this.scenePrefixComposite;
+  }
+  drawLayers(ctx,skipLayer=null,time=this.playing?performance.now()-this.animationStart:this.animationTime||0,start=0,end=this.layers.length) {
+    for (let index = start; index < end; index++) {
+      const layer = this.layers[index];
       if (layer===skipLayer||!layer.visible) continue;
       ctx.save(); ctx.globalAlpha = layer.opacity; this.transform(ctx, layer);
       this.drawLayer(ctx,layer,time); ctx.restore();
@@ -325,6 +363,27 @@ export class PaintEngine {
       tiles.set(key, { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) });
     }
   }
+  captureTilesMany(layer, boundsList, tiles) {
+    if (boundsList.length === 1) { this.captureTiles(layer, boundsList[0], tiles); return; }
+    // Radial symmetry scatters copies across the sheet. Capture each copy's
+    // own tiles instead of the union rectangle, so distant copies never pay
+    // for a whole-canvas readback of the area between them.
+    const context = layer.canvas.getContext('2d'), size = 128, pending = [], seen = new Set();
+    for (const bounds of boundsList) {
+      if (!bounds || bounds.width <= 0 || bounds.height <= 0) continue;
+      const minX = Math.max(0, Math.floor(bounds.x / size)), minY = Math.max(0, Math.floor(bounds.y / size));
+      const maxX = Math.min(Math.ceil(layer.width / size) - 1, Math.floor((bounds.x + bounds.width) / size));
+      const maxY = Math.min(Math.ceil(layer.height / size) - 1, Math.floor((bounds.y + bounds.height) / size));
+      for (let y = minY; y <= maxY; y++) for (let x = minX; x <= maxX; x++) {
+        const key = `${x}:${y}`; if (tiles.has(key) || seen.has(key)) continue;
+        seen.add(key); pending.push({ key, x, y });
+      }
+    }
+    for (const { key, x, y } of pending) {
+      const left = x * size, top = y * size;
+      tiles.set(key, { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) });
+    }
+  }
   recordPixels(layer, tiles) {
     if (!tiles.size) return;
     const context = layer.canvas.getContext('2d'); let bytes = 0;
@@ -338,8 +397,10 @@ export class PaintEngine {
     if (!layer?.visible) throw new Error('先显示当前图层，或选择另一个图层。');
     if ((layer.frames?.length || layer.sprites) && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
     const local = toLayerPoint(point, layer);
-    this.gesture = { layer, options: { ...options }, start: local, last: local, end: local,
-      origin: point, x: layer.x, y: layer.y, tiles: new Map() };
+    const gesture = { layer, options: { ...options }, start: local, last: local, end: local,
+      origin: point, x: layer.x, y: layer.y, tiles: new Map(), engineMetrics: this.metrics };
+    gesture.coalesceDistance = this.strokeCoalesceDistance(gesture);
+    this.gesture = gesture;
     if (['pen', 'eraser', 'scratch'].includes(options.tool)) this.segment(local, local);
     if (options.tool === 'fill') {
       const ctx = layer.canvas.getContext('2d'), before = ctx.getImageData(0, 0, layer.width, layer.height);
@@ -352,6 +413,35 @@ export class PaintEngine {
       }
       this.gesture = null; this.changed();
     }
+  }
+  strokeCoalesceDistance(gesture) {
+    const options = gesture?.options;
+    if (!options || options.tool !== 'pen' || options.brushVersion !== 2) return 0;
+    // A wide brush covers a small neighbourhood around every sample. Keep
+    // the source path at that visual resolution instead of sending every
+    // high-frequency pointer sample through all assisted copies. Dabs and
+    // gradients get a slightly larger tolerance because their own spacing
+    // already fills the skipped interval; line-like brushes use a smaller
+    // tolerance to retain their contour.
+    const factor = {
+      rainbow: .28, duotone: .28,
+      spray: .32, watercolor: .32, crayon: .34, chalk: .34, effect: .32,
+      pencil: .18, brush: .18, marker: .18, tube: .18,
+    }[options.brush];
+    if (!factor) return 0;
+    const gradient = options.brush === 'rainbow' || options.brush === 'duotone';
+    const assist = options.assist;
+    const assistFanout = assist?.mode === 'radial'
+      ? Math.max(2, Math.min(16, Math.round(Number(assist.axes) || 8)))
+      : assist?.mode === 'four' ? 4 : 2;
+    const multiCopyAssist = assist?.enabled === true && assistFanout > 1;
+    // Gradient brushes already had this path because their colour stops are
+    // expensive even without symmetry. Other brush textures coalesce whenever
+    // an enabled assist mode paints more than one copy; ordinary single-copy
+    // strokes keep their original sample density.
+    if (!gradient && !multiCopyAssist) return 0;
+    const width = Math.max(1, Number(options.size || 0)) / Math.max(.01, Number(gesture.layer?.scale) || 1);
+    return Math.max(2, Math.min(72, width * factor));
   }
   segment(a, b) {
     const { layer, options: o, tiles } = this.gesture;
@@ -380,7 +470,77 @@ export class PaintEngine {
   update(point) {
     const g = this.gesture; if (!g) return;
     if (g.options.tool === 'move') { g.layer.x = g.x + point.x - g.origin.x; g.layer.y = g.y + point.y - g.origin.y; }
-    else { const local = toLayerPoint(point, g.layer); g.end = local; if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; }
+    else {
+      const local = toLayerPoint(point, g.layer);
+      // Browsers may report the same coalesced sample more than once. A
+      // duplicate dab does not change pixels but still captures readback
+      // tiles and schedules a frame, which is noticeable on large tablets.
+      if (g.last && local.x === g.last.x && local.y === g.last.y) return;
+      g.end = local;
+      const dx = g.last ? local.x - g.last.x : 0, dy = g.last ? local.y - g.last.y : 0;
+      const distanceSquared = dx * dx + dy * dy;
+      const coalesceDistance = g.coalesceDistance ?? this.strokeCoalesceDistance(g);
+      if (coalesceDistance && g.last) {
+        const now = performance.now();
+        // Never hold ink for more than one frame. This keeps a slow finger or
+        // stylus stroke feeling live even when every sample is inside the
+        // thick-brush footprint.
+        if (g.pending && now - g.pendingAt >= 16) {
+          const pending = g.pending;
+          this.segment(g.last, pending);
+          g.last = pending;
+          g.pending = null;
+          g.pendingAt = 0;
+        }
+        if (distanceSquared < coalesceDistance * coalesceDistance) {
+          if (g.pending) {
+            const ax = g.pending.x - g.last.x, ay = g.pending.y - g.last.y;
+            const bx = local.x - g.pending.x, by = local.y - g.pending.y;
+            const firstLength = Math.hypot(ax, ay), secondLength = Math.hypot(bx, by);
+            // A sharp turn inside the coalescing window is visually meaningful.
+            // Commit the previous point before holding the new one so a thick
+            // brush does not cut a corner into a straight chord.
+            if (firstLength > 0 && secondLength > 0 && (ax * bx + ay * by) < firstLength * secondLength * .55) {
+              const turn = g.pending;
+              this.segment(g.last, turn);
+              g.last = turn;
+              g.pending = null;
+              g.pendingAt = 0;
+            }
+          }
+          if (!g.pending) g.pendingAt = now;
+          g.pending = local;
+          return;
+        }
+        // The current sample crossed the coalescing radius. Commit the held
+        // point only when it represents a real turn. A smooth gradient path
+        // can skip that intermediate point; submitting it would split one
+        // visually equivalent segment into two expensive gradient passes.
+        if (g.pending) {
+          const pending = g.pending;
+          const ax = pending.x - g.last.x, ay = pending.y - g.last.y;
+          const bx = local.x - pending.x, by = local.y - pending.y;
+          const firstLength = Math.hypot(ax, ay), secondLength = Math.hypot(bx, by);
+          const sharpTurn = firstLength > 0 && secondLength > 0 && (ax * bx + ay * by) < firstLength * secondLength * .55;
+          g.pending = null;
+          g.pendingAt = 0;
+          if (sharpTurn) {
+            this.segment(g.last, pending);
+            g.last = pending;
+          }
+        }
+      }
+      // A thick scratch brush already covers a wide footprint. Coalescing
+      // samples within a quarter of that footprint keeps adjacent reveals
+      // continuous while avoiding repeated tile readbacks for every tiny
+      // pointer move. The accumulated distance is measured from g.last, so a
+      // skipped sample is still included in the next segment.
+      if (g.options.tool === 'scratch' && g.last) {
+        const scratchDistance = Math.max(2, Math.min(64, (g.options.size / g.layer.scale) * .25));
+        if (distanceSquared < scratchDistance * scratchDistance) return;
+      }
+      if (['pen', 'eraser', 'scratch'].includes(g.options.tool)) this.segment(g.last, local); g.last = local; g.pending = null; g.pendingAt = 0;
+    }
     this.render();
   }
   drawShape(ctx, g) {
@@ -402,6 +562,13 @@ export class PaintEngine {
       if (after.x !== g.x || after.y !== g.y) this.history.push({ bytes: 0,
         undo: () => Object.assign(g.layer, { x: g.x, y: g.y }), redo: () => Object.assign(g.layer, after) });
     } else {
+      // A held coalesced sample still counts as the stroke's last ink.
+      if (g.pending && ['pen', 'eraser', 'scratch'].includes(g.options.tool) && (g.pending.x !== g.last.x || g.pending.y !== g.last.y)) {
+        const pending = g.pending;
+        g.pending = null;
+        this.segment(g.last, pending);
+        g.last = pending;
+      }
       if (['line', 'rect', 'ellipse'].includes(g.options.tool)) {
         const padding = g.options.size / g.layer.scale + 2;
         this.captureTiles(g.layer, { x: Math.min(g.start.x, g.end.x) - padding, y: Math.min(g.start.y, g.end.y) - padding,
