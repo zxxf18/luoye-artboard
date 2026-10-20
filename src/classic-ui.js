@@ -3,13 +3,16 @@ import { mountPalette } from './palette-ui.js';
 import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './classic-scratch.js';
 import { mountMobileShelf } from './classic-mobile.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
-import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment } from './brushes.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from './brushes.js';
 import { makeCanvas } from './engine.js';
 
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
   const g={layer:{scale:1},options:{tool:'pen',brush:id,brushVersion:2,size,color,secondaryColor:secondary,opacity:1,seed:913}};
-  let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};brushSegment(ctx,g,a,b);a=b;}return canvas;
+  let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};
+    // 预览不走绘画引擎的 segment()，渐变停靠点必须按段刷新，
+    // 否则彩虹笔示例会停在起笔点的单一颜色上。
+    prepareGradientStops(g,a,b);brushSegment(ctx,g,a,b);a=b;}return canvas;
 }
 
 export function mountClassic({setTool,getColor,setColor,clearAnimations,features}){
