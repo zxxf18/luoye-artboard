@@ -174,3 +174,11 @@ test('小动画舞台弹性贴合且帧条支持左右滑动', () => {
   assert.match(css, /\.animation-frame-strip\s*\{[\s\S]*overflow-x:\s*auto[\s\S]*scroll-snap-type:\s*x proximity/);
   assert.match(editor, /scrollIntoView\(\{\s*block:\s*'nearest',\s*inline:\s*'nearest'\s*\}\)/);
 });
+
+
+test('高窗口下工具组垂直居中而非底部留白', () => {
+  const classic = read('src/classic-ui.js');
+  const css = read('public/playroom.css');
+  assert.match(classic, /tools-centered/);
+  assert.match(css, /#tools\.tools-centered\{justify-content:center\}/);
+});

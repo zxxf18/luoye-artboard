@@ -69,12 +69,21 @@ export function createToolSoundPlayer(preferences, makeContext=()=>new (window.A
 }
 
 export function mountToolFeedback(preferences) {
-  const canvas=document.getElementById('painting'),player=createToolSoundPlayer(preferences),cursors=new Map();let previous;
+  const canvas=document.getElementById('painting'),player=createToolSoundPlayer(preferences),cursors=new Map();let previous,cursorScale=1;
+  // 光标缩放 = min(界面缩放 --u, 窗口相对 1440×900 的比例)，下限 0.6、
+  // 上限 1（基准 40px）：窗口或界面变小时光标跟着变小，放大时保持现状。
+  const readCursorScale=()=>{
+    const u=parseFloat(getComputedStyle(document.body).getPropertyValue('--u'))||1;
+    const fit=Math.min(window.innerWidth/1440,window.innerHeight/900);
+    return Math.min(u,Math.max(.6,fit));
+  };
   const value=id=>document.getElementById(id)?.value;
   function sync(audible=true) {
     const entry=getToolFeedback({tool:canvas.dataset.tool,pen:value('brush'),eraser:value('eraser-mode'),fill:value('fill-mode'),gradient:document.getElementById('fill-gradient')?.checked,stamp:document.body.dataset.fairyMode||'single',select:value('selection-shape'),warp:value('warp-kind'),'board-filter':value('board-filter-kind')});
+    const nextScale=readCursorScale();
+    if(nextScale!==cursorScale){cursorScale=nextScale;cursors.clear();}
     if(!cursors.has(entry.key)) {
-      const {svg,hotspot}=toolCursor(entry);
+      const {svg,hotspot}=toolCursor(entry,cursorScale);
       cursors.set(entry.key,`url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.join(' ')}, crosshair`);
     }
     // Re-apply the declaration even when the logical tool key did not change.
@@ -89,7 +98,7 @@ export function mountToolFeedback(preferences) {
     if(entry.key===previous)return;
     if(audible&&previous)player.play(entry);previous=entry.key;
   }
-  for(const event of ['toolchange','change','controlschange','fairymodechange'])document.addEventListener(event,()=>sync());
+  for(const event of ['toolchange','change','controlschange','fairymodechange','uisizechange'])document.addEventListener(event,()=>sync());window.addEventListener('resize',()=>sync());
   document.addEventListener('soundsettingchange',()=>{if(!preferences.sounds)player.silence();});
   document.addEventListener('soundvolumechange',event=>{
     player.silence();

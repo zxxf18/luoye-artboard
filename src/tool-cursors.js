@@ -48,9 +48,21 @@ function cursorArt(entry) {
   return {icon:entry.icon,contact:iconContacts[entry.icon]};
 }
 
-export function toolCursor(entry) {
-  const art=cursorArt(entry),size=art.icon?68:64;
+// 光标的基准边长：与界面缩放同向调节，但只会比基准更小（下限 24px），
+// 放大界面时保持现在的 40px，避免大光标盖住细节。
+export const CURSOR_BASE_SIZE = 40;
+export const CURSOR_MIN_SIZE = 24;
+export function cursorSizeForScale(scale = 1) {
+  const value = Number(scale);
+  if (!Number.isFinite(value) || value <= 0) return CURSOR_BASE_SIZE;
+  return Math.max(CURSOR_MIN_SIZE, Math.min(CURSOR_BASE_SIZE, Math.round(CURSOR_BASE_SIZE * value)));
+}
+export function toolCursor(entry, scale = 1) {
+  const art=cursorArt(entry),size=art.icon?68:64,px=cursorSizeForScale(scale);
   const artwork=art.icon?playfulIcon(art.icon):`<svg viewBox="0 0 64 64" fill="none" stroke="#705142" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${art.body}</svg>`;
-  const svg=artwork.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" ');
-  return {svg,hotspot:art.contact.map(n=>Math.round(n*40/size))};
+  // playfulIcon 自带 width/height 属性，重复属性时浏览器取先出现的那个；
+  // 先剥掉再注入目标尺寸，图标光标才真正跟随缩放，热点也不会越界。
+  const stripped=artwork.replace(/(<svg\b[^>]*?)\s+width="[^"]*"/,'$1').replace(/(<svg\b[^>]*?)\s+height="[^"]*"/,'$1');
+  const svg=stripped.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" `);
+  return {svg,hotspot:art.contact.map(n=>Math.round(n*px/size)),size:px};
 }

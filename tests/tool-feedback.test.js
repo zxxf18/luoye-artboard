@@ -57,3 +57,17 @@ test('all cursor contacts lie in the image with dedicated nib, paint and wand ho
   assert.deepEqual(contact('fill:region'),[33,38]);assert.deepEqual(contact('magic:default'),[26,4]);
   assert.deepEqual(contact('picker:default'),[6,36]);
 });
+
+test('光标随界面缩放变小但不超过基准 40px', async () => {
+  const { toolCursor, cursorSizeForScale, CURSOR_BASE_SIZE, CURSOR_MIN_SIZE } = await import('../src/tool-cursors.js');
+  assert.equal(CURSOR_BASE_SIZE, 40);
+  assert.equal(cursorSizeForScale(1), 40);
+  assert.equal(cursorSizeForScale(1.4), 40, '放大界面时光标保持基准大小');
+  assert.equal(cursorSizeForScale(.7), 28);
+  assert.equal(cursorSizeForScale(.2), CURSOR_MIN_SIZE, '过小的缩放被下限挡住');
+  const big = toolCursor({ tool: 'pen', icon: 'pencil' }, 1.4);
+  const small = toolCursor({ tool: 'pen', icon: 'pencil' }, .7);
+  assert.match(big.svg, /width="40" height="40"/);
+  assert.match(small.svg, /width="28" height="28"/);
+  assert.ok(small.hotspot.every(n => n >= 0 && n < 28));
+});

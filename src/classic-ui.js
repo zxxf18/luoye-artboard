@@ -100,6 +100,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
         if(b.hidden){page=pageOf(index);renderTools();}
         const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
     }
+    // 高窗口下按钮到达最大高度后，让整组工具在栏内垂直居中，
+    // 剩余空间对称分布在上下两端，而不是堆在底部。
+    bar.classList.toggle('tools-centered',!compact);
     flip.hidden=compact;
     flip.setAttribute('aria-hidden',String(compact));
     flip.innerHTML=`<span>${page===0?'更多工具 →':page===pageCount()-1?'← 常用工具':'← 更多工具 →'}</span><small>${page+1} / ${pageCount()}</small>`;
