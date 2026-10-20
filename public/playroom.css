@@ -2651,13 +2651,17 @@
 .playroom .animation-heading h2 { margin: 2px 0 3px; }
 .playroom .animation-heading p { margin: 0; color: var(--muted, #8d6b50); }
 .playroom .animation-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
-.playroom .animation-workspace { display: grid; grid-template-columns: auto minmax(228px, 264px); gap: 14px; align-items: start; justify-content: center; }
-.playroom .animation-stage { position: relative; display: block; width: fit-content; padding: 8px; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
-.playroom .animation-stage #animation-frame-canvas { display: block; width: min(46dvh, 420px, calc(100vw - 350px)); min-width: 216px; height: auto; aspect-ratio: 1; image-rendering: auto; }
+.playroom .animation-workspace { display: grid; grid-template-columns: auto minmax(228px, 264px); gap: 14px; align-items: stretch; justify-content: center; }
+/* 左右两栏拉成同高：舞台自身按 aspect-ratio 保持正方形（高度跟随
+   控制栏），画布 100% 填满舞台内容区，比例恒为 1:1 不变形。 */
+/* 画布绝对定位，不向舞台贡献固有尺寸：舞台高度完全由控制栏行高决定，
+   再按 aspect-ratio 得到等宽正方形，画布填满内容区。 */
+.playroom .animation-stage { position: relative; aspect-ratio: 1; height: 100%; width: auto; min-height: 0; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
+.playroom .animation-stage #animation-frame-canvas { position: absolute; inset: 8px; display: block; width: calc(100% - 16px); height: calc(100% - 16px); image-rendering: auto; }
 .playroom #animation-onion-canvas { position: absolute; z-index: 1; pointer-events: none; inset: 8px; width: auto; height: auto; }
 .playroom #animation-frame-canvas { position: relative; z-index: 2; touch-action: none; outline: none; }
 .playroom .animation-frame-badge { position: absolute; z-index: 3; left: 10px; top: 10px; padding: 4px 9px; border-radius: 999px; background: var(--theme-accent, #70462f); color: var(--theme-surface, #fff8eb); font-size: 12px; pointer-events: none; }
-.playroom .animation-controls { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
+.playroom .animation-controls { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-width: 0; padding: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
 .playroom .animation-control-heading { display: flex; flex-direction: column; gap: 3px; }
 .playroom .animation-control-heading span { color: var(--muted, #8d6b50); font-size: 13px; }
 .playroom .animation-tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
@@ -2700,8 +2704,7 @@
   .playroom .animation-heading h2 { font-size: 20px; }
   .playroom .animation-heading p { font-size: 12px; }
   .playroom .animation-workspace { grid-template-columns: minmax(0, 1fr); gap: 8px; justify-content: stretch; }
-  .playroom .animation-stage { justify-self: center; border-radius: 12px; }
-  .playroom .animation-stage #animation-frame-canvas { width: min(calc(100vw - 76px), 52dvh, 380px); min-width: 0; }
+  .playroom .animation-stage { justify-self: center; width: min(calc(100vw - 76px), 52dvh, 380px); height: auto; border-radius: 12px; }
   .playroom .animation-controls { gap: 6px; padding: 7px; border-radius: 12px; }
   .playroom .animation-control-heading span, .playroom .animation-onion-toggle, .playroom .animation-select-label, .playroom .animation-speed { font-size: 11px; }
   .playroom .animation-tool-row { gap: 4px; }
@@ -2743,9 +2746,6 @@
   }
   .playroom .animation-workspace {
     gap: 12px;
-  }
-  .playroom .animation-stage #animation-frame-canvas {
-    width: min(44dvh, 400px, calc(100vw - 350px));
   }
   .playroom .animation-controls {
     gap: 7px;

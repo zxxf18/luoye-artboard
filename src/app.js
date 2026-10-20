@@ -54,6 +54,11 @@ function setTool(next) {
   if(shapeTools.has(tool)&&!shapeTools.has(next))shapeStyle={size:Number($('size').value),opacity:Number($('opacity').value)};
   if(tool === 'stamp') { stampSize = Number($('size').value); if(next!==tool) engine?.resetStampProgress?.(); }
   if(next === 'stamp' && tool !== 'stamp') { $('size').value = stampSize; $('size-value').textContent = stampSize; }
+  if(next === 'scratch' && tool !== 'scratch' && engine) {
+    const hadCard = engine.layers?.some(layer => layer.role === 'scratch');
+    engine.prepareScratchCard?.();
+    if(!hadCard) toast('盖上一层刮刮画：刮开能看到原来的画和背景；随时点「去掉刮刮画」完整恢复');
+  }
   engine?.end(); if(engine) { engine.stampPreview = null; engine.render(); }
   if (next === 'scratch' && tool !== 'scratch') engine?.prepareScratchCard?.();
   if(engine?.path&&next!==tool)engine.finishPath(true);
@@ -229,6 +234,10 @@ mountClassic({
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));
+document.addEventListener('scratch-remove', () => run(async () => {
+  const removed = engine.removeScratchCard();
+  if (removed) { setTool('pen'); toast('刮刮画已去掉，画面恢复原样；撤销可以找回'); }
+}));
 document.addEventListener('scratch-style-change', event => run(() => {
   const cover = engine.setScratchStyle(event.detail || {});
   document.dispatchEvent(new CustomEvent('scratch-style-updated', { detail: cover?.scratchStyle || event.detail || {} }));

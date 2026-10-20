@@ -95,6 +95,25 @@ export class DrawingEngine extends EditorEngine {
     this.history.push({ bytes: before.data.byteLength * 2, undo: () => ctx.putImageData(before, 0, 0), redo: () => ctx.putImageData(after, 0, 0) });
     this.changed(); return layer;
   }
+  /**
+   * Remove the scratch card entirely (cover plus reveal base) in one undoable
+   * step. The artwork and background underneath were never modified, so they
+   * come back exactly as they were; undo restores the card with its scratches.
+   */
+  removeScratchCard() {
+    const base = this.layers.find(layer => layer.role === 'scratch-base');
+    const cover = this.layers.find(layer => layer.role === 'scratch');
+    if (!base && !cover) return false;
+    const before = this.layers.slice(), previous = this.activeId;
+    this.layers = before.filter(layer => layer !== base && layer !== cover);
+    if (!this.layers.length) this.addLayer('我的画笔', makeCanvas(this.width, this.height), false);
+    this.activeId = this.layers.some(layer => layer.id === previous) ? previous : this.layers.at(-1).id;
+    const after = this.layers.slice(), active = this.activeId;
+    this.history.push({ bytes: [base, cover].reduce((sum, layer) => sum + (layer ? layer.width * layer.height * 4 : 0), 0),
+      undo: () => { this.layers = before.slice(); this.activeId = previous; },
+      redo: () => { this.layers = after.slice(); this.activeId = active; } });
+    this.changed(); return true;
+  }
   assistGeometry(options, layer) {
     const assist=options?.assist;
     if(!assist||typeof options!=='object')return null;

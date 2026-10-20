@@ -307,6 +307,13 @@
   justify-content: flex-start; align-items: center; align-self: start;
   min-height: 56px; font-size: 18px;
 }
+/* 油漆桶与图形的参数一行四个过于拥挤，参照魔力棒改为两行两列。 */
+.playroom[data-classic-tool="fill"] .classic-parameters,
+.playroom[data-classic-tool="line"] .classic-parameters {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
 .playroom[data-classic-tool="magic"] .classic-parameters {
   /* The wand exposes one setting, but the shared parameter shelf always has
      the same two-row height as the other tools. Let the tolerance card use

@@ -105,7 +105,6 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     if(tool==='scratch'){
       parameter.scrollTop=0;parameter.style.position='relative';parameter.style.overflow='hidden';parameter.style.gridTemplateColumns='minmax(0,1fr)';parameter.style.gridTemplateRows='minmax(0,1fr)';if(brushOptions.parentElement!==scratchSizeRow)scratchSizeRow.append(brushOptions);parameter.scrollTop=0;brushOptions.hidden=false;brushOptions.style.gridColumn='1';brushOptions.style.gridRow='1';brushOptions.style.height='100%';options.hidden=true;primary.hidden=true;scratchPanel.style.display='grid';for(const property of ['position','left','right','bottom','z-index','min-height'])scratchPanel.style.removeProperty(property);
       for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.setProperty('display','none','important');
-      const reset=document.createElement('button');reset.className='subtool-card scratch-reset-card';reset.innerHTML=playfulIcon('scratch')+'<span>重新覆盖</span>';reset.title='恢复覆盖层，可以再次刮开';reset.onclick=()=>document.dispatchEvent(new Event('scratch-reset'));subtools.append(reset);
     } else {
       if(brushOptions.parentElement!==brushOptionsParent)brushOptionsParent.append(brushOptions);for(const property of ['grid-column','grid-row','height'])brushOptions.style.removeProperty(property);
       dock.style.removeProperty('height');dock.style.removeProperty('grid-template-rows');
@@ -114,6 +113,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
       for(const item of parameter.querySelectorAll('.choice-button,.detail-bar,.opacity-control,#stroke-buttons,label[for="brush-ratio"]'))item.style.removeProperty('display');
     }
     if(tool==='eraser'){const clear=document.createElement('button');clear.id='clear-animations';clear.className='subtool-card';clear.innerHTML=playfulIcon('eraser')+'<span>清除所有动图</span>';clear.title='保留背景和画笔；可以撤销';clear.onclick=clearAnimations;subtools.append(clear);}
+    if(tool==='scratch'){const reset=document.createElement('button');reset.className='subtool-card scratch-reset-card';reset.innerHTML=playfulIcon('scratch')+'<span>重新覆盖</span>';reset.title='恢复覆盖层，可以再次刮开';reset.onclick=()=>document.dispatchEvent(new Event('scratch-reset'));subtools.append(reset);
+      // 关闭刮刮画的开关：整个卡（覆盖层＋底色）一次性移除并可用撤销找回，
+      // 原画作与背景从未被破坏，去掉后立即恢复完整画面。
+      const remove=document.createElement('button');remove.className='subtool-card scratch-remove-card';remove.innerHTML=playfulIcon('new-paper')+'<span>去掉刮刮画</span>';remove.title='移除覆盖层和底色，完整恢复画面；可以撤销';remove.onclick=()=>document.dispatchEvent(new Event('scratch-remove'));subtools.append(remove);}
   }
   document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',sync);
   function openLibrary(open){document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}
