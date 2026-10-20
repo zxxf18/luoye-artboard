@@ -73,12 +73,20 @@ export function mountToolFeedback(preferences) {
   const value=id=>document.getElementById(id)?.value;
   function sync(audible=true) {
     const entry=getToolFeedback({tool:canvas.dataset.tool,pen:value('brush'),eraser:value('eraser-mode'),fill:value('fill-mode'),gradient:document.getElementById('fill-gradient')?.checked,stamp:document.body.dataset.fairyMode||'single',select:value('selection-shape'),warp:value('warp-kind'),'board-filter':value('board-filter-kind')});
-    if(entry.key===previous)return;
     if(!cursors.has(entry.key)) {
       const {svg,hotspot}=toolCursor(entry);
       cursors.set(entry.key,`url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.join(' ')}, crosshair`);
     }
-    canvas.style.setProperty('--drawing-cursor',cursors.get(entry.key));canvas.dataset.cursor=entry.key;
+    // Re-apply the declaration even when the logical tool key did not change.
+    // WebKit can retain the old native cursor until the pointer enters the
+    // canvas again after a scratch-card layer is prepared. Keeping the CSS
+    // variable and the inline declaration in sync makes the first hover use
+    // the newly selected tool immediately.
+    const cursor=cursors.get(entry.key);
+    canvas.style.setProperty('--drawing-cursor',cursor);
+    canvas.style.cursor=cursor;
+    canvas.dataset.cursor=entry.key;
+    if(entry.key===previous)return;
     if(audible&&previous)player.play(entry);previous=entry.key;
   }
   for(const event of ['toolchange','change','controlschange','fairymodechange'])document.addEventListener(event,()=>sync());

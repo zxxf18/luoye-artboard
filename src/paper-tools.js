@@ -31,20 +31,23 @@ export function updatePaperErase(engine,point) {
   const g=engine.gesture;g.end=point;
   if(g.options.eraserMode==='rect'){engine.render();return;}
   for(const t of g.targets){
-    const next=toLayerPoint(point,t.layer),layer={...t.layer,canvas:t.canvas},gBrush={layer,options:g.options};
+    // Sample the previous position before advancing t.last; the segment below
+    // must connect the two, or a fast eraser drag degenerates into dots with
+    // gaps between pointer samples.
+    const previous=t.last, next=toLayerPoint(point,t.layer),layer={...t.layer,canvas:t.canvas},gBrush={layer,options:g.options};
     const padding=g.options.size/layer.scale*2+4;
     const bounds=g.options.eraserMode==='shape'
-      ?shapeEraserBounds(t.last,next,g.options.size,layer.scale,layer.width,layer.height)
-      :{x:Math.min(t.last.x,next.x)-padding,y:Math.min(t.last.y,next.y)-padding,width:Math.abs(t.last.x-next.x)+2*padding,height:Math.abs(t.last.y-next.y)+2*padding};
+      ?shapeEraserBounds(previous,next,g.options.size,layer.scale,layer.width,layer.height)
+      :{x:Math.min(previous.x,next.x)-padding,y:Math.min(previous.y,next.y)-padding,width:Math.abs(next.x-previous.x)+2*padding,height:Math.abs(next.y-previous.y)+2*padding};
     t.last=next;
     if(bounds.width<=0||bounds.height<=0||bounds.x+bounds.width<=0||bounds.y+bounds.height<=0||bounds.x>=layer.width||bounds.y>=layer.height)continue;
     materializeEraseMask(t);layer.canvas=t.canvas;
     engine.captureTiles(layer,bounds,t.tiles);
     if(g.options.eraserMode==='shape'){
       gBrush.shapeStarted=t.shapeStarted;gBrush.shapeTravel=t.shapeTravel;
-      shapeEraserSegment(t.canvas.getContext('2d'),gBrush,t.last,next);
+      shapeEraserSegment(t.canvas.getContext('2d'),gBrush,previous,next);
       t.shapeStarted=gBrush.shapeStarted;t.shapeTravel=gBrush.shapeTravel;
-    }else brushSegment(t.canvas.getContext('2d'),gBrush,t.last,next);
+    }else brushSegment(t.canvas.getContext('2d'),gBrush,previous,next);
     engine.maskTiles(layer,t.tiles,engine.layerMask(layer),bounds);
   }
   engine.render();

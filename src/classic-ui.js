@@ -73,7 +73,11 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     for(const [index,[id,name]] of tools.entries()){
       const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;
       b.hidden=!compact&&Math.floor(index/7)!==page;
-      b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
+      b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;
+        // Programmatic or assistive activation can target a button from
+        // another page; reveal its page first so the rail follows the action.
+        if(b.hidden){page=Math.floor(index/7);renderTools();}
+        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
     }
     flip.hidden=compact;
     flip.setAttribute('aria-hidden',String(compact));

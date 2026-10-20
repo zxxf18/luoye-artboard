@@ -96,7 +96,9 @@ async function checkTools(doc){
   }
  }
  if(narrow)await mobilePanel('tools');
- if(!doc.querySelector('.tool-button[data-tool="stamp"]'))doc.querySelector('#tool-page').click();
+ // The rail keeps every tool in the DOM and hides other pages, so flip until
+ // the target page is actually shown instead of relying on absence.
+ for(let i=0;i<3&&!doc.querySelector('.tool-button[data-tool="stamp"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
  const stampButton=doc.querySelector('.tool-button[data-tool="stamp"]');
  assert(stampButton&&isVisible(stampButton),'魔法袋工具不可见');
  stampButton.click();await pause(25);
@@ -142,7 +144,7 @@ async function checkTools(doc){
  const dock=doc.querySelector('.tool-dock'),penDockHeight=dock.getBoundingClientRect().height;
  if(!narrow)assert(Math.abs(penDockHeight-stampDockHeight)<=1,`魔法袋工具区总高度未与普通工具一致: ${stampDockHeight} / ${penDockHeight}`);
  if(narrow)await mobilePanel('tools');
- if(!doc.querySelector('.tool-button[data-tool="scratch"]'))doc.querySelector('#tool-page').click();
+ for(let i=0;i<3&&!doc.querySelector('.tool-button[data-tool="scratch"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
  const scratchButton=doc.querySelector('.tool-button[data-tool="scratch"]');assert(scratchButton&&isVisible(scratchButton),'刮刮画工具不可见');scratchButton.click();await pause(25);if(narrow)await mobilePanel('options');
  assert(Math.abs(dock.getBoundingClientRect().height-penDockHeight)<=1,'刮刮画参数栏高度没有与其他工具统一');
  const scratchPanel=doc.querySelector('.scratch-style-panel'),chips=[...doc.querySelectorAll('.scratch-style-chip,.scratch-style-custom')],palette=doc.querySelector('.quick-palette');

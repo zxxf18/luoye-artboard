@@ -22,6 +22,7 @@ import { applyStoredTheme, mountTheme } from './theme-ui.js';
 import { DEFAULT_BRUSH_SIZE } from './brushes.js';
 import { mountAnimationEditor } from './animation-editor.js';
 import { mountPixelEditor } from './pixel-art.js';
+import { collectPointerSamples, isHighFrequencyEraser } from './input-sampling.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -327,13 +328,27 @@ function previewStamp(point) {
   hoverPoint=point;engine.stampPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;engine.render();
 }
 $('size').addEventListener('input',()=>previewStamp(hoverPoint));
-$('painting').addEventListener('pointermove', event => {
+function updatePaintingPointer(event,{preview=true}={}){
   // Coalesced touch samples share one layout rectangle. Reading it once per
   // pointer event avoids repeated getBoundingClientRect calls on tablets.
-  const rect=$('painting').getBoundingClientRect(),point=engine.point(event,rect);previewStamp(point);
+  const rect=$('painting').getBoundingClientRect();if(preview)previewStamp(engine.point(event,rect));
   if (event.pointerId !== pointerId) return;
-  const samples=event.getCoalescedEvents?.();
-  for(const sample of samples?.length?samples:[event])engine.update(engine.point(sample,rect));
+  const highFrequency=isHighFrequencyEraser(engine.gesture?.options);
+  // Once raw events are observed, pointermove may expose the same history in
+  // its coalesced list, sometimes in an older order. Consume only its current
+  // point so a soft eraser cannot erase the same area twice or briefly move
+  // backwards along the stroke.
+  const samples=engine.gesture?.rawPointerSampling?[event]:collectPointerSamples(event,highFrequency);
+  for(const sample of samples)engine.update(engine.point(sample,rect));
+}
+$('painting').addEventListener('pointermove', event => updatePaintingPointer(event));
+// Pointermove stays the path for every tool. Raw samples are an additive
+// stream for the two continuous erasers only, so fast eraser drags connect
+// into solid strokes without raising the event rate of brushes or shapes.
+$('painting').addEventListener('pointerrawupdate', event => {
+  if (event.pointerId !== pointerId || !isHighFrequencyEraser(engine.gesture?.options)) return;
+  engine.gesture.rawPointerSampling = true;
+  updatePaintingPointer(event, { preview: false });
 });
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
 function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);engine.end(event.type==='pointercancel');pointerId=undefined; }
