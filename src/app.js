@@ -28,6 +28,17 @@ const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
 const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形',scratch:'刮刮画' };
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色', scratch:'在覆盖层上刮开一条路，看看下面的颜色' };
+// 后续版本补充的工具提示并入同一张表，避免在 setTool 里层层覆盖。
+const toolHints = { ...hints,
+  select: '拖动圈选，可直接复制、剪切；切换工具会取消圈选',
+  magic: '设置公差，点击选择颜色相连的区域',
+  stamp: '先选图案、调大小，再移到画纸上按住鼠标画',
+  clone: 'Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点',
+  polygon: '点击添加顶点／控制点，Enter 或双击完成，Esc 取消',
+  bezier: '点击添加顶点／控制点，Enter 或双击完成，Esc 取消',
+  warp: '推拉：拖动变形；缩放：点击或拖动。负速度用于反向变形',
+  'board-filter': '点击画纸设置效果中心，或在底部预览后确定',
+  fractal: '点击画纸或底部按钮，选择分形样式与尺寸' };
 const sessionId=crypto.randomUUID();
 let closeSnapshot=null;
 let savedRevision=0, savedTitle='', draftInFlight=Promise.resolve();
@@ -67,17 +78,8 @@ function setTool(next) {
     $('size').value=shapeStyle.size;$('size-value').textContent=$('size').value;
     $('opacity').value=shapeStyle.opacity;$('opacity-value').textContent=$('opacity').value+'%';
   }
-  tool = next; setCanvasCursor(); $('tool-hint').textContent = hints[tool]||'按住拖动，绘制选定的几何形状';
+  tool = next; setCanvasCursor(); $('tool-hint').textContent = toolHints[tool] || '按住拖动，绘制选定的几何形状';
   for (const button of document.querySelectorAll('[data-tool]')) if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', button.dataset.tool === tool);
-  if (tool === 'select') $('tool-hint').textContent = '拖动圈选，可直接复制、剪切；切换工具会取消圈选';
-  if (tool === 'magic') $('tool-hint').textContent = '设置公差，点击选择颜色相连的区域';
-  if(tool==='stamp') $('tool-hint').textContent='先选图案、调大小，再移到画纸上按住鼠标画';
-  if(tool==='clone') $('tool-hint').textContent='Ctrl 点选仿制源，再拖动复制；也可用工具选项设置源点';
-  if(['polygon','bezier'].includes(tool)) $('tool-hint').textContent='点击添加顶点／控制点，Enter 或双击完成，Esc 取消';
-  if(tool==='warp')$('tool-hint').textContent='推拉：拖动变形；缩放：点击或拖动。负速度用于反向变形';
-  if(tool==='board-filter')$('tool-hint').textContent='点击画纸设置效果中心，或在底部预览后确定';
-  if(tool==='fractal')$('tool-hint').textContent='点击画纸或底部按钮，选择分形样式与尺寸';
-  if(tool==='scratch')$('tool-hint').textContent=hints.scratch;
   studio?.toolChanged(tool);
   document.dispatchEvent(new Event('toolchange'));
 }
