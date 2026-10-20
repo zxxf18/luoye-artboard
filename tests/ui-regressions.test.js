@@ -90,7 +90,7 @@ test('刮刮画自选颜色复用我的颜色共享调色板', () => {
 test('刮刮画保留共享颜色栏并为专属参数提供卡片底色', () => {
   const classic = read('src/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
-  assert.match(classic, /scratchPanel\.hidden=tool!==\'scratch\';palette\.hidden=false;moreColor\.hidden=false/);
+  assert.match(classic, /scratchPanel\.hidden=tool!==\'scratch\';fractalPanel\.hidden=tool!==\'fractal\';palette\.hidden=false;moreColor\.hidden=false/);
   assert.match(shelf, /\.scratch-style-panel\s*\{[\s\S]*grid-template-columns:\s*(?:minmax\(0,\s*)?2fr\)?\s+\s*(?:minmax\(0,\s*)?1fr\)?/);
   assert.match(shelf, /\.scratch-style-panel\s*\{[\s\S]*border:\s*0/);
   assert.match(shelf, /\.scratch-style-panel\s*\{[\s\S]*background:\s*transparent/);
@@ -141,11 +141,11 @@ test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*22px[\s\S]*height:\s*22px/);
 });
 
-test('常用工具保持每页七个，第三页收纳刮刮画、小动画与像素画', () => {
+test('常用工具每页至多七个，功能工具整体从第三页开始', () => {
   const classic = read('src/classic-ui.js');
-  assert.match(classic, /\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\]/);
-  assert.match(classic, /Math\.ceil\(tools\.length\s*\/\s*7\)/);
-  assert.match(classic, /Math\.floor\(index\s*\/\s*7\)!==page/);
+  assert.match(classic, /\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\],\['fractal','分形'\]/);
+  assert.match(classic, /Math\.ceil\(firstFeature\s*\/\s*7\)/);
+  assert.match(classic, /pageOf\(index\)!==page/);
   // 两个编辑器入口只保留在工具栏第三页，不再占用顶部工具区。
   assert.doesNotMatch(classic, /#animation-open/);
   assert.doesNotMatch(classic, /#pixel-art-open/);
@@ -165,11 +165,12 @@ test('小动画选色复用左上画笔调色板并与粗细控件等高对齐',
   assert.match(css, /\.animation-slider-caption\s*\{[\s\S]*min-height:\s*18px/);
 });
 
-test('小动画画纸与控制区收窄贴合且帧条支持左右滑动', () => {
+test('小动画舞台弹性贴合且帧条支持左右滑动', () => {
   const editor = read('src/animation-editor.js');
   const css = read('public/playroom.css');
   assert.match(css, /\.animation-dialog\s*\{[\s\S]*width:\s*fit-content/);
-  assert.match(css, /\.animation-workspace\s*\{[\s\S]*grid-template-columns:\s*auto\s+minmax\(228px,\s*264px\)/);
+  assert.match(css, /\.animation-workspace\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(264px,\s*312px\)/);
+  assert.match(css, /\.animation-stage-frame\s*\{[\s\S]*aspect-ratio:\s*1/);
   assert.match(css, /\.animation-frame-strip\s*\{[\s\S]*overflow-x:\s*auto[\s\S]*scroll-snap-type:\s*x proximity/);
   assert.match(editor, /scrollIntoView\(\{\s*block:\s*'nearest',\s*inline:\s*'nearest'\s*\}\)/);
 });

@@ -23,6 +23,7 @@ import { DEFAULT_BRUSH_SIZE } from './brushes.js';
 import { mountAnimationEditor } from './animation-editor.js';
 import { mountPixelEditor } from './pixel-art.js';
 import { collectPointerSamples, isHighFrequencyEraser } from './input-sampling.js';
+import { placeFractal } from './fractal-studio.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
@@ -319,7 +320,7 @@ $('painting').addEventListener('pointerdown', event => {
     const picked='#'+[...pixel.slice(0,3)].map(n=>n.toString(16).padStart(2,'0')).join('');if(event.ctrlKey){$('background-color').value=picked;$('background-color').dispatchEvent(new Event('input'));}else setColor(picked);setTool('pen');return;
   }
   if (tool === 'text') { styledText.open(point); return; }
-  if(tool==='fractal'){creative.open();return;}
+  if(tool==='fractal'){run(()=>{placeFractal(engine,point);toast('分形已放到画纸上，可以移动和放大它');});return;}
   if(tool==='board-filter'){const o=creative.options();run(()=>engine.applyBoardFilter(o.filterKind,{...o,x:point.x,y:point.y}));return;}
   try {
     if(tool==='move'){

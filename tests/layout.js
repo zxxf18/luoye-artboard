@@ -183,7 +183,7 @@ async function checkParameterConsistency(doc){
  const win=frame.contentWindow,parameters=doc.querySelector('.classic-parameters');
  const railPage=()=>Number((doc.getElementById('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
  const gotoPage=n=>{for(let i=0;i<3&&railPage()!==n;i++)doc.getElementById('tool-page').click();};
- const pickTool=async id=>{const index=[...doc.querySelectorAll('#tools .tool-button')].findIndex(b=>b.dataset.tool===id);gotoPage(Math.floor(index/7)+1);doc.querySelector(`#tools .tool-button[data-tool="${id}"]:not([hidden])`).click();await pause(30);};
+ const pickTool=async id=>{const button=doc.querySelector(`#tools .tool-button[data-tool="${id}"]`);for(let i=0;i<4&&button.hidden;i++)doc.getElementById('tool-page').click();button.click();await pause(30);};
  const heights=[],sizeFonts=new Set(),opacityFonts=new Set();
  for(const tool of ['pen','eraser','fill','picker','line','text','select','magic','move','warp','board-filter','clone','fractal','scratch']){
   await pickTool(tool);

@@ -2,6 +2,7 @@ import { choiceArt } from './choice-art.js';
 import { mountPalette } from './palette-ui.js';
 import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './classic-scratch.js';
 import { mountMobileShelf } from './classic-mobile.js';
+import { FRACTAL_PRESETS, FRACTAL_MAX_DEPTH, FRACTAL_SIZE_RANGE, fractalState, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from './brushes.js';
 import { makeCanvas } from './engine.js';
@@ -46,6 +47,18 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const moreColor=document.createElement('button');moreColor.className='more-colors';moreColor.innerHTML=playfulIcon('palette')+'<span>更多颜色</span>';moreColor.onclick=()=>el('palette-open').click();palette.append(moreColor);
   const {panel:scratchPanel,sizeRow:scratchSizeRow}=buildScratchPanel({palette:paletteApi});
   scratchPanel.hidden=true;parameter.append(scratchPanel);
+  // 分形参数栏：颜色（复用共享调色板）、大小滑杆、次数加减。
+  const fractalPanel=document.createElement('section');fractalPanel.className='fractal-params';fractalPanel.setAttribute('aria-label','分形参数');
+  fractalPanel.innerHTML=`<div class="fractal-fields"><label class="fractal-color-field">颜色<button type="button" id="fractal-color" class="fractal-color-control" aria-label="选择分形颜色"></button></label><label class="fractal-size-field">大小<input id="fractal-size" type="range" min="${FRACTAL_SIZE_RANGE.min}" max="${FRACTAL_SIZE_RANGE.max}" step="10" value="${fractalState.size}"><output id="fractal-size-value">${fractalState.size}</output></label><div class="fractal-depth-field"><span>分形次数</span><div class="fractal-stepper"><button type="button" id="fractal-depth-down" aria-label="减少分形次数">−</button><output id="fractal-depth-value">${fractalState.depth}</output><button type="button" id="fractal-depth-up" aria-label="增加分形次数">＋</button></div></div></div>`;
+  fractalPanel.hidden=true;parameter.append(fractalPanel);
+  const syncFractalColor=()=>{const control=fractalPanel.querySelector('#fractal-color');control.style.background=fractalState.color;control.setAttribute('aria-label',`选择分形颜色，当前 ${fractalState.color}`);};
+  fractalPanel.querySelector('#fractal-color').onclick=()=>{const opener=document.getElementById('foreground-palette')||document.getElementById('palette-open');opener?.click();};
+  document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;syncFractalColor();window.__refreshFractalCards?.();});
+  fractalPanel.querySelector('#fractal-size').addEventListener('input',event=>{fractalState.size=Number(event.target.value);fractalPanel.querySelector('#fractal-size-value').textContent=fractalState.size;});
+  const syncFractalDepth=()=>{fractalPanel.querySelector('#fractal-depth-value').textContent=fractalState.depth;fractalPanel.querySelector('#fractal-depth-down').disabled=fractalState.depth<=1;fractalPanel.querySelector('#fractal-depth-up').disabled=fractalState.depth>=FRACTAL_MAX_DEPTH;};
+  fractalPanel.querySelector('#fractal-depth-down').onclick=()=>{fractalState.depth=Math.max(1,fractalState.depth-1);syncFractalDepth();};
+  fractalPanel.querySelector('#fractal-depth-up').onclick=()=>{fractalState.depth=Math.min(FRACTAL_MAX_DEPTH,fractalState.depth+1);syncFractalDepth();};
+  syncFractalColor();syncFractalDepth();
   const status=document.querySelector('.canvas-footer');studio.append(status);const zoom=document.querySelector('.zoom-controls');heading.append(zoom);
   document.querySelector('.canvas-heading').hidden=true;
   const footer=document.createElement('div');footer.className='left-actions';
@@ -56,12 +69,18 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
-  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
+  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画'],['fractal','分形']];
   const featureTools={animation:features?.animation,pixel:features?.pixel};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
-  const pageCount=()=>Math.ceil(tools.length/7);
+  // 刮刮画／小动画／像素画／分形是独立功能，永远从新一页开始排；
+  // 绘画工具每页至多 7 个（13 个绘画工具 → 第一页 7 个、第二页 6 个）。
+  const featureIds=new Set(['scratch','animation','pixel','fractal']);
+  const firstFeature=tools.findIndex(([id])=>featureIds.has(id));
+  const drawingPages=firstFeature<0?Math.ceil(tools.length/7):Math.ceil(firstFeature/7);
+  const pageOf=index=>index<firstFeature?Math.floor(index/7):drawingPages+Math.floor((index-firstFeature)/7);
+  const pageCount=()=>Math.max(drawingPages,pageOf(tools.length-1)+1);
   const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=(page+1)%pageCount();renderTools();sync();};
   function renderTools(){
     // In a compact WebView all tools belong to the same drawer. Keeping the
@@ -74,11 +93,11 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     bar.replaceChildren();
     for(const [index,[id,name]] of tools.entries()){
       const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;
-      b.hidden=!compact&&Math.floor(index/7)!==page;
+      b.hidden=!compact&&pageOf(index)!==page;
       b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;
         // Programmatic or assistive activation can target a button from
         // another page; reveal its page first so the rail follows the action.
-        if(b.hidden){page=Math.floor(index/7);renderTools();}
+        if(b.hidden){page=pageOf(index);renderTools();}
         const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
     }
     flip.hidden=compact;
@@ -88,22 +107,38 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   }
   renderTools();
   let lastColor='',lastSecondary='',showEraserShapes=false;
+  // 机械与宇宙是深色主题：示例笔迹用白色才看得清；彩虹笔和渐变笔
+  // 自带颜色旅程，保持原样。
+  const sampleColor=(id,base)=>['mechanical','space'].includes(document.body.dataset.theme)&&id!=='rainbow'&&id!=='duotone'?'#ffffff':base;
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);document.body.dataset.classicTool=tool;title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':tool==='scratch'?'我的刮刮画':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
-    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,lastColor,140,34,DEFAULT_BRUSH_SIZE,secondary));}
-    const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,getColor(),140,50,Math.min(36,Number(el('size').value)),secondary):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
+    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,sampleColor(b.dataset.brush,lastColor),140,34,DEFAULT_BRUSH_SIZE,secondary));}
+    const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,sampleColor(brush.id,getColor()),140,50,Math.min(36,Number(el('size').value)),secondary):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
     primary.hidden=false;modes.hidden=tool!=='pen';
     el('brush-options').hidden=!['pen','eraser','stamp','clone','scratch',...geometries].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal','scratch'].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');
     options.hidden=![...options.querySelectorAll('.parameter-slider')].some(item=>!item.hidden);
     document.querySelector('label[for="size"]').textContent=tool==='stamp'?'图案大小':tool==='scratch'?'粗细':'笔尖粗细';
     const map={eraser:showEraserShapes&&el('eraser-mode').value==='shape'?'eraser-shape':'eraser-mode',fill:'fill-mode',select:'selection-shape',warp:'warp-kind','board-filter':'board-filter-kind'};const config=geometries.includes(tool)?'geometry':map[tool],select=config&&el(config);
     if(select){if(config==='eraser-shape'){const back=document.createElement('button');back.type='button';back.className='subtool-card eraser-mode-back';back.textContent='← 其他橡皮';back.onclick=()=>{showEraserShapes=false;sync();};subtools.append(back);}for(const option of select.options){const b=document.createElement('button');b.type='button';b.className='subtool-card';const label=document.createElement('span');label.textContent=option.textContent;b.append(choiceArt(select,option),label);b.setAttribute('aria-pressed',select.value===option.value);b.onclick=()=>{select.value=option.value;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));sync();};subtools.append(b);}}
-    else if(tool!=='pen'&&tool!=='scratch'){const p=document.createElement('p');p.className='tool-coach';p.textContent=tool==='stamp'?'选好图案，调一调大小\n按住鼠标，连续画':el('tool-hint').textContent;subtools.append(p);if(tool==='stamp'){const edit=document.createElement('button');edit.className='subtool-card';edit.innerHTML=playfulIcon('move')+'<span>调整画里的图案</span>';edit.onclick=()=>{setTool('move');openLibrary(false);};subtools.append(edit);const modes=document.createElement('div');modes.className='fairy-modes';edit.before(modes);for(const [mode,label] of [['single','单张图案'],['static','组合图案'],['dynamic','会动图案']]){const b=document.createElement('button');b.className='subtool-card';b.innerHTML=playfulIcon(mode==='dynamic'?'effect':'stamp')+'<span>'+label+'</span>';b.setAttribute('aria-pressed',(document.body.dataset.fairyMode||'single')===mode);b.onclick=()=>{document.body.dataset.fairyMode=mode;document.dispatchEvent(new Event('fairymodechange'));openLibrary(true);sync();};modes.append(b);}}if(tool==='text'||tool==='fractal'){const b=document.createElement('button');b.className='primary';b.innerHTML=playfulIcon(tool)+'<span>'+(tool==='text'?'写几个字':'生成分形')+'</span>';b.onclick=()=>{if(tool==='fractal')el('fractal-open').click();else [...document.querySelectorAll('.detail-bar button')].find(n=>n.dataset.option==='text')?.click();};subtools.append(b);}}
+    else if(tool!=='pen'&&tool!=='scratch'){const p=document.createElement('p');p.className='tool-coach';p.textContent=tool==='stamp'?'选好图案，调一调大小\n按住鼠标，连续画':el('tool-hint').textContent;subtools.append(p);if(tool==='stamp'){const edit=document.createElement('button');edit.className='subtool-card';edit.innerHTML=playfulIcon('move')+'<span>调整画里的图案</span>';edit.onclick=()=>{setTool('move');openLibrary(false);};subtools.append(edit);const modes=document.createElement('div');modes.className='fairy-modes';edit.before(modes);for(const [mode,label] of [['single','单张图案'],['static','组合图案'],['dynamic','会动图案']]){const b=document.createElement('button');b.className='subtool-card';b.innerHTML=playfulIcon(mode==='dynamic'?'effect':'stamp')+'<span>'+label+'</span>';b.setAttribute('aria-pressed',(document.body.dataset.fairyMode||'single')===mode);b.onclick=()=>{document.body.dataset.fairyMode=mode;document.dispatchEvent(new Event('fairymodechange'));openLibrary(true);sync();};modes.append(b);}}if(tool==='text'){const b=document.createElement('button');b.className='primary';b.innerHTML=playfulIcon('text')+'<span>写几个字</span>';b.onclick=()=>{[...document.querySelectorAll('.detail-bar button')].find(n=>n.dataset.option==='text')?.click();};subtools.append(b);}}
     // Keep the shared "我的颜色" shelf visible for scratch painting.  The
     // scratch-specific controls live below it as three equal parameter cards;
     // hiding the shared palette made this tool look and behave differently
     // from every other drawing tool.
-    scratchPanel.hidden=tool!=='scratch';palette.hidden=false;moreColor.hidden=false;
+    scratchPanel.hidden=tool!=='scratch';fractalPanel.hidden=tool!=='fractal';palette.hidden=false;moreColor.hidden=false;
+    if(tool==='fractal'){
+      const heading=document.createElement('p');heading.className='tool-coach';heading.textContent='选一个图案，调好颜色和次数，点到画纸上';subtools.append(heading);
+      const list=document.createElement('div');list.className='fractal-presets';list.setAttribute('role','group');list.setAttribute('aria-label','分形图案');
+      for(const preset of FRACTAL_PRESETS){
+        const card=document.createElement('button');card.type='button';card.className='fractal-preset-card';card.dataset.fractalPreset=preset.id;card.title=preset.hint;card.setAttribute('aria-pressed',String(fractalState.preset===preset.id));
+        const preview=renderFractalCanvas({preset:preset.id,size:76,depth:2,color:fractalState.color});preview.className='fractal-preset-preview';preview.setAttribute('aria-hidden','true');
+        card.append(preview,Object.assign(document.createElement('span'),{textContent:preset.name}));
+        card.onclick=()=>{fractalState.preset=preset.id;for(const item of list.children)item.setAttribute('aria-pressed',String(item===card));};
+        list.append(card);
+      }
+      subtools.append(list);
+      window.__refreshFractalCards=()=>{for(const card of list.querySelectorAll('.fractal-preset-card')){const canvas=card.querySelector('.fractal-preset-preview');const next=renderFractalCanvas({preset:card.dataset.fractalPreset,size:76,depth:2,color:fractalState.color});next.className='fractal-preset-preview';next.setAttribute('aria-hidden','true');canvas.replaceWith(next);}};
+    }
     if(tool==='scratch'){
       applyScratchShelf({parameter,brushOptions,options,primary,panel:scratchPanel,sizeRow:scratchSizeRow});
     } else {
@@ -115,7 +150,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
       // 原画作与背景从未被破坏，去掉后立即恢复完整画面。
       const remove=document.createElement('button');remove.className='subtool-card scratch-remove-card';remove.innerHTML=playfulIcon('new-paper')+'<span>去掉刮刮画</span>';remove.title='移除覆盖层和底色，完整恢复画面；可以撤销';remove.onclick=()=>document.dispatchEvent(new Event('scratch-remove'));subtools.append(remove);}
   }
-  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',sync);
+  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&pageOf(i)!==page){page=pageOf(i);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('themechange',()=>{lastColor='';sync();});document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',sync);
   function openLibrary(open){document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}
   new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);if(open&&libraryGroups.children.length)title.textContent=document.body.dataset.librarySurface==='fairy'?'我的魔法袋':'找一找图案';else if(!open)sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
   el('mode-library').onclick=()=>{const opening=!document.body.classList.contains('library-open')||document.body.dataset.librarySurface==='fairy';if(opening)document.dispatchEvent(new Event('opengallery'));openLibrary(opening);};el('mode-board').addEventListener('click',()=>openLibrary(false));
