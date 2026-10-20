@@ -19,8 +19,12 @@ try{
  for(const b of document.querySelectorAll('.layer-actions button'))check(b.scrollWidth<=b.clientWidth+1,'图层按钮无溢出 '+b.id);
  $('layer-dialog').close();
  for(const page of [0,1]){
-  if(($('tool-page').textContent.includes('1 / 2')?0:1)!==page)$('tool-page').click();
-  const ids=[...$('tools').children].map(e=>e.dataset.tool);
+  const label=$('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/);
+  if((label?Number(label[1])-1:0)!==page)$('tool-page').click();
+  // The rail keeps every tool button in the DOM (hidden per page) and the
+  // third page also hosts the 小动画／像素画 feature cards, which open their
+  // own editors; this journey only sweeps the drawing tools.
+  const ids=[...$('tools').children].map(e=>e.dataset.tool).filter(id=>!['animation','pixel'].includes(id));
   for(const id of ids){
    document.querySelector('[data-tool="'+id+'"]').click();await pause(30);
    const root=document.querySelector('.classic-parameters'),r=box(root);

@@ -1,5 +1,4 @@
 import { makeCanvas } from './engine.js';
-import { playfulIcon } from './playful-icons.js';
 
 // Keep the grid small and predictable. A child can understand an 8 × 8 or
 // 16 × 16 picture immediately, while 32 × 32 still leaves room for details.
@@ -158,12 +157,6 @@ export class PixelArtModel {
   }
 }
 
-function pixelButton(label, icon = 'pixel') {
-  const element = document.createElement('button');
-  element.type = 'button'; element.className = 'pixel-action'; element.innerHTML = `${playfulIcon(icon)}<span>${label}</span>`;
-  return element;
-}
-
 /** Mount a focused pixel editor. It only commits a normal raster layer when the child taps “放回画板”. */
 export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
   const dialog = document.createElement('dialog');
@@ -222,7 +215,7 @@ export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
   dialog.addEventListener('close', stopDrawing); dialog.addEventListener('cancel', stopDrawing);
   updateTools(); render();
 
-  const entry = pixelButton('像素画', 'pixel'); entry.id = 'pixel-art-open'; entry.classList.add('header-command'); entry.onclick = open;
-  document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#animation-open') || document.querySelector('#more-open'));
+  // The editor opens from the third tool-rail page (classic-ui features map),
+  // so no separate header command is created here.
   return { open, dialog, get model() { return model; }, destroy: () => dialog.remove() };
 }

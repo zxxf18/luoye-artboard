@@ -10,7 +10,7 @@ export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ff
   let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};brushSegment(ctx,g,a,b);a=b;}return canvas;
 }
 
-export function mountClassic({setTool,getColor,setColor,clearAnimations}){
+export function mountClassic({setTool,getColor,setColor,clearAnimations,features}){
   const el=id=>document.getElementById(id);document.body.classList.add('playroom');
   const workspace=document.querySelector('.workspace'),studio=document.querySelector('.studio');
   const left=document.createElement('aside');left.id='classic-left';left.className='classic-left';left.setAttribute('aria-label','画笔盒');workspace.prepend(left);const paletteApi=mountPalette({getColor,setColor});
@@ -54,23 +54,30 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
-  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画']];
-  const featureTools={animation:()=>document.querySelector('#animation-open')?.click()};
+  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
+  const featureTools={animation:features?.animation,pixel:features?.pixel};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
-  const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=1-page;renderTools();sync();};
+  const pageCount=()=>Math.ceil(tools.length/7);
+  const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=(page+1)%pageCount();renderTools();sync();};
   function renderTools(){
     // In a compact WebView all tools belong to the same drawer. Keeping the
-    // second page there made the sheet tall while hiding half of the actions.
-    // Desktop/native windows retain the original two-page rail.
+    // pages there made the sheet tall while hiding half of the actions.
+    // Desktop/native windows keep the rail at seven tools per page; newer
+    // additions (刮刮画、小动画、像素画) live together on the third page.
+    // Buttons from other pages stay in the DOM but hidden, so keyboard and
+    // test journeys can still reach every tool without guessing the page.
     const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
-    const visible=compact?tools:(page===0?tools.slice(0,7):tools.slice(7));
     bar.replaceChildren();
-    for(const [id,name] of visible){const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;if(featureTools[id]){featureTools[id]();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);}
+    for(const [index,[id,name]] of tools.entries()){
+      const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;
+      b.hidden=!compact&&Math.floor(index/7)!==page;
+      b.onclick=()=>{if(document.body.hasAttribute('aria-busy'))return;const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(narrowWindow)setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
+    }
     flip.hidden=compact;
     flip.setAttribute('aria-hidden',String(compact));
-    flip.innerHTML=page?'<span>← 常用工具</span>':'<span>更多工具 →</span>';
+    flip.innerHTML=`<span>${page===0?'更多工具 →':page===pageCount()-1?'← 常用工具':'← 更多工具 →'}</span><small>${page+1} / ${pageCount()}</small>`;
     bar.after(flip);
   }
   renderTools();
@@ -104,7 +111,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations}){
     }
     if(tool==='eraser'){const clear=document.createElement('button');clear.id='clear-animations';clear.className='subtool-card';clear.innerHTML=playfulIcon('eraser')+'<span>清除所有动图</span>';clear.title='保留背景和画笔；可以撤销';clear.onclick=clearAnimations;subtools.append(clear);}
   }
-  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&(i<7?0:1)!==page){page=i<7?0:1;renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',sync);
+  document.addEventListener('toolchange',()=>{const i=tools.findIndex(t=>t[0]===groupTool());const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;if(compact){if(page!==0){page=0;renderTools();}}else if(i>=0&&Math.floor(i/7)!==page){page=Math.floor(i/7);renderTools();}sync();});document.addEventListener('palettechange',sync);document.addEventListener('input',e=>{if(e.target===el('background-color'))sync();});document.addEventListener('change',e=>{if(e.target===el('brush'))chooseBrush(e.target.value);else if(['geometry','eraser-mode','eraser-shape','fill-mode','selection-shape','warp-kind','board-filter-kind'].includes(e.target.id)){if(e.target===el('eraser-mode'))showEraserShapes=e.target.value==='shape';sync();}});el('size').addEventListener('input',sync);
   function openLibrary(open){document.body.classList.toggle('library-open',open);el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);}
   new MutationObserver(()=>{const open=document.body.classList.contains('library-open');el('mode-library').setAttribute('aria-pressed',open);el('mode-board').setAttribute('aria-pressed',!open);if(open&&libraryGroups.children.length)title.textContent=document.body.dataset.librarySurface==='fairy'?'我的魔法袋':'找一找图案';else if(!open)sync();}).observe(document.body,{attributes:true,attributeFilter:['class']});
   el('mode-library').onclick=()=>{const opening=!document.body.classList.contains('library-open')||document.body.dataset.librarySurface==='fairy';if(opening)document.dispatchEvent(new Event('opengallery'));openLibrary(opening);};el('mode-board').addEventListener('click',()=>openLibrary(false));

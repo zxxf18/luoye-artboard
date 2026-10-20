@@ -140,3 +140,36 @@ test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*asset-grid\s*\{[\s\S]*height:\s*calc\(100%\s*-\s*4px\)[\s\S]*min-height:\s*0/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*22px[\s\S]*height:\s*22px/);
 });
+
+test('常用工具保持每页七个，第三页收纳刮刮画、小动画与像素画', () => {
+  const classic = read('src/classic-ui.js');
+  assert.match(classic, /\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\]/);
+  assert.match(classic, /Math\.ceil\(tools\.length\s*\/\s*7\)/);
+  assert.match(classic, /Math\.floor\(index\s*\/\s*7\)!==page/);
+  // 两个编辑器入口只保留在工具栏第三页，不再占用顶部工具区。
+  assert.doesNotMatch(classic, /#animation-open/);
+  assert.doesNotMatch(classic, /#pixel-art-open/);
+  assert.doesNotMatch(read('src/animation-editor.js'), /header-actions/);
+  assert.doesNotMatch(read('src/pixel-art.js'), /header-actions/);
+});
+
+test('小动画选色复用左上画笔调色板并与粗细控件等高对齐', () => {
+  const editor = read('src/animation-editor.js');
+  const css = read('public/playroom.css');
+  assert.match(editor, /id="animation-color"[^>]*animation-color-control/);
+  assert.doesNotMatch(editor, /<input id="animation-color" type="color"/);
+  assert.match(editor, /getElementById\('foreground-palette'\)/);
+  assert.match(editor, /addEventListener\('palettechange'/);
+  assert.match(css, /\.animation-color-control\s*\{[\s\S]*height:\s*38px/);
+  assert.match(css, /\.animation-sliders input\[type="range"\]\s*\{[\s\S]*height:\s*38px/);
+  assert.match(css, /\.animation-slider-caption\s*\{[\s\S]*min-height:\s*18px/);
+});
+
+test('小动画画纸与控制区收窄贴合且帧条支持左右滑动', () => {
+  const editor = read('src/animation-editor.js');
+  const css = read('public/playroom.css');
+  assert.match(css, /\.animation-dialog\s*\{[\s\S]*width:\s*fit-content/);
+  assert.match(css, /\.animation-workspace\s*\{[\s\S]*grid-template-columns:\s*auto\s+minmax\(228px,\s*264px\)/);
+  assert.match(css, /\.animation-frame-strip\s*\{[\s\S]*overflow-x:\s*auto[\s\S]*scroll-snap-type:\s*x proximity/);
+  assert.match(editor, /scrollIntoView\(\{\s*block:\s*'nearest',\s*inline:\s*'nearest'\s*\}\)/);
+});

@@ -128,14 +128,6 @@ export class AnimationTimeline {
   }
 }
 
-function button(label, icon = 'play', className = '') {
-  const element = document.createElement('button');
-  element.type = 'button';
-  element.className = `animation-action ${className}`.trim();
-  element.innerHTML = `${playfulIcon(icon)}<span>${label}</span>`;
-  return element;
-}
-
 function fitCanvas(source, target, alpha = 1) {
   const ctx = target.getContext('2d');
   ctx.save(); ctx.globalAlpha = alpha; ctx.clearRect(0, 0, target.width, target.height);
@@ -154,7 +146,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
       <div class="animation-heading"><div><span class="eyebrow">MAKE IT MOVE</span><h2>小动画</h2><p>画一张，复制一张，改一点，就会动起来。</p></div><button value="cancel" class="animation-close" aria-label="关闭小动画">×</button></div>
       <div class="animation-workspace">
         <div class="animation-stage"><canvas id="animation-onion-canvas" aria-hidden="true"></canvas><canvas id="animation-frame-canvas" width="${DEFAULT_ANIMATION_SIZE.width}" height="${DEFAULT_ANIMATION_SIZE.height}" tabindex="0" aria-label="小动画当前帧"></canvas><span class="animation-frame-badge" id="animation-frame-badge">第 1 张</span></div>
-        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><label class="animation-select-label">画笔<select id="animation-brush"></select></label><div class="animation-sliders"><label>颜色<input id="animation-color" type="color" value="#285b49"></label><label>粗细<input id="animation-size" type="range" min="2" max="120" value="16"><output id="animation-size-value">16</output></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
+        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><label class="animation-select-label">画笔<select id="animation-brush"></select></label><div class="animation-sliders"><label class="animation-color-label"><span class="animation-slider-caption">颜色</span><button type="button" id="animation-color" class="animation-color-control" aria-label="选择小动画画笔颜色" title="和画板上的画笔共用同一个调色板"></button></label><label class="animation-size-label"><span class="animation-slider-caption">粗细 <output id="animation-size-value">16</output></span><input id="animation-size" type="range" min="2" max="120" value="16"></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
       </div>
       <div class="animation-framebar"><div class="animation-framebar-heading"><strong>动画帧 <span id="animation-frame-count">1 / 12</span></strong><span>每张都是一小步</span></div><div id="animation-frame-strip" class="animation-frame-strip" aria-label="动画帧列表"></div></div>
       <div class="animation-actions"><div class="animation-actions-group"><button type="button" id="animation-prev">上一张</button><button type="button" id="animation-next">下一张</button><button type="button" id="animation-copy">复制这一张</button><button type="button" id="animation-blank">新空白帧</button><button type="button" id="animation-clear">清空这一张</button><button type="button" id="animation-delete">删除这一张</button></div><div class="animation-actions-group"><button type="button" id="animation-play" class="primary">${playfulIcon('play')}<span>播放</span></button><button type="button" id="animation-place" class="primary">${playfulIcon('new-paper')}<span>放回画板</span></button></div></div>
@@ -165,6 +157,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   const frameCanvas = $('animation-frame-canvas'), onionCanvas = $('animation-onion-canvas');
   const timeline = new AnimationTimeline({ width: DEFAULT_ANIMATION_SIZE.width, height: DEFAULT_ANIMATION_SIZE.height, frames: [createBlankFrame()] });
   let drawing = false, pointerId, tool = 'pen', playing = false, playTimer, syncing = false;
+  let color = getColor?.() || '#285b49';
   let editor;
   editor = new DrawingEngine(frameCanvas, () => { if (!editor?.active?.canvas?.width || !editor.active.canvas.height) return; if (!syncing && !playing) snapshotCurrent(); renderFrameStrip(); drawOnion(); });
   editor.reset(timeline.width, timeline.height); editor.playing = false; clearInterval(editor.animationTimer); editor.paperMode = false;
@@ -186,12 +179,16 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   }
   function renderFrameStrip() {
     const strip = $('animation-frame-strip'); strip.replaceChildren();
+    let activeThumb;
     timeline.frames.forEach((frame, index) => {
       const item = document.createElement('button'); item.type = 'button'; item.className = 'animation-frame-thumb'; item.setAttribute('aria-label', `第 ${index + 1} 张`); item.setAttribute('aria-pressed', String(index === timeline.currentIndex));
       const thumb = makeCanvas(96, 72, false); thumb.className = 'animation-thumb-canvas';
       if (frame) fitCanvas(frame, thumb);
       item.append(thumb, Object.assign(document.createElement('span'), { textContent: `第 ${index + 1} 张` })); item.onclick = () => selectFrame(index); strip.append(item);
+      if (index === timeline.currentIndex) activeThumb = item;
     });
+    // Long strips scroll sideways; keep the frame being edited in view.
+    activeThumb?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
   function updateUi() {
     $('animation-frame-count').textContent = `${timeline.frameCount} / ${MAX_ANIMATION_FRAMES}`;
@@ -218,7 +215,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   function drawPoint(event) {
     const rect = frameCanvas.getBoundingClientRect(); return editor.point(event, rect);
   }
-  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color: $('animation-color').value, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brushVersion: 2, brush: brushSelect.value, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
+  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brushVersion: 2, brush: brushSelect.value, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
   frameCanvas.addEventListener('pointermove', event => { if (!drawing || event.pointerId !== pointerId) return; editor.update(drawPoint(event)); });
   const finish = event => { if (!drawing || event.pointerId !== pointerId) return; drawing = false; editor.end(event.type === 'pointercancel'); pointerId = undefined; snapshotCurrent(); updateUi(); };
   frameCanvas.addEventListener('pointerup', finish); frameCanvas.addEventListener('pointercancel', finish); frameCanvas.addEventListener('lostpointercapture', finish);
@@ -232,7 +229,13 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   $('animation-delete').onclick = () => { stopPlayback(); snapshotCurrent(); timeline.removeFrame(); loadCurrent(); };
   $('animation-play').onclick = () => playing ? stopPlayback() : startPlayback(); $('animation-place').onclick = () => run(place);
   dialog.addEventListener('close', stopPlayback); dialog.addEventListener('cancel', stopPlayback);
-  $('animation-color').value = getColor?.() || '#285b49'; $('animation-size').value = DEFAULT_BRUSH_SIZE; $('animation-size-value').textContent = DEFAULT_BRUSH_SIZE; updateUi();
-  const entry = button('小动画', 'butterfly', 'animation-open'); entry.id = 'animation-open'; entry.classList.add('header-command'); entry.onclick = open; document.querySelector('.header-actions')?.insertBefore(entry, document.querySelector('#more-open'));
-  return { open, dialog, timeline, editor, destroy: () => { stopPlayback(); clearInterval(editor.animationTimer); dialog.remove(); } };
+  // The colour chip reuses the brush palette from the top-left shelf: tapping
+  // it opens the very same picker, and this editor follows the shared brush
+  // colour instead of keeping a second, divergent colour state.
+  function syncColorControl() { const control = $('animation-color'); control.style.background = color; control.setAttribute('aria-label', `选择小动画画笔颜色，当前 ${color}`); }
+  $('animation-color').onclick = () => { const opener = document.getElementById('foreground-palette') || document.getElementById('palette-open'); opener?.click(); };
+  const followPalette = () => { if (!dialog.isConnected) return; if (getColor) color = getColor(); syncColorControl(); };
+  document.addEventListener('palettechange', followPalette);
+  syncColorControl(); $('animation-size').value = DEFAULT_BRUSH_SIZE; $('animation-size-value').textContent = DEFAULT_BRUSH_SIZE; updateUi();
+  return { open, dialog, timeline, editor, destroy: () => { stopPlayback(); clearInterval(editor.animationTimer); document.removeEventListener('palettechange', followPalette); dialog.remove(); } };
 }

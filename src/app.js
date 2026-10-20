@@ -210,7 +210,6 @@ studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:(
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
 applyStoredTheme();
-mountClassic({setTool,getColor:()=>color,setColor,clearAnimations:()=>run(()=>engine.clearAnimated())});
 const animationEditor = mountAnimationEditor({
   engine,
   run,
@@ -219,6 +218,13 @@ const animationEditor = mountAnimationEditor({
   getSecondaryColor: () => $('background-color')?.value || '#ffffff',
 });
 const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
+mountClassic({
+  setTool,
+  getColor: () => color,
+  setColor,
+  clearAnimations: () => run(() => engine.clearAnimated()),
+  features: { animation: () => animationEditor.open(), pixel: () => pixelEditor.open() },
+});
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));
@@ -380,7 +386,7 @@ async function initialize() {
   ready = true;
   document.body.dataset.appReady='true';
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
-  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:2,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+  if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:3,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
 

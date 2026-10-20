@@ -2633,11 +2633,12 @@
   }
 }
 /* Small self-contained frame animation editor. The editor owns a fixed,
-   lightweight 512px drawing surface; the surrounding sheet adapts without
-   changing the main artboard layout. */
+   lightweight 512px drawing surface; the sheet hugs the stage and the control
+   column so no empty paper stretches between them. */
 .playroom .animation-dialog {
-  width: min(980px, calc(100vw - 28px));
-  max-width: 980px;
+  width: fit-content;
+  min-width: min(640px, calc(100vw - 28px));
+  max-width: min(880px, calc(100vw - 28px));
   max-height: min(900px, calc(100dvh - 20px));
   padding: 18px;
   overflow: auto;
@@ -2650,10 +2651,10 @@
 .playroom .animation-heading h2 { margin: 2px 0 3px; }
 .playroom .animation-heading p { margin: 0; color: var(--muted, #8d6b50); }
 .playroom .animation-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
-.playroom .animation-workspace { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(250px, .72fr); gap: 16px; align-items: stretch; }
-.playroom .animation-stage { position: relative; display: grid; place-items: center; min-height: 300px; aspect-ratio: 1; max-height: 58vh; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
-.playroom .animation-stage canvas { width: min(100%, 512px); height: min(100%, 512px); aspect-ratio: 1; object-fit: contain; image-rendering: auto; }
-.playroom #animation-onion-canvas { position: absolute; z-index: 1; pointer-events: none; }
+.playroom .animation-workspace { display: grid; grid-template-columns: auto minmax(228px, 264px); gap: 14px; align-items: start; justify-content: center; }
+.playroom .animation-stage { position: relative; display: block; width: fit-content; padding: 8px; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
+.playroom .animation-stage #animation-frame-canvas { display: block; width: min(46dvh, 420px, calc(100vw - 350px)); min-width: 216px; height: auto; aspect-ratio: 1; image-rendering: auto; }
+.playroom #animation-onion-canvas { position: absolute; z-index: 1; pointer-events: none; inset: 8px; width: auto; height: auto; }
 .playroom #animation-frame-canvas { position: relative; z-index: 2; touch-action: none; outline: none; }
 .playroom .animation-frame-badge { position: absolute; z-index: 3; left: 10px; top: 10px; padding: 4px 9px; border-radius: 999px; background: var(--theme-accent, #70462f); color: var(--theme-surface, #fff8eb); font-size: 12px; pointer-events: none; }
 .playroom .animation-controls { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
@@ -2664,18 +2665,22 @@
 .playroom .animation-tool-row button[aria-pressed="true"], .playroom .animation-tool-row button.is-active { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
 .playroom .animation-select-label, .playroom .animation-speed { display: flex; flex-direction: column; gap: 4px; font-weight: 650; }
 .playroom .animation-select-label select, .playroom .animation-speed select { width: 100%; min-height: 38px; }
-.playroom .animation-sliders { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 8px; align-items: center; }
-.playroom .animation-sliders label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
-.playroom .animation-sliders input[type="color"] { width: 58px; height: 38px; padding: 2px; }
-.playroom .animation-sliders input[type="range"] { width: 100%; }
-.playroom .animation-sliders output { font-size: 12px; color: var(--muted, #8d6b50); }
+/* The colour chip and the thickness slider share one caption height and one
+   control height, so both rows line up exactly. */
+.playroom .animation-sliders { display: grid; grid-template-columns: minmax(64px, auto) minmax(0, 1fr); gap: 6px 10px; align-items: start; }
+.playroom .animation-sliders label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; min-width: 0; }
+.playroom .animation-slider-caption { display: flex; align-items: baseline; gap: 5px; min-height: 18px; font-weight: 650; }
+.playroom .animation-slider-caption output { font-size: 12px; color: var(--muted, #8d6b50); font-weight: 500; }
+.playroom .animation-color-control { width: 100%; min-width: 56px; height: 38px; padding: 0; border: 2px solid var(--theme-border, #e1bc87); border-radius: 10px; background: #285b49; box-shadow: inset 0 0 0 2px var(--theme-surface, #fff8eb); }
+.playroom .animation-color-control:hover { filter: brightness(1.06); }
+.playroom .animation-sliders input[type="range"] { width: 100%; height: 38px; margin: 0; }
 .playroom .animation-onion-toggle { display: flex; align-items: center; gap: 7px; min-height: 36px; font-size: 13px; }
 .playroom .animation-onion-toggle input { width: 22px; height: 22px; min-width: 22px; margin: 0; }
 .playroom .animation-framebar { min-width: 0; padding: 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 16px; background: var(--theme-control, #fff8e9); }
 .playroom .animation-framebar-heading { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 8px; }
 .playroom .animation-framebar-heading span { color: var(--muted, #8d6b50); font-size: 12px; }
-.playroom .animation-frame-strip { display: flex; gap: 8px; min-height: 96px; overflow-x: auto; padding: 3px; scrollbar-width: thin; }
-.playroom .animation-frame-thumb { flex: 0 0 104px; min-height: 88px; display: flex; flex-direction: column; gap: 3px; align-items: center; padding: 4px; font-size: 11px; }
+.playroom .animation-frame-strip { display: flex; gap: 8px; min-height: 96px; overflow-x: auto; overflow-y: hidden; padding: 3px; scrollbar-width: thin; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.playroom .animation-frame-thumb { flex: 0 0 104px; min-height: 88px; display: flex; flex-direction: column; gap: 3px; align-items: center; padding: 4px; font-size: 11px; scroll-snap-align: center; }
 .playroom .animation-frame-thumb[aria-pressed="true"] { border-color: var(--theme-accent, #b86835); background: var(--theme-selected, #ffe1a4); box-shadow: 0 0 0 2px var(--theme-surface, #fff4dc) inset; }
 .playroom .animation-thumb-canvas { width: 96px; height: 72px; object-fit: contain; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 10px 10px; border-radius: 7px; }
 .playroom .animation-actions { display: flex; justify-content: space-between; gap: 10px; align-items: stretch; }
@@ -2685,26 +2690,26 @@
 .playroom .animation-actions .primary { display: inline-flex; align-items: center; gap: 5px; }
 .playroom .animation-actions .primary .playful-icon { width: 24px; height: 24px; }
 
-/* The visible entry lives in the common-tools rail. Keep the editor's
-   programmatic trigger in the header DOM so the rail can open it without
-   rendering a duplicate top-level command. */
-.playroom .header-actions #animation-open {
-  display: none !important;
-}
+/* The editor opens from the third page of the common-tools rail; classic-ui
+   receives its open callback through the features map, so no header command
+   is rendered at all. */
 
 @media (max-width: 720px), (max-height: 650px) {
-  .playroom .animation-dialog { width: calc(100vw - 10px); max-height: calc(100dvh - 8px); padding: 10px; border-radius: 16px; }
+  .playroom .animation-dialog { width: calc(100vw - 10px); min-width: 0; max-height: calc(100dvh - 8px); padding: 10px; border-radius: 16px; }
   .playroom .animation-editor-form { gap: 8px; }
   .playroom .animation-heading h2 { font-size: 20px; }
   .playroom .animation-heading p { font-size: 12px; }
-  .playroom .animation-workspace { grid-template-columns: minmax(150px, .9fr) minmax(190px, 1fr); gap: 8px; }
-  .playroom .animation-stage { min-height: 180px; border-radius: 12px; }
+  .playroom .animation-workspace { grid-template-columns: minmax(0, 1fr); gap: 8px; justify-content: stretch; }
+  .playroom .animation-stage { justify-self: center; border-radius: 12px; }
+  .playroom .animation-stage #animation-frame-canvas { width: min(calc(100vw - 76px), 52dvh, 380px); min-width: 0; }
   .playroom .animation-controls { gap: 6px; padding: 7px; border-radius: 12px; }
   .playroom .animation-control-heading span, .playroom .animation-onion-toggle, .playroom .animation-select-label, .playroom .animation-speed { font-size: 11px; }
   .playroom .animation-tool-row { gap: 4px; }
   .playroom .animation-tool-row button { min-height: 32px; font-size: 11px; }
-  .playroom .animation-sliders { grid-template-columns: 56px minmax(0, 1fr); gap: 5px; }
-  .playroom .animation-sliders input[type="color"] { width: 46px; height: 30px; }
+  .playroom .animation-sliders { grid-template-columns: minmax(52px, auto) minmax(0, 1fr); gap: 4px 7px; }
+  .playroom .animation-slider-caption { min-height: 16px; }
+  .playroom .animation-color-control { height: 32px; min-width: 46px; }
+  .playroom .animation-sliders input[type="range"] { height: 32px; }
   .playroom .animation-framebar { padding: 6px; }
   .playroom .animation-frame-thumb { flex-basis: 82px; min-height: 70px; font-size: 10px; }
   .playroom .animation-thumb-canvas { width: 74px; height: 54px; }
@@ -2717,7 +2722,7 @@
 
 @media (max-width: 430px) {
   .playroom .animation-workspace { grid-template-columns: 1fr; }
-  .playroom .animation-stage { max-height: 42dvh; min-height: 150px; }
+  .playroom .animation-stage #animation-frame-canvas { width: min(calc(100vw - 76px), 42dvh); }
   .playroom .animation-controls { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
   .playroom .animation-control-heading, .playroom .animation-tool-row, .playroom .animation-onion-toggle { grid-column: 1 / -1; }
   .playroom .animation-tool-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
@@ -2739,14 +2744,13 @@
   .playroom .animation-workspace {
     gap: 12px;
   }
-  .playroom .animation-stage {
-    min-height: 240px;
-    max-height: 44vh;
+  .playroom .animation-stage #animation-frame-canvas {
+    width: min(44dvh, 400px, calc(100vw - 350px));
   }
   .playroom .animation-controls {
     gap: 7px;
     padding: 10px;
-    max-height: 44vh;
+    max-height: 52dvh;
     overflow: auto;
   }
   .playroom .animation-framebar {
