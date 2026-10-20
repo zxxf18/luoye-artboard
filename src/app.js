@@ -195,6 +195,7 @@ function chooseCategory(category,collection='',page=0) {
 let shelfResize;window.addEventListener('resize',()=>{clearTimeout(shelfResize);shelfResize=setTimeout(()=>chooseCategory(libraryCategory,libraryCollection,libraryPage),100);});
 document.addEventListener('uisizechange',()=>{clearTimeout(shelfResize);shelfResize=setTimeout(()=>chooseCategory(libraryCategory,libraryCollection,libraryPage),100);});
 document.addEventListener('fairymodechange',()=>chooseCategory('fairy'));
+document.addEventListener('openfairy',()=>chooseCategory('fairy'));
 document.addEventListener('opengallery',()=>chooseCategory(galleryLocation.category,galleryLocation.collection,galleryLocation.page));
 function showDialog(id) { const dialog = $(id); dialog.returnValue = ''; dialog.showModal(); }
 
@@ -210,7 +211,7 @@ for (const swatch of palette) {
   button.style.background = swatch; button.style.setProperty('--swatch', swatch); button.setAttribute('aria-label', `颜色 ${swatch}`);
   button.onclick = () => setColor(swatch); $('swatches').append(button);
 }
-for (const [category, name] of Object.entries({ background: '彩色背景', sticker: '小伙伴', coloring:'涂色本', animation: '动画', frame: '相框', fairy: '魔法袋', paper: '纸样', texture: '纹理' })) {
+for (const [category, name] of Object.entries({ background: '彩色背景', sticker: '小伙伴', coloring:'涂色本', animation: '动画', frame: '相框', paper: '纸样', texture: '纹理' })) {
   const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',coloring:'pen',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
@@ -337,7 +338,12 @@ $('painting').addEventListener('dblclick',()=>run(()=>engine.finishPath()));
 // Keep drawing gestures, but suppress the embedded browser's reload menu.
 document.addEventListener('contextmenu',event=>event.preventDefault());
 function previewStamp(point) {
-  hoverPoint=point;engine.stampPreview=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null;engine.render();
+  hoverPoint=point;
+  const next=tool==='stamp'&&engine.stampImages?.length&&point?{point,size:Number($('size').value)}:null,previous=engine.stampPreview;
+  // 预览没有变化就不要重绘：悬停移动时的全量合成会让 WebView 来不及
+  // 应答光标查询，指针在移动中闪回系统箭头。
+  if(previous===next||(previous&&next&&previous.point.x===next.point.x&&previous.point.y===next.point.y&&previous.size===next.size))return;
+  engine.stampPreview=next;engine.render();
 }
 $('size').addEventListener('input',()=>previewStamp(hoverPoint));
 function updatePaintingPointer(event,{preview=true}={}){

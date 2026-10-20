@@ -111,7 +111,7 @@ async function checkTools(doc){
  let stampDockHeight=0;
  if(!narrow){
   stampDockHeight=doc.querySelector('.tool-dock')?.getBoundingClientRect().height||0;
-  assert(stampDockHeight>=164&&stampDockHeight<=190,`魔法袋素材区与参数区总高度异常: ${stampDockHeight}`);
+  assert(stampDockHeight>=224&&stampDockHeight<=268,`魔法袋素材区与参数区总高度异常: ${stampDockHeight}`);
   const stampHeight=stampParameters?.getBoundingClientRect().height||0;
   assert(stampHeight>=46&&stampHeight<=64,`魔法袋参数区高度未压缩到独立控件行: ${stampHeight}`);
   const stampSize=doc.querySelector('#brush-options');
@@ -119,8 +119,8 @@ async function checkTools(doc){
   assert(stampAssets.getBoundingClientRect().height>=88,'魔法袋素材卡片高度被错误压缩');
   const firstStampAsset=stampAssets.querySelector('.asset');
   assert(firstStampAsset&&firstStampAsset.getBoundingClientRect().bottom<=stampAssets.getBoundingClientRect().bottom-3,'魔法袋素材内框与外框底边过近');
-  assert(stampSize.getBoundingClientRect().height<=52,'魔法袋素材大小拖拉条控件过高');
-  assert(stampPager.getBoundingClientRect().height<=52,'魔法袋翻页控件过高');
+  assert(stampSize.getBoundingClientRect().height<=60,'魔法袋素材大小拖拉条控件过高');
+  assert(stampPager.getBoundingClientRect().height<=60,'魔法袋翻页控件过高');
   assert(stampPanel&&stampAssets&&stampPager&&stampAssets.getBoundingClientRect().bottom<=stampPanel.getBoundingClientRect().bottom+1,'魔法袋素材卡片溢出素材区');
   assert(stampAssets.getBoundingClientRect().bottom<=stampParameters.getBoundingClientRect().top+1,'魔法袋素材卡片与参数区重叠');
   assert(inside(stampPager,stampParameters),'魔法袋翻页控件未位于参数区');
@@ -133,11 +133,11 @@ async function checkTools(doc){
  assert(galleryBrush&&!isVisible(galleryBrush),'图库仍显示魔法袋图案大小控件');
  if(!narrow){
   const galleryDockHeight=galleryDock.getBoundingClientRect().height,galleryParameters=doc.querySelector('.classic-parameters');
-  assert(galleryDockHeight>=164&&galleryDockHeight<=190,`图库工具区总高度异常: ${galleryDockHeight}`);
-  assert(galleryCategories&&galleryCategories.getBoundingClientRect().height<=28,'图库分类行过高');
+  assert(galleryDockHeight>=224&&galleryDockHeight<=268,`图库工具区总高度异常: ${galleryDockHeight}`);
+  assert(galleryCategories&&galleryCategories.getBoundingClientRect().height<=60,'图库分类行过高');
   assert(galleryAssets&&galleryPanel&&galleryAssets.getBoundingClientRect().bottom<=galleryPanel.getBoundingClientRect().bottom+1,'图库素材行溢出素材区');
   assert(galleryAssets.getBoundingClientRect().bottom<=galleryParameters.getBoundingClientRect().top+1,'图库素材行与参数区重叠');
-  assert(galleryPager&&inside(galleryPager,galleryParameters)&&galleryPager.getBoundingClientRect().height<=30,'图库翻页行过高或未位于参数区');
+  assert(galleryPager&&inside(galleryPager,galleryParameters)&&galleryPager.getBoundingClientRect().height<=58,'图库翻页行过高或未位于参数区');
  }
  if(!doc.querySelector('.tool-button[data-tool="pen"]'))doc.querySelector('#tool-page').click();
  const penButton=doc.querySelector('.tool-button[data-tool="pen"]');penButton.click();await pause(25);if(narrow)await mobilePanel('options');
@@ -181,7 +181,7 @@ async function checkTools(doc){
 // 各工具的参数区要保持同一节奏：高度一致、控件不重叠、同功能控件字号一致。
 async function checkParameterConsistency(doc){
  const win=frame.contentWindow,parameters=doc.querySelector('.classic-parameters');
- const railPage=()=>Number((doc.getElementById('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
+ const railPage=()=>Number(((doc.getElementById('tool-page-label')||doc.getElementById('tool-page')).textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
  const gotoPage=n=>{for(let i=0;i<3&&railPage()!==n;i++)doc.getElementById('tool-page').click();};
  const pickTool=async id=>{const button=doc.querySelector(`#tools .tool-button[data-tool="${id}"]`);for(let i=0;i<4&&button.hidden;i++)doc.getElementById('tool-page').click();button.click();await pause(30);};
  const heights=[],sizeFonts=new Set(),opacityFonts=new Set();
@@ -225,7 +225,7 @@ async function checkToolGalleryInterleave(doc){
  assert(leftCards().length===0,'回画板后左侧仍残留素材分类');
  assert(doc.querySelector('.classic-left > h2').textContent==='我的画笔盒','回画板后左栏标题错误');
  // 魔法袋：自动切到魔法袋面板，左侧是三个模式卡，图库分类栏隐藏。
- const railPage=()=>Number((doc.getElementById('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
+ const railPage=()=>Number(((doc.getElementById('tool-page-label')||doc.getElementById('tool-page')).textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
  const gotoPage=n=>{for(let i=0;i<3&&railPage()!==n;i++)doc.getElementById('tool-page').click();};
  gotoPage(1);doc.querySelector('#tools .tool-button[data-tool="stamp"]:not([hidden])').click();await pause(150);
  assert(doc.querySelectorAll('#library-groups [data-fairy-mode]').length===3&&leftCards().length===3,'魔法袋左侧没有三个模式卡');
@@ -297,7 +297,7 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1024,720],[1280,720]
    const viewport=doc.querySelector('#viewport'),r=viewport.getBoundingClientRect();assert(r.width>=200&&r.height>=100,'画纸被挤压');
    const headerRect=doc.querySelector('.app-header').getBoundingClientRect(),dock=doc.querySelector('.tool-dock').getBoundingClientRect();
    assert(headerRect.height<=72,'顶部操作区过高');
-   assert(dock.height<=(height>=500?Math.min(190,Math.max(164,height*.17)):Math.max(180,height*.7))+1,'底部状态选择区过高');
+   assert(dock.height<=(height>=500?Math.min(268,Math.max(224,height*.26)):Math.max(180,height*.7))+1,'底部状态选择区过高');
    for(const id of ['display-open','new','tool-page','stroke-buttons']){
     const element=doc.getElementById(id);if(!element||!isVisible(element))continue;
     if(inside(element,doc.body))continue;

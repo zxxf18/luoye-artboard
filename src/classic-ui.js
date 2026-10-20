@@ -81,7 +81,14 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const drawingPages=firstFeature<0?Math.ceil(tools.length/7):Math.ceil(firstFeature/7);
   const pageOf=index=>index<firstFeature?Math.floor(index/7):drawingPages+Math.floor((index-firstFeature)/7);
   const pageCount=()=>Math.max(drawingPages,pageOf(tools.length-1)+1);
-  const flip=document.createElement('button');flip.id='tool-page';flip.className='tool-page';flip.setAttribute('aria-label','工具翻页');flip.onclick=()=>{page=(page+1)%pageCount();renderTools();sync();};
+  // 左右双箭头翻页：两个方向都循环，中间是页码指示。
+  const flipRow=document.createElement('div');flipRow.id='tool-pager';flipRow.className='tool-pager';
+  const flipPrev=document.createElement('button');flipPrev.id='tool-page-prev';flipPrev.className='tool-page-arrow';flipPrev.setAttribute('aria-label','上一页工具');flipPrev.innerHTML='◀';
+  const flipLabel=document.createElement('span');flipLabel.id='tool-page-label';flipLabel.className='tool-page-label';
+  const flipNext=document.createElement('button');flipNext.id='tool-page';flipNext.className='tool-page-arrow';flipNext.setAttribute('aria-label','下一页工具');flipNext.innerHTML='▶';
+  flipPrev.onclick=()=>{page=(page-1+pageCount())%pageCount();renderTools();sync();};
+  flipNext.onclick=()=>{page=(page+1)%pageCount();renderTools();sync();};
+  flipRow.append(flipPrev,flipLabel,flipNext);
   function renderTools(){
     // In a compact WebView all tools belong to the same drawer. Keeping the
     // pages there made the sheet tall while hiding half of the actions.
@@ -91,6 +98,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     // test journeys can still reach every tool without guessing the page.
     const compact=matchMedia('(max-width: 860px), (max-height: 600px)').matches;
     bar.replaceChildren();
+    // 桌面模式：可见按钮装进固定 7 格高度的列里，列在栏内垂直居中、
+    // 按钮从列顶部排起；不满一页时不会整体居中，也不会过度拉伸。
+    const column=document.createElement('div');column.className='tool-column';
     for(const [index,[id,name]] of tools.entries()){
       const b=document.createElement('button');b.className='tool-button';b.dataset.tool=id;b.setAttribute('aria-label',name);b.innerHTML=playfulIcon(id==='pen'?'pencil':id==='animation'?'butterfly':id)+`<span>${name}</span>`;
       b.hidden=!compact&&pageOf(index)!==page;
@@ -98,15 +108,17 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
         // Programmatic or assistive activation can target a button from
         // another page; reveal its page first so the rail follows the action.
         if(b.hidden){page=pageOf(index);renderTools();}
-        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.querySelector('[data-category="fairy"]').click();openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};bar.append(b);
+        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.dispatchEvent(new Event('openfairy'));openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};
+      (compact?bar:column).append(b);
     }
-    // 高窗口下按钮到达最大高度后，让整组工具在栏内垂直居中，
-    // 剩余空间对称分布在上下两端，而不是堆在底部。
+    if(!compact)bar.append(column);
     bar.classList.toggle('tools-centered',!compact);
-    flip.hidden=compact;
-    flip.setAttribute('aria-hidden',String(compact));
-    flip.innerHTML=`<span>${page===0?'更多工具 →':page===pageCount()-1?'← 常用工具':'← 更多工具 →'}</span><small>${page+1} / ${pageCount()}</small>`;
-    bar.after(flip);
+    flipRow.hidden=compact;
+    flipRow.setAttribute('aria-hidden',String(compact));
+    flipLabel.textContent=`${page+1} / ${pageCount()}`;
+    flipPrev.title=page===0?`循环到第 ${pageCount()} 页`:'上一页工具';
+    flipNext.title=page===pageCount()-1?'回到第 1 页':'下一页工具';
+    bar.after(flipRow);
   }
   renderTools();
   let lastColor='',lastSecondary='',showEraserShapes=false;

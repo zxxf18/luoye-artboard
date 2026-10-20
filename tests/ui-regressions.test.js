@@ -127,18 +127,19 @@ test('文字与油漆桶不透明度及油漆桶参数统一为16px可读字号'
 test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
   const shelf = read('public/tool-shelf.css');
   assert.match(shelf, /data-library-surface="fairy"\]\s+\.categories\s*\{[^}]*display:\s*none\s*!important/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*height:\s*clamp\(164px,\s*17dvh,\s*190px\)/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*min-height:\s*164px[\s\S]*max-height:\s*190px/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+54px/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*height:\s*clamp\(224px,\s*26dvh,\s*268px\)/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*min-height:\s*224px[\s\S]*max-height:\s*268px/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+62px/);
   assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*classic-parameters\s*\{[\s\S]*min-height:\s*0/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*min-height:\s*100px[\s\S]*max-height:\s*100%/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*padding-bottom:\s*6px/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*28px[\s\S]*height:\s*28px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*#brush-options\s*\{[^}]*display:\s*none\s*!important/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+32px/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories\s*\{[\s\S]*height:\s*24px[\s\S]*max-height:\s*24px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+62px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories\s*\{[\s\S]*height:\s*56px[\s\S]*max-height:\s*56px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories button\s*\{[\s\S]*min-height:\s*48px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*asset-grid\s*\{[\s\S]*height:\s*calc\(100%\s*-\s*4px\)[\s\S]*min-height:\s*0/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*22px[\s\S]*height:\s*22px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*48px[\s\S]*height:\s*48px/);
 });
 
 test('常用工具每页至多七个，功能工具整体从第三页开始', () => {

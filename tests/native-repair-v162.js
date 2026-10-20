@@ -19,7 +19,7 @@ try{
  for(const b of document.querySelectorAll('.layer-actions button'))check(b.scrollWidth<=b.clientWidth+1,'图层按钮无溢出 '+b.id);
  $('layer-dialog').close();
  for(const page of [0,1]){
-  const label=$('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/);
+  const label=($('tool-page-label')||$('tool-page')).textContent.match(/(\d+)\s*\/\s*(\d+)/);
   if((label?Number(label[1])-1:0)!==page)$('tool-page').click();
   // The rail keeps every tool button in the DOM (hidden per page) and the
   // third page also hosts the 小动画／像素画 feature cards, which open their
