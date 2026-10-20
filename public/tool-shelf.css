@@ -242,6 +242,14 @@
 .playroom .primary-brush-options,
 .playroom .primary-brush-options .detail-bar,
 .playroom .primary-brush-options .creative-options { display: contents; }
+/* 同功能的绘画参数（笔尖粗细／不透明度／笔尖宽窄）在所有工具下使用同
+   一个可读字号，与油漆桶、文字工具已确立的 16px 标准保持一致；字号随
+   界面缩放但不超过参数面板自身的上限，避免大字号下整行溢出重叠。 */
+.playroom .classic-parameters .parameter-slider,
+.playroom .classic-parameters #brush-options {
+  font-size: clamp(14px, calc(16px * var(--u)), 17px);
+  line-height: 1.3;
+}
 .playroom .parameter-slider, .playroom #brush-options,
 .playroom .primary-brush-options label {
   display: flex; flex-direction: row; align-items: center; justify-content: center;
@@ -274,7 +282,7 @@
   /* Keep these labels aligned at one readable scale: fill controls come down
      slightly from the oversized 17px treatment while text opacity comes up
      from the shared 15px base. */
-  font-size: calc(16px * var(--u));
+  font-size: clamp(14px, calc(16px * var(--u)), 17px);
   line-height: 1.3;
 }
 .playroom[data-classic-tool="text"] .classic-parameters .opacity-control output,
@@ -330,12 +338,10 @@
 .playroom[data-classic-tool="clone"] .classic-parameters #brush-options {
   grid-column: 1;
   grid-row: 1;
-  font-size: 17px;
 }
 .playroom[data-classic-tool="clone"] .classic-parameters .opacity-control {
   grid-column: 2;
   grid-row: 1;
-  font-size: 17px;
 }
 .playroom[data-classic-tool="clone"] .classic-parameters #clone-source {
   grid-column: 1 / -1;
@@ -523,12 +529,23 @@
 .playroom #object-controls .playful-icon { width: 28px; height: 28px; }
 .playroom.library-open #object-controls { display: none; }
 @container (max-width: 640px) {
+  /* 窄容器下面板整体降为 14px；共享参数标签跟随降级，避免换行后的
+     数值溢出行高、压到下一行控件。 */
+  .playroom .classic-parameters .parameter-slider,
+  .playroom .classic-parameters #brush-options,
+  .playroom[data-classic-tool] .classic-parameters .opacity-control { font-size: 16px; }
+  .playroom[data-classic-tool="text"] .classic-parameters .opacity-control output,
+  .playroom[data-classic-tool="fill"] .classic-parameters .opacity-control output,
+  .playroom[data-classic-tool="fill"] .classic-parameters label:has(#fill-gradient) output,
+  .playroom[data-classic-tool="fill"] .classic-parameters label:has(#tolerance) output { min-width: 1.75em; }
   .playroom #library-pagination button span { display: none; }
   .playroom #library-pagination { gap: 4px; }
   .playroom .primary-brush-options .choice-picture { display: none; }
   .playroom .classic-parameters { grid-template-columns: repeat(3, minmax(0, 1fr)); font-size: 14px; }
-  .playroom .parameter-slider, .playroom #brush-options { flex-wrap: wrap; gap: 0 5px; }
-  .playroom .parameter-slider > input[type=range] { min-width: 40%; }
+  /* 数值必须与滑杆同行：换行后的第二行会越过固定行高压到下一行控件。
+     改为不换行，让滑杆收缩到更小的最小宽度。 */
+  .playroom .parameter-slider, .playroom #brush-options { flex-wrap: nowrap; gap: 0 5px; }
+  .playroom .parameter-slider > input[type=range] { min-width: 25%; }
   .playroom .primary-brush-options label { gap: 3px; padding-inline: 4px; }
 }
 /* Leave enough room for thumbnails in the shorter library shelf. */

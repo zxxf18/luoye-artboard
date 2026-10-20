@@ -178,8 +178,82 @@ async function checkTools(doc){
  if(!doc.querySelector('.tool-button[data-tool="pen"]'))doc.querySelector('#tool-page').click();
  doc.querySelector('.tool-button[data-tool="pen"]').click();details.scrollTop=0;if(narrow)await mobilePanel('focus');
 }
-async function checkAssist(doc,width,height){
- const trigger=doc.querySelector('#assist-open');if(!trigger)return;
+// 各工具的参数区要保持同一节奏：高度一致、控件不重叠、同功能控件字号一致。
+async function checkParameterConsistency(doc){
+ const win=frame.contentWindow,parameters=doc.querySelector('.classic-parameters');
+ const railPage=()=>Number((doc.getElementById('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
+ const gotoPage=n=>{for(let i=0;i<3&&railPage()!==n;i++)doc.getElementById('tool-page').click();};
+ const pickTool=async id=>{const index=[...doc.querySelectorAll('#tools .tool-button')].findIndex(b=>b.dataset.tool===id);gotoPage(Math.floor(index/7)+1);doc.querySelector(`#tools .tool-button[data-tool="${id}"]:not([hidden])`).click();await pause(30);};
+ const heights=[],sizeFonts=new Set(),opacityFonts=new Set();
+ for(const tool of ['pen','eraser','fill','picker','line','text','select','magic','move','warp','board-filter','clone','fractal','scratch']){
+  await pickTool(tool);
+  const height=parameters.getBoundingClientRect().height;
+  if(tool!=='stamp')heights.push({tool,height});
+  // 参数区里所有可见控件两两不能重叠（父子关系的元素除外）。
+  const controls=[...parameters.querySelectorAll('label,button,input,select,output')].filter(isVisible);
+  for(let a=0;a<controls.length;a++)for(let b=a+1;b<controls.length;b++){
+   if(controls[a].contains(controls[b])||controls[b].contains(controls[a]))continue;
+   const x=controls[a].getBoundingClientRect(),y=controls[b].getBoundingClientRect();
+   assert(Math.min(x.right,y.right)-Math.max(x.left,y.left)<=2||Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)<=2,tool+' 参数控件重叠：'+(controls[a].id||controls[a].getAttribute('for')||a)+' × '+(controls[b].id||controls[b].getAttribute('for')||b));
+  }
+  const sizeLabel=doc.querySelector('label[for="size"]'),opacityLabel=doc.querySelector('.opacity-control');
+  if(isVisible(sizeLabel))sizeFonts.add(win.getComputedStyle(sizeLabel).fontSize);
+  if(isVisible(opacityLabel))opacityFonts.add(win.getComputedStyle(opacityLabel).fontSize);
+ }
+ const spread=Math.max(...heights.map(h=>h.height))-Math.min(...heights.map(h=>h.height));
+ assert(spread<=2,'参数区高度不一致：'+JSON.stringify(heights.map(h=>h.tool+'='+Math.round(h.height))));
+ assert(sizeFonts.size<=1,'笔尖粗细文案在不同工具下字号不一致：'+[...sizeFonts].join(' / '));
+ assert(opacityFonts.size<=1,'不透明度文案在不同工具下字号不一致：'+[...opacityFonts].join(' / '));
+ for(const font of [...sizeFonts,...opacityFonts])assert(parseFloat(font)>=14,'共享参数文案过小：'+font);
+}
+// 工具与图库反复穿插时，左侧列表与底部参数栏的状态机不能被任何工具破坏，
+// 尤其是第三页的新功能（刮刮画／小动画／像素画）与图库和旧工具的穿插。
+async function checkToolGalleryInterleave(doc){
+ const leftCards=()=>[...doc.getElementById('library-groups').children].filter(isVisible);
+ const click=id=>doc.getElementById(id).click();
+ // 图库 → 彩色背景：左侧出现子分类列表，参数栏保留翻页与提示。
+ click('mode-library');await pause(120);
+ doc.querySelector('[data-category="background"]').click();await pause(120);
+ assert(leftCards().length>3,'背景分类没有在左侧列出子分类');
+ const parameters=doc.querySelector('.classic-parameters');
+ // 桌面端设计上只显示翻页条；提示条可见时才要求它位于参数栏内。
+ assert(inside(doc.getElementById('library-pagination'),parameters),'图库状态下 library-pagination 不在参数栏');
+ const instruction=doc.getElementById('library-instruction');
+ assert(!isVisible(instruction)||inside(instruction,parameters),'图库状态下 library-instruction 可见却不在参数栏');
+ // 回画板：左侧列表清空、标题回到画笔盒。
+ click('mode-board');await pause(80);
+ assert(leftCards().length===0,'回画板后左侧仍残留素材分类');
+ assert(doc.querySelector('.classic-left > h2').textContent==='我的画笔盒','回画板后左栏标题错误');
+ // 魔法袋：自动切到魔法袋面板，左侧是三个模式卡，图库分类栏隐藏。
+ const railPage=()=>Number((doc.getElementById('tool-page').textContent.match(/(\d+)\s*\/\s*(\d+)/)||[0,1])[1]);
+ const gotoPage=n=>{for(let i=0;i<3&&railPage()!==n;i++)doc.getElementById('tool-page').click();};
+ gotoPage(1);doc.querySelector('#tools .tool-button[data-tool="stamp"]:not([hidden])').click();await pause(150);
+ assert(doc.querySelectorAll('#library-groups [data-fairy-mode]').length===3&&leftCards().length===3,'魔法袋左侧没有三个模式卡');
+ assert(!isVisible(doc.getElementById('categories')),'魔法袋仍显示图库分类栏');
+ // 魔法袋 → 图库：恢复上次的背景分类与左侧列表。
+ click('mode-library');await pause(120);
+ assert(leftCards().length>3&&isVisible(doc.getElementById('categories')),'从魔法袋回图库没有恢复分类');
+ assert(doc.querySelector('.classic-left > h2').textContent==='找一找图案','图库标题错误');
+ // 图库开着切刮刮画：非魔法袋工具收起图库，刮刮画参数面板照常出现。
+ gotoPage(3);doc.querySelector('#tools .tool-button[data-tool="scratch"]:not([hidden])').click();await pause(150);
+ assert(!doc.body.classList.contains('library-open'),'切刮刮画后图库没有收起');
+ assert(isVisible(doc.querySelector('.scratch-style-panel')),'刮刮画参数面板没有出现');
+ // 图库开着打开小动画／像素画弹窗：关闭后状态栏不残留、模式按钮不自相矛盾。
+ for(const feature of ['animation','pixel']){
+  click('mode-library');await pause(100);
+  gotoPage(3);doc.querySelector(`#tools .tool-button[data-tool="${feature}"]:not([hidden])`).click();await pause(150);
+  const dialog=doc.getElementById(feature==='animation'?'animation-editor-dialog':'pixel-art-dialog');
+  assert(dialog?.open,feature+' 弹窗没有打开');
+  dialog.close();await pause(80);
+  assert(doc.getElementById('mode-library').getAttribute('aria-pressed')===String(doc.body.classList.contains('library-open')),feature+' 关闭后模式按钮与图库状态矛盾');
+ }
+ // 收尾回到画笔：参数区恢复常规节奏。
+ gotoPage(1);doc.querySelector('#tools .tool-button[data-tool="pen"]:not([hidden])').click();await pause(120);
+ assert(!doc.body.classList.contains('library-open'),'回画笔后图库没有收起');
+ assert(isVisible(doc.getElementById('brush-options')),'回画笔后粗细滑杆缺失');
+ assert(!doc.getElementById('tool-hint').textContent.includes('Failed'),'工具提示出现报错文案');
+}
+async function checkAssist(doc,width,height){ const trigger=doc.querySelector('#assist-open');if(!trigger)return;
  trigger.click();await pause(40);const dialog=doc.querySelector('#assist-dialog'),form=dialog?.querySelector('.assist-form');
  assert(dialog?.open&&form,'辅助面板没有打开');
  const viewport=doc.defaultView,box=dialog.getBoundingClientRect(),margin=4;
@@ -268,6 +342,7 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1024,720],[1280,720]
    for(const b of doc.querySelectorAll('#library-pagination button'))assert(inside(b,pagerRoot),'素材翻页按钮被裁切');
    doc.querySelector('#mode-board').click();await pause(25);
    await checkTools(doc);
+   if(width>860&&height>600){await checkParameterConsistency(doc);await checkToolGalleryInterleave(doc);}
    results.push({name,passed:true,canvas:{width:Math.round(r.width),height:Math.round(r.height)},expandedBrushBox:clipped});
   }catch(error){results.push({name,passed:false,error:error.message});for(const dialog of doc.querySelectorAll('dialog[open]'))dialog.close();doc.querySelector('#mode-board').click();}
  }
