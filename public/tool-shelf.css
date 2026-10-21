@@ -468,12 +468,12 @@
 .playroom.library-open[data-library-surface="gallery"] #brush-options { display: none !important; }
 @media (min-width: 861px) and (min-height: 601px) {
   /* 图库与普通工具保持同一 dock 高度：分类横条与翻页按钮是孩子主要的
-     点击目标，优先给足高度；素材行在剩余空间里滚动。 */
+     点击目标；翻页行收窄一点，把省下的高度留给中间的素材缩略图。 */
   .playroom.library-open[data-library-surface="gallery"] .tool-dock {
     height: clamp(164px, 17dvh, 190px);
     min-height: 164px;
     max-height: 190px;
-    grid-template-rows: minmax(0, 1fr) 46px;
+    grid-template-rows: minmax(0, 1fr) 38px;
   }
   .playroom.library-open[data-library-surface="gallery"] .classic-parameters {
     min-height: 0;
@@ -516,14 +516,14 @@
     height: 100%;
   }
   .playroom.library-open[data-library-surface="gallery"] #library-pagination button {
-    min-height: 38px;
-    height: 38px;
-    padding: 2px 8px;
+    min-height: 32px;
+    height: 32px;
+    padding: 1px 7px;
     font-size: 12px;
   }
   .playroom.library-open[data-library-surface="gallery"] #library-pagination .playful-icon {
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
   }
   .playroom.library-open[data-library-surface="gallery"] #library-pagination > span {
     font-size: 11px;
@@ -845,21 +845,22 @@
   box-shadow: 0 5px 0 var(--theme-shadow) !important;
 }
 
-/* 分形工坊：左侧图案列表卡片 + 参数栏（颜色/大小/次数）。 */
-.playroom .fractal-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
-.playroom .fractal-preset-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; font-size: 12px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
+/* 分形工坊：左侧图案列表卡片 + 参数栏两行卡片（颜色/次数一行均分、大小一行）。 */
+.playroom .fractal-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; width: 100%; }
+.playroom .fractal-preset-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px; font-size: 11px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
 .playroom .fractal-preset-card[aria-pressed="true"] { border-color: var(--theme-accent, #b86835); background: var(--theme-selected, #ffe1a4); }
-.playroom .fractal-preset-preview { width: 64px; height: 64px; }
+.playroom .fractal-preset-preview { width: 48px; height: 48px; }
 .playroom .fractal-params { display: grid; grid-template-rows: minmax(0, 1fr); }
-.playroom .fractal-fields { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 44px; padding: 4px 8px; }
-.playroom .fractal-fields label, .playroom .fractal-depth-field > span { font-size: clamp(14px, calc(16px * var(--u)), 17px); font-weight: 650; white-space: nowrap; }
-.playroom .fractal-color-field, .playroom .fractal-size-field { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.playroom .fractal-color-control { width: clamp(38px, calc(40px * var(--u)), 44px); height: clamp(30px, calc(32px * var(--u)), 36px); min-height: 36px; padding: 0; border: 2px solid var(--theme-border, #e1bc87); border-radius: 10px; background: #285b49; flex: none; }
-.playroom .fractal-size-field input[type="range"] { flex: 1; min-width: 36px; }
-.playroom .fractal-depth-field { display: flex; align-items: center; gap: 8px; }
-.playroom .fractal-stepper { display: flex; align-items: center; gap: 6px; }
-.playroom .fractal-stepper button { min-width: clamp(30px, calc(32px * var(--u)), 40px); min-height: clamp(30px, calc(32px * var(--u)), 40px); height: clamp(30px, calc(32px * var(--u)), 40px); padding: 0; font-size: clamp(14px, calc(16px * var(--u)), 20px); line-height: 1; border: 2px solid var(--theme-border, #e1bc87); border-radius: 10px; background: var(--theme-control, #fff2db); }
+.playroom .fractal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 6px; align-items: stretch; padding: 3px 2px; }
+.playroom .fractal-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 3px 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
+.playroom .fractal-size-field { grid-column: 1 / -1; }
+.playroom .fractal-field > span { font-size: clamp(13px, calc(15px * var(--u)), 16px); font-weight: 650; white-space: nowrap; }
+.playroom .fractal-color-control { width: clamp(36px, calc(38px * var(--u)), 42px); height: 30px; min-height: 30px; padding: 0; border: 2px solid var(--theme-border, #e1bc87); border-radius: 9px; background: #285b49; flex: none; }
+.playroom .fractal-size-field input[type="range"] { flex: 1; min-width: 40px; margin: 0; }
+.playroom .fractal-size-field output { min-width: 2.2em; text-align: right; font-weight: 650; }
+.playroom .fractal-stepper { display: flex; align-items: center; gap: 5px; }
+.playroom .fractal-stepper button { min-width: 30px; width: 30px; min-height: 30px; height: 30px; padding: 0; font-size: 17px; line-height: 1; border: 2px solid var(--theme-border, #e1bc87); border-radius: 9px; background: var(--theme-control, #fff2db); }
 .playroom .fractal-stepper button:disabled { opacity: .4; }
-.playroom .fractal-stepper output { min-width: 1.5em; text-align: center; font-size: clamp(14px, calc(16px * var(--u)), 17px); font-weight: 700; }
+.playroom .fractal-stepper output { min-width: 1.4em; text-align: center; font-size: clamp(13px, calc(15px * var(--u)), 16px); font-weight: 700; }
 .playroom .classic-parameters:has(.fractal-params:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
 

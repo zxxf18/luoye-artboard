@@ -135,17 +135,17 @@ test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
   assert.match(shelf, /data-library-surface="fairy"\]\s+\.categories\s*\{[^}]*display:\s*none\s*!important/);
   assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*height:\s*clamp\(164px,\s*17dvh,\s*190px\)/);
   assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*min-height:\s*164px[\s\S]*max-height:\s*190px/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+46px/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+52px/);
   assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*classic-parameters\s*\{[\s\S]*min-height:\s*0/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*min-height:\s*100px[\s\S]*max-height:\s*100%/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*padding-bottom:\s*6px/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*28px[\s\S]*height:\s*28px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*#brush-options\s*\{[^}]*display:\s*none\s*!important/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+46px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+38px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories\s*\{[\s\S]*height:\s*40px[\s\S]*max-height:\s*40px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories button\s*\{[\s\S]*min-height:\s*32px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*asset-grid\s*\{[\s\S]*height:\s*calc\(100%\s*-\s*4px\)[\s\S]*min-height:\s*0/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*38px[\s\S]*height:\s*38px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*32px[\s\S]*height:\s*32px/);
 });
 
 test('常用工具每页至多七个，功能工具整体从第三页开始', () => {

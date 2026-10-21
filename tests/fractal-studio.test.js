@@ -23,14 +23,16 @@ test('分形次数限制在 1 到 6，越界值被拒绝', () => {
   for (const bad of [0, 7, -1, Number.NaN, 'x']) assert.throws(() => normalizeFractalDepth(bad), /分形次数/);
 });
 
-test('五种图案都能在正方形画布上完成绘制', async () => {
+test('八种图案都能在正方形画布上完成绘制', async () => {
   await withCanvasDouble(async () => {
     const ids = FRACTAL_PRESETS.map(preset => preset.id);
-    assert.equal(ids.length, 5);
+    assert.equal(ids.length, 8);
     for (const id of ids) {
       const canvas = renderFractalCanvas({ preset: id, size: 200, color: '#285b49', depth: 2 });
       assert.equal(canvas.width, 200);
       assert.equal(canvas.height, 200, '分形画布必须是正方形');
+      // 最大次数也要能安全收尾：填色图形按尺寸截断递归，不会失控。
+      renderFractalCanvas({ preset: id, size: FRACTAL_SIZE_RANGE.min, color: '#c94f4f', depth: FRACTAL_MAX_DEPTH });
     }
     assert.throws(() => renderFractalCanvas({ preset: 'nope' }), /未知的分形图案/);
   });

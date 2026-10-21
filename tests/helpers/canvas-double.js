@@ -10,7 +10,7 @@
 export class ContextDouble {
   constructor(canvas) { this.canvas = canvas; }
   clearRect() {} fillRect() {} drawImage() {} setTransform() {} save() {} restore() {}
-  translate() {} scale() {} rotate() {} beginPath() {} moveTo() {} lineTo() {}
+  translate() {} scale() {} rotate() {} beginPath() {} moveTo() {} lineTo() {} quadraticCurveTo() {} roundRect() {}
   stroke() {} fill() {} arc() {} rect() {} ellipse() {} clip() {} closePath() {} putImageData() {}
   strokeRect() {} fillText() {} measureText() { return { width: 0 }; }
   createLinearGradient() { return { addColorStop() {} }; }

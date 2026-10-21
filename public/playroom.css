@@ -2747,19 +2747,32 @@
    frame strip and controls use the same compact touch rhythm as the main
    artboard parameters. */
 @media (min-width: 861px) and (min-height: 651px) {
+  /* 整张弹窗按窗口高度撑满放大；舞台的正方形边长取舞台宽高的较小值
+     （容器查询单位），画板区上下不再留白。不支持容器查询的旧内核会
+     退回基础规则里的 46dvh 上限，仍然保持正方形。 */
   .playroom .animation-dialog {
     padding: 14px;
+    width: min(1040px, calc(100vw - 28px));
+    max-width: min(1040px, calc(100vw - 28px));
+    height: min(900px, calc(100dvh - 20px));
+    max-height: min(900px, calc(100dvh - 20px));
   }
   .playroom .animation-editor-form {
     gap: 10px;
+    height: 100%;
   }
   .playroom .animation-workspace {
     gap: 12px;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(288px, 336px);
   }
+  .playroom .animation-stage { container-type: size; }
+  .playroom .animation-stage-frame { width: min(100cqw, 100cqh); }
   .playroom .animation-controls {
-    gap: 7px;
-    padding: 10px;
-    max-height: 52dvh;
+    gap: 8px;
+    padding: 12px;
+    max-height: 100%;
     overflow: auto;
   }
   .playroom .animation-framebar {
