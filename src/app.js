@@ -240,7 +240,7 @@ assist=mountAssist({engine,toast});
 document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));
 document.addEventListener('scratch-remove', () => run(async () => {
   const removed = engine.removeScratchCard();
-  if (removed) { setTool('pen'); toast('刮刮画已去掉，画面恢复原样；撤销可以找回'); }
+  if (removed) toast('刮刮画已去掉，画面恢复原样；再画会重新盖一层，撤销可以找回');
 }));
 document.addEventListener('scratch-style-change', event => run(() => {
   const cover = engine.setScratchStyle(event.detail || {});

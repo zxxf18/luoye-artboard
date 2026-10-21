@@ -121,13 +121,15 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   }
   renderTools();
   let lastColor='',lastSecondary='',showEraserShapes=false;
-  // 示例笔迹不跟选色走：亮主题固定黑色、暗主题（机械/宇宙）固定白色，
-  // 孩子换颜色时左栏示例保持稳定；彩虹笔和渐变笔自带颜色旅程，保持原样。
-  const sampleColor=(id,base)=>id==='rainbow'||id==='duotone'?base:['mechanical','space'].includes(document.body.dataset.theme)?'#ffffff':'#141414';
+  // 示例笔迹不跟选色走：亮主题固定黑色、暗主题（机械/宇宙）固定白色；
+  // 彩虹笔自带七彩旅程不受影响，渐变笔用固定深浅两色画出渐变。
+  const darkSample=()=>['mechanical','space'].includes(document.body.dataset.theme);
+  const sampleColor=()=>darkSample()?'#ffffff':'#141414';
+  const sampleSecondary=(id,base)=>id==='duotone'?(darkSample()?'#39404e':'#ffffff'):base;
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);document.body.dataset.classicTool=tool;title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':tool==='scratch'?'我的刮刮画':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
-    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,sampleColor(b.dataset.brush,lastColor),140,34,DEFAULT_BRUSH_SIZE,secondary));}
-    const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,sampleColor(brush.id,getColor()),140,50,Math.min(36,Number(el('size').value)),secondary):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
+    const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,sampleColor(),140,34,DEFAULT_BRUSH_SIZE,sampleSecondary(b.dataset.brush,secondary)));}
+    const name=tool==='pen'?brush.name:tools.find(t=>t[0]===groupTool())?.[1]||'画画';el('active-tool-name').textContent=name;el('active-tool-description').textContent=tool==='pen'?brush.hint:'选好玩法，再到画纸上试一试';el('active-brush-preview').replaceChildren(tool==='pen'?brushPreview(brush.id,sampleColor(),140,50,Math.min(36,Number(el('size').value)),sampleSecondary(brush.id,secondary)):Object.assign(document.createElement('span'),{innerHTML:playfulIcon(groupTool())}));
     primary.hidden=false;modes.hidden=tool!=='pen';
     el('brush-options').hidden=!['pen','eraser','stamp','clone','scratch',...geometries].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal','scratch'].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');
     options.hidden=![...options.querySelectorAll('.parameter-slider')].some(item=>!item.hidden);

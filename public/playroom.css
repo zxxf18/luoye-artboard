@@ -2735,7 +2735,7 @@
 
 @media (max-width: 430px) {
   .playroom .animation-workspace { grid-template-columns: 1fr; }
-  .playroom .animation-stage #animation-frame-canvas { width: min(calc(100vw - 76px), 42dvh); }
+  /* 画布由正方形舞台框架铺满（inset:0），不要再单独设宽度，否则会被拉成长方形。 */
   .playroom .animation-controls { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
   .playroom .animation-control-heading, .playroom .animation-tool-row, .playroom .animation-onion-toggle { grid-column: 1 / -1; }
   .playroom .animation-tool-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
