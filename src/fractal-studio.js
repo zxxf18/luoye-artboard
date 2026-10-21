@@ -19,7 +19,7 @@ export const FRACTAL_PRESETS = Object.freeze([
   { id: 'firework', name: '烟花', hint: '亮点一圈圈炸开像烟花' },
   { id: 'dandelion', name: '蒲公英', hint: '一圈圈小伞兵准备起飞' },
   { id: 'kaleidoscope', name: '万花筒', hint: '转一转就是一朵新花' },
-  { id: 'coral', name: '珊瑚', hint: '海底的珊瑚越长越密' },
+  { id: 'lollipop', name: '棒棒糖', hint: '一圈圈绕出来的糖果' },
   { id: 'lightning', name: '闪电', hint: '一道闪电分出小闪电' },
 ]);
 
@@ -40,7 +40,7 @@ export const FRACTAL_PRESET_ICONS = Object.freeze({
   firework: `<g stroke="#e8935a" stroke-width="3.4" stroke-linecap="round" fill="none"><path d="M32 28V8m0 20 17-13M32 28l20 3M32 28l7 19M32 28l-7 19M32 28l-20 3M32 28 15 15"/></g><g fill="#f2b560" stroke="none"><circle cx="32" cy="7" r="3"/><circle cx="50" cy="14" r="3"/><circle cx="53" cy="31" r="3"/><circle cx="40" cy="48" r="3"/><circle cx="24" cy="48" r="3"/><circle cx="11" cy="31" r="3"/><circle cx="14" cy="14" r="3"/></g><g fill="#e8a8a0" stroke="none"><circle cx="42" cy="22" r="2.2"/><circle cx="43" cy="38" r="2.2"/><circle cx="21" cy="38" r="2.2"/><circle cx="22" cy="22" r="2.2"/></g><path d="m32 24 2.2 4.6 5 .7-3.6 3.4.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.4 5-.7z" fill="#f7c94f" stroke="#c88449" stroke-width="1.6" stroke-linejoin="round"/>`,
   dandelion: `<path d="M33 58c0-10 0-18 1-24" stroke="#7fa05f" stroke-width="3" fill="none" stroke-linecap="round"/><g stroke="#b9c7d6" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M33 30 33 12M33 30 47 17M33 30 51 32M33 30 45 45M33 30 19 17M33 30 15 32M33 30 21 45M33 30 41 13M33 30 25 13"/></g><g fill="#e8f0f7" stroke="#9fb4c8" stroke-width="1.6"><circle cx="33" cy="11" r="2.6"/><circle cx="48" cy="16" r="2.6"/><circle cx="52" cy="32" r="2.6"/><circle cx="46" cy="46" r="2.6"/><circle cx="20" cy="46" r="2.6"/><circle cx="14" cy="32" r="2.6"/><circle cx="18" cy="16" r="2.6"/><circle cx="41" cy="12" r="2.6"/><circle cx="25" cy="12" r="2.6"/></g><circle cx="33" cy="30" r="5.5" fill="#fff7e8" stroke="#8d654c" stroke-width="2"/><circle cx="31" cy="29" r="1" fill="#714c3c" stroke="none"/><circle cx="35" cy="29" r="1" fill="#714c3c" stroke="none"/><path d="M31 31.5q2 1.8 4 0" stroke="#714c3c" stroke-width="1.3" fill="none" stroke-linecap="round"/>`,
   kaleidoscope: `<g stroke="none"><path d="M30 30 30 11A19 19 0 0 1 48.1 24.1Z" fill="#f6c785"/><path d="M30 30 48.1 24.1A19 19 0 0 1 41.2 45.4Z" fill="#9fd0e6"/><path d="M30 30 41.2 45.4A19 19 0 0 1 18.8 45.4Z" fill="#f3b994"/><path d="M30 30 18.8 45.4A19 19 0 0 1 11.9 24.1Z" fill="#b7d9b0"/><path d="M30 30 11.9 24.1A19 19 0 0 1 30 11Z" fill="#e8a8a0"/></g><circle cx="30" cy="30" r="20" fill="none" stroke="#8d654c" stroke-width="2.5"/><circle cx="30" cy="30" r="6.5" fill="#fff4d8" stroke="#8d654c" stroke-width="2"/><circle cx="27.8" cy="29" r="1.2" fill="#714c3c" stroke="none"/><circle cx="32.2" cy="29" r="1.2" fill="#714c3c" stroke="none"/><path d="M27.8 31.5q2.2 2 4.4 0" stroke="#714c3c" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="m51 10 1.5 3.4 3.6.5-2.6 2.5.6 3.5-3.1-1.7-3.1 1.7.6-3.5-2.6-2.5 3.6-.5z" fill="#f7c94f" stroke="#c88449" stroke-width="1.5" stroke-linejoin="round"/>`,
-  coral: `<path d="M14 56h36l-4-6H18z" fill="#f0d9a8" stroke="#c8a86a" stroke-width="2" stroke-linejoin="round"/><path d="M32 50V40m0-26c0 6-4 8-7 12m7-12c0 6 4 8 7 12M25 26c-2-2-4-3-6-3m21 3c2-2 4-3 6-3" stroke="#e88b74" stroke-width="5.5" fill="none" stroke-linecap="round"/><g fill="#f6b39a" stroke="none"><circle cx="18" cy="22" r="3"/><circle cx="46" cy="22" r="3"/><circle cx="24" cy="26" r="3"/><circle cx="40" cy="26" r="3"/><circle cx="32" cy="13" r="3.5"/></g><circle cx="30.5" cy="12.5" r="1" fill="#8a4a38" stroke="none"/><circle cx="33.5" cy="12.5" r="1" fill="#8a4a38" stroke="none"/><path d="M30.5 14.5q1.5 1.4 3 0" stroke="#8a4a38" stroke-width="1.2" fill="none" stroke-linecap="round"/>`,
+  lollipop: `<path d="M32 38v18" stroke="#c88449" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="m32 39-7-4 1 8m6-4 7-4-1 8" fill="#f3b994" stroke="#c88449" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="22" r="17" fill="#f6c785" stroke="#c88449" stroke-width="2.5"/><path d="M32 22a3 3 0 0 1 3 3 3 3 0 0 1-3 3 7 7 0 0 1-7-7 11 11 0 0 1 11-11 12 12 0 0 1 12 12" fill="none" stroke="#e0703f" stroke-width="3.2" stroke-linecap="round"/><path d="M22 14a12 12 0 0 1 6-4" stroke="#fff2d8" stroke-width="3" fill="none" stroke-linecap="round"/>`,
   lightning: `<path d="M36 6 20 32h10L24 56l22-28H34l8-22z" fill="#f7c94f" stroke="#c88449" stroke-width="2.5" stroke-linejoin="round"/><path d="m12 14 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#fce3a1" stroke="#c88449" stroke-width="1.8" stroke-linejoin="round"/><circle cx="30" cy="30" r="1.4" fill="#714c3c" stroke="none"/><circle cx="35" cy="30" r="1.4" fill="#714c3c" stroke="none"/><path d="M30 33q2.5 2.2 5 0" stroke="#714c3c" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
 });
 
@@ -328,49 +328,54 @@ function drawKaleidoscope(ctx, radius, depth, shades) {
   circle(ctx, 0, 0, radius * .08);
 }
 
-function drawCoral(ctx, radius, depth, shades) {
-  // 珊瑚：每根枝条分三根，梢头点上浅色圆珠当珊瑚虫。
-  const tips = [];
-  const branch = (x, y, angle, len, w, level) => {
-    const ex = x + Math.cos(angle) * len, ey = y + Math.sin(angle) * len;
-    capsule(ctx, x, y, ex, ey, w, shades.main);
-    if (level >= depth || len < 2.5) { tips.push([ex, ey, len]); return; }
-    for (const side of [-1, 0, 1]) {
-      branch(ex, ey, angle + side * Math.PI / 4.5, len * .62, w * .66, level + 1);
+function drawLollipop(ctx, radius, depth, shades) {
+  // 棒棒糖：粗圆螺旋一圈圈向外，双色糖果条纹随分形次数变密。
+  const turns = 2.2 + depth * .8;
+  const growth = radius * .92 / (turns * Math.PI * 2);
+  const segments = Math.round(turns * 26);
+  let prev = null;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments, theta = t * turns * Math.PI * 2;
+    const r = growth * theta + radius * .06;
+    const point = { x: Math.cos(theta) * r, y: Math.sin(theta) * r };
+    if (prev) {
+      const stripe = Math.floor(theta / Math.PI) % 2;
+      capsule(ctx, prev.x, prev.y, point.x, point.y, radius * .13 * (1 - t * .35) + .5, stripe ? shades.main : shades.light);
     }
-  };
-  branch(0, radius * .9, -Math.PI / 2, radius * .55, radius * .16, 1);
-  for (const [x, y, s] of tips) { ctx.fillStyle = shades.light; circle(ctx, x, y, s * .38 + 1); }
+    prev = point;
+  }
   ctx.fillStyle = shades.dark;
-  circle(ctx, 0, radius * .9, radius * .14);
+  circle(ctx, 0, 0, radius * .09);
 }
 
 function drawLightning(ctx, radius, depth, shades) {
-  // 闪电：主干三段折线，末端分出两道小闪电，梢头亮点收尾。
-  const zig = (x, y, angle, len, w, level) => {
+  // 闪电：主干四段左右折（净偏移为零保持居中），转折点交替向两侧
+  // 甩出小闪电，小闪电再分更小的；梢头亮点收尾。
+  const bolt = (x, y, angle, len, w, level) => {
+    const kinks = 4;
+    const seg = len / kinks;
     let cx = x, cy = y;
-    const steps = 3;
-    for (let s = 0; s < steps; s++) {
-      const a = angle + (s % 2 ? 1 : -1) * Math.PI / 6;
-      const nx = cx + Math.cos(a) * len / steps, ny = cy + Math.sin(a) * len / steps;
+    for (let s = 0; s < kinks; s++) {
+      const a = angle + (s % 2 ? -1 : 1) * Math.PI / 7;
+      const nx = cx + Math.cos(a) * seg, ny = cy + Math.sin(a) * seg;
       capsule(ctx, cx, cy, nx, ny, w, shades.main);
+      if (level < depth && s > 0) {
+        const side = s % 2 ? 1 : -1;
+        bolt(nx, ny, angle + side * Math.PI / 2.6, len * .36, w * .56, level + 1);
+      }
       cx = nx; cy = ny;
     }
     ctx.fillStyle = shades.light;
-    circle(ctx, cx, cy, w * .5);
-    if (level >= depth) return;
-    for (const side of [-1, 1]) {
-      zig(cx, cy, angle + side * Math.PI / 3.2, len * .58, w * .62, level + 1);
-    }
+    circle(ctx, cx, cy, w * .55);
   };
-  zig(0, -radius * .9, Math.PI / 2, radius * 1.8, radius * .13, 1);
+  bolt(0, -radius * .92, Math.PI / 2, radius * 1.84, radius * .14, 1);
 }
 
 const PRESET_DRAWERS = {
   snowflake: drawSnowflake, mandala: drawMandala, sunflower: drawSunflower, star: drawStarFlower,
   tree: drawTree, romanesco: drawRomanesco, carpet: drawCarpet, web: drawWeb,
   firework: drawFirework, dandelion: drawDandelion, kaleidoscope: drawKaleidoscope,
-  coral: drawCoral, lightning: drawLightning,
+  lollipop: drawLollipop, lightning: drawLightning,
 };
 
 /** 在 size×size 的画布中心绘制指定分形；返回该画布。 */
