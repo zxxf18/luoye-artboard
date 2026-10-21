@@ -211,7 +211,7 @@ for (const swatch of palette) {
   button.style.background = swatch; button.style.setProperty('--swatch', swatch); button.setAttribute('aria-label', `颜色 ${swatch}`);
   button.onclick = () => setColor(swatch); $('swatches').append(button);
 }
-for (const [category, name] of Object.entries({ background: '彩色背景', sticker: '小伙伴', coloring:'涂色本', animation: '动画', frame: '相框', paper: '纸样', texture: '纹理' })) {
+for (const [category, name] of Object.entries({ background: '彩色背景', sticker: '小伙伴', coloring:'涂色本', animation: '动画', frame: '相框', paper: '纸样' })) {
   const button = document.createElement('button'); button.innerHTML=playfulIcon(({sticker:'friend',background:'forest',coloring:'pen',animation:'butterfly',frame:'select',fairy:'magic',paper:'paper',texture:'palette'})[category])+'<span>'+name+'</span>'; button.dataset.category = category;
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
