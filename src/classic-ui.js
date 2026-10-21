@@ -2,7 +2,7 @@ import { choiceArt } from './choice-art.js';
 import { mountPalette } from './palette-ui.js';
 import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './classic-scratch.js';
 import { mountMobileShelf } from './classic-mobile.js';
-import { FRACTAL_PRESETS, FRACTAL_MAX_DEPTH, FRACTAL_SIZE_RANGE, fractalState, renderFractalCanvas } from './fractal-studio.js';
+import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, FRACTAL_SIZE_RANGE, fractalState, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from './brushes.js';
 import { makeCanvas } from './engine.js';
@@ -125,7 +125,6 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   // 示例笔迹不跟选色走：亮主题固定黑色、暗主题（机械/宇宙）固定白色，
   // 孩子换颜色时左栏示例保持稳定；彩虹笔和渐变笔自带颜色旅程，保持原样。
   const sampleColor=(id,base)=>id==='rainbow'||id==='duotone'?base:['mechanical','space'].includes(document.body.dataset.theme)?'#ffffff':'#141414';
-  const fractalPreviewColor=()=>['mechanical','space'].includes(document.body.dataset.theme)?'#ffffff':'#141414';
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);document.body.dataset.classicTool=tool;title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':tool==='scratch'?'我的刮刮画':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
     const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,sampleColor(b.dataset.brush,lastColor),140,34,DEFAULT_BRUSH_SIZE,secondary));}
@@ -144,11 +143,12 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     scratchPanel.hidden=tool!=='scratch';fractalPanel.hidden=tool!=='fractal';palette.hidden=false;moreColor.hidden=false;
     if(tool==='fractal'){
       const heading=document.createElement('p');heading.className='tool-coach fractal-coach';heading.textContent='选图案，调颜色，点到画纸上';subtools.append(heading);
+      // 滤镜同款竖排图标列表：卡通 SVG 图标 + 名称，列表长了像画笔盒一样滚动。
       const list=document.createElement('div');list.className='fractal-presets';list.setAttribute('role','group');list.setAttribute('aria-label','分形图案');
       for(const preset of FRACTAL_PRESETS){
-        const card=document.createElement('button');card.type='button';card.className='fractal-preset-card';card.dataset.fractalPreset=preset.id;card.title=preset.hint;card.setAttribute('aria-pressed',String(fractalState.preset===preset.id));
-        const preview=renderFractalCanvas({preset:preset.id,size:120,depth:preset.previewDepth??2,color:fractalPreviewColor()});preview.className='fractal-preset-preview';preview.setAttribute('aria-hidden','true');
-        card.append(preview,Object.assign(document.createElement('span'),{textContent:preset.name}));
+        const card=document.createElement('button');card.type='button';card.className='subtool-card fractal-preset-card';card.dataset.fractalPreset=preset.id;card.title=preset.hint;card.setAttribute('aria-pressed',String(fractalState.preset===preset.id));
+        const art=document.createElement('span');art.className='fractal-preset-icon';art.setAttribute('aria-hidden','true');art.innerHTML=`<svg viewBox="0 0 64 64" fill="none" stroke="#8d654c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${FRACTAL_PRESET_ICONS[preset.id]||''}</svg>`;
+        card.append(art,Object.assign(document.createElement('span'),{textContent:preset.name}));
         card.onclick=()=>{fractalState.preset=preset.id;for(const item of list.children)item.setAttribute('aria-pressed',String(item===card));};
         list.append(card);
       }

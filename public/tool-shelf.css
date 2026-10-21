@@ -848,14 +848,15 @@
 }
 
 /* 分形工坊：左侧图案列表卡片 + 参数栏两行卡片（颜色/次数一行均分、大小一行）。 */
-/* 分形工坊：左侧图案卡与画笔卡同一排版节奏（14px 名称、奶白圆角卡、
-   选中打勾），预览图形按主题固定黑/白，不跟选色走。 */
-.playroom .fractal-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
-.playroom .fractal-preset-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 4px 4px; font-size: calc(14px * var(--u)); border: 2px solid #e8d4af; border-radius: 16px; background: #fffdf5; }
+/* 分形工坊：滤镜同款竖排图标列表——卡通 SVG 图标配奶白圆角底 chip，
+   名称 14px 与画笔卡一致，选中打勾；列表过长时随左栏滚动。 */
+.playroom .fractal-presets { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+.playroom .fractal-preset-card { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 9px; min-height: 48px; padding: 3px 9px; font-size: calc(14px * var(--u)); border: 2px solid #e8d4af; border-radius: 14px; background: #fffdf5; }
 .playroom .fractal-preset-card[aria-pressed="true"] { border-color: #bb6b39; background: #ffdf9e; }
-.playroom .fractal-preset-card[aria-pressed="true"]:after { content: '✓'; position: absolute; right: 3px; top: 0; color: #9d542f; font-size: 15px; font-weight: 900; }
-.playroom .fractal-preset-preview { width: 52px; height: 52px; }
-.playroom .fractal-preset-card > span { font-size: calc(14px * var(--u)); word-break: keep-all; }
+.playroom .fractal-preset-card[aria-pressed="true"]:after { content: '✓'; position: absolute; right: 5px; top: 2px; color: #9d542f; font-size: 15px; font-weight: 900; }
+.playroom .fractal-preset-icon { width: 40px; height: 40px; min-width: 40px; display: grid; place-items: center; border-radius: 11px; background: var(--theme-control, #fff3de); overflow: hidden; }
+.playroom .fractal-preset-icon svg { width: 38px; height: 38px; display: block; }
+.playroom .fractal-preset-card > span:last-child { font-size: calc(14px * var(--u)); text-align: left; word-break: keep-all; }
 .playroom .fractal-coach { padding: 8px 10px; font-size: 13px; line-height: 1.4; white-space: nowrap; text-align: center; border-radius: 14px; }
 .playroom .fractal-params { display: grid; grid-template-rows: minmax(0, 1fr); }
 .playroom .fractal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 6px; align-items: stretch; padding: 3px 2px; }
