@@ -69,14 +69,14 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
-  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画'],['fractal','分形']];
+  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['pixel','像素画'],['scratch','刮刮画'],['animation','小动画'],['fractal','分形']];
   const featureTools={animation:features?.animation,pixel:features?.pixel};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
   // 刮刮画／小动画／像素画／分形是独立功能，永远从新一页开始排；
   // 绘画工具每页至多 7 个（13 个绘画工具 → 第一页 7 个、第二页 6 个）。
-  const featureIds=new Set(['scratch','animation','pixel','fractal']);
+  const featureIds=new Set(['scratch','animation','fractal']);
   const firstFeature=tools.findIndex(([id])=>featureIds.has(id));
   const drawingPages=firstFeature<0?Math.ceil(tools.length/7):Math.ceil(firstFeature/7);
   const pageOf=index=>index<firstFeature?Math.floor(index/7):drawingPages+Math.floor((index-firstFeature)/7);

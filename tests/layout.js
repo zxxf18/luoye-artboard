@@ -98,7 +98,7 @@ async function checkTools(doc){
  if(narrow)await mobilePanel('tools');
  // The rail keeps every tool in the DOM and hides other pages, so flip until
  // the target page is actually shown instead of relying on absence.
- for(let i=0;i<3&&!doc.querySelector('.tool-button[data-tool="stamp"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
+ for(let i=0;i<4&&!doc.querySelector('.tool-button[data-tool="stamp"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
  const stampButton=doc.querySelector('.tool-button[data-tool="stamp"]');
  assert(stampButton&&isVisible(stampButton),'魔法袋工具不可见');
  stampButton.click();await pause(25);
@@ -144,7 +144,7 @@ async function checkTools(doc){
  const dock=doc.querySelector('.tool-dock'),penDockHeight=dock.getBoundingClientRect().height;
  if(!narrow)assert(Math.abs(penDockHeight-stampDockHeight)<=1,`魔法袋工具区总高度未与普通工具一致: ${stampDockHeight} / ${penDockHeight}`);
  if(narrow)await mobilePanel('tools');
- for(let i=0;i<3&&!doc.querySelector('.tool-button[data-tool="scratch"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
+ for(let i=0;i<4&&!doc.querySelector('.tool-button[data-tool="scratch"]')?.getClientRects().length;i++)doc.querySelector('#tool-page').click();
  const scratchButton=doc.querySelector('.tool-button[data-tool="scratch"]');assert(scratchButton&&isVisible(scratchButton),'刮刮画工具不可见');scratchButton.click();await pause(25);if(narrow)await mobilePanel('options');
  assert(Math.abs(dock.getBoundingClientRect().height-penDockHeight)<=1,'刮刮画参数栏高度没有与其他工具统一');
  const scratchPanel=doc.querySelector('.scratch-style-panel'),chips=[...doc.querySelectorAll('.scratch-style-chip,.scratch-style-custom')],palette=doc.querySelector('.quick-palette');
@@ -241,7 +241,9 @@ async function checkToolGalleryInterleave(doc){
  // 图库开着打开小动画／像素画弹窗：关闭后状态栏不残留、模式按钮不自相矛盾。
  for(const feature of ['animation','pixel']){
   click('mode-library');await pause(100);
-  gotoPage(3);doc.querySelector(`#tools .tool-button[data-tool="${feature}"]:not([hidden])`).click();await pause(150);
+  // 像素画已并入第二页绘画工具，功能按钮位置不再固定，翻到可见为止。
+  for(let i=0;i<4&&!doc.querySelector(`#tools .tool-button[data-tool="${feature}"]`)?.getClientRects().length;i++)doc.getElementById('tool-page').click();
+  doc.querySelector(`#tools .tool-button[data-tool="${feature}"]:not([hidden])`).click();await pause(150);
   const dialog=doc.getElementById(feature==='animation'?'animation-editor-dialog':'pixel-art-dialog');
   assert(dialog?.open,feature+' 弹窗没有打开');
   dialog.close();await pause(80);

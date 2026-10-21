@@ -144,7 +144,7 @@ test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
 
 test('常用工具每页至多七个，功能工具整体从第三页开始', () => {
   const classic = read('src/classic-ui.js');
-  assert.match(classic, /\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\],\['fractal','分形'\]/);
+  assert.match(classic, /\['clone','仿制印章'\],\['pixel','像素画'\],\['scratch','刮刮画'\],\['animation','小动画'\],\['fractal','分形'\]/);
   assert.match(classic, /Math\.ceil\(firstFeature\s*\/\s*7\)/);
   assert.match(classic, /pageOf\(index\)!==page/);
   // 两个编辑器入口只保留在工具栏第三页，不再占用顶部工具区。
