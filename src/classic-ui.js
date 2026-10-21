@@ -2,7 +2,7 @@ import { choiceArt } from './choice-art.js';
 import { mountPalette } from './palette-ui.js';
 import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './classic-scratch.js';
 import { mountMobileShelf } from './classic-mobile.js';
-import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, FRACTAL_SIZE_RANGE, fractalState, renderFractalCanvas } from './fractal-studio.js';
+import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, fractalState, fractalPercentToSize, fractalSizeToPercent, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from './brushes.js';
 import { makeCanvas } from './engine.js';
@@ -50,10 +50,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   // 分形参数栏：颜色直接用底部固定的“我的颜色”栏选择，这里只留
   // 一行——左边大小滑杆、右边分形次数加减。
   const fractalPanel=document.createElement('section');fractalPanel.className='fractal-params';fractalPanel.setAttribute('aria-label','分形参数');
-  fractalPanel.innerHTML=`<div class="fractal-fields"><div class="fractal-field fractal-size-field"><span>大小</span><input id="fractal-size" type="range" min="${FRACTAL_SIZE_RANGE.min}" max="${FRACTAL_SIZE_RANGE.max}" step="10" value="${fractalState.size}"><output id="fractal-size-value">${fractalState.size}</output></div><div class="fractal-field fractal-depth-field"><span>分形次数</span><div class="fractal-stepper"><button type="button" id="fractal-depth-down" aria-label="减少分形次数">−</button><output id="fractal-depth-value">${fractalState.depth}</output><button type="button" id="fractal-depth-up" aria-label="增加分形次数">＋</button></div></div></div>`;
+  fractalPanel.innerHTML=`<div class="fractal-fields"><div class="fractal-field fractal-size-field"><span>大小</span><input id="fractal-size" type="range" min="0" max="100" step="1" value="${fractalSizeToPercent(fractalState.size)}" aria-label="分形大小百分比"><output id="fractal-size-value">${fractalSizeToPercent(fractalState.size)}%</output></div><div class="fractal-field fractal-depth-field"><span>分形次数</span><div class="fractal-stepper"><button type="button" id="fractal-depth-down" aria-label="减少分形次数">−</button><output id="fractal-depth-value">${fractalState.depth}</output><button type="button" id="fractal-depth-up" aria-label="增加分形次数">＋</button></div></div></div>`;
   fractalPanel.hidden=true;parameter.append(fractalPanel);
   document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;});
-  fractalPanel.querySelector('#fractal-size').addEventListener('input',event=>{fractalState.size=Number(event.target.value);fractalPanel.querySelector('#fractal-size-value').textContent=fractalState.size;});
+  fractalPanel.querySelector('#fractal-size').addEventListener('input',event=>{fractalState.size=fractalPercentToSize(event.target.value);fractalPanel.querySelector('#fractal-size-value').textContent=event.target.value+'%';});
   const syncFractalDepth=()=>{fractalPanel.querySelector('#fractal-depth-value').textContent=fractalState.depth;fractalPanel.querySelector('#fractal-depth-down').disabled=fractalState.depth<=1;fractalPanel.querySelector('#fractal-depth-up').disabled=fractalState.depth>=FRACTAL_MAX_DEPTH;};
   fractalPanel.querySelector('#fractal-depth-down').onclick=()=>{fractalState.depth=Math.max(1,fractalState.depth-1);syncFractalDepth();};
   fractalPanel.querySelector('#fractal-depth-up').onclick=()=>{fractalState.depth=Math.min(FRACTAL_MAX_DEPTH,fractalState.depth+1);syncFractalDepth();};

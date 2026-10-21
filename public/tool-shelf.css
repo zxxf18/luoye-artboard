@@ -859,7 +859,7 @@
 .playroom .fractal-preset-card > span:last-child { font-size: calc(14px * var(--u)); text-align: left; word-break: keep-all; }
 .playroom .fractal-coach { padding: 8px 10px; font-size: 13px; line-height: 1.4; white-space: nowrap; text-align: center; border-radius: 14px; }
 .playroom .fractal-params { display: grid; grid-template-rows: minmax(0, 1fr); }
-.playroom .fractal-fields { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: stretch; padding: 3px 2px; }
+.playroom .fractal-fields { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; align-items: stretch; padding: 3px 2px; }
 .playroom .fractal-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 3px 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
 .playroom .fractal-field > span { font-size: clamp(13px, calc(15px * var(--u)), 16px); font-weight: 650; white-space: nowrap; }
 .playroom .fractal-size-field input[type="range"] { flex: 1; min-width: 40px; margin: 0; }

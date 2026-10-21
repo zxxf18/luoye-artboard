@@ -72,6 +72,16 @@ test('分形工具按钮不被遗留规则隐藏', () => {
   assert.doesNotMatch(styles, /\[data-option="fractal"\][^}]*display:\s*none/);
 });
 
+test('分形参数栏单行 2:1 且大小用百分比滑杆', () => {
+  const classic = read('src/classic-ui.js');
+  const shelf = read('public/tool-shelf.css');
+  assert.match(shelf, /\.fractal-fields \{[^}]*grid-template-columns:\s*2fr\s+1fr/);
+  assert.match(classic, /id="fractal-size" type="range" min="0" max="100"/);
+  assert.match(classic, /fractalPercentToSize\(event\.target\.value\)/);
+  assert.match(classic, /textContent=event\.target\.value\+'%'/);
+  assert.doesNotMatch(classic, /fractal-color-field/);
+});
+
 test('刮刮画复用公共参数栏高度，候选颜色保持圆形', () => {
   const classic = read('src/classic-ui.js');
   const shelf = read('public/tool-shelf.css');

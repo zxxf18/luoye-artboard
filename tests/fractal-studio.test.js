@@ -6,6 +6,8 @@ import {
   FRACTAL_PRESETS,
   FRACTAL_PRESET_ICONS,
   FRACTAL_SIZE_RANGE,
+  fractalPercentToSize,
+  fractalSizeToPercent,
   fractalState,
   normalizeFractalDepth,
   placeFractal,
@@ -39,6 +41,19 @@ test('十二种图案都能在正方形画布上完成绘制', async () => {
     }
     assert.throws(() => renderFractalCanvas({ preset: 'nope' }), /未知的分形图案/);
   });
+});
+
+test('大小滑杆按百分比换算，满格对应加大的上限', () => {
+  assert.equal(FRACTAL_SIZE_RANGE.max, 920);
+  assert.equal(fractalPercentToSize(0), FRACTAL_SIZE_RANGE.min);
+  assert.equal(fractalPercentToSize(100), FRACTAL_SIZE_RANGE.max);
+  assert.equal(fractalSizeToPercent(FRACTAL_SIZE_RANGE.max), 100);
+  assert.equal(fractalSizeToPercent(FRACTAL_SIZE_RANGE.min), 0);
+  for (const size of [FRACTAL_SIZE_RANGE.min, 420, 700, FRACTAL_SIZE_RANGE.max]) {
+    assert.ok(Math.abs(fractalPercentToSize(fractalSizeToPercent(size)) - size) <= 9, size + ' 百分比往返误差过大');
+  }
+  assert.throws(() => fractalPercentToSize(101), /百分比/);
+  assert.throws(() => fractalSizeToPercent(50), /分形大小/);
 });
 
 test('大小跟随参数并受范围约束', async () => {

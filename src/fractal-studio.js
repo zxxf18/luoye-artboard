@@ -44,7 +44,24 @@ export const FRACTAL_PRESET_ICONS = Object.freeze({
 /** 每加一次分形，图形数约乘 3～8；6 次在视觉上已经饱和。 */
 export const FRACTAL_MAX_DEPTH = 6;
 export const FRACTAL_DEFAULTS = Object.freeze({ preset: 'snowflake', color: '#285b49', size: 420, depth: 2 });
-export const FRACTAL_SIZE_RANGE = Object.freeze({ min: 120, max: 720 });
+export const FRACTAL_SIZE_RANGE = Object.freeze({ min: 120, max: 920 });
+
+/** 滑杆对孩子展示 0–100% 的百分比，内部仍按像素渲染；两端对齐范围。 */
+export function fractalPercentToSize(percent) {
+  const value = Math.round(Number(percent));
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
+    throw new Error('分形大小百分比需要在 0 到 100 之间。');
+  }
+  return FRACTAL_SIZE_RANGE.min + Math.round((FRACTAL_SIZE_RANGE.max - FRACTAL_SIZE_RANGE.min) * value / 100);
+}
+
+export function fractalSizeToPercent(size) {
+  const value = Math.round(Number(size));
+  if (!Number.isFinite(value) || value < FRACTAL_SIZE_RANGE.min || value > FRACTAL_SIZE_RANGE.max) {
+    throw new Error(`分形大小需要在 ${FRACTAL_SIZE_RANGE.min} 到 ${FRACTAL_SIZE_RANGE.max} 之间。`);
+  }
+  return Math.round((value - FRACTAL_SIZE_RANGE.min) * 100 / (FRACTAL_SIZE_RANGE.max - FRACTAL_SIZE_RANGE.min));
+}
 
 export const fractalState = { ...FRACTAL_DEFAULTS };
 
