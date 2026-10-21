@@ -643,6 +643,7 @@
   color: var(--ink);
 }
 .playroom[data-theme] .brush-card,
+.playroom[data-theme] .fractal-preset-card,
 .playroom[data-theme] .subtool-card,
 .playroom[data-theme] .tool-page,
 .playroom[data-theme] .tool-button,
@@ -657,6 +658,7 @@
   color: var(--ink);
 }
 .playroom[data-theme] .brush-card[aria-pressed="true"],
+.playroom[data-theme] .fractal-preset-card[aria-pressed="true"],
 .playroom[data-theme] .asset[aria-pressed="true"],
 .playroom[data-theme] .text-style:has(input:checked),
 .playroom[data-theme] .layer-row.active,
@@ -846,10 +848,15 @@
 }
 
 /* 分形工坊：左侧图案列表卡片 + 参数栏两行卡片（颜色/次数一行均分、大小一行）。 */
-.playroom .fractal-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; width: 100%; }
-.playroom .fractal-preset-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px; font-size: 11px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
-.playroom .fractal-preset-card[aria-pressed="true"] { border-color: var(--theme-accent, #b86835); background: var(--theme-selected, #ffe1a4); }
-.playroom .fractal-preset-preview { width: 48px; height: 48px; }
+/* 分形工坊：左侧图案卡与画笔卡同一排版节奏（14px 名称、奶白圆角卡、
+   选中打勾），预览图形按主题固定黑/白，不跟选色走。 */
+.playroom .fractal-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.playroom .fractal-preset-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 4px 4px; font-size: calc(14px * var(--u)); border: 2px solid #e8d4af; border-radius: 16px; background: #fffdf5; }
+.playroom .fractal-preset-card[aria-pressed="true"] { border-color: #bb6b39; background: #ffdf9e; }
+.playroom .fractal-preset-card[aria-pressed="true"]:after { content: '✓'; position: absolute; right: 3px; top: 0; color: #9d542f; font-size: 15px; font-weight: 900; }
+.playroom .fractal-preset-preview { width: 52px; height: 52px; }
+.playroom .fractal-preset-card > span { font-size: calc(14px * var(--u)); word-break: keep-all; }
+.playroom .fractal-coach { padding: 8px 10px; font-size: 13px; line-height: 1.4; white-space: nowrap; text-align: center; border-radius: 14px; }
 .playroom .fractal-params { display: grid; grid-template-rows: minmax(0, 1fr); }
 .playroom .fractal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 6px; align-items: stretch; padding: 3px 2px; }
 .playroom .fractal-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 3px 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }

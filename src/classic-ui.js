@@ -53,7 +53,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   fractalPanel.hidden=true;parameter.append(fractalPanel);
   const syncFractalColor=()=>{const control=fractalPanel.querySelector('#fractal-color');control.style.background=fractalState.color;control.setAttribute('aria-label',`选择分形颜色，当前 ${fractalState.color}`);};
   fractalPanel.querySelector('#fractal-color').onclick=()=>{const opener=document.getElementById('foreground-palette')||document.getElementById('palette-open');opener?.click();};
-  document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;syncFractalColor();window.__refreshFractalCards?.();});
+  document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;syncFractalColor();});
   fractalPanel.querySelector('#fractal-size').addEventListener('input',event=>{fractalState.size=Number(event.target.value);fractalPanel.querySelector('#fractal-size-value').textContent=fractalState.size;});
   const syncFractalDepth=()=>{fractalPanel.querySelector('#fractal-depth-value').textContent=fractalState.depth;fractalPanel.querySelector('#fractal-depth-down').disabled=fractalState.depth<=1;fractalPanel.querySelector('#fractal-depth-up').disabled=fractalState.depth>=FRACTAL_MAX_DEPTH;};
   fractalPanel.querySelector('#fractal-depth-down').onclick=()=>{fractalState.depth=Math.max(1,fractalState.depth-1);syncFractalDepth();};
@@ -122,9 +122,10 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   }
   renderTools();
   let lastColor='',lastSecondary='',showEraserShapes=false;
-  // 机械与宇宙是深色主题：示例笔迹用白色才看得清；彩虹笔和渐变笔
-  // 自带颜色旅程，保持原样。
-  const sampleColor=(id,base)=>['mechanical','space'].includes(document.body.dataset.theme)&&id!=='rainbow'&&id!=='duotone'?'#ffffff':base;
+  // 示例笔迹不跟选色走：亮主题固定黑色、暗主题（机械/宇宙）固定白色，
+  // 孩子换颜色时左栏示例保持稳定；彩虹笔和渐变笔自带颜色旅程，保持原样。
+  const sampleColor=(id,base)=>id==='rainbow'||id==='duotone'?base:['mechanical','space'].includes(document.body.dataset.theme)?'#ffffff':'#141414';
+  const fractalPreviewColor=()=>['mechanical','space'].includes(document.body.dataset.theme)?'#ffffff':'#141414';
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);document.body.dataset.classicTool=tool;title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':tool==='scratch'?'我的刮刮画':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);el('painting').dataset.brush=brush.id;for(const b of bar.children)b.setAttribute('aria-pressed',b.dataset.tool===groupTool());
     const secondary=el('background-color').value;if(getColor()!==lastColor||secondary!==lastSecondary){lastColor=getColor();lastSecondary=secondary;for(const b of pens.children)b.querySelector('.brush-sample').replaceChildren(brushPreview(b.dataset.brush,sampleColor(b.dataset.brush,lastColor),140,34,DEFAULT_BRUSH_SIZE,secondary));}
@@ -142,17 +143,16 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     // from every other drawing tool.
     scratchPanel.hidden=tool!=='scratch';fractalPanel.hidden=tool!=='fractal';palette.hidden=false;moreColor.hidden=false;
     if(tool==='fractal'){
-      const heading=document.createElement('p');heading.className='tool-coach';heading.textContent='选一个图案，调好颜色和次数，点到画纸上';subtools.append(heading);
+      const heading=document.createElement('p');heading.className='tool-coach fractal-coach';heading.textContent='选图案，调颜色，点到画纸上';subtools.append(heading);
       const list=document.createElement('div');list.className='fractal-presets';list.setAttribute('role','group');list.setAttribute('aria-label','分形图案');
       for(const preset of FRACTAL_PRESETS){
         const card=document.createElement('button');card.type='button';card.className='fractal-preset-card';card.dataset.fractalPreset=preset.id;card.title=preset.hint;card.setAttribute('aria-pressed',String(fractalState.preset===preset.id));
-        const preview=renderFractalCanvas({preset:preset.id,size:76,depth:preset.previewDepth??2,color:fractalState.color});preview.className='fractal-preset-preview';preview.setAttribute('aria-hidden','true');
+        const preview=renderFractalCanvas({preset:preset.id,size:120,depth:preset.previewDepth??2,color:fractalPreviewColor()});preview.className='fractal-preset-preview';preview.setAttribute('aria-hidden','true');
         card.append(preview,Object.assign(document.createElement('span'),{textContent:preset.name}));
         card.onclick=()=>{fractalState.preset=preset.id;for(const item of list.children)item.setAttribute('aria-pressed',String(item===card));};
         list.append(card);
       }
       subtools.append(list);
-      window.__refreshFractalCards=()=>{for(const card of list.querySelectorAll('.fractal-preset-card')){const canvas=card.querySelector('.fractal-preset-preview');const meta=FRACTAL_PRESETS.find(item=>item.id===card.dataset.fractalPreset);const next=renderFractalCanvas({preset:card.dataset.fractalPreset,size:76,depth:meta?.previewDepth??2,color:fractalState.color});next.className='fractal-preset-preview';next.setAttribute('aria-hidden','true');canvas.replaceWith(next);}};
     }
     if(tool==='scratch'){
       applyScratchShelf({parameter,brushOptions,options,primary,panel:scratchPanel,sizeRow:scratchSizeRow});
