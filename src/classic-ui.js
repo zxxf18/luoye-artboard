@@ -47,18 +47,17 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const moreColor=document.createElement('button');moreColor.className='more-colors';moreColor.innerHTML=playfulIcon('palette')+'<span>更多颜色</span>';moreColor.onclick=()=>el('palette-open').click();palette.append(moreColor);
   const {panel:scratchPanel,sizeRow:scratchSizeRow}=buildScratchPanel({palette:paletteApi});
   scratchPanel.hidden=true;parameter.append(scratchPanel);
-  // 分形参数栏：颜色（复用共享调色板）、大小滑杆、次数加减。
+  // 分形参数栏：颜色直接用底部固定的“我的颜色”栏选择，这里只留
+  // 一行——左边大小滑杆、右边分形次数加减。
   const fractalPanel=document.createElement('section');fractalPanel.className='fractal-params';fractalPanel.setAttribute('aria-label','分形参数');
-  fractalPanel.innerHTML=`<div class="fractal-fields"><div class="fractal-field fractal-color-field"><span>颜色</span><button type="button" id="fractal-color" class="fractal-color-control" aria-label="选择分形颜色"></button></div><div class="fractal-field fractal-depth-field"><span>分形次数</span><div class="fractal-stepper"><button type="button" id="fractal-depth-down" aria-label="减少分形次数">−</button><output id="fractal-depth-value">${fractalState.depth}</output><button type="button" id="fractal-depth-up" aria-label="增加分形次数">＋</button></div></div><div class="fractal-field fractal-size-field"><span>大小</span><input id="fractal-size" type="range" min="${FRACTAL_SIZE_RANGE.min}" max="${FRACTAL_SIZE_RANGE.max}" step="10" value="${fractalState.size}"><output id="fractal-size-value">${fractalState.size}</output></div></div>`;
+  fractalPanel.innerHTML=`<div class="fractal-fields"><div class="fractal-field fractal-size-field"><span>大小</span><input id="fractal-size" type="range" min="${FRACTAL_SIZE_RANGE.min}" max="${FRACTAL_SIZE_RANGE.max}" step="10" value="${fractalState.size}"><output id="fractal-size-value">${fractalState.size}</output></div><div class="fractal-field fractal-depth-field"><span>分形次数</span><div class="fractal-stepper"><button type="button" id="fractal-depth-down" aria-label="减少分形次数">−</button><output id="fractal-depth-value">${fractalState.depth}</output><button type="button" id="fractal-depth-up" aria-label="增加分形次数">＋</button></div></div></div>`;
   fractalPanel.hidden=true;parameter.append(fractalPanel);
-  const syncFractalColor=()=>{const control=fractalPanel.querySelector('#fractal-color');control.style.background=fractalState.color;control.setAttribute('aria-label',`选择分形颜色，当前 ${fractalState.color}`);};
-  fractalPanel.querySelector('#fractal-color').onclick=()=>{const opener=document.getElementById('foreground-palette')||document.getElementById('palette-open');opener?.click();};
-  document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;syncFractalColor();});
+  document.addEventListener('palettechange',()=>{fractalState.color=document.getElementById('color').value;});
   fractalPanel.querySelector('#fractal-size').addEventListener('input',event=>{fractalState.size=Number(event.target.value);fractalPanel.querySelector('#fractal-size-value').textContent=fractalState.size;});
   const syncFractalDepth=()=>{fractalPanel.querySelector('#fractal-depth-value').textContent=fractalState.depth;fractalPanel.querySelector('#fractal-depth-down').disabled=fractalState.depth<=1;fractalPanel.querySelector('#fractal-depth-up').disabled=fractalState.depth>=FRACTAL_MAX_DEPTH;};
   fractalPanel.querySelector('#fractal-depth-down').onclick=()=>{fractalState.depth=Math.max(1,fractalState.depth-1);syncFractalDepth();};
   fractalPanel.querySelector('#fractal-depth-up').onclick=()=>{fractalState.depth=Math.min(FRACTAL_MAX_DEPTH,fractalState.depth+1);syncFractalDepth();};
-  syncFractalColor();syncFractalDepth();
+  syncFractalDepth();
   const status=document.querySelector('.canvas-footer');studio.append(status);const zoom=document.querySelector('.zoom-controls');heading.append(zoom);
   document.querySelector('.canvas-heading').hidden=true;
   const footer=document.createElement('div');footer.className='left-actions';
