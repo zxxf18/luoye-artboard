@@ -15,11 +15,12 @@ export const FRACTAL_PRESETS = Object.freeze([
   { id: 'tree', name: '分形树', hint: '每根枝条再长两根，梢头开花' },
   { id: 'romanesco', name: '花菜塔', hint: '一颗颗小塔按三瓣转着长' },
   { id: 'carpet', name: '花毯', hint: '方巾中间镂空，一层套一层' },
-  { id: 'bubbles', name: '泡泡', hint: '大泡泡里装着两个小泡泡' },
   { id: 'web', name: '蜘蛛网', hint: '一圈一圈织出来的大网' },
-  { id: 'shell', name: '海螺', hint: '一间比一间大的小房子' },
   { id: 'firework', name: '烟花', hint: '亮点一圈圈炸开像烟花' },
-  { id: 'fern', name: '蕨叶', hint: '大叶子两边长着小叶子' },
+  { id: 'dandelion', name: '蒲公英', hint: '一圈圈小伞兵准备起飞' },
+  { id: 'kaleidoscope', name: '万花筒', hint: '转一转就是一朵新花' },
+  { id: 'coral', name: '珊瑚', hint: '海底的珊瑚越长越密' },
+  { id: 'lightning', name: '闪电', hint: '一道闪电分出小闪电' },
 ]);
 
 /**
@@ -36,9 +37,11 @@ export const FRACTAL_PRESET_ICONS = Object.freeze({
   carpet: `<rect x="7" y="12" width="50" height="44" rx="9" fill="#e8a8a0" stroke="#b9624a" stroke-width="2.5"/><rect x="14" y="19" width="36" height="30" rx="5" fill="#f9ddca" stroke="#c88449" stroke-width="2"/><g fill="#e8a8a0" stroke="#c88449" stroke-width="1.5"><rect x="17.5" y="23" width="9" height="6.5" rx="2"/><rect x="27.5" y="23" width="9" height="6.5" rx="2"/><rect x="37.5" y="23" width="9" height="6.5" rx="2"/><rect x="17.5" y="31.5" width="9" height="6.5" rx="2"/><rect x="37.5" y="31.5" width="9" height="6.5" rx="2"/><rect x="17.5" y="40" width="9" height="6.5" rx="2"/><rect x="27.5" y="40" width="9" height="6.5" rx="2"/><rect x="37.5" y="40" width="9" height="6.5" rx="2"/></g><circle cx="32" cy="34.8" r="2.6" fill="#fff4d8" stroke="#c88449" stroke-width="1.5"/>`,
   bubbles: `<circle cx="25" cy="25" r="14.5" fill="#d3ecf7" stroke="#7fb3cf" stroke-width="2.5"/><circle cx="43" cy="33" r="11" fill="#e5f5fc" stroke="#7fb3cf" stroke-width="2.5"/><circle cx="27" cy="44" r="9" fill="#dceff8" stroke="#7fb3cf" stroke-width="2.5"/><path d="M16 21a11 11 0 0 1 6-6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M37 28a7 7 0 0 1 4-4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="21.5" cy="24" r="1.5" fill="#4d7d99" stroke="none"/><circle cx="28.5" cy="24" r="1.5" fill="#4d7d99" stroke="none"/><path d="M21.5 27.5q3.5 3 7 0" stroke="#4d7d99" stroke-width="1.7" fill="none" stroke-linecap="round"/>`,
   web: `<g stroke="#9fb4c8" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M32 6v38M10 14l44 22M54 14 10 36M21 9l22 32M43 9 21 41"/><path d="M20 12q12-5 24 1M14 20q18-7 36 1M12 29q19-7 40 0M14 38q17-6 34 0"/></g><path d="M32 44v4" stroke="#9fb4c8" stroke-width="1.6" fill="none"/><circle cx="32" cy="53" r="6.5" fill="#8d9fb5" stroke="#6b7d94" stroke-width="2"/><path d="M26 50l-6-2m6 5-6 3m12-6 6-2m-6 5 6 3" stroke="#6b7d94" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="30" cy="52" r="1.1" fill="#fff" stroke="none"/><circle cx="34" cy="52" r="1.1" fill="#fff" stroke="none"/><path d="M30 54.5q2 1.8 4 0" stroke="#fff" stroke-width="1.3" fill="none" stroke-linecap="round"/>`,
-  shell: `<circle cx="38" cy="30" r="17" fill="#f6cd9c" stroke="#c88449" stroke-width="2.5"/><path d="M38 18a12 12 0 0 1 12 12 12 12 0 0 1-12 12 9 9 0 0 1-9-9 7 7 0 0 1 7-7 5 5 0 0 1 5 5" fill="none" stroke="#c88449" stroke-width="2.4" stroke-linecap="round"/><circle cx="11" cy="38" r="5.5" fill="#e8a17c" stroke="#c88449" stroke-width="2"/><path d="M9 33 7 27m6 6 3-6" stroke="#c88449" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="7" cy="26" r="1.6" fill="#714c3c" stroke="none"/><circle cx="16.5" cy="26.5" r="1.6" fill="#714c3c" stroke="none"/><path d="M9.5 38.5q1.5 1.4 3 0" stroke="#8d654c" stroke-width="1.4" fill="none" stroke-linecap="round"/>`,
   firework: `<g stroke="#e8935a" stroke-width="3.4" stroke-linecap="round" fill="none"><path d="M32 28V8m0 20 17-13M32 28l20 3M32 28l7 19M32 28l-7 19M32 28l-20 3M32 28 15 15"/></g><g fill="#f2b560" stroke="none"><circle cx="32" cy="7" r="3"/><circle cx="50" cy="14" r="3"/><circle cx="53" cy="31" r="3"/><circle cx="40" cy="48" r="3"/><circle cx="24" cy="48" r="3"/><circle cx="11" cy="31" r="3"/><circle cx="14" cy="14" r="3"/></g><g fill="#e8a8a0" stroke="none"><circle cx="42" cy="22" r="2.2"/><circle cx="43" cy="38" r="2.2"/><circle cx="21" cy="38" r="2.2"/><circle cx="22" cy="22" r="2.2"/></g><path d="m32 24 2.2 4.6 5 .7-3.6 3.4.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.4 5-.7z" fill="#f7c94f" stroke="#c88449" stroke-width="1.6" stroke-linejoin="round"/>`,
-  fern: `<path d="M33 58C31 44 31 26 35 9" stroke="#7fa05f" stroke-width="3.2" fill="none" stroke-linecap="round"/><g fill="#9cc79f" stroke="#6f9a75" stroke-width="1.6"><ellipse cx="22" cy="46" rx="9" ry="3.6" transform="rotate(-16 22 46)"/><ellipse cx="40" cy="46" rx="9" ry="3.6" transform="rotate(16 40 46)"/><ellipse cx="23" cy="37" rx="8" ry="3.2" transform="rotate(-18 23 37)"/><ellipse cx="41" cy="37" rx="8" ry="3.2" transform="rotate(18 41 37)"/><ellipse cx="25" cy="28" rx="7" ry="2.9" transform="rotate(-22 25 28)"/><ellipse cx="39" cy="28" rx="7" ry="2.9" transform="rotate(22 39 28)"/><ellipse cx="27" cy="20" rx="5.5" ry="2.5" transform="rotate(-26 27 20)"/><ellipse cx="38" cy="20" rx="5.5" ry="2.5" transform="rotate(26 38 20)"/></g><circle cx="36" cy="12" r="2.2" fill="#e8745f" stroke="none"/>`,
+  dandelion: `<path d="M33 58c0-10 0-18 1-24" stroke="#7fa05f" stroke-width="3" fill="none" stroke-linecap="round"/><g stroke="#b9c7d6" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M33 30 33 12M33 30 47 17M33 30 51 32M33 30 45 45M33 30 19 17M33 30 15 32M33 30 21 45M33 30 41 13M33 30 25 13"/></g><g fill="#e8f0f7" stroke="#9fb4c8" stroke-width="1.6"><circle cx="33" cy="11" r="2.6"/><circle cx="48" cy="16" r="2.6"/><circle cx="52" cy="32" r="2.6"/><circle cx="46" cy="46" r="2.6"/><circle cx="20" cy="46" r="2.6"/><circle cx="14" cy="32" r="2.6"/><circle cx="18" cy="16" r="2.6"/><circle cx="41" cy="12" r="2.6"/><circle cx="25" cy="12" r="2.6"/></g><circle cx="33" cy="30" r="5.5" fill="#fff7e8" stroke="#8d654c" stroke-width="2"/><circle cx="31" cy="29" r="1" fill="#714c3c" stroke="none"/><circle cx="35" cy="29" r="1" fill="#714c3c" stroke="none"/><path d="M31 31.5q2 1.8 4 0" stroke="#714c3c" stroke-width="1.3" fill="none" stroke-linecap="round"/>`,
+  kaleidoscope: `<g stroke="none"><path d="M30 30 30 11A19 19 0 0 1 48.1 24.1Z" fill="#f6c785"/><path d="M30 30 48.1 24.1A19 19 0 0 1 41.2 45.4Z" fill="#9fd0e6"/><path d="M30 30 41.2 45.4A19 19 0 0 1 18.8 45.4Z" fill="#f3b994"/><path d="M30 30 18.8 45.4A19 19 0 0 1 11.9 24.1Z" fill="#b7d9b0"/><path d="M30 30 11.9 24.1A19 19 0 0 1 30 11Z" fill="#e8a8a0"/></g><circle cx="30" cy="30" r="20" fill="none" stroke="#8d654c" stroke-width="2.5"/><circle cx="30" cy="30" r="6.5" fill="#fff4d8" stroke="#8d654c" stroke-width="2"/><circle cx="27.8" cy="29" r="1.2" fill="#714c3c" stroke="none"/><circle cx="32.2" cy="29" r="1.2" fill="#714c3c" stroke="none"/><path d="M27.8 31.5q2.2 2 4.4 0" stroke="#714c3c" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="m51 10 1.5 3.4 3.6.5-2.6 2.5.6 3.5-3.1-1.7-3.1 1.7.6-3.5-2.6-2.5 3.6-.5z" fill="#f7c94f" stroke="#c88449" stroke-width="1.5" stroke-linejoin="round"/>`,
+  coral: `<path d="M14 56h36l-4-6H18z" fill="#f0d9a8" stroke="#c8a86a" stroke-width="2" stroke-linejoin="round"/><path d="M32 50V40m0-26c0 6-4 8-7 12m7-12c0 6 4 8 7 12M25 26c-2-2-4-3-6-3m21 3c2-2 4-3 6-3" stroke="#e88b74" stroke-width="5.5" fill="none" stroke-linecap="round"/><g fill="#f6b39a" stroke="none"><circle cx="18" cy="22" r="3"/><circle cx="46" cy="22" r="3"/><circle cx="24" cy="26" r="3"/><circle cx="40" cy="26" r="3"/><circle cx="32" cy="13" r="3.5"/></g><circle cx="30.5" cy="12.5" r="1" fill="#8a4a38" stroke="none"/><circle cx="33.5" cy="12.5" r="1" fill="#8a4a38" stroke="none"/><path d="M30.5 14.5q1.5 1.4 3 0" stroke="#8a4a38" stroke-width="1.2" fill="none" stroke-linecap="round"/>`,
+  lightning: `<path d="M36 6 20 32h10L24 56l22-28H34l8-22z" fill="#f7c94f" stroke="#c88449" stroke-width="2.5" stroke-linejoin="round"/><path d="m12 14 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#fce3a1" stroke="#c88449" stroke-width="1.8" stroke-linejoin="round"/><circle cx="30" cy="30" r="1.4" fill="#714c3c" stroke="none"/><circle cx="35" cy="30" r="1.4" fill="#714c3c" stroke="none"/><path d="M30 33q2.5 2.2 5 0" stroke="#714c3c" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
 });
 
 /** 每加一次分形，图形数约乘 3～8；6 次在视觉上已经饱和。 */
@@ -230,18 +233,6 @@ function drawCarpet(ctx, radius, depth, shades) {
   cell(0, 0, radius * 1.84, 1);
 }
 
-function drawBubbles(ctx, radius, depth, shades) {
-  const bubble = (x, y, r, level) => {
-    ctx.fillStyle = level % 2 ? shades.light : shades.main;
-    circle(ctx, x, y, r);
-    if (level >= depth || r < 2) return;
-    const vertical = level % 2 === 1, off = r * .5;
-    bubble(x + (vertical ? 0 : -off), y + (vertical ? -off : 0), r * .5, level + 1);
-    bubble(x + (vertical ? 0 : off), y + (vertical ? off : 0), r * .5, level + 1);
-  };
-  bubble(0, 0, radius * .96, 1);
-}
-
 function drawWeb(ctx, radius, depth, shades) {
   // 八根粗辐条加向外鼓的同心网圈，圈数随分形次数增加。
   const spokes = 8, rings = depth + 1;
@@ -268,38 +259,6 @@ function drawWeb(ctx, radius, depth, shades) {
   circle(ctx, 0, 0, radius * .09);
 }
 
-function drawShell(ctx, radius, depth, shades) {
-  // 斐波那契方砖：一间比一间大的小房子，房间中心的连线就是螺线。
-  let left = 0, right = 1, bottom = 0, top = 1;
-  const cells = [{ x: 0, y: 0, s: 1 }];
-  for (let i = 1; i <= depth + 3; i++) {
-    const w = right - left, h = top - bottom, m = i % 4;
-    if (m === 1) { cells.push({ x: right, y: bottom, s: h }); right += h; }
-    else if (m === 2) { cells.push({ x: left, y: top, s: w }); top += w; }
-    else if (m === 3) { cells.push({ x: left - h, y: top - h, s: h }); left -= h; }
-    else { cells.push({ x: left, y: bottom - w, s: w }); bottom -= w; }
-  }
-  const scale = radius * 2 / Math.max(right - left, top - bottom);
-  ctx.save();
-  ctx.translate(-(left + right) / 2 * scale, -(bottom + top) / 2 * scale);
-  ctx.scale(scale, scale);
-  cells.forEach((cell, i) => {
-    ctx.fillStyle = i % 2 ? shades.light : shades.main;
-    ctx.fillRect(cell.x, cell.y, cell.s, cell.s);
-  });
-  ctx.beginPath();
-  cells.forEach((cell, i) => {
-    const px = cell.x + cell.s / 2, py = cell.y + cell.s / 2;
-    if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
-  });
-  ctx.strokeStyle = shades.dark;
-  ctx.lineWidth = .16;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.stroke();
-  ctx.restore();
-}
-
 function drawFirework(ctx, radius, depth, shades) {
   const burst = (x, y, r, angle) => {
     for (let i = 0; i < 10; i++) {
@@ -322,32 +281,96 @@ function drawFirework(ctx, radius, depth, shades) {
   circle(ctx, 0, 0, radius * .09);
 }
 
-function drawFern(ctx, radius, depth, shades) {
-  // 一根主脉，两边对生柳叶，越靠尖越小；次数越多叶片越密。
-  const pairs = 3 + depth * 2;
-  capsule(ctx, 0, radius, 0, -radius * .92, radius * .05, shades.dark);
-  for (let i = 0; i < pairs; i++) {
-    const t = i / (pairs - 1);
-    const y = radius - t * radius * 1.78;
-    const len = radius * .52 * (1 - t * .82);
-    if (len < 1) break;
-    for (const side of [-1, 1]) {
-      ctx.fillStyle = (i + (side > 0 ? 1 : 0)) % 2 ? shades.main : shades.light;
-      ctx.save();
-      ctx.translate(0, y);
-      ctx.rotate(side * (Math.PI / 2.6) * (1 + t * .15));
-      ctx.beginPath();
-      ctx.ellipse(len / 2, 0, len / 2, len * .16, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+function drawDandelion(ctx, radius, depth, shades) {
+  // 蒲公英：中心绒球一圈圈展开，每根小伞末端带一颗浅色圆珠。
+  const rings = Math.min(Math.max(1, depth), 3);
+  ctx.fillStyle = shades.dark;
+  circle(ctx, 0, 0, radius * .1);
+  for (let ring = 1; ring <= rings; ring++) {
+    const t = ring / Math.max(2, rings);
+    const r = radius * (.45 + .5 * t);
+    const count = 10 + ring * 5;
+    for (let i = 0; i < count; i++) {
+      const a = i * Math.PI * 2 / count + ring * .4;
+      const sx = Math.cos(a) * radius * .12, sy = Math.sin(a) * radius * .12;
+      const ex = Math.cos(a) * r, ey = Math.sin(a) * r;
+      capsule(ctx, sx, sy, ex, ey, radius * .026, shades.main);
+      ctx.fillStyle = ring % 2 ? shades.light : shades.main;
+      circle(ctx, ex, ey, radius * .05);
     }
   }
 }
 
+function drawKaleidoscope(ctx, radius, depth, shades) {
+  // 万花筒：一圈圈圆点和菱形交错旋转，圈数随分形次数增加。
+  const wedges = 8, rings = depth + 1;
+  for (let ring = 1; ring <= rings; ring++) {
+    const r = radius * ring / (rings + .3);
+    const size = radius * .11 * (1 - .4 * ring / rings) + radius * .02;
+    for (let i = 0; i < wedges; i++) {
+      const a = i * Math.PI * 2 / wedges + ring * Math.PI / wedges;
+      const x = Math.cos(a) * r, y = Math.sin(a) * r;
+      ctx.fillStyle = (i + ring) % 2 ? shades.main : shades.light;
+      if (ring % 2) {
+        ctx.beginPath();
+        ctx.moveTo(x, y - size * 1.3);
+        ctx.lineTo(x + size * .8, y);
+        ctx.lineTo(x, y + size * 1.3);
+        ctx.lineTo(x - size * .8, y);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        circle(ctx, x, y, size);
+      }
+    }
+  }
+  ctx.fillStyle = shades.dark;
+  circle(ctx, 0, 0, radius * .08);
+}
+
+function drawCoral(ctx, radius, depth, shades) {
+  // 珊瑚：每根枝条分三根，梢头点上浅色圆珠当珊瑚虫。
+  const tips = [];
+  const branch = (x, y, angle, len, w, level) => {
+    const ex = x + Math.cos(angle) * len, ey = y + Math.sin(angle) * len;
+    capsule(ctx, x, y, ex, ey, w, shades.main);
+    if (level >= depth || len < 2.5) { tips.push([ex, ey, len]); return; }
+    for (const side of [-1, 0, 1]) {
+      branch(ex, ey, angle + side * Math.PI / 4.5, len * .62, w * .66, level + 1);
+    }
+  };
+  branch(0, radius * .9, -Math.PI / 2, radius * .55, radius * .16, 1);
+  for (const [x, y, s] of tips) { ctx.fillStyle = shades.light; circle(ctx, x, y, s * .38 + 1); }
+  ctx.fillStyle = shades.dark;
+  circle(ctx, 0, radius * .9, radius * .14);
+}
+
+function drawLightning(ctx, radius, depth, shades) {
+  // 闪电：主干三段折线，末端分出两道小闪电，梢头亮点收尾。
+  const zig = (x, y, angle, len, w, level) => {
+    let cx = x, cy = y;
+    const steps = 3;
+    for (let s = 0; s < steps; s++) {
+      const a = angle + (s % 2 ? 1 : -1) * Math.PI / 6;
+      const nx = cx + Math.cos(a) * len / steps, ny = cy + Math.sin(a) * len / steps;
+      capsule(ctx, cx, cy, nx, ny, w, shades.main);
+      cx = nx; cy = ny;
+    }
+    ctx.fillStyle = shades.light;
+    circle(ctx, cx, cy, w * .5);
+    if (level >= depth) return;
+    for (const side of [-1, 1]) {
+      zig(cx, cy, angle + side * Math.PI / 3.2, len * .58, w * .62, level + 1);
+    }
+  };
+  zig(0, -radius * .9, Math.PI / 2, radius * 1.8, radius * .13, 1);
+}
+
 const PRESET_DRAWERS = {
   snowflake: drawSnowflake, mandala: drawMandala, sunflower: drawSunflower, star: drawStarFlower,
-  tree: drawTree, romanesco: drawRomanesco, carpet: drawCarpet, bubbles: drawBubbles,
-  web: drawWeb, shell: drawShell, firework: drawFirework, fern: drawFern,
+  tree: drawTree, romanesco: drawRomanesco, carpet: drawCarpet, web: drawWeb,
+  firework: drawFirework, dandelion: drawDandelion, kaleidoscope: drawKaleidoscope,
+  coral: drawCoral, lightning: drawLightning,
 };
 
 /** 在 size×size 的画布中心绘制指定分形；返回该画布。 */

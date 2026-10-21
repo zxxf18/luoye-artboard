@@ -75,7 +75,7 @@ test('分形工具按钮不被遗留规则隐藏', () => {
 test('分形参数栏单行 2:1 且大小用百分比滑杆', () => {
   const classic = read('src/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
-  assert.match(shelf, /\.fractal-fields \{[^}]*grid-template-columns:\s*2fr\s+1fr/);
+  assert.match(shelf, /\.fractal-fields \{[^}]*grid-template-columns:\s*3fr\s+2fr/);
   assert.match(classic, /id="fractal-size" type="range" min="0" max="100"/);
   assert.match(classic, /fractalPercentToSize\(event\.target\.value\)/);
   assert.match(classic, /textContent=event\.target\.value\+'%'/);

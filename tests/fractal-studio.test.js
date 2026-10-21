@@ -26,10 +26,10 @@ test('分形次数限制在 1 到 6，越界值被拒绝', () => {
   for (const bad of [0, 7, -1, Number.NaN, 'x']) assert.throws(() => normalizeFractalDepth(bad), /分形次数/);
 });
 
-test('十二种图案都能在正方形画布上完成绘制', async () => {
+test('十三种图案都能在正方形画布上完成绘制', async () => {
   await withCanvasDouble(async () => {
     const ids = FRACTAL_PRESETS.map(preset => preset.id);
-    assert.equal(ids.length, 12);
+    assert.equal(ids.length, 13);
     for (const preset of FRACTAL_PRESETS) {
       assert.ok(FRACTAL_PRESET_ICONS[preset.id], preset.id + ' 缺少卡通图标');
       assert.match(FRACTAL_PRESET_ICONS[preset.id], /^</, preset.id + ' 图标应为 SVG 片段');
