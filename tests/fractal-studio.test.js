@@ -67,7 +67,7 @@ test('分形入口从工具第三页进入，旧的像素分形对话框已移�
   const creative = read('src/creative-ui.js');
   const bundle = read('tools/bundle.mjs');
   // 分形排在最后一位（第三页），左侧列表与参数栏接线齐全。
-  assert.match(classic, /\['scratch','刮刮画'\],\['animation','小动画'\],\['fractal','分形'\]/);
+  assert.match(classic, /\['clone','仿制印章'\],\['fractal','分形'\],\['scratch','刮刮画'\]/);
   assert.match(classic, /fractal-presets/);
   assert.match(classic, /fractal-depth-up/);
   assert.match(app, /placeFractal\(engine,point\)/);

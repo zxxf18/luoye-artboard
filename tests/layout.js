@@ -111,7 +111,7 @@ async function checkTools(doc){
  let stampDockHeight=0;
  if(!narrow){
   stampDockHeight=doc.querySelector('.tool-dock')?.getBoundingClientRect().height||0;
-  assert(stampDockHeight>=224&&stampDockHeight<=268,`魔法袋素材区与参数区总高度异常: ${stampDockHeight}`);
+  assert(stampDockHeight>=164&&stampDockHeight<=190,`魔法袋素材区与参数区总高度异常: ${stampDockHeight}`);
   const stampHeight=stampParameters?.getBoundingClientRect().height||0;
   assert(stampHeight>=46&&stampHeight<=64,`魔法袋参数区高度未压缩到独立控件行: ${stampHeight}`);
   const stampSize=doc.querySelector('#brush-options');
@@ -119,8 +119,8 @@ async function checkTools(doc){
   assert(stampAssets.getBoundingClientRect().height>=88,'魔法袋素材卡片高度被错误压缩');
   const firstStampAsset=stampAssets.querySelector('.asset');
   assert(firstStampAsset&&firstStampAsset.getBoundingClientRect().bottom<=stampAssets.getBoundingClientRect().bottom-3,'魔法袋素材内框与外框底边过近');
-  assert(stampSize.getBoundingClientRect().height<=60,'魔法袋素材大小拖拉条控件过高');
-  assert(stampPager.getBoundingClientRect().height<=60,'魔法袋翻页控件过高');
+  assert(stampSize.getBoundingClientRect().height<=56,'魔法袋素材大小拖拉条控件过高');
+  assert(stampPager.getBoundingClientRect().height<=56,'魔法袋翻页控件过高');
   assert(stampPanel&&stampAssets&&stampPager&&stampAssets.getBoundingClientRect().bottom<=stampPanel.getBoundingClientRect().bottom+1,'魔法袋素材卡片溢出素材区');
   assert(stampAssets.getBoundingClientRect().bottom<=stampParameters.getBoundingClientRect().top+1,'魔法袋素材卡片与参数区重叠');
   assert(inside(stampPager,stampParameters),'魔法袋翻页控件未位于参数区');
@@ -133,11 +133,11 @@ async function checkTools(doc){
  assert(galleryBrush&&!isVisible(galleryBrush),'图库仍显示魔法袋图案大小控件');
  if(!narrow){
   const galleryDockHeight=galleryDock.getBoundingClientRect().height,galleryParameters=doc.querySelector('.classic-parameters');
-  assert(galleryDockHeight>=224&&galleryDockHeight<=268,`图库工具区总高度异常: ${galleryDockHeight}`);
-  assert(galleryCategories&&galleryCategories.getBoundingClientRect().height<=60,'图库分类行过高');
+  assert(galleryDockHeight>=164&&galleryDockHeight<=190,`图库工具区总高度异常: ${galleryDockHeight}`);
+  assert(galleryCategories&&galleryCategories.getBoundingClientRect().height<=44,'图库分类行过高');
   assert(galleryAssets&&galleryPanel&&galleryAssets.getBoundingClientRect().bottom<=galleryPanel.getBoundingClientRect().bottom+1,'图库素材行溢出素材区');
   assert(galleryAssets.getBoundingClientRect().bottom<=galleryParameters.getBoundingClientRect().top+1,'图库素材行与参数区重叠');
-  assert(galleryPager&&inside(galleryPager,galleryParameters)&&galleryPager.getBoundingClientRect().height<=58,'图库翻页行过高或未位于参数区');
+  assert(galleryPager&&inside(galleryPager,galleryParameters)&&galleryPager.getBoundingClientRect().height<=50,'图库翻页行过高或未位于参数区');
  }
  if(!doc.querySelector('.tool-button[data-tool="pen"]'))doc.querySelector('#tool-page').click();
  const penButton=doc.querySelector('.tool-button[data-tool="pen"]');penButton.click();await pause(25);if(narrow)await mobilePanel('options');
@@ -238,10 +238,17 @@ async function checkToolGalleryInterleave(doc){
  gotoPage(3);doc.querySelector('#tools .tool-button[data-tool="scratch"]:not([hidden])').click();await pause(150);
  assert(!doc.body.classList.contains('library-open'),'切刮刮画后图库没有收起');
  assert(isVisible(doc.querySelector('.scratch-style-panel')),'刮刮画参数面板没有出现');
+ // 分形在第二页：按钮必须有真实渲染尺寸（曾有一条遗留 display:none 规则把它藏成零尺寸）。
+ for(let i=0;i<4&&!doc.querySelector('#tools .tool-button[data-tool="fractal"]')?.getClientRects().length;i++)doc.getElementById('tool-page').click();
+ const fractalButton=doc.querySelector('#tools .tool-button[data-tool="fractal"]:not([hidden])');
+ assert(fractalButton,'分形按钮不在常用工具里');
+ for(const b of doc.querySelectorAll('#tools .tool-button:not([hidden])')){const r=b.getBoundingClientRect();assert(r.width>10&&r.height>30,'常用工具按钮没有渲染尺寸：'+b.dataset.tool);}
+ fractalButton.click();await pause(150);
+ assert(isVisible(doc.querySelector('.fractal-params')),'分形参数面板没有出现');
  // 图库开着打开小动画／像素画弹窗：关闭后状态栏不残留、模式按钮不自相矛盾。
  for(const feature of ['animation','pixel']){
   click('mode-library');await pause(100);
-  // 像素画已并入第二页绘画工具，功能按钮位置不再固定，翻到可见为止。
+  // 功能按钮（小动画／像素画）位置随分页调整而变化，翻到可见为止。
   for(let i=0;i<4&&!doc.querySelector(`#tools .tool-button[data-tool="${feature}"]`)?.getClientRects().length;i++)doc.getElementById('tool-page').click();
   doc.querySelector(`#tools .tool-button[data-tool="${feature}"]:not([hidden])`).click();await pause(150);
   const dialog=doc.getElementById(feature==='animation'?'animation-editor-dialog':'pixel-art-dialog');
@@ -299,7 +306,7 @@ for(const [width,height] of [[375,240],[540,320],[900,650],[1024,720],[1280,720]
    const viewport=doc.querySelector('#viewport'),r=viewport.getBoundingClientRect();assert(r.width>=200&&r.height>=100,'画纸被挤压');
    const headerRect=doc.querySelector('.app-header').getBoundingClientRect(),dock=doc.querySelector('.tool-dock').getBoundingClientRect();
    assert(headerRect.height<=72,'顶部操作区过高');
-   assert(dock.height<=(height>=500?Math.min(268,Math.max(224,height*.26)):Math.max(180,height*.7))+1,'底部状态选择区过高');
+   assert(dock.height<=(height>=500?Math.min(190,Math.max(164,height*.17)):Math.max(180,height*.7))+1,'底部状态选择区过高');
    for(const id of ['display-open','new','tool-page','stroke-buttons']){
     const element=doc.getElementById(id);if(!element||!isVisible(element))continue;
     if(inside(element,doc.body))continue;

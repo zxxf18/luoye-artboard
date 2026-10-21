@@ -66,6 +66,12 @@ test('仿制印章参数分两排且设置源点独占第二排', () => {
   assert.match(shelf, /data-classic-tool="clone"[^}]*#clone-source[\s\S]*font-size:\s*17px/);
 });
 
+test('分形工具按钮不被遗留规则隐藏', () => {
+  const styles = read('public/styles.css');
+  assert.doesNotMatch(styles, /data-tool="fractal"[^}]*display:\s*none/);
+  assert.doesNotMatch(styles, /\[data-option="fractal"\][^}]*display:\s*none/);
+});
+
 test('刮刮画复用公共参数栏高度，候选颜色保持圆形', () => {
   const classic = read('src/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
@@ -127,24 +133,24 @@ test('文字与油漆桶不透明度及油漆桶参数统一为16px可读字号'
 test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
   const shelf = read('public/tool-shelf.css');
   assert.match(shelf, /data-library-surface="fairy"\]\s+\.categories\s*\{[^}]*display:\s*none\s*!important/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*height:\s*clamp\(224px,\s*26dvh,\s*268px\)/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*min-height:\s*224px[\s\S]*max-height:\s*268px/);
-  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+62px/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*height:\s*clamp\(164px,\s*17dvh,\s*190px\)/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*min-height:\s*164px[\s\S]*max-height:\s*190px/);
+  assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+46px/);
   assert.match(shelf, /library-open\[data-classic-tool="stamp"\][\s\S]*classic-parameters\s*\{[\s\S]*min-height:\s*0/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*min-height:\s*100px[\s\S]*max-height:\s*100%/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*asset-grid\s*\{[\s\S]*padding-bottom:\s*6px/);
   assert.match(shelf, /data-classic-tool="stamp"\]\[data-library-surface="fairy"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*28px[\s\S]*height:\s*28px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*#brush-options\s*\{[^}]*display:\s*none\s*!important/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+62px/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories\s*\{[\s\S]*height:\s*56px[\s\S]*max-height:\s*56px/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories button\s*\{[\s\S]*min-height:\s*48px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*tool-dock\s*\{[\s\S]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+46px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories\s*\{[\s\S]*height:\s*40px[\s\S]*max-height:\s*40px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*categories button\s*\{[\s\S]*min-height:\s*32px/);
   assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*asset-grid\s*\{[\s\S]*height:\s*calc\(100%\s*-\s*4px\)[\s\S]*min-height:\s*0/);
-  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*48px[\s\S]*height:\s*48px/);
+  assert.match(shelf, /library-open\[data-library-surface="gallery"\][\s\S]*library-pagination button\s*\{[\s\S]*min-height:\s*38px[\s\S]*height:\s*38px/);
 });
 
 test('常用工具每页至多七个，功能工具整体从第三页开始', () => {
   const classic = read('src/classic-ui.js');
-  assert.match(classic, /\['clone','仿制印章'\],\['pixel','像素画'\],\['scratch','刮刮画'\],\['animation','小动画'\],\['fractal','分形'\]/);
+  assert.match(classic, /\['clone','仿制印章'\],\['fractal','分形'\],\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\]/);
   assert.match(classic, /Math\.ceil\(firstFeature\s*\/\s*7\)/);
   assert.match(classic, /pageOf\(index\)!==page/);
   // 两个编辑器入口只保留在工具栏第三页，不再占用顶部工具区。
