@@ -2662,11 +2662,9 @@
 .playroom .animation-heading p { margin: 0; color: var(--muted, #8d6b50); }
 .playroom .animation-close { min-width: 42px; min-height: 42px; padding: 0; font-size: 26px; line-height: 1; }
 .playroom .animation-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(264px, 312px); gap: 14px; align-items: stretch; }
-/* 舞台列弹性伸缩，控制列加宽固定；两栏同行等高。正方形交给内层
-   frame：宽度取可用宽与视口高度约束的较小值，棋盘舞台拉满整行高，
-   画布填满 frame，比例恒为 1:1 且永不与控制列重叠。 */
-.playroom .animation-stage { display: grid; place-items: center; min-height: 0; min-width: 0; padding: 8px; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 22px 22px; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
-.playroom .animation-stage-frame { position: relative; width: min(100%, min(46dvh, 420px)); aspect-ratio: 1; }
+/* 舞台就是那块正方形画板本身：不再垫一圈棋盘底衬，边框直接围住画布。 */
+.playroom .animation-stage { display: grid; place-items: center; min-height: 0; min-width: 0; }
+.playroom .animation-stage-frame { position: relative; width: min(100%, min(46dvh, 420px)); aspect-ratio: 1; border: 3px solid var(--theme-border, #d4a36d); border-radius: 18px; overflow: hidden; }
 .playroom .animation-stage-frame canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .playroom #animation-onion-canvas { z-index: 1; pointer-events: none; }
 .playroom #animation-frame-canvas { z-index: 2; touch-action: none; outline: none; image-rendering: auto; }
@@ -2748,39 +2746,42 @@
    frame strip and controls use the same compact touch rhythm as the main
    artboard parameters. */
 @media (min-width: 861px) and (min-height: 651px) {
-  /* 整张弹窗按窗口高度撑满放大；舞台的正方形边长取舞台宽高的较小值
-     （容器查询单位），画板区上下不再留白。不支持容器查询的旧内核会
-     退回基础规则里的 46dvh 上限，仍然保持正方形。 */
+  /* 弹窗整体收小一档（920×760 上限），内容间距同步压缩；
+     舞台正方形取容器宽高的较小值（容器查询单位），画板区上下不留白。
+     不支持容器查询的旧内核退回基础规则里的 46dvh 上限。 */
   .playroom .animation-dialog {
-    padding: 14px;
-    width: min(1040px, calc(100vw - 28px));
-    max-width: min(1040px, calc(100vw - 28px));
-    height: min(900px, calc(100dvh - 20px));
-    max-height: min(900px, calc(100dvh - 20px));
+    padding: 12px;
+    width: min(920px, calc(100vw - 48px));
+    max-width: min(920px, calc(100vw - 48px));
+    height: min(760px, calc(100dvh - 48px));
+    max-height: min(760px, calc(100dvh - 48px));
   }
   .playroom .animation-editor-form {
-    gap: 10px;
+    gap: 8px;
     height: 100%;
   }
   .playroom .animation-workspace {
-    gap: 12px;
+    gap: 10px;
     flex: 1;
     min-height: 0;
-    grid-template-columns: minmax(0, 1fr) minmax(288px, 336px);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 324px);
   }
   .playroom .animation-stage { container-type: size; }
   .playroom .animation-stage-frame { width: min(100cqw, 100cqh); }
   .playroom .animation-controls {
-    gap: 8px;
-    padding: 12px;
+    gap: 7px;
+    padding: 10px;
     max-height: 100%;
     overflow: auto;
   }
   .playroom .animation-framebar {
-    padding: 8px;
+    padding: 6px;
+  }
+  .playroom .animation-framebar-heading {
+    margin-bottom: 6px;
   }
   .playroom .animation-frame-strip {
-    min-height: 76px;
+    min-height: 70px;
   }
   .playroom .animation-frame-thumb {
     flex-basis: 82px;
