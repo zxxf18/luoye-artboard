@@ -2751,8 +2751,8 @@
      不支持容器查询的旧内核退回基础规则里的 46dvh 上限。 */
   .playroom .animation-dialog {
     padding: 12px;
-    width: min(920px, calc(100vw - 48px));
-    max-width: min(920px, calc(100vw - 48px));
+    width: min(820px, calc(100vw - 48px));
+    max-width: min(820px, calc(100vw - 48px));
     height: min(760px, calc(100dvh - 48px));
     max-height: min(760px, calc(100dvh - 48px));
   }

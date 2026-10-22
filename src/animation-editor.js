@@ -207,7 +207,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
     snapshotCurrent(); playing = true; let index = 0; timeline.setCurrent(index); loadCurrent();
     playTimer = setInterval(() => { index = (index + 1) % timeline.frameCount; timeline.setCurrent(index); loadCurrent(); }, timeline.frameDuration); updateUi();
   }
-  function open() { stopPlayback(); timeline.currentIndex = 0; loadCurrent(); dialog.showModal(); }
+  function open() { stopPlayback(); timeline.currentIndex = 0; loadCurrent(); dialog.showModal(); dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
   function place() {
     stopPlayback(); snapshotCurrent(); const options = timeline.toLayerOptions();
     const first = options.frames[0]; engine.addLayer('我的小动画', first, true, options); dialog.close(); toast('小动画已经放回画板，可以移动和放大它了。');

@@ -193,7 +193,7 @@ export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
     lastCell = current; render();
   }
   function stopDrawing() { drawing = false; lastCell = null; }
-  function open() { render(); dialog.showModal(); }
+  function open() { render(); dialog.showModal(); dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
   function place() {
     if (model.isEmpty()) { toast?.('先涂一格颜色，再放回画板。'); return; }
     const outputSize = Math.max(16, Math.min(512, Number(engine?.width) || 512, Number(engine?.height) || 512));
