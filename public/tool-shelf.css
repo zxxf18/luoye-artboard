@@ -683,6 +683,7 @@
 .playroom[data-theme] .categories button,
 .playroom[data-theme] .display-options button,
 .playroom[data-theme] .music-transport button,
+.playroom[data-theme] #selection-reset,
 .playroom[data-theme] .mobile-command {
   background: var(--theme-control) !important;
   border-color: var(--theme-border) !important;
@@ -701,6 +702,7 @@
 .playroom[data-theme] .categories button:hover:not(:disabled),
 .playroom[data-theme] .display-options button:hover:not(:disabled),
 .playroom[data-theme] .music-transport button:hover:not(:disabled),
+.playroom[data-theme] #selection-reset:hover:not(:disabled),
 .playroom[data-theme] .mobile-command:hover:not(:disabled) {
   background: var(--theme-hover) !important;
   border-color: var(--theme-accent) !important;
