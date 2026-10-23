@@ -313,8 +313,10 @@ $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
   event.preventDefault(); $('painting').focus({ preventScroll: true });
   // Mouse, touch, Apple Pencil and Android stylus all enter as one unified
-  // pointer record; the engine sees canvas coordinates plus pressure/type.
-  const point = toUnifiedPointer(event, source => engine.point(source), 'down');
+  // pointer record; the engine sees clean canvas coordinates, and pressure /
+  // pointer type ride in the gesture options (recordings stay compact).
+  const pointer = toUnifiedPointer(event, source => engine.point(source), 'down');
+  const point = { x: pointer.x, y: pointer.y };
   if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
   if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options(),...assist.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
@@ -332,7 +334,7 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, pointerType: point.pointerType, pressure: point.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, pointerType: pointer.pointerType, pressure: pointer.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });
@@ -359,7 +361,7 @@ function updatePaintingPointer(event,{preview=true}={}){
   // point so a soft eraser cannot erase the same area twice or briefly move
   // backwards along the stroke.
   const samples=engine.gesture?.rawPointerSampling?[event]:collectPointerSamples(event,highFrequency);
-  for(const sample of samples)engine.update(toUnifiedPointer(sample, source => engine.point(source, rect), 'move'));
+  for(const sample of samples){const move=toUnifiedPointer(sample, source => engine.point(source, rect), 'move');engine.update({x:move.x,y:move.y});}
 }
 $('painting').addEventListener('pointermove', event => updatePaintingPointer(event));
 // Pointermove stays the path for every tool. Raw samples are an additive
