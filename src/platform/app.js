@@ -360,7 +360,11 @@ function updatePaintingPointer(event,{preview=true}={}){
   // its coalesced list, sometimes in an older order. Consume only its current
   // point so a soft eraser cannot erase the same area twice or briefly move
   // backwards along the stroke.
-  const samples=engine.gesture?.rawPointerSampling?[event]:collectPointerSamples(event,highFrequency);
+  // Coalesced micro-steps are pointless for the warp smudge — each dab already
+  // carries the full displacement — and multiplying ~250px pixel warps per
+  // frame pegs the CPU. Consume only the freshest sample for it.
+  const latestOnly=engine.gesture?.rawPointerSampling||engine.gesture?.kind==='warp';
+  const samples=latestOnly?[event]:collectPointerSamples(event,highFrequency);
   for(const sample of samples){const move=toUnifiedPointer(sample, source => engine.point(source, rect), 'move');engine.update({x:move.x,y:move.y});}
 }
 $('painting').addEventListener('pointermove', event => updatePaintingPointer(event));

@@ -119,7 +119,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     bar.classList.toggle('tools-centered',!compact);
     flipRow.hidden=compact;
     flipRow.setAttribute('aria-hidden',String(compact));
-    flipLabel.textContent=`${page+1} / ${pageCount()}`;
+    flipLabel.textContent=`${page+1}/${pageCount()}`;
     flipPrev.title=page===0?`循环到第 ${pageCount()} 页`:'上一页工具';
     flipNext.title=page===pageCount()-1?'回到第 1 页':'下一页工具';
     bar.after(flipRow);
