@@ -2,6 +2,8 @@ import { DrawingEngine } from '../core/drawing.js';
 import { makeCanvas } from '../core/engine.js';
 import { playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE } from '../core/brushes.js';
+import { getToolFeedback } from './tool-feedback.js';
+import { toolCursor } from './tool-cursors.js';
 
 export const MAX_ANIMATION_FRAMES = 12;
 export const DEFAULT_ANIMATION_SIZE = { width: 512, height: 512 };
@@ -146,7 +148,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
       <div class="animation-heading"><div><span class="eyebrow">MAKE IT MOVE</span><h2>小动画</h2><p>画一张，复制一张，改一点，就会动起来。</p></div><button value="cancel" class="animation-close" aria-label="关闭小动画">×</button></div>
       <div class="animation-workspace">
         <div class="animation-stage"><div class="animation-stage-frame"><canvas id="animation-onion-canvas" aria-hidden="true"></canvas><canvas id="animation-frame-canvas" width="${DEFAULT_ANIMATION_SIZE.width}" height="${DEFAULT_ANIMATION_SIZE.height}" tabindex="0" aria-label="小动画当前帧"></canvas><span class="animation-frame-badge" id="animation-frame-badge">第 1 张</span></div></div>
-        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><label class="animation-select-label">画笔<select id="animation-brush"></select></label><div class="animation-sliders"><label class="animation-color-label"><span class="animation-slider-caption">颜色</span><button type="button" id="animation-color" class="animation-color-control" aria-label="选择小动画画笔颜色" title="和画板上的画笔共用同一个调色板"></button></label><label class="animation-size-label"><span class="animation-slider-caption">粗细 <output id="animation-size-value">16</output></span><input id="animation-size" type="range" min="2" max="120" value="16"></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
+        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><label class="animation-select-label">画笔<span class="animation-select-wrap"><select id="animation-brush" data-direct-choice="true" aria-label="选择小动画画笔"></select><svg class="animation-select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></label><div class="animation-sliders"><label class="animation-color-label"><span class="animation-slider-caption">颜色</span><button type="button" id="animation-color" class="animation-color-control" aria-label="选择小动画画笔颜色" title="和画板上的画笔共用同一个调色板"></button></label><label class="animation-size-label"><span class="animation-slider-caption">粗细 <output id="animation-size-value">16</output></span><input id="animation-size" type="range" min="2" max="120" value="16"></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
       </div>
       <div class="animation-framebar"><div class="animation-framebar-heading"><strong>动画帧 <span id="animation-frame-count">1 / 12</span></strong><span>每张都是一小步</span></div><div id="animation-frame-strip" class="animation-frame-strip" aria-label="动画帧列表"></div></div>
       <div class="animation-actions"><div class="animation-actions-group"><button type="button" id="animation-prev">上一张</button><button type="button" id="animation-next">下一张</button><button type="button" id="animation-copy">复制这一张</button><button type="button" id="animation-blank">新空白帧</button><button type="button" id="animation-clear">清空这一张</button><button type="button" id="animation-delete">删除这一张</button></div><div class="animation-actions-group"><button type="button" id="animation-play" class="primary">${playfulIcon('play')}<span>播放</span></button><button type="button" id="animation-place" class="primary">${playfulIcon('new-paper')}<span>放回画板</span></button></div></div>
@@ -163,6 +165,18 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   editor.reset(timeline.width, timeline.height); editor.playing = false; clearInterval(editor.animationTimer); editor.paperMode = false;
   const brushSelect = $('animation-brush');
   for (const brush of BRUSHES) { const option = document.createElement('option'); option.value = brush.id; option.textContent = brush.name; brushSelect.append(option); }
+  // The frame canvas shares the illustrated tool cursors with the main board,
+  // so the pointer always shows the brush or shape about to be used.
+  const cursorCache = new Map();
+  function syncCursor() {
+    const entry = getToolFeedback({ tool, pen: brushSelect.value });
+    if (!cursorCache.has(entry.key)) {
+      const { svg, hotspot } = toolCursor(entry);
+      cursorCache.set(entry.key, `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.join(' ')}, crosshair`);
+    }
+    frameCanvas.style.cursor = cursorCache.get(entry.key);
+  }
+  brushSelect.addEventListener('change', syncCursor);
 
   function snapshotCurrent() { if (timeline.currentFrame) timeline.replaceCurrent(copyCanvas(editor.active.canvas)); }
   function loadCurrent() {
@@ -207,7 +221,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
     snapshotCurrent(); playing = true; let index = 0; timeline.setCurrent(index); loadCurrent();
     playTimer = setInterval(() => { index = (index + 1) % timeline.frameCount; timeline.setCurrent(index); loadCurrent(); }, timeline.frameDuration); updateUi();
   }
-  function open() { stopPlayback(); timeline.currentIndex = 0; loadCurrent(); dialog.showModal(); dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
+  function open() { stopPlayback(); timeline.currentIndex = 0; loadCurrent(); syncCursor(); dialog.showModal(); dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
   function place() {
     stopPlayback(); snapshotCurrent(); const options = timeline.toLayerOptions();
     const first = options.frames[0]; engine.addLayer('我的小动画', first, true, options); dialog.close(); toast('小动画已经放回画板，可以移动和放大它了。');
@@ -221,7 +235,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   frameCanvas.addEventListener('pointerup', finish); frameCanvas.addEventListener('pointercancel', finish); frameCanvas.addEventListener('lostpointercapture', finish);
   $('animation-onion').addEventListener('change', drawOnion); $('animation-size').addEventListener('input', () => $('animation-size-value').textContent = $('animation-size').value);
   $('animation-fps').addEventListener('change', () => { timeline.setFps($('animation-fps').value); if (playing) { stopPlayback(); startPlayback(); } });
-  for (const button of dialog.querySelectorAll('[data-animation-tool]')) button.onclick = () => { tool = button.dataset.animationTool; $('animation-tool-hint').textContent = tool === 'pen' ? '用熟悉的画笔画当前帧' : tool === 'eraser' ? '擦掉这一张里的笔迹' : tool === 'fill' ? '点一下给这一张填色' : '拖动做出简单形状'; updateUi(); };
+  for (const button of dialog.querySelectorAll('[data-animation-tool]')) button.onclick = () => { tool = button.dataset.animationTool; $('animation-tool-hint').textContent = tool === 'pen' ? '用熟悉的画笔画当前帧' : tool === 'eraser' ? '擦掉这一张里的笔迹' : tool === 'fill' ? '点一下给这一张填色' : '拖动做出简单形状'; updateUi(); syncCursor(); };
   $('animation-prev').onclick = () => selectFrame(Math.max(0, timeline.currentIndex - 1)); $('animation-next').onclick = () => selectFrame(Math.min(timeline.frameCount - 1, timeline.currentIndex + 1));
   $('animation-copy').onclick = () => { stopPlayback(); snapshotCurrent(); timeline.copyPrevious(copyCanvas); loadCurrent(); };
   $('animation-blank').onclick = () => { stopPlayback(); snapshotCurrent(); timeline.addBlankFrame(blankFrame); loadCurrent(); };
