@@ -1,6 +1,6 @@
-import {makeCanvas} from '../src/engine.js';
-import {DrawingEngine} from '../src/drawing.js';
-import {Recorder,validateRecording} from '../src/recording.js';
+import {makeCanvas} from '../src/core/engine.js';
+import {DrawingEngine} from '../src/core/drawing.js';
+import {Recorder,validateRecording} from '../src/ui/recording.js';
 const results=[],assert=(v,m)=>{if(!v)throw Error(m);};
 async function check(name,fn){try{await fn();results.push({name,ok:true});}catch(e){results.push({name,ok:false,error:e.message});}const r=results.at(-1),li=document.createElement('li');li.textContent=`${r.ok?'PASS':'FAIL'} ${name}: ${r.error||''}`;document.querySelector('ol').append(li);}
 const engine=()=>{const e=new DrawingEngine(makeCanvas(128,128));e.reset(128,128);clearInterval(e.animationTimer);return e;};

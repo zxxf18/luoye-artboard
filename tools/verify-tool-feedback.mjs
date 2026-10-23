@@ -33,7 +33,7 @@ async function tool(page,id){if(!await page.locator(`#tools [data-tool="${id}"]`
 const idle=page=>page.waitForFunction(()=>!document.body.hasAttribute('aria-busy'));
 try{
  let page=await launch();
- const entries=await page.evaluate(async()=>{const {TOOL_FEEDBACK}=await import('/src/tool-feedback.js');return TOOL_FEEDBACK;});
+ const entries=await page.evaluate(async()=>{const {TOOL_FEEDBACK}=await import('/src/ui/tool-feedback.js');return TOOL_FEEDBACK;});
  // Every visible tool and subtype drives the same cursor and sound identity.
  for(const entry of entries.filter(entry=>entry.tool!=='fractal')){
   await tool(page,entry.tool==='geometry'?'line':entry.tool);
@@ -48,7 +48,7 @@ try{
   assert.equal(await page.locator('#painting').getAttribute('data-cursor'),entry.key);
   const cursor=await page.locator('#painting').evaluate(e=>getComputedStyle(e).cursor);
   assert.match(cursor,/^url\("data:image\/svg\+xml,/);
-  const hotspot=await page.evaluate(async entry=>(await import('/src/tool-cursors.js')).toolCursor(entry).hotspot,entry);
+  const hotspot=await page.evaluate(async entry=>(await import('/src/ui/tool-cursors.js')).toolCursor(entry).hotspot,entry);
   assert(cursor.endsWith(hotspot.join(' ')+', crosshair'),entry.key+' contact matches CSS hotspot');
  }
  record('all '+entries.filter(entry=>entry.tool!=='fractal').length+' public brush/tool variants use illustrated cursors; experimental fractal stays hidden');
@@ -74,7 +74,7 @@ try{
  record('music switch mutes all brush/tool feedback');
  // Decode and rasterize the actual cursor SVGs, and render the actual sound graph.
  const rendered=await page.evaluate(async()=>{
-  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/tool-feedback.js');const {toolCursor}=await import('/src/tool-cursors.js');const result=[];
+  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/ui/tool-feedback.js');const {toolCursor}=await import('/src/ui/tool-cursors.js');const result=[];
   const hash=async data=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',data))].map(x=>x.toString(16).padStart(2,'0')).join('');
   for(const entry of TOOL_FEEDBACK){
    const {svg,hotspot}=toolCursor(entry),image=new Image();image.src='data:image/svg+xml,'+encodeURIComponent(svg);await image.decode();
@@ -86,7 +86,7 @@ try{
  assert.equal(new Set(rendered.map(r=>r.imageHash)).size,entries.length);assert.equal(new Set(rendered.map(r=>r.soundHash)).size,entries.length);assert(rendered.every(r=>r.peak>.005&&r.peak<.1));
  record('54 actual rasterized icons and PCM sounds are distinct; sound peaks are bounded');
  const levels=await page.evaluate(async()=>{
-  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/tool-feedback.js');const levels=[];
+  const {TOOL_FEEDBACK,scheduleToolSound}=await import('/src/ui/tool-feedback.js');const levels=[];
   for(const volume of [0,.3,.6,1]){const ctx=new OfflineAudioContext(1,17640,44100);scheduleToolSound(ctx,TOOL_FEEDBACK[0].sound,volume);const pcm=(await ctx.startRendering()).getChannelData(0);levels.push({volume,peak:Math.max(...pcm.map(Math.abs))});}return levels;
  });
  assert.equal(levels[0].peak,0);assert(Math.abs(levels[2].peak/levels[1].peak-2)<.02);assert(levels[2].peak>levels[1].peak*1.9&&levels[2].peak<.091);assert(levels[3].peak<.151);

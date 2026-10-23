@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assistCopies, assistGuideLines, assistPointSets, assistSegments, assistSegmentCopies, normalizeAssistConfig } from '../src/assist.js';
+import { assistCopies, assistGuideLines, assistPointSets, assistSegments, assistSegmentCopies, normalizeAssistConfig } from '../src/core/assist.js';
 
 const center = { x: 50, y: 40 };
 

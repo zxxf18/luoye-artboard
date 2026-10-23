@@ -1,4 +1,4 @@
-import { loadImage } from './engine.js';
+import { loadImage } from '../core/engine.js';
 
 export function mountMaterials({engine,run,toast,getColor}) {
   const el=id=>document.getElementById(id),panel=document.createElement('div');panel.className='creative-options';

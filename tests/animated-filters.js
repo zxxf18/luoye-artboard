@@ -1,5 +1,5 @@
-import {Recorder} from '/src/recording.js';
-import {DrawingEngine} from '/src/drawing.js';import {makeCanvas} from '/src/engine.js';
+import {Recorder} from '/src/ui/recording.js';
+import {DrawingEngine} from '/src/core/drawing.js';import {makeCanvas} from '/src/core/engine.js';
 const results=[];const check=(ok,name)=>results.push({passed:!!ok,name});
 const solid=(color,w=40,h=40)=>{const c=makeCanvas(w,h),ctx=c.getContext('2d');ctx.fillStyle=color;ctx.fillRect(4,4,w-8,h-8);return c;};
 const e=new DrawingEngine(makeCanvas(320,180));e.reset(320,180);e.paperMode=true;

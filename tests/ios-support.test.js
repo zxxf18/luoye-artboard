@@ -34,7 +34,7 @@ test('iOS bridge handles every native channel used by the web app', async () => 
 
 test('iOS host keeps local resources sandboxed and enables safe-area layout', async () => {
   const source = await read('native/ios/LuoyeWebViewController.swift');
-  const display = await read('src/display-ui.js');
+  const display = await read('src/ui/display-ui.js');
   assert.match(source, /loadFileURL/);
   assert.match(source, /allowingReadAccessTo/);
   assert.match(source, /viewport-fit=cover/);
@@ -108,7 +108,7 @@ test('iOS build helper refuses to claim a build without Xcode and copies the cur
 });
 
 test('compact mobile library keeps fairy mode choices reachable', async () => {
-  const classic = await read('src/classic-mobile.js');
+  const classic = await read('src/ui/classic-mobile.js');
   const styles = await read('public/playroom.css');
   assert.match(classic, /fairyGroups\.parentElement!==library/);
   assert.match(classic, /library\?\.prepend\(fairyGroups\)/);

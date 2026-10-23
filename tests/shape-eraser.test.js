@@ -5,7 +5,7 @@ import {
   normalizeEraserShape,
   shapeEraserBounds,
   shapeEraserSegment,
-} from '../src/shape-eraser.js';
+} from '../src/core/shape-eraser.js';
 
 function spyContext() {
   const calls = [];

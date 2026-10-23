@@ -6,7 +6,7 @@ import {
   assistSegmentCopiesFromGeometry,
   assistTransformDescriptors,
   normalizeAssistConfig,
-} from '../src/assist.js';
+} from '../src/core/assist.js';
 import { CanvasDouble, silenceEngine } from './helpers/canvas-double.js';
 
 const root = new URL('../', import.meta.url);
@@ -23,7 +23,7 @@ before(async () => {
   globalThis.document = { createElement: () => new CanvasDouble() };
   globalThis.requestAnimationFrame = () => 0;
   globalThis.cancelAnimationFrame = () => {};
-  const { PaintEngine } = await import('../src/engine.js');
+  const { PaintEngine } = await import('../src/core/engine.js');
   engine = new PaintEngine(new CanvasDouble(), () => {});
   silenceEngine(engine);
 });
@@ -53,7 +53,7 @@ test('宽笔尖在多份辅助下合并密集采样，单份笔触保持原有�
 });
 
 test('update 使用平方距离比较并且收笔前释放被合并的采样点', () => {
-  const engineSource = read('src/engine.js');
+  const engineSource = read('src/core/engine.js');
   assert.match(engineSource, /distanceSquared < coalesceDistance \* coalesceDistance/);
   assert.match(engineSource, /g\.pending && \['pen', 'eraser', 'scratch'\]\.includes\(g\.options\.tool\)/);
   // 刮刮画粗笔刷按四分之一足迹合并，减少重复磁贴回读。
@@ -61,8 +61,8 @@ test('update 使用平方距离比较并且收笔前释放被合并的采样点'
 });
 
 test('环形对称的多个副本各自捕获磁贴而不是整张并集', () => {
-  const engineSource = read('src/engine.js');
-  const drawingSource = read('src/drawing.js');
+  const engineSource = read('src/core/engine.js');
+  const drawingSource = read('src/core/drawing.js');
   assert.match(engineSource, /captureTilesMany\(layer, boundsList, tiles\)/);
   assert.match(drawingSource, /this\.captureTilesMany\(g\.layer,copyBounds,g\.tiles\)/);
 });
@@ -84,8 +84,8 @@ test('缓存的对称几何与慢速路径给出完全相同的线段副本', ()
 });
 
 test('渐变画笔的九个颜色停靠点按段缓存并在对称副本间共享', () => {
-  const brushesSource = read('src/brushes.js');
-  const drawingSource = read('src/drawing.js');
+  const brushesSource = read('src/core/brushes.js');
+  const drawingSource = read('src/core/drawing.js');
   assert.match(brushesSource, /export function prepareGradientStops/);
   assert.match(brushesSource, /gradientStopsSignature===signature&&gesture\.gradientStops\?\.length===9/);
   assert.match(drawingSource, /if \(gradientStops\) copy\.gradientStops = gradientStops;/);

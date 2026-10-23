@@ -1,5 +1,5 @@
-import { makeCanvas, loadImage } from './engine.js';
-import { warpPixels } from './warps.js';
+import { makeCanvas, loadImage } from '../core/engine.js';
+import { warpPixels } from '../core/warps.js';
 
 export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
   const el=id=>document.getElementById(id),detail=document.querySelector('.detail-bar');

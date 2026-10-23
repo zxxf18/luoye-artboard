@@ -1,6 +1,6 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { DrawingEngine } from '../src/drawing.js';
+import { DrawingEngine } from '../src/core/drawing.js';
 
 // These tests exercise the drawing integration without relying on a native
 // canvas implementation. The context records the transform at which each

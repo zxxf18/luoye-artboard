@@ -7,7 +7,7 @@ import {
   classifyStorageError,
   previousSessionId,
   galleryMetadata,
-} from '../src/storage-format.js';
+} from '../src/core/storage-format.js';
 
 const project = { title: '测试作品', width: 320, height: 240, layers: [] };
 

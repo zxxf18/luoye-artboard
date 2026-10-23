@@ -12,7 +12,7 @@ import {
   normalizeFractalDepth,
   placeFractal,
   renderFractalCanvas,
-} from '../src/fractal-studio.js';
+} from '../src/ui/fractal-studio.js';
 import { CanvasDouble, withCanvasDouble, silenceEngine } from './helpers/canvas-double.js';
 
 const root = new URL('../', import.meta.url);
@@ -67,7 +67,7 @@ test('大小跟随参数并受范围约束', async () => {
 
 test('点击画纸放置分形会新增可移动图层', async () => {
   await withCanvasDouble(async () => {
-    const { DrawingEngine } = await import('../src/drawing.js');
+    const { DrawingEngine } = await import('../src/core/drawing.js');
     const engine = new DrawingEngine(new CanvasDouble(64, 64), () => {});
     silenceEngine(engine);
     const before = engine.layers.length;
@@ -82,9 +82,9 @@ test('点击画纸放置分形会新增可移动图层', async () => {
 });
 
 test('分形入口从工具第三页进入，旧的像素分形对话框已移除', () => {
-  const classic = read('src/classic-ui.js');
-  const app = read('src/app.js');
-  const creative = read('src/creative-ui.js');
+  const classic = read('src/ui/classic-ui.js');
+  const app = read('src/platform/app.js');
+  const creative = read('src/ui/creative-ui.js');
   const bundle = read('tools/bundle.mjs');
   // 分形排在最后一位（第三页），左侧列表与参数栏接线齐全。
   assert.match(classic, /\['clone','仿制印章'\],\['fractal','分形'\],\['scratch','刮刮画'\]/);

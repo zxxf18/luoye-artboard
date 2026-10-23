@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateProject, MAX_LAYERS} from '../src/core.js';
-import {PaintEngine} from '../src/engine.js';
+import {validateProject, MAX_LAYERS} from '../src/core/core.js';
+import {PaintEngine} from '../src/core/engine.js';
 
 test('shared immutable frames count once, independent layer masks count separately',()=>{
   const frame={width:1000,height:1000},groups=[{frames:[frame,frame]}];

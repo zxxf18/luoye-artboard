@@ -1,6 +1,6 @@
-import { DrawingEngine } from '../src/drawing.js';
-import { Recorder, validateRecording } from '../src/recording.js';
-import { makeCanvas } from '../src/engine.js';
+import { DrawingEngine } from '../src/core/drawing.js';
+import { Recorder, validateRecording } from '../src/ui/recording.js';
+import { makeCanvas } from '../src/core/engine.js';
 const editor = new DrawingEngine(document.querySelector('canvas'),()=>{});
 const results=[];
 const pixel=(canvas,x,y)=>[...canvas.getContext('2d').getImageData(x,y,1,1).data];

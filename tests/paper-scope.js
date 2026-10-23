@@ -1,6 +1,6 @@
-import { Recorder } from '/src/recording.js';
-import { DrawingEngine } from '/src/drawing.js';
-import { makeCanvas } from '/src/engine.js';
+import { Recorder } from '/src/ui/recording.js';
+import { DrawingEngine } from '/src/core/drawing.js';
+import { makeCanvas } from '/src/core/engine.js';
 const checks=[];const check=(ok,name)=>{checks.push({ok:!!ok,name});if(!ok)throw Error(name);};
 const square=(color,w=20,h=20)=>{const c=makeCanvas(w,h);c.getContext('2d').fillStyle=color;c.getContext('2d').fillRect(0,0,w,h);return c;};
 const pixel=(e,x,y)=>{const c=makeCanvas(e.width,e.height);e.paint(c.getContext('2d'));return [...c.getContext('2d').getImageData(x,y,1,1).data];};

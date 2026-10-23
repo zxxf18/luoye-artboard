@@ -1,5 +1,5 @@
-import { galleryList, galleryPut, galleryGet, galleryTrash, writeDraft } from './storage.js';
-import { makeCanvas } from './engine.js';
+import { galleryList, galleryPut, galleryGet, galleryTrash, writeDraft } from '../platform/storage.js';
+import { makeCanvas } from '../core/engine.js';
 
 export function mountGallery({engine,run,toast,getTitle,setTitle}){
   const button=document.createElement('button');button.textContent='我的画夹';button.id='gallery';document.querySelector('.header-actions').prepend(button);

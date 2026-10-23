@@ -31,7 +31,7 @@ try {
     await page.locator('#undo').click();await painted();
   }
   const contacts=await page.evaluate(async()=>{
-    const {TOOL_FEEDBACK}=await import('/src/tool-feedback.js'),{toolCursor}=await import('/src/tool-cursors.js');
+    const {TOOL_FEEDBACK}=await import('/src/ui/tool-feedback.js'),{toolCursor}=await import('/src/ui/tool-cursors.js');
     const keys=['pen:pencil','pen:spray','pen:watercolor','pen:brush','pen:marker','pen:crayon','pen:chalk','pen:tube','eraser:hard','eraser:soft','fill:region','fill:ellipse-gradient','magic:default','picker:default','geometry:line','clone:default'];
     return keys.map(key=>{const e=TOOL_FEEDBACK.find(e=>e.key===key);return {...toolCursor(e),label:e.label};});
   });

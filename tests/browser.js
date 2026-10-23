@@ -1,4 +1,4 @@
-import { PaintEngine, makeCanvas } from '/src/engine.js';
+import { PaintEngine, makeCanvas } from '/src/core/engine.js';
 const list = document.querySelector('#results');
 const engine = new PaintEngine(document.querySelector('#test-canvas'), () => {});
 engine.reset(64, 64);

@@ -5,7 +5,7 @@ import {
   PixelArtModel,
   cellAtPoint,
   normalizePixelColor,
-} from '../src/pixel-art.js';
+} from '../src/ui/pixel-art.js';
 
 test('像素画模型使用固定网格并安全处理单元格坐标', () => {
   assert.deepEqual(PIXEL_GRID_SIZES, [8, 16, 24, 32]);

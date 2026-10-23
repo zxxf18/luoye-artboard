@@ -1,5 +1,5 @@
-import { validateProject, MAX_LAYERS } from './core.js';
-import { makeCanvas, loadImage } from './engine.js';
+import { validateProject, MAX_LAYERS } from '../core/core.js';
+import { makeCanvas, loadImage } from '../core/engine.js';
 
 const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','resetStampProgress','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible','flipX','flipY']);

@@ -1,7 +1,7 @@
-import { DrawingEngine } from './drawing.js';
-import { makeCanvas } from './engine.js';
+import { DrawingEngine } from '../core/drawing.js';
+import { makeCanvas } from '../core/engine.js';
 import { playfulIcon } from './playful-icons.js';
-import { BRUSHES, DEFAULT_BRUSH_SIZE } from './brushes.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE } from '../core/brushes.js';
 
 export const MAX_ANIMATION_FRAMES = 12;
 export const DEFAULT_ANIMATION_SIZE = { width: 512, height: 512 };

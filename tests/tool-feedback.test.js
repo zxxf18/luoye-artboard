@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAudioPreferences } from '../src/audio-preferences.js';
-import { TOOL_FEEDBACK, getToolFeedback, createToolSoundPlayer } from '../src/tool-feedback.js';
-import { BRUSHES } from '../src/brushes.js';
-import { toolCursor } from '../src/tool-cursors.js';
+import { createAudioPreferences } from '../src/ui/audio-preferences.js';
+import { TOOL_FEEDBACK, getToolFeedback, createToolSoundPlayer } from '../src/ui/tool-feedback.js';
+import { BRUSHES } from '../src/core/brushes.js';
+import { toolCursor } from '../src/ui/tool-cursors.js';
 const storage=()=>{const data=new Map();return {getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};};
 
 test('audio preferences remember music and legacy sound mute, including zero volume and stopped playback',()=>{
@@ -59,7 +59,7 @@ test('all cursor contacts lie in the image with dedicated nib, paint and wand ho
 });
 
 test('光标随界面缩放变小但不超过基准 40px', async () => {
-  const { toolCursor, cursorSizeForScale, CURSOR_BASE_SIZE, CURSOR_MIN_SIZE } = await import('../src/tool-cursors.js');
+  const { toolCursor, cursorSizeForScale, CURSOR_BASE_SIZE, CURSOR_MIN_SIZE } = await import('../src/ui/tool-cursors.js');
   assert.equal(CURSOR_BASE_SIZE, 40);
   assert.equal(cursorSizeForScale(1), 40);
   assert.equal(cursorSizeForScale(1.4), 40, '放大界面时光标保持基准大小');

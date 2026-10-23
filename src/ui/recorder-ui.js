@@ -1,5 +1,5 @@
 import { Recorder } from './recording.js';
-import { deliverFile, writeRecordingDraft, readRecordingDraft } from './storage.js';
+import { deliverFile, writeRecordingDraft, readRecordingDraft } from '../platform/storage.js';
 
 export function mountRecorder({engine,run,toast,getColor,getTitle}){
   const button=document.createElement('button');button.id='recordings';button.textContent='绘画录像';document.querySelector('.edit-commands').append(button);

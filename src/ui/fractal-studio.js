@@ -1,4 +1,4 @@
-import { makeCanvas } from './engine.js';
+import { makeCanvas } from '../core/engine.js';
 
 /**
  * 分形图案工坊：左侧选基础图案，参数栏调颜色、大小与分形次数，

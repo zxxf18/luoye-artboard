@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { floodFill, closedFloodFill, fitInside, toLayerPoint, validateProject, History } from '../src/core.js';
+import { floodFill, closedFloodFill, fitInside, toLayerPoint, validateProject, History } from '../src/core/core.js';
 
 test('fit preserves aspect ratio inside a 2K canvas', () => {
   assert.deepEqual(fitInside(600, 450, 2560, 1440), { width: 1920, height: 1440 });

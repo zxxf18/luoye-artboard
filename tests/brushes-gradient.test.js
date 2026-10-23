@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BRUSHES, gradientColorAt, rainbowColorAt } from '../src/brushes.js';
+import { BRUSHES, gradientColorAt, rainbowColorAt } from '../src/core/brushes.js';
 
 test('儿童友好渐变笔刷提供稳定的画笔入口', () => {
   assert.deepEqual(

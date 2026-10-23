@@ -6,12 +6,12 @@ const root = new URL('../', import.meta.url);
 const read = file => readFileSync(new URL(file, root), 'utf8');
 
 test('渐变色文案与画笔入口保持一致', () => {
-  assert.match(read('src/brushes.js'), /id:'duotone',name:'渐变色'/);
+  assert.match(read('src/core/brushes.js'), /id:'duotone',name:'渐变色'/);
   assert.match(read('public/index.html'), /value="duotone">渐变色/);
 });
 
 test('对称方式直接展开四个按钮，不再使用下拉或全局选择弹窗', () => {
-  const assist = read('src/assist-ui.js');
+  const assist = read('src/ui/assist-ui.js');
   assert.match(assist, /id="assist-mode-buttons"/);
   assert.match(assist, /data-assist-mode="vertical"/);
   assert.match(assist, /data-assist-mode="horizontal"/);
@@ -23,7 +23,7 @@ test('对称方式直接展开四个按钮，不再使用下拉或全局选择�
 });
 
 test('刮刮画面板将两种颜色上下排列并让粗细控件跨两行占右侧三分之一', () => {
-  const classic = read('src/classic-ui.js') + read('src/classic-scratch.js');
+  const classic = read('src/ui/classic-ui.js') + read('src/ui/classic-scratch.js');
   const shelf = read('public/tool-shelf.css');
   const surface = read('public/playroom.css');
   for (const label of ['我的刮刮画', '重新覆盖', '覆盖层颜色', '刮笔颜色', '粗细']) assert.match(classic, new RegExp(label));
@@ -38,7 +38,7 @@ test('刮刮画面板将两种颜色上下排列并让粗细控件跨两行占�
 });
 
 test('刮刮画候选色直接写入色块背景，避免被主题控件色覆盖', () => {
-  const classic = read('src/classic-scratch.js');
+  const classic = read('src/ui/classic-scratch.js');
   assert.match(classic, /button\.style\.setProperty\('\-\-scratch-chip',background\)/);
   assert.match(classic, /button\.style\.background=background/);
   assert.match(classic, /linear-gradient\(135deg,#74a99e,#b7ded7\)/);
@@ -73,7 +73,7 @@ test('分形工具按钮不被遗留规则隐藏', () => {
 });
 
 test('分形参数栏单行 2:1 且大小用百分比滑杆', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/ui/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
   assert.match(shelf, /\.fractal-fields \{[^}]*grid-template-columns:\s*3fr\s+2fr/);
   assert.match(classic, /id="fractal-size" type="range" min="0" max="100"/);
@@ -83,7 +83,7 @@ test('分形参数栏单行 2:1 且大小用百分比滑杆', () => {
 });
 
 test('刮刮画复用公共参数栏高度，候选颜色保持圆形', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/ui/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
   const surface = read('public/playroom.css');
   assert.doesNotMatch(classic, /dock\.style\.height='232px'/);
@@ -93,8 +93,8 @@ test('刮刮画复用公共参数栏高度，候选颜色保持圆形', () => {
 });
 
 test('刮刮画自选颜色复用我的颜色共享调色板', () => {
-  const palette = read('src/palette-ui.js');
-  const classic = read('src/classic-ui.js') + read('src/classic-scratch.js');
+  const palette = read('src/ui/palette-ui.js');
+  const classic = read('src/ui/classic-ui.js') + read('src/ui/classic-scratch.js');
   assert.match(palette, /openCustom/);
   assert.match(classic, /mountPalette/);
   assert.match(classic, /palette\.openCustom/);
@@ -104,7 +104,7 @@ test('刮刮画自选颜色复用我的颜色共享调色板', () => {
 });
 
 test('刮刮画保留共享颜色栏并为专属参数提供卡片底色', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/ui/classic-ui.js');
   const shelf = read('public/tool-shelf.css');
   assert.match(classic, /scratchPanel\.hidden=tool!==\'scratch\';fractalPanel\.hidden=tool!==\'fractal\';palette\.hidden=false;moreColor\.hidden=false/);
   assert.match(shelf, /\.scratch-style-panel\s*\{[\s\S]*grid-template-columns:\s*(?:minmax\(0,\s*)?2fr\)?\s+\s*(?:minmax\(0,\s*)?1fr\)?/);
@@ -159,19 +159,19 @@ test('魔法袋素材面板保留素材高度并压缩下方参数行', () => {
 });
 
 test('常用工具每页至多七个，功能工具整体从第三页开始', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/ui/classic-ui.js');
   assert.match(classic, /\['clone','仿制印章'\],\['fractal','分形'\],\['scratch','刮刮画'\],\['animation','小动画'\],\['pixel','像素画'\]/);
   assert.match(classic, /Math\.ceil\(firstFeature\s*\/\s*7\)/);
   assert.match(classic, /pageOf\(index\)!==page/);
   // 两个编辑器入口只保留在工具栏第三页，不再占用顶部工具区。
   assert.doesNotMatch(classic, /#animation-open/);
   assert.doesNotMatch(classic, /#pixel-art-open/);
-  assert.doesNotMatch(read('src/animation-editor.js'), /header-actions/);
-  assert.doesNotMatch(read('src/pixel-art.js'), /header-actions/);
+  assert.doesNotMatch(read('src/ui/animation-editor.js'), /header-actions/);
+  assert.doesNotMatch(read('src/ui/pixel-art.js'), /header-actions/);
 });
 
 test('小动画选色复用左上画笔调色板并与粗细控件等高对齐', () => {
-  const editor = read('src/animation-editor.js');
+  const editor = read('src/ui/animation-editor.js');
   const css = read('public/playroom.css');
   assert.match(editor, /id="animation-color"[^>]*animation-color-control/);
   assert.doesNotMatch(editor, /<input id="animation-color" type="color"/);
@@ -183,7 +183,7 @@ test('小动画选色复用左上画笔调色板并与粗细控件等高对齐',
 });
 
 test('小动画舞台弹性贴合且帧条支持左右滑动', () => {
-  const editor = read('src/animation-editor.js');
+  const editor = read('src/ui/animation-editor.js');
   const css = read('public/playroom.css');
   assert.match(css, /\.animation-dialog\s*\{[\s\S]*width:\s*fit-content/);
   assert.match(css, /\.animation-workspace\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(264px,\s*312px\)/);
@@ -194,7 +194,7 @@ test('小动画舞台弹性贴合且帧条支持左右滑动', () => {
 
 
 test('高窗口下工具组垂直居中而非底部留白', () => {
-  const classic = read('src/classic-ui.js');
+  const classic = read('src/ui/classic-ui.js');
   const css = read('public/playroom.css');
   assert.match(classic, /tools-centered/);
   assert.match(css, /#tools\.tools-centered\{justify-content:center\}/);

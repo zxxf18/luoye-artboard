@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const root = new URL('../', import.meta.url);
 const index = readFileSync(new URL('public/index.html', root), 'utf8');
 const styles = readFileSync(new URL('public/styles.css', root), 'utf8');
-const app = readFileSync(new URL('src/app.js', root), 'utf8');
+const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
 
 test('startup keeps the base shell hidden until the mounted UI is ready', () => {
   assert.match(index, /<body class="app-loading">/);

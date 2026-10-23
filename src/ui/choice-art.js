@@ -1,5 +1,5 @@
-import { applyEffect } from './pixels.js';
-import { makeCanvas } from './engine.js';
+import { applyEffect } from '../core/pixels.js';
+import { makeCanvas } from '../core/engine.js';
 import { playfulIcon } from './playful-icons.js';
 
 let choiceArtSequence=0;

@@ -1,7 +1,7 @@
-import { makeCanvas } from '../src/engine.js';
-import { DrawingEngine } from '../src/drawing.js';
-import { Recorder } from '../src/recording.js';
-import { renderStyledText } from '../src/text.js';
+import { makeCanvas } from '../src/core/engine.js';
+import { DrawingEngine } from '../src/core/drawing.js';
+import { Recorder } from '../src/ui/recording.js';
+import { renderStyledText } from '../src/core/text.js';
 const results=[];
 const assert=(v,m)=>{if(!v)throw new Error(m);};
 async function check(name,fn){try{await fn();results.push({name,ok:true});}catch(e){results.push({name,ok:false,error:e.message});}const r=results.at(-1),li=document.createElement('li');li.textContent=`${r.ok?'PASS':'FAIL'} ${name}${r.error?': '+r.error:''}`;document.querySelector('ol').append(li);}

@@ -1,6 +1,6 @@
-import { validateProject } from './core.js';
-import { validateRecording } from './recording.js';
-import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from './storage-format.js';
+import { validateProject } from '../core/core.js';
+import { validateRecording } from '../ui/recording.js';
+import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from '../core/storage-format.js';
 
 const DATABASE_NAME = 'luoye-studio';
 const DATABASE_VERSION = 3;

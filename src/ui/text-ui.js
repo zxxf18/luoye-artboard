@@ -1,5 +1,5 @@
-import { renderStyledText } from './text.js';
-import { loadImage } from './engine.js';
+import { renderStyledText } from '../core/text.js';
+import { loadImage } from '../core/engine.js';
 
 export function mountText({engine,run,toast,getColor,setTool,getTool}) {
   const el=id=>document.getElementById(id),dialog=el('text-dialog');dialog.className='wide-dialog';let point,texture=null;

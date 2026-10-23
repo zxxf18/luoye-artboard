@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
-import { brandIcon } from '../src/playful-icons.js';
+import { brandIcon } from '../src/ui/playful-icons.js';
 
 const themes = ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy'];
 

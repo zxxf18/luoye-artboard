@@ -1,7 +1,7 @@
-import {DrawingEngine} from '/src/drawing.js';
-import {makeCanvas,loadImage} from '/src/engine.js';
-import {Recorder,validateRecording} from '/src/recording.js';
-import {MAX_LAYERS} from '/src/core.js';
+import {DrawingEngine} from '/src/core/drawing.js';
+import {makeCanvas,loadImage} from '/src/core/engine.js';
+import {Recorder,validateRecording} from '/src/ui/recording.js';
+import {MAX_LAYERS} from '/src/core/core.js';
 const checks=[],assert=(v,m)=>{if(!v)throw Error(m);};
 async function check(name,fn){const e=new DrawingEngine(makeCanvas(32,32));e.reset(32,32);try{await fn(e);checks.push({name,passed:true});}catch(error){checks.push({name,passed:false,error:error.message});}finally{clearInterval(e.animationTimer);}}
 const fill=e=>{const c=e.active.canvas.getContext('2d');c.fillStyle='#dd3300';c.fillRect(0,0,32,32);e.changed();};

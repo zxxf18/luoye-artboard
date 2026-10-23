@@ -1,4 +1,4 @@
-import { BRUSHES } from './brushes.js';
+import { BRUSHES } from '../core/brushes.js';
 import { toolCursor } from './tool-cursors.js';
 
 const feedbackShapes = {line:'直线',triangle:'三角形',rect:'矩形',pentagon:'五角形',hexagon:'六角形',roundrect:'圆矩形',ellipse:'圆形',star:'星形',polygon:'多边形',bezier:'曲线'};

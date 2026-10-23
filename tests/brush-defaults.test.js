@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { DEFAULT_BRUSH_SIZE } from '../src/brushes.js';
+import { DEFAULT_BRUSH_SIZE } from '../src/core/brushes.js';
 
 const root = new URL('../', import.meta.url);
-const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
-const app = readFileSync(new URL('src/app.js', root), 'utf8');
+const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8');
+const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
 
 test('画笔切换使用统一的适中默认粗细，并保留用户手动调整值', () => {
   assert.equal(DEFAULT_BRUSH_SIZE, 16);

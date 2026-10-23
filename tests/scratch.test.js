@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { scratchStyle, paintScratchBase, paintScratchCover } from '../src/engine.js';
-import { legacyBrushSegment } from '../src/brushes-legacy.js';
-import { validateProject } from '../src/core.js';
+import { scratchStyle, paintScratchBase, paintScratchCover } from '../src/core/engine.js';
+import { legacyBrushSegment } from '../src/core/brushes-legacy.js';
+import { validateProject } from '../src/core/core.js';
 
 const root = new URL('../', import.meta.url);
 const tinyPNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
@@ -54,9 +54,9 @@ test('工程 schema 接受可保存的 scratch 与 scratch-base 图层', () => {
 });
 
 test('刮刮画位于第二页，左侧与参数区文案固定', () => {
-  const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8')
-    + readFileSync(new URL('src/classic-scratch.js', root), 'utf8');
-  const app = readFileSync(new URL('src/app.js', root), 'utf8');
+  const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8')
+    + readFileSync(new URL('src/ui/classic-scratch.js', root), 'utf8');
+  const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
   assert.match(classic, /\['scratch','刮刮画'\]/);
   assert.match(classic, /我的刮刮画/);
   assert.match(classic, /重新覆盖/);
@@ -71,7 +71,7 @@ test('刮刮画位于第二页，左侧与参数区文案固定', () => {
 test('去掉刮刮画一次性移除覆盖层和底色，撤销可整卡找回', async () => {
   const { withCanvasDouble, silenceEngine, CanvasDouble } = await import('./helpers/canvas-double.js');
   await withCanvasDouble(async () => {
-    const { DrawingEngine } = await import('../src/drawing.js');
+    const { DrawingEngine } = await import('../src/core/drawing.js');
     const engine = new DrawingEngine(new CanvasDouble(8, 8), () => {});
     silenceEngine(engine);
     const artwork = engine.active;
@@ -90,8 +90,8 @@ test('去掉刮刮画一次性移除覆盖层和底色，撤销可整卡找回',
 });
 
 test('去掉刮刮画的入口与提示文案已接线', () => {
-  const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
-  const app = readFileSync(new URL('src/app.js', root), 'utf8');
+  const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8');
+  const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
   assert.match(classic, /去掉刮刮画/);
   assert.match(classic, /scratch-remove/);
   assert.match(app, /scratch-remove/);

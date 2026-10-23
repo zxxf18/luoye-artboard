@@ -3,17 +3,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const theme = readFileSync(new URL('src/theme-ui.js', root), 'utf8');
-const app = readFileSync(new URL('src/app.js', root), 'utf8');
-const display = readFileSync(new URL('src/display-ui.js', root), 'utf8');
-const classic = readFileSync(new URL('src/classic-ui.js', root), 'utf8');
-const scenes = readFileSync(new URL('src/theme-scenes.js', root), 'utf8');
-const icons = readFileSync(new URL('src/playful-icons.js', root), 'utf8');
-const palette = readFileSync(new URL('src/palette-ui.js', root), 'utf8');
+const theme = readFileSync(new URL('src/ui/theme-ui.js', root), 'utf8');
+const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
+const display = readFileSync(new URL('src/ui/display-ui.js', root), 'utf8');
+const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8');
+const scenes = readFileSync(new URL('src/ui/theme-scenes.js', root), 'utf8');
+const icons = readFileSync(new URL('src/ui/playful-icons.js', root), 'utf8');
+const palette = readFileSync(new URL('src/ui/palette-ui.js', root), 'utf8');
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 const toolStyles = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const sceneStyles = readFileSync(new URL('public/theme-scenes.css', root), 'utf8');
-const materials = readFileSync(new URL('src/materials-ui.js', root), 'utf8');
+const materials = readFileSync(new URL('src/ui/materials-ui.js', root), 'utf8');
 
 test('theme picker defines eight stable themes with autumn as the default', () => {
   const ids = [...theme.matchAll(/id:\s*'([^']+)'/g)].map(match => match[1]);

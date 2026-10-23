@@ -4,8 +4,8 @@ import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './cla
 import { mountMobileShelf } from './classic-mobile.js';
 import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, fractalState, fractalPercentToSize, fractalSizeToPercent, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
-import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from './brushes.js';
-import { makeCanvas } from './engine.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from '../core/brushes.js';
+import { makeCanvas } from '../core/engine.js';
 
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');

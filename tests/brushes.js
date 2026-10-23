@@ -1,6 +1,6 @@
-import { makeCanvas } from '../src/engine.js';
-import { DrawingEngine } from '../src/drawing.js';
-import { Recorder } from '../src/recording.js';
+import { makeCanvas } from '../src/core/engine.js';
+import { DrawingEngine } from '../src/core/drawing.js';
+import { Recorder } from '../src/ui/recording.js';
 const entries=[['pencil','铅笔'],['spray','喷笔'],['watercolor','水彩'],['brush','刷子'],['marker','麦克笔'],['crayon','蜡笔'],['chalk','粉笔'],['tube','颜料管'],['effect','星光笔'],['rainbow','彩虹笔'],['duotone','双色渐变']];
 const stats={},results=[];const assert=(v,m)=>{if(!v)throw new Error(m);};
 const make=()=>{const e=new DrawingEngine(makeCanvas(280,120),()=>{});e.reset(280,120);clearInterval(e.animationTimer);return e;};

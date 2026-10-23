@@ -1,4 +1,4 @@
-import { makeCanvas } from './engine.js';
+import { makeCanvas } from '../core/engine.js';
 
 // Keep the grid small and predictable. A child can understand an 8 × 8 or
 // 16 × 16 picture immediately, while 32 × 32 still leaves room for details.

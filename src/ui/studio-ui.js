@@ -1,5 +1,5 @@
-import { makeCanvas } from './engine.js';
-import { deliverFile } from './storage.js';
+import { makeCanvas } from '../core/engine.js';
+import { deliverFile } from '../platform/storage.js';
 
 const EFFECTS = {
   brightness:['明亮度／对比度',[['brightness','明亮度',-100,100,0],['contrast','对比度',-100,100,0]]],

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCloseFlow} from '../src/close-flow.js';
+import {createCloseFlow} from '../src/platform/close-flow.js';
 test('close preserves work on cancel and save failure, and only discards explicitly',async()=>{
  let choice='cancel',dirty=true,saves=0,discards=0,asks=0;
  const close=createCloseFlow({hasChanges:()=>dirty,ask:async()=>{asks++;return choice;},save:async()=>{saves++;throw Error('disk full');},discard:async()=>{discards++;}});

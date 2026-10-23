@@ -1,5 +1,5 @@
-import { DrawingEngine } from '/src/drawing.js';
-import { makeCanvas } from '/src/engine.js';
+import { DrawingEngine } from '/src/core/drawing.js';
+import { makeCanvas } from '/src/core/engine.js';
 const results=[];
 const check=(ok,name)=>{results.push({ok:!!ok,name});};
 const e=new DrawingEngine(makeCanvas(160,90));e.reset(160,90);e.paperMode=true;

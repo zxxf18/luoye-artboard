@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateFractal } from '../src/fractals.js';
+import { generateFractal } from '../src/core/fractals.js';
 test('Mandel and Julia obey escape iteration and keep output dimensions',async()=>{
  const a=await generateFractal({kind:'mandel',width:64,height:48,left:-2,right:1,top:-1.5,bottom:1.5});assert.equal(a.data.length,64*48*4);const center=(24*64+42)*4;assert.deepEqual([...a.data.slice(center,center+4)],[0,0,0,255]);const b=await generateFractal({kind:'julia',width:64,height:48});assert.notDeepEqual(a.data,b.data);
 });

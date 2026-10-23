@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { regionMask, combineMasks, applyEffect, blendMasked } from '../src/pixels.js';
+import { regionMask, combineMasks, applyEffect, blendMasked } from '../src/core/pixels.js';
 
 test('RGB function channels have independent parameters and channel shifts use integer pixels',()=>{
  const pixels=new Uint8ClampedArray([10,20,30,255,100,110,120,255]);

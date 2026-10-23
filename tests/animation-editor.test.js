@@ -7,7 +7,7 @@ import {
   MAX_ANIMATION_FRAMES,
   copyCanvas,
   createBlankFrame,
-} from '../src/animation-editor.js';
+} from '../src/ui/animation-editor.js';
 
 // The timeline is intentionally testable without a browser.  A tiny canvas
 // double is enough to verify dimensions and that copying a frame never aliases

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeLegacyFly } from '../src/legacy.js';
+import { decodeLegacyFly } from '../src/core/legacy.js';
 
 function fixture(width,height){
  const stride=Math.ceil(width*3/4)*4,bytes=new Uint8Array(76+stride*height),v=new DataView(bytes.buffer);

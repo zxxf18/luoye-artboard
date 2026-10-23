@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { previewBoundsForLine } from '../src/drawing.js';
-const drawingSource = readFileSync(new URL('../src/drawing.js', import.meta.url), 'utf8');
+import { previewBoundsForLine } from '../src/core/drawing.js';
+const drawingSource = readFileSync(new URL('../src/core/drawing.js', import.meta.url), 'utf8');
 
 test('material line previews stay bounded to the active stroke', () => {
   const bounds = previewBoundsForLine({ x: 640, y: 360 }, { x: 652, y: 366 }, 14, 1, 1920, 1080);

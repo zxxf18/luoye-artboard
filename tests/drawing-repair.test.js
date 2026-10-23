@@ -1,10 +1,10 @@
 import test, {before,after} from 'node:test';
 import assert from 'node:assert/strict';
-import { DrawingEngine } from '../src/drawing.js';
-import { EditorEngine } from '../src/editor.js';
-import { PaintEngine } from '../src/engine.js';
-import { beginPaperErase, updatePaperErase, endPaperErase } from '../src/paper-tools.js';
-import { History } from '../src/core.js';
+import { DrawingEngine } from '../src/core/drawing.js';
+import { EditorEngine } from '../src/core/editor.js';
+import { PaintEngine } from '../src/core/engine.js';
+import { beginPaperErase, updatePaperErase, endPaperErase } from '../src/core/paper-tools.js';
+import { History } from '../src/core/core.js';
 
 // Drawing algorithms use the same layer/gesture/history code as the app. Only
 // the raster device is replaced here; native tests check actual pixels/layout.
