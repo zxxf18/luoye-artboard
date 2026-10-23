@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { documentHeader, normalizeDocument, PROJECT_VERSION, SCHEMA_VERSIONS, operationsForSerialize } from '../src/core/document.js';
-import { validateProject } from '../src/core/core.js';
+import { documentHeader, normalizeDocument, PROJECT_VERSION, SCHEMA_VERSIONS } from '../src/core/document.js';
+import { validateProject, openDocument } from '../src/core/core.js';
 import { toUnifiedPointer, pointerPressure, normalizePointerType } from '../src/core/pointer.js';
 import { OperationLog, nextOperationId, operationTypeForTool, validOperation, OPERATION_TYPES } from '../src/core/operations.js';
 import { createToolRegistry, ToolRegistry, validateTool, BUILTIN_TOOLS } from '../src/core/tool-registry.js';
@@ -41,14 +41,16 @@ test('v3 documents carry the schema map and a consistent canvas index', () => {
   assert.throws(() => validateProject({ ...doc, version: 4 }), /版本过新/);
 });
 
-test('v1 and v2 documents still open and normalize into the v3 in-memory model', () => {
-  const normalized = normalizeDocument(validateProject(v1));
+test('only the current model level lives inside the app; v1/v2 upgrade at the open boundary', () => {
+  // validateProject is write-side self-check: it accepts exactly one level.
+  assert.throws(() => validateProject(v1), /版本过新/);
+  const normalized = openDocument(v1);
   assert.equal(normalized.version, PROJECT_VERSION);
   assert.deepEqual(normalized.canvas, { width: 1, height: 1, background: '#ffffff' });
   assert.deepEqual(normalized.operations, []);
   assert.equal(normalized.layers.length, 1);
   const v2 = { ...v1, version: 2, layers: [{ ...layer, eraseMask: png }] };
-  const normalized2 = normalizeDocument(validateProject(v2));
+  const normalized2 = openDocument(v2);
   assert.equal(normalized2.version, PROJECT_VERSION);
   // A drifted canvas index yields to the top-level size on read.
   const drifted = normalizeDocument({ ...v1, canvas: { width: 9, height: 9 } });
@@ -88,7 +90,7 @@ test('operation log records finished actions with bounded, validated entries', (
   assert.equal(operationTypeForTool('rect'), 'shape');
   assert.equal(operationTypeForTool('board-filter'), 'filter');
   assert.equal(operationTypeForTool('warp'), 'other');
-  assert.equal(validOperation(operationsForSerialize([{ id: 'a', type: 'stroke' }])[0]), true);
+  const probe=new OperationLog();probe.record({id:'a',type:'stroke'});assert.equal(validOperation(probe.snapshot()[0]),true);
 });
 
 test('the classic shelf tools are fully described by the core registry', () => {

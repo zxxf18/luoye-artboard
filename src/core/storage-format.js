@@ -1,4 +1,6 @@
-export const DRAFT_STORAGE_VERSION = 3;
+import { PROJECT_VERSION } from './document.js';
+// Drafts travel with the project document: one level, one bump.
+export const DRAFT_STORAGE_VERSION = PROJECT_VERSION;
 
 export function createDraftRecord(project, { id, revision = null, updatedAt = Date.now() } = {}) {
   return {

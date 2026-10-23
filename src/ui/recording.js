@@ -1,4 +1,5 @@
-import { validateProject, MAX_LAYERS } from '../core/core.js';
+import { openDocument, MAX_LAYERS } from '../core/core.js';
+import { documentHeader } from '../core/document.js';
 import { makeCanvas, loadImage } from '../core/engine.js';
 
 const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','resetStampProgress','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
@@ -14,10 +15,10 @@ function bounded(value,depth=0){
   throw new Error('录像参数无效。');
 }
 export function validateRecording(raw){
-  if(raw&&typeof raw.format==='string'&&/^[a-z]+-recording$/.test(raw.format))raw={...raw,format:'luoye-recording',slots:raw.slots?.map(slot=>slot?{...slot,base:validateProject(slot.base)}:slot)};
+  if(raw&&typeof raw.format==='string'&&/^[a-z]+-recording$/.test(raw.format))raw={...raw,format:'luoye-recording',slots:raw.slots?.map(slot=>slot?{...slot,base:openDocument(slot.base)}:slot)};
   if(!raw||raw.format!=='luoye-recording'||raw.version!==1||!Array.isArray(raw.slots)||raw.slots.length!==5)throw new Error('不是支持的五段绘画录像。');
   if(JSON.stringify(raw).length>MAX_BYTES)throw new Error('录像超过 64 MiB 上限。');
-  for(const slot of raw.slots){if(slot===null)continue;validateProject(slot.base);let resourcePixels=0;
+  for(const slot of raw.slots){if(slot===null)continue;openDocument(slot.base);let resourcePixels=0;
     const resource=item=>{if(!item||!Number.isInteger(item.width)||!Number.isInteger(item.height)||item.width<1||item.height<1||item.width>4096||item.height>4096||item.width*item.height>8388608||typeof item.image!=='string'||!item.image.startsWith('data:image/png;base64,'))throw new Error('录像图片资源无效。');resourcePixels+=item.width*item.height;if(resourcePixels>90000000)throw new Error('录像图片资源超过像素预算。');};
     const groups=values=>{if(!Array.isArray(values)||values.length>1000)throw new Error('魔法袋分组无效。');for(const group of values){if(!Array.isArray(group.frames)||group.frames.length<1||group.frames.length>60)throw new Error('魔法袋帧数量无效。');group.frames.forEach(resource);}};
     if(slot.paintTexture)resource(slot.paintTexture);if(slot.paperTexture)resource(slot.paperTexture);
@@ -34,7 +35,7 @@ export function validateRecording(raw){
         if(extra.insertAt!==undefined&&(!Number.isInteger(extra.insertAt)||extra.insertAt<0||extra.insertAt>=MAX_LAYERS))throw new Error('录像图层顺序无效。');
         if(extra.frames){if(!Array.isArray(extra.frames)||extra.frames.length>60)throw new Error('动画帧数量无效。');extra.frames.forEach(resource);}
         const layer={id:'resource',name:event.args[0],x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,...extra,width:item.width,height:item.height,image:item.image};if(extra.frames)layer.frames=extra.frames.map(frame=>frame.image);
-        validateProject({format:'luoye-studio',version:1,title:'录像资源',width:1,height:1,layers:[layer]});
+        openDocument({...documentHeader(1,1),title:'录像资源',width:1,height:1,layers:[layer]});
       }
       if(event.resultIds&&(!Array.isArray(event.resultIds)||event.resultIds.length>MAX_LAYERS||event.resultIds.some(id=>typeof id!=='string'||id.length>256)))throw new Error('动画实例标识无效。');
       if(['setPaintTexture','setPaperTexture'].includes(event.method)&&event.args[0])resource(event.args[0]);
@@ -47,7 +48,7 @@ export function validateRecording(raw){
 }
 function imageRecord(image){const c=makeCanvas(image.width,image.height);c.getContext('2d').drawImage(image,0,0);return {width:c.width,height:c.height,image:c.toDataURL()};}
 async function imageFromRecord(item){
-  validateProject({format:'luoye-studio',version:1,title:'录像资源',width:1,height:1,layers:[{id:'resource',name:'resource',width:item.width,height:item.height,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image:item.image}]});
+  openDocument({...documentHeader(item.width,item.height),title:'录像资源',width:item.width,height:item.height,layers:[{id:'resource',name:'resource',width:item.width,height:item.height,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image:item.image}]});
   const image=await loadImage(item.image);if(image.width!==item.width||image.height!==item.height)throw new Error('录像资源尺寸不一致。');const c=makeCanvas(item.width,item.height);c.getContext('2d').drawImage(image,0,0);return c;
 }
 

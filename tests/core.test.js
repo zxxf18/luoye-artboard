@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { floodFill, closedFloodFill, fitInside, toLayerPoint, validateProject, History } from '../src/core/core.js';
+import { floodFill, closedFloodFill, fitInside, toLayerPoint, validateProject, openDocument, History } from '../src/core/core.js';
 
 test('fit preserves aspect ratio inside a 2K canvas', () => {
   assert.deepEqual(fitInside(600, 450, 2560, 1440), { width: 1920, height: 1440 });
@@ -72,23 +72,23 @@ test('history clears redo after a new edit and retains a bounded history', () =>
 test('project validation rejects oversized, remote, duplicate and nonfinite layers', () => {
   const layer = { id: 'a', name: 'Layer', width: 1, height: 1, x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, visible: true, image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=' };
   const project = { format: 'luoye-studio', version: 1, width: 1920, height: 1080, title: '画画', layers: [layer] };
-  assert.doesNotThrow(() => validateProject(project));
+  assert.doesNotThrow(() => openDocument(project));
   const older={...project,format:'previous-studio'};
-  assert.equal(validateProject(older).format,'luoye-studio');
+  assert.equal(openDocument(older).format,'luoye-studio');
   assert.equal(older.format,'previous-studio');
-  assert.throws(()=>validateProject({...older,width:99999}));
-  assert.throws(() => validateProject({ ...project, width: 99999 }));
-  assert.throws(() => validateProject({ ...project, layers: [layer, layer] }));
-  assert.throws(() => validateProject({ ...project, layers: [{ ...layer, image: 'https://example.com/a.png' }] }));
-  assert.throws(() => validateProject({ ...project, layers: [{ ...layer, scale: Infinity }] }));
-  assert.throws(() => validateProject({ ...project, version: 99 }));
-  assert.throws(() => validateProject({ ...project, layers: [{ ...layer, width: 2 }] }));
+  assert.throws(()=>openDocument({...older,width:99999}));
+  assert.throws(() => openDocument({ ...project, width: 99999 }));
+  assert.throws(() => openDocument({ ...project, layers: [layer, layer] }));
+  assert.throws(() => openDocument({ ...project, layers: [{ ...layer, image: 'https://example.com/a.png' }] }));
+  assert.throws(() => openDocument({ ...project, layers: [{ ...layer, scale: Infinity }] }));
+  assert.throws(() => openDocument({ ...project, version: 99 }));
+  assert.throws(() => openDocument({ ...project, layers: [{ ...layer, width: 2 }] }));
 });
 
 test('animated fairy projects reject missing groups, bad positions and remote frames', () => {
  const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
  const layer={id:'a',name:'花朵',width:1,height:1,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image,sprites:[{group:0,x:0,y:0,size:16,opacity:1}],spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image}]}]};
  const project={format:'luoye-studio',version:1,width:1,height:1,title:'花朵',layers:[layer]};
- assert.doesNotThrow(()=>validateProject(project));
- for(const change of [{spriteGroups:[]},{sprites:[{...layer.sprites[0],group:-1}]},{sprites:[{...layer.sprites[0],x:Infinity}]},{spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image:'https://example.com/a.png'}]}]}])assert.throws(()=>validateProject({...project,layers:[{...layer,...change}]}));
+ assert.doesNotThrow(()=>openDocument(project));
+ for(const change of [{spriteGroups:[]},{sprites:[{...layer.sprites[0],group:-1}]},{sprites:[{...layer.sprites[0],x:Infinity}]},{spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image:'https://example.com/a.png'}]}]}])assert.throws(()=>openDocument({...project,layers:[{...layer,...change}]}));
 });

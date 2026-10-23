@@ -3,7 +3,6 @@
 // a compact, serializable form so support, replay diagnostics and future
 // cross-tool features have one vocabulary. It is capped and boundary-checked:
 // restoring a document never replays it.
-import { operationsForSerialize } from './document.js';
 
 export const OPERATION_LIMIT = 2000;
 export const OPERATION_TYPES = Object.freeze(['stroke', 'shape', 'fill', 'erase', 'stamp', 'layer-add', 'layer-remove', 'layer-move', 'layer-property', 'background', 'filter', 'fractal', 'text', 'animation', 'pixel', 'scratch', 'other']);
@@ -24,6 +23,18 @@ export function nextOperationId(prefix = 'op') { operationSequence = (operationS
 export class OperationLog {
   constructor(limit = OPERATION_LIMIT) { this.limit = limit; this.clear(); }
   clear() { this.entries = []; }
+  // Bounded export view of the log embedded in a project. It is diagnostic
+  // history: restoring a project must never depend on it.
+  snapshot() {
+    if (!Array.isArray(this.entries) || !this.entries.length) return [];
+    return this.entries.slice(-this.limit).map(({ id, type, toolId, payload, timestamp }) => {
+      const item = { id: String(id), type: String(type) };
+      if (toolId !== undefined) item.toolId = String(toolId);
+      if (payload !== undefined) item.payload = payload;
+      if (Number.isFinite(timestamp)) item.timestamp = timestamp;
+      return item;
+    });
+  }
   // Record one finished user action. Invalid or oversized payloads are dropped
   // rather than thrown: logging must never break drawing itself.
   record(entry) {
@@ -34,7 +45,6 @@ export class OperationLog {
     if (this.entries.length > this.limit) this.entries.splice(0, this.entries.length - this.limit);
     return item;
   }
-  snapshot() { return operationsForSerialize(this.entries); }
   // Take over the operation list embedded in a restored document. Every entry
   // is re-validated; anything malformed is dropped, never thrown.
   adopt(entries, limit = this.limit) {

@@ -1,4 +1,4 @@
-import { validateProject } from '../core/core.js';
+import { openDocument } from '../core/core.js';
 import { validateRecording } from '../ui/recording.js';
 import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from '../core/storage-format.js';
 
@@ -87,7 +87,7 @@ async function migrateCompatibleLibraries(target) {
           try {
             const item = current.value;
             if (item?.project) {
-              const project = validateProject(item.project);
+              const project = openDocument(item.project);
               records.push({ ...item, storageVersion: DRAFT_STORAGE_VERSION, recordKind: 'gallery', project, id: `imported:${info.name}:${name}:${current.key}`, folder: '旧版作品', deletedAt: item.deletedAt ?? null });
             }
             if (name === 'drafts' && current.key === 'recording') recording = validateRecording(item);

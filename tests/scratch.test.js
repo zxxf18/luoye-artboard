@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scratchStyle, paintScratchBase, paintScratchCover } from '../src/core/engine.js';
 import { legacyBrushSegment } from '../src/core/brushes-legacy.js';
-import { validateProject } from '../src/core/core.js';
+import { openDocument as validateProject } from '../src/core/core.js';
 
 const root = new URL('../', import.meta.url);
 const tinyPNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
