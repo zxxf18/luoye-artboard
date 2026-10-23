@@ -91,7 +91,7 @@ test('分形入口从工具第三页进入，旧的像素分形对话框已移�
   assert.match(classic, /createToolRegistry\(\)\.list\(\)/);
   assert.match(classic, /fractal-presets/);
   assert.match(classic, /fractal-depth-up/);
-  assert.match(app, /placeFractal\(engine,point\)/);
+  assert.match(app, /placeFractal\(engine,point,\{color\}\)/);
   assert.doesNotMatch(creative, /fractal/);
   assert.doesNotMatch(creative, /generateFractal/);
   assert.match(bundle, /fractal-studio\.js/);
