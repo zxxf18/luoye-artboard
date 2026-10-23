@@ -87,9 +87,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const pageCount=()=>Math.max(drawingPages,pageOf(tools.length-1)+1);
   // 左右双箭头翻页：两个方向都循环，中间是页码指示。
   const flipRow=document.createElement('div');flipRow.id='tool-pager';flipRow.className='tool-pager';
-  const flipPrev=document.createElement('button');flipPrev.id='tool-page-prev';flipPrev.className='tool-page-arrow';flipPrev.setAttribute('aria-label','上一页工具');flipPrev.innerHTML='◀';
+  const flipPrev=document.createElement('button');flipPrev.id='tool-page-prev';flipPrev.className='tool-page-arrow';flipPrev.setAttribute('aria-label','上一页工具');flipPrev.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const flipLabel=document.createElement('span');flipLabel.id='tool-page-label';flipLabel.className='tool-page-label';
-  const flipNext=document.createElement('button');flipNext.id='tool-page';flipNext.className='tool-page-arrow';flipNext.setAttribute('aria-label','下一页工具');flipNext.innerHTML='▶';
+  const flipNext=document.createElement('button');flipNext.id='tool-page';flipNext.className='tool-page-arrow';flipNext.setAttribute('aria-label','下一页工具');flipNext.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   flipPrev.onclick=()=>{page=(page-1+pageCount())%pageCount();renderTools();sync();};
   flipNext.onclick=()=>{page=(page+1)%pageCount();renderTools();sync();};
   flipRow.append(flipPrev,flipLabel,flipNext);

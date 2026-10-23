@@ -371,7 +371,7 @@ $('painting').addEventListener('pointerrawupdate', event => {
   updatePaintingPointer(event, { preview: false });
 });
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
-function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);engine.end(event.type==='pointercancel');pointerId=undefined; }
+function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);try{engine.end(event.type==='pointercancel');}finally{pointerId=undefined;} }
 $('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
 window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;previewStamp(null);});
 document.addEventListener('keydown', event => {

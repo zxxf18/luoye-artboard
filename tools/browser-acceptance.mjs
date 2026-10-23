@@ -10,7 +10,7 @@ try{
  const url=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Server startup timeout')),10000);server.on('error',reject);server.stdout.on('data',data=>{const match=String(data).match(/http:\/\/127.0.0.1:\d+/);if(match){clearTimeout(timer);resolve(match[0]);}});});
  browser=await chromium.launch({headless:true,...(process.env.LUOYE_BROWSER_EXECUTABLE?{executablePath:process.env.LUOYE_BROWSER_EXECUTABLE}:{})});
  const results=[];
- for(const name of (process.argv.slice(2).length?process.argv.slice(2):['browser','brushes','editor','creative','frames','interactions','layout','layout@1024x720','layout@1280x820','layout@1920x1080','responsive-layout','paper-scope','animated-filters','stamps','ui-regressions'])){
+ for(const name of (process.argv.slice(2).length?process.argv.slice(2):['browser','brushes','editor','creative','frames','interactions','layout','layout@1024x720','layout@1280x820','layout@1920x1080','responsive-layout','paper-scope','animated-filters','stamps','tools-journey','ui-regressions'])){
   if(!/^[a-z-]+(@\d{2,5}x\d{2,5})?$/.test(name))throw Error('Invalid test name');
   // Desktop layout contract: the classic shelf and parameter rail must hold
   // from the native shells' 1024x720 minimum up to 1920x1080; "name@WxH"
