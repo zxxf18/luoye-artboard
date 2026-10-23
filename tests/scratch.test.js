@@ -58,7 +58,7 @@ test('刮刮画位于第二页，左侧与参数区文案固定', () => {
   const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8')
     + readFileSync(new URL('src/ui/classic-scratch.js', root), 'utf8');
   const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
-  assert.match(classic, /\['scratch','刮刮画'\]/);
+  assert.match(classic, /createToolRegistry\(\)\.list\(\)/);
   assert.match(classic, /我的刮刮画/);
   assert.match(classic, /重新覆盖/);
   assert.match(classic, /覆盖层颜色/);

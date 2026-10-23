@@ -5,9 +5,11 @@ import { mountMobileShelf } from './classic-mobile.js';
 import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, fractalState, fractalPercentToSize, fractalSizeToPercent, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from '../core/brushes.js';
+import { createToolRegistry } from '../core/tool-registry.js';
 import { makeCanvas } from '../core/engine.js';
 
-export const CLASSIC_TOOLS=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
+// The shelf is a view of the core registry; labels live with capability metadata.
+export const CLASSIC_TOOLS = createToolRegistry().list().filter(tool => tool.label && !tool.variantOf).map(tool => [tool.id, tool.label]);
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
   const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:913}};
