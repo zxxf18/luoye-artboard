@@ -30,5 +30,10 @@ export function normalizeDocument(value) {
   // A stale canvas index must never win over the top-level size.
   canvas.width = value.width; canvas.height = value.height;
   const operations = Array.isArray(value.operations) ? value.operations.map(entry => ({ ...entry })) : [];
-  return { ...value, version: PROJECT_VERSION, schema: { ...SCHEMA_VERSIONS }, canvas, operations };
+  // Pre-role editions marked paper layers by source id; infer it here, once,
+  // instead of re-guessing on every restore.
+  const layers = Array.isArray(value.layers)
+    ? value.layers.map(layer => layer && !layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '') ? { ...layer, role: 'background' } : layer)
+    : value.layers;
+  return { ...value, version: PROJECT_VERSION, schema: { ...SCHEMA_VERSIONS }, canvas, operations, layers };
 }

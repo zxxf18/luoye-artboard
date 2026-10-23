@@ -334,7 +334,7 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, pointerType: point.pointerType, pressure: point.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, pointerType: point.pointerType, pressure: point.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });

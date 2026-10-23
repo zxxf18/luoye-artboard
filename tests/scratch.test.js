@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scratchStyle, paintScratchBase, paintScratchCover } from '../src/core/engine.js';
-import { legacyBrushSegment } from '../src/core/brushes-legacy.js';
+import { eraserRibbonSegment } from '../src/core/brushes.js';
 import { openDocument as validateProject } from '../src/core/core.js';
 
 const root = new URL('../', import.meta.url);
@@ -24,7 +24,7 @@ test('刮笔使用 destination-out，拖动会真正擦开覆盖层', () => {
     moveTo() {}, lineTo() {}, stroke() { calls.push('stroke'); }, fillRect() {},
     globalCompositeOperation: 'source-over', globalAlpha: 1,
   };
-  legacyBrushSegment(ctx, { layer: { scale: 1 }, options: { tool: 'scratch', size: 24, opacity: 1 } }, { x: 10, y: 10 }, { x: 30, y: 10 });
+  eraserRibbonSegment(ctx, { layer: { scale: 1 }, options: { tool: 'scratch', size: 24, opacity: 1 } }, { x: 10, y: 10 }, { x: 30, y: 10 });
   assert.equal(ctx.globalCompositeOperation, 'destination-out');
   assert.ok(calls.includes('stroke') || calls.includes('fill'));
 });

@@ -215,7 +215,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   function drawPoint(event) {
     const rect = frameCanvas.getBoundingClientRect(); return editor.point(event, rect);
   }
-  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brushVersion: 2, brush: brushSelect.value, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
+  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brush: brushSelect.value, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
   frameCanvas.addEventListener('pointermove', event => { if (!drawing || event.pointerId !== pointerId) return; editor.update(drawPoint(event)); });
   const finish = event => { if (!drawing || event.pointerId !== pointerId) return; drawing = false; editor.end(event.type === 'pointercancel'); pointerId = undefined; snapshotCurrent(); updateUi(); };
   frameCanvas.addEventListener('pointerup', finish); frameCanvas.addEventListener('pointercancel', finish); frameCanvas.addEventListener('lostpointercapture', finish);

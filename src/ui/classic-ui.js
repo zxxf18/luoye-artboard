@@ -10,7 +10,7 @@ import { makeCanvas } from '../core/engine.js';
 export const CLASSIC_TOOLS=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
-  const g={layer:{scale:1},options:{tool:'pen',brush:id,brushVersion:2,size,color,secondaryColor:secondary,opacity:1,seed:913}};
+  const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:913}};
   let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};
     // 预览不走绘画引擎的 segment()，渐变停靠点必须按段刷新，
     // 否则彩虹笔示例会停在起笔点的单一颜色上。

@@ -45,7 +45,7 @@ test('宽笔尖在多份辅助下合并密集采样，单份笔触保持原有�
   // 四向对称同样合并；普通单份笔触不合并，保留原始采样密度。
   assert.ok(engine.strokeCoalesceDistance(gesture({ brush: 'pencil', assist: { enabled: true, mode: 'four' } })) > 0);
   assert.equal(engine.strokeCoalesceDistance(gesture({ brush: 'pencil' })), 0);
-  assert.equal(engine.strokeCoalesceDistance(gesture({ brushVersion: 1 })), 0);
+  assert.equal(engine.strokeCoalesceDistance(gesture({ tool: 'eraser' })), 0);
   assert.equal(engine.strokeCoalesceDistance(gesture({ tool: 'eraser' })), 0);
   // 合并距离跟随笔宽但有上限，避免长笔画跳点。
   assert.equal(engine.strokeCoalesceDistance(gesture({ size: 300 })), 72);

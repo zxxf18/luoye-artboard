@@ -1,5 +1,4 @@
 import { openDocument } from '../core/core.js';
-import { validateRecording } from '../ui/recording.js';
 import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from '../core/storage-format.js';
 
 const DATABASE_NAME = 'luoye-studio';
@@ -53,73 +52,8 @@ async function openDraftDatabase() {
     request.onblocked = () => reject(new Error('请先关闭旧版本创作室，再打开画夹。'));
     request.onerror = () => reject(request.error);
   });
-  try {
-    await migrateCompatibleLibraries(database);
-    draftDatabase = database;
-    return database;
-  } catch (error) {
-    database.close();
-    throw failStorage(error, '本机作品迁移');
-  }
-}
-
-async function migrateCompatibleLibraries(target) {
-  if (typeof indexedDB.databases !== 'function') return;
-  for (const info of await indexedDB.databases()) {
-    if (!info.name || info.name === target.name || !info.name.endsWith('-studio')) continue;
-    const marker = `luoye-imported:${info.name}`;
-    if (localStorage.getItem(marker)) continue;
-    const source = await new Promise((resolve, reject) => {
-      const request = indexedDB.open(info.name);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-    try {
-      if (!['gallery', 'drafts'].every(store => source.objectStoreNames.contains(store))) continue;
-      const records = [];
-      let recording;
-      for (const name of ['gallery', 'drafts']) await new Promise((resolve, reject) => {
-        const transaction = source.transaction(name);
-        const cursor = transaction.objectStore(name).openCursor();
-        cursor.onsuccess = () => {
-          const current = cursor.result;
-          if (!current) return;
-          try {
-            const item = current.value;
-            if (item?.project) {
-              const project = openDocument(item.project);
-              records.push({ ...item, storageVersion: DRAFT_STORAGE_VERSION, recordKind: 'gallery', project, id: `imported:${info.name}:${name}:${current.key}`, folder: '旧版作品', deletedAt: item.deletedAt ?? null });
-            }
-            if (name === 'drafts' && current.key === 'recording') recording = validateRecording(item);
-            current.continue();
-          } catch (error) {
-            transaction.abort();
-            reject(error);
-          }
-        };
-        transaction.oncomplete = resolve;
-        transaction.onerror = () => reject(transaction.error);
-        transaction.onabort = () => reject(transaction.error || new Error('旧作品读取失败'));
-      });
-      await new Promise((resolve, reject) => {
-        const transaction = target.transaction(['gallery', 'galleryMeta'], 'readwrite');
-        const store = transaction.objectStore('gallery');
-        const meta = transaction.objectStore('galleryMeta');
-        for (const item of records) { store.put(item, item.id); meta.put(galleryMetadata(item), item.id); }
-        finishTransaction(transaction, resolve, reject, '旧作品迁移');
-      });
-      if (recording) await new Promise((resolve, reject) => {
-        const transaction = target.transaction('drafts', 'readwrite');
-        const store = transaction.objectStore('drafts');
-        const request = store.get('recording');
-        request.onsuccess = () => { if (!request.result) store.put(recording, 'recording'); };
-        finishTransaction(transaction, resolve, reject, '录像迁移');
-      });
-      localStorage.setItem(marker, '1');
-    } finally {
-      source.close();
-    }
-  }
+  draftDatabase = database;
+  return database;
 }
 
 async function writeDraftNow(project, revision) {

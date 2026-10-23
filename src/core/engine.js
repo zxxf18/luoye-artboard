@@ -423,7 +423,7 @@ export class PaintEngine {
   }
   strokeCoalesceDistance(gesture) {
     const options = gesture?.options;
-    if (!options || options.tool !== 'pen' || options.brushVersion !== 2) return 0;
+    if (!options || options.tool !== 'pen') return 0;
     // A wide brush covers a small neighbourhood around every sample. Keep
     // the source path at that visual resolution instead of sending every
     // high-frequency pointer sample through all assisted copies. Dabs and
@@ -674,7 +674,6 @@ export class PaintEngine {
       const canvas = makeCanvas(info.width, info.height); canvas.getContext('2d').drawImage(image, 0, 0);
       const layer = { ...info, canvas }; delete layer.image;
       if (layer.role === 'scratch') layer.scratchDirtyTiles = new Set();
-      if (!layer.role && /^(color[0-4]|paper|texture)-/.test(layer.sourceId || '')) layer.role = 'background';
       if(info.eraseMask){const mask=await loadImage(info.eraseMask);layer.eraseMask=makeCanvas(info.width,info.height);layer.eraseMask.getContext('2d').drawImage(mask,0,0);}
       if (info.frames) {
         Object.defineProperty(layer,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
