@@ -1,6 +1,5 @@
 import { makeCanvas, loadImage } from '../core/engine.js';
 import { DrawingEngine } from '../core/drawing.js';
-import { decodeLegacyFly } from '../core/legacy.js';
 import { mountGallery } from '../ui/gallery-ui.js';
 import { mountRecorder } from '../ui/recorder-ui.js';
 import { mountStudio } from '../ui/studio-ui.js';
@@ -300,7 +299,6 @@ bind('open', () => $('file-input').click()); bind('import-image', () => $('image
 $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
-  if(/\.fly$/i.test(file.name)){const image=decodeLegacyFly(await file.arrayBuffer());await gallery.backup();engine.reset(image.width,image.height);engine.active.canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);$('title').value=file.name.replace(/\.fly$/i,'');changed();toast('已作为单张图片导入；旧图层与记录不在此兼容范围内');return;}
   const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {

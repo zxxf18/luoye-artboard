@@ -2,7 +2,7 @@
 // coalesced frame scheduler.  The old limits were reached after only a few
 // strokes with animated Magic Bag assets.
 import { validOperation } from './operations.js';
-import { PROJECT_FORMAT, PROJECT_VERSION, normalizeDocument } from './document.js';
+import { PROJECT_FORMAT, PROJECT_VERSION } from './document.js';
 export const MAX_SPRITES_PER_LAYER=100000;
 export const MAX_PROJECT_SPRITES=500000;
 export const MAX_LAYERS=200;
@@ -146,13 +146,6 @@ export class History {
   }
   undo() { const entry = this.past.pop(); if (entry) { entry.undo(); this.future.push(entry); return true; } return false; }
   redo() { const entry = this.future.pop(); if (entry) { entry.redo(); this.past.push(entry); return true; } return false; }
-}
-
-// The single read boundary: every supported on-disk document (v1/v2/v3)
-// becomes the one current model here. Inside the app no other version exists.
-export function openDocument(raw) {
-  if (raw && typeof raw.format === 'string' && /^[a-z]+-studio$/.test(raw.format)) raw = { ...raw, format: PROJECT_FORMAT };
-  return validateProject(normalizeDocument(raw));
 }
 
 export function validateProject(value) {

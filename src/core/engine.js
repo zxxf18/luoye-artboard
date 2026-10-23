@@ -1,5 +1,5 @@
 import { bundledImageSource } from './bundled-images.js';
-import { History, fitInside, floodFill, toLayerPoint, validateProject, openDocument, MAX_LAYERS } from './core.js';
+import { History, fitInside, floodFill, toLayerPoint, validateProject, MAX_LAYERS } from './core.js';
 import { documentHeader } from './document.js';
 import { OperationLog, nextOperationId, operationTypeForTool } from './operations.js';
 
@@ -665,7 +665,7 @@ export class PaintEngine {
     return validateProject({ ...documentHeader(widthAtStart, heightAtStart), title, width: widthAtStart, height: heightAtStart, layers, operations: this.operations.snapshot() });
   }
   async restore(raw) {
-    const value = openDocument(raw), layers = [];
+    const value = validateProject(raw), layers = [];
     const resources=new Map(),resource=src=>{if(!resources.has(src))resources.set(src,loadImage(src));return resources.get(src);};
     // Decode and validate the entire incoming document before replacing the current one.
     for (const info of value.layers) {

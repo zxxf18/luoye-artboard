@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scratchStyle, paintScratchBase, paintScratchCover } from '../src/core/engine.js';
 import { eraserRibbonSegment } from '../src/core/brushes.js';
-import { openDocument as validateProject } from '../src/core/core.js';
+import { validateProject } from '../src/core/core.js';
+import { documentHeader } from '../src/core/document.js';
 
 const root = new URL('../', import.meta.url);
 const tinyPNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
@@ -44,7 +45,7 @@ test('刮刮画底色和覆盖层绘制使用传入样式', () => {
 
 test('工程 schema 接受可保存的 scratch 与 scratch-base 图层', () => {
   const project = {
-    format: 'luoye-studio', version: 1, width: 1, height: 1, title: '刮刮画',
+    ...documentHeader(1, 1), width: 1, height: 1, title: '刮刮画',
     layers: [
       { id: 'base', name: '刮刮画底色', width: 1, height: 1, x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, visible: true, role: 'scratch-base', image: tinyPNG },
       { id: 'cover', name: '刮刮画', width: 1, height: 1, x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, visible: true, role: 'scratch', scratchStyle: scratchStyle({}), image: tinyPNG },

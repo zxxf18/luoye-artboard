@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { documentHeader, normalizeDocument, PROJECT_VERSION, SCHEMA_VERSIONS } from '../src/core/document.js';
-import { validateProject, openDocument } from '../src/core/core.js';
+import { documentHeader, PROJECT_VERSION, SCHEMA_VERSIONS } from '../src/core/document.js';
+import { validateProject } from '../src/core/core.js';
 import { toUnifiedPointer, pointerPressure, normalizePointerType } from '../src/core/pointer.js';
 import { OperationLog, nextOperationId, operationTypeForTool, validOperation, OPERATION_TYPES } from '../src/core/operations.js';
 import { createToolRegistry, ToolRegistry, validateTool, BUILTIN_TOOLS } from '../src/core/tool-registry.js';
@@ -41,21 +41,11 @@ test('v3 documents carry the schema map and a consistent canvas index', () => {
   assert.throws(() => validateProject({ ...doc, version: 4 }), /版本过新/);
 });
 
-test('only the current model level lives inside the app; v1/v2 upgrade at the open boundary', () => {
-  // validateProject is write-side self-check: it accepts exactly one level.
+test('exactly one document level exists: anything older or foreign is refused', () => {
+  assert.equal(validateProject({ ...documentHeader(1, 1), title: '画画', width: 1, height: 1, layers: [layer] }).version, PROJECT_VERSION);
   assert.throws(() => validateProject(v1), /版本过新/);
-  const normalized = openDocument(v1);
-  assert.equal(normalized.version, PROJECT_VERSION);
-  assert.deepEqual(normalized.canvas, { width: 1, height: 1, background: '#ffffff' });
-  assert.deepEqual(normalized.operations, []);
-  assert.equal(normalized.layers.length, 1);
-  const v2 = { ...v1, version: 2, layers: [{ ...layer, eraseMask: png }] };
-  const normalized2 = openDocument(v2);
-  assert.equal(normalized2.version, PROJECT_VERSION);
-  // A drifted canvas index yields to the top-level size on read.
-  const drifted = normalizeDocument({ ...v1, canvas: { width: 9, height: 9 } });
-  assert.equal(drifted.canvas.width, 1);
-  assert.throws(() => normalizeDocument({ format: 'other-app', version: 3 }), /不是落叶画板工程/);
+  assert.throws(() => validateProject({ ...v1, format: 'previous-studio' }), /不是支持/);
+  assert.throws(() => validateProject({ ...v1, format: 'other-app' }), /不是支持/);
 });
 
 test('mouse, touch and stylus events normalize into one pointer model', () => {

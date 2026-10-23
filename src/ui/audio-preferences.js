@@ -1,4 +1,4 @@
-// Shared by the music box and tool feedback; legacy sound choices remain valid.
+// Shared by the music box and tool feedback.
 export function createAudioPreferences(trackCount, storage) {
   if (!storage) { try { storage = globalThis.localStorage; } catch {} }
   const read = key => { try { return storage?.getItem(key); } catch { return null; } };

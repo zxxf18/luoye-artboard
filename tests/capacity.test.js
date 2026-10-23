@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {openDocument as validateProject, MAX_LAYERS} from '../src/core/core.js';
+import {validateProject, MAX_LAYERS} from '../src/core/core.js';
+import {documentHeader} from '../src/core/document.js';
 import {PaintEngine} from '../src/core/engine.js';
 
 test('shared immutable frames count once, independent layer masks count separately',()=>{
@@ -13,7 +14,7 @@ test('shared immutable frames count once, independent layer masks count separate
 test('100000 instances per layer and 500000 per project have explicit validated boundaries',()=>{
   const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
   const layer={id:'a',name:'草地',width:1,height:1,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image,sprites:Array.from({length:100000},()=>({group:0,x:0,y:0,size:16,opacity:1})),spriteGroups:[{frameDuration:160,frames:[{width:1,height:1,image}]}]};
-  const project={format:'luoye-studio',version:1,width:1,height:1,title:'草地',layers:Array.from({length:5},(_,i)=>({...layer,id:String(i)}))};
+  const project={...documentHeader(1,1),width:1,height:1,title:'草地',layers:Array.from({length:5},(_,i)=>({...layer,id:String(i)}))};
   assert.doesNotThrow(()=>validateProject(project));
   assert.throws(()=>validateProject({...project,layers:[{...layer,sprites:[...layer.sprites,layer.sprites[0]]}]}),/组合/);
   assert.throws(()=>validateProject({...project,layers:[...project.layers,{...layer,id:'extra',sprites:[layer.sprites[0]]}]}),/500,000/);
@@ -23,6 +24,6 @@ test('projects may keep 200 small layers without the old artificial 20-layer sto
   const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=';
   const layer=i=>({id:String(i),name:`层${i}`,width:1,height:1,x:0,y:0,scale:1,rotation:0,opacity:1,visible:true,image});
   assert.equal(MAX_LAYERS,200);
-  assert.doesNotThrow(()=>validateProject({format:'luoye-studio',version:1,width:1,height:1,title:'多层测试',layers:Array.from({length:200},(_,i)=>layer(i))}));
-  assert.throws(()=>validateProject({format:'luoye-studio',version:1,width:1,height:1,title:'多层测试',layers:Array.from({length:201},(_,i)=>layer(i))}),/200/);
+  assert.doesNotThrow(()=>validateProject({...documentHeader(1,1),width:1,height:1,title:'多层测试',layers:Array.from({length:200},(_,i)=>layer(i))}));
+  assert.throws(()=>validateProject({...documentHeader(1,1),width:1,height:1,title:'多层测试',layers:Array.from({length:201},(_,i)=>layer(i))}),/200/);
 });

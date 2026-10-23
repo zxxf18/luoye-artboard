@@ -1,4 +1,4 @@
-import { openDocument } from '../core/core.js';
+import { validateProject } from '../core/core.js';
 import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from '../core/storage-format.js';
 
 const DATABASE_NAME = 'luoye-studio';
