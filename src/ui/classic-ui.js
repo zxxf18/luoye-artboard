@@ -76,6 +76,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   // contract test asserts this list stays registered and described.
   const tools=CLASSIC_TOOLS.map(entry=>[...entry]);
   const featureTools={animation:features?.animation,pixel:features?.pixel};
+  // 功能工具（小动画／像素画）打开编辑器期间，货架焦点跟着按钮走；编辑器
+  // 关闭后由 close 监听还原为当前绘画工具。
+  const shelfPressed=id=>{for(const b of document.querySelectorAll('button[data-tool]'))b.setAttribute('aria-pressed',b.dataset.tool===id);};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;
   const bar=el('tools');bar.replaceChildren();let page=0;
@@ -113,7 +116,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
         // Programmatic or assistive activation can target a button from
         // another page; reveal its page first so the rail follows the action.
         if(b.hidden){page=pageOf(index);renderTools();}
-        const feature=featureTools[id];if(feature){feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.dispatchEvent(new Event('openfairy'));openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};
+        const feature=featureTools[id];if(feature){shelfPressed(id);feature();return;}setTool(id);if(id!=='stamp')openLibrary(false);if(id==='stamp'){document.dispatchEvent(new Event('openfairy'));openLibrary(true);}if(isNarrow())setMobilePanel(id==='stamp'?'library':'brushes');};
       (compact?bar:column).append(b);
     }
     if(!compact)bar.append(column);
@@ -126,6 +129,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     bar.after(flipRow);
   }
   renderTools();
+  document.addEventListener('close',event=>{if(event.target.id==='animation-editor-dialog'||event.target.id==='pixel-art-dialog')shelfPressed(el('painting').dataset.tool);},true);
   let lastColor='',lastSecondary='',showEraserShapes=false;
   // 示例笔迹不跟选色走：亮主题固定黑色、暗主题（机械/宇宙）固定白色；
   // 彩虹笔自带七彩旅程不受影响，渐变笔用固定深浅两色画出渐变。
