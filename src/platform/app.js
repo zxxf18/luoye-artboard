@@ -325,7 +325,7 @@ $('painting').addEventListener('pointerdown', event => {
     const picked='#'+[...pixel.slice(0,3)].map(n=>n.toString(16).padStart(2,'0')).join('');if(event.ctrlKey){$('background-color').value=picked;$('background-color').dispatchEvent(new Event('input'));}else setColor(picked);setTool('pen');return;
   }
   if (tool === 'text') { styledText.open(point); return; }
-  if(tool==='fractal'){run(()=>{placeFractal(engine,point);toast('分形已放到画纸上，可以移动和放大它');});return;}
+  if(tool==='fractal'){run(()=>{placeFractal(engine,point,{color});toast('分形已放到画纸上，可以移动和放大它');});return;}
   if(tool==='board-filter'){const o=creative.options();run(()=>engine.applyBoardFilter(o.filterKind,{...o,x:point.x,y:point.y}));return;}
   try {
     if(tool==='move'){
