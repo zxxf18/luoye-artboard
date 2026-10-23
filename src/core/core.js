@@ -1,6 +1,7 @@
 // Dynamic stamps are kept as compact sprite records and rendered through the
 // coalesced frame scheduler.  The old limits were reached after only a few
 // strokes with animated Magic Bag assets.
+import { validOperation } from './operations.js';
 export const MAX_SPRITES_PER_LAYER=100000;
 export const MAX_PROJECT_SPRITES=500000;
 export const MAX_LAYERS=200;
@@ -150,7 +151,17 @@ export function validateProject(value) {
   // Earlier editions used the same bounded document schema with another prefix.
   if(value&&typeof value.format==='string'&&/^[a-z]+-studio$/.test(value.format))value={...value,format:'luoye-studio'};
   const fail = (message) => { throw new Error(message); };
-  if (!value || value.format !== 'luoye-studio' || ![1,2].includes(value.version)) fail('不是支持的落叶画板工程，或版本过新。');
+  if (!value || value.format !== 'luoye-studio' || ![1,2,3].includes(value.version)) fail('不是支持的落叶画板工程，或版本过新。');
+  if (value.version === 3) {
+    if (!value.schema || ![value.schema.canvas, value.schema.layers, value.schema.brushes, value.schema.tools, value.schema.animation, value.schema.operations].every(v => v === 1)) fail('工程结构版本不受支持。');
+    // The canvas index is redundant; when present it must agree with the
+    // top-level size, which stays the compatibility source of truth.
+    if (value.canvas !== undefined && (value.canvas.width !== value.width || value.canvas.height !== value.height)) fail('画布索引与工程尺寸不一致。');
+    if (value.operations !== undefined) {
+      if (!Array.isArray(value.operations) || value.operations.length > 2000) fail('操作记录无效。');
+      for (const entry of value.operations) if (!validOperation(entry)) fail('操作记录条目无效。');
+    }
+  }
   const size = (w, h) => Number.isInteger(w) && Number.isInteger(h) && w > 0 && h > 0 && w <= 4096 && h <= 4096 && w * h <= 8_388_608;
   if (!size(value.width, value.height)) fail('画布尺寸超出当前版本支持范围。');
   if (typeof value.title !== 'string' || value.title.length > 120) fail('作品名称无效。');

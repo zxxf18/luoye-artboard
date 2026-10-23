@@ -7,6 +7,7 @@ import { brandIcon, playfulIcon } from './playful-icons.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from '../core/brushes.js';
 import { makeCanvas } from '../core/engine.js';
 
+export const CLASSIC_TOOLS=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
   const g={layer:{scale:1},options:{tool:'pen',brush:id,brushVersion:2,size,color,secondaryColor:secondary,opacity:1,seed:913}};
@@ -68,7 +69,9 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
-  const tools=[['pen','画笔'],['eraser','橡皮'],['stamp','魔法袋'],['fill','油漆桶'],['picker','吸颜色'],['line','图形'],['text','文字'],['select','圈选'],['magic','魔力棒'],['move','移动'],['warp','变形'],['board-filter','滤镜'],['clone','仿制印章'],['fractal','分形'],['scratch','刮刮画'],['animation','小动画'],['pixel','像素画']];
+  // Single source of truth for the classic shelf; the core tool registry
+  // contract test asserts this list stays registered and described.
+  const tools=CLASSIC_TOOLS.map(entry=>[...entry]);
   const featureTools={animation:features?.animation,pixel:features?.pixel};
   const geometries=['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier'];
   const groupTool=()=>geometries.includes(el('painting').dataset.tool)?'line':el('painting').dataset.tool;

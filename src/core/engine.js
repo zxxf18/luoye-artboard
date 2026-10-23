@@ -1,5 +1,7 @@
 import { bundledImageSource } from './bundled-images.js';
 import { History, fitInside, floodFill, toLayerPoint, validateProject, MAX_LAYERS } from './core.js';
+import { documentHeader, normalizeDocument } from './document.js';
+import { OperationLog, nextOperationId, operationTypeForTool } from './operations.js';
 
 export function makeCanvas(width, height, readback = true) {
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
@@ -117,7 +119,7 @@ export function paintScratchCover(ctx, width, height, style = {}) {
 export class PaintEngine {
   constructor(canvas, onChange) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
-    this.history = new History(); this.layers = []; this.activeId = ''; this.playing = true;
+    this.history = new History(); this.operations = new OperationLog(); this.layers = []; this.activeId = ''; this.playing = true;
     this.gesture = null; this.drawQueued = false; this.animationStart = performance.now();
     this.compositeSurfaces=new WeakMap();
     // The common case is a document with many unchanged raster layers. Keep a
@@ -134,7 +136,7 @@ export class PaintEngine {
   }
   reset(width, height) {
     this.width = width; this.height = height; this.canvas.width = width; this.canvas.height = height;
-    this.layers = []; this.history.clear(); this.gesture = null;
+    this.layers = []; this.history.clear(); this.operations.clear(); this.gesture = null;
     this.addLayer('我的画笔', makeCanvas(width, height), false); this.changed();
   }
   get active() { return this.layers.find(l => l.id === this.activeId); }
@@ -581,6 +583,10 @@ export class PaintEngine {
         const ctx = g.layer.canvas.getContext('2d'); ctx.save(); this.drawShape(ctx, g); ctx.restore();
       }
       this.recordPixels(g.layer, g.tiles);
+      // Every finished gesture lands in the operation log with bounded
+      // payload metadata; strokes themselves stay in the layer snapshot.
+      this.operations.record({ id: nextOperationId(), type: operationTypeForTool(g.options.tool), toolId: g.options.tool,
+        payload: { size: g.options.size, opacity: g.options.opacity, points: g.points || 1 } });
     }
     this.gesture = null; this.changed();
   }
@@ -656,10 +662,10 @@ export class PaintEngine {
     });
     const layers=await Promise.all(jobs);
     // Never write a document that our own importer would refuse to reopen.
-    return validateProject({ format: 'luoye-studio', version: layers.some(l=>l.eraseMask)?2:1, title, width: widthAtStart, height: heightAtStart, layers });
+    return validateProject({ ...documentHeader(widthAtStart, heightAtStart), title, width: widthAtStart, height: heightAtStart, layers, operations: this.operations.snapshot() });
   }
   async restore(raw) {
-    const value = validateProject(raw), layers = [];
+    const value = normalizeDocument(validateProject(raw)), layers = [];
     const resources=new Map(),resource=src=>{if(!resources.has(src))resources.set(src,loadImage(src));return resources.get(src);};
     // Decode and validate the entire incoming document before replacing the current one.
     for (const info of value.layers) {
@@ -684,7 +690,7 @@ export class PaintEngine {
       layers.push(layer);
     }
     this.width = value.width; this.height = value.height; this.canvas.width = value.width; this.canvas.height = value.height;
-    this.layers = layers; this.activeId = layers.at(-1).id; this.history.clear(); this.gesture = null; this.changed();
+    this.layers = layers; this.activeId = layers.at(-1).id; this.history.clear(); this.operations.adopt(value.operations); this.gesture = null; this.changed();
     return value.title;
   }
   exportLayerPNG() { const layer=this.active,canvas=makeCanvas(layer.width,layer.height,false);this.drawLayer(canvas.getContext('2d'),layer);return canvas.toDataURL('image/png'); }

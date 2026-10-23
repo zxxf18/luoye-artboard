@@ -4,7 +4,7 @@ import { decodeLegacyFly } from '../core/legacy.js';
 import { mountGallery } from '../ui/gallery-ui.js';
 import { mountRecorder } from '../ui/recorder-ui.js';
 import { mountStudio } from '../ui/studio-ui.js';
-import { deliverFile, preserveDraft, writeDraft, discardCurrentDraft } from './storage.js';
+import { deliverFile, preserveDraft, writeDraft, discardCurrentDraft, galleryList, galleryPut, galleryGet, galleryTrash, writeRecordingDraft, readRecordingDraft } from '../platform/storage.js';
 import { createCloseFlow } from './close-flow.js';
 import { playfulIcon } from '../ui/playful-icons.js';
 import { icon } from '../ui/icons.js';
@@ -23,6 +23,7 @@ import { DEFAULT_BRUSH_SIZE } from '../core/brushes.js';
 import { mountAnimationEditor } from '../ui/animation-editor.js';
 import { mountPixelEditor } from '../ui/pixel-art.js';
 import { collectPointerSamples, isHighFrequencyEraser } from '../core/input-sampling.js';
+import { toUnifiedPointer } from '../core/pointer.js';
 import { placeFractal } from '../ui/fractal-studio.js';
 
 const $ = id => document.getElementById(id);
@@ -216,9 +217,9 @@ for (const [category, name] of Object.entries({ background: '彩色背景', stic
   button.onclick = () => chooseCategory(category); $('categories').append(button);
 }
 engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('background');
-studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed });
-const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画'});
-const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;}});
+studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed, storage:{deliverFile} });
+const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画',storage:{deliverFile,writeRecordingDraft,readRecordingDraft}});
+const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;},storage:{galleryList,galleryPut,galleryGet,galleryTrash,writeDraft}});
 applyStoredTheme();
 const animationEditor = mountAnimationEditor({
   engine,
@@ -312,7 +313,10 @@ $('image-input').onchange = event => run(async () => {
 });
 $('painting').addEventListener('pointerdown', event => {
   if (busy || pointerId !== undefined || event.button !== 0) return;
-  event.preventDefault(); $('painting').focus({ preventScroll: true }); const point = engine.point(event);
+  event.preventDefault(); $('painting').focus({ preventScroll: true });
+  // Mouse, touch, Apple Pencil and Android stylus all enter as one unified
+  // pointer record; the engine sees canvas coordinates plus pressure/type.
+  const point = toUnifiedPointer(event, source => engine.point(source), 'down');
   if(tool==='clone'&&(event.ctrlKey||studio.pickingClone())){engine.setCloneSource(point);studio.clonePicked();toast('仿制源点已设定');return;}
   if(['polygon','bezier'].includes(tool)||(tool==='select'&&studio.options().selectionShape==='bezier')){try{if(tool!=='select'&&!engine.path)engine.ensureDrawingLayer();engine.addVertex(point,{tool:tool==='select'?'select-bezier':tool,color,size:Number($('size').value),opacity:Number($('opacity').value)/100,...studio.options(),...materials.options(),...assist.options()});}catch(e){toast(e.message);}return;}
   if (tool === 'picker') {
@@ -330,7 +334,7 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
+    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brushVersion:2, brush: $('brush').value, pointerType: point.pointerType, pressure: point.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });
@@ -357,7 +361,7 @@ function updatePaintingPointer(event,{preview=true}={}){
   // point so a soft eraser cannot erase the same area twice or briefly move
   // backwards along the stroke.
   const samples=engine.gesture?.rawPointerSampling?[event]:collectPointerSamples(event,highFrequency);
-  for(const sample of samples)engine.update(engine.point(sample,rect));
+  for(const sample of samples)engine.update(toUnifiedPointer(sample, source => engine.point(source, rect), 'move'));
 }
 $('painting').addEventListener('pointermove', event => updatePaintingPointer(event));
 // Pointermove stays the path for every tool. Raw samples are an additive

@@ -1,5 +1,4 @@
 import { makeCanvas } from '../core/engine.js';
-import { deliverFile } from '../platform/storage.js';
 
 const EFFECTS = {
   brightness:['明亮度／对比度',[['brightness','明亮度',-100,100,0],['contrast','对比度',-100,100,0]]],
@@ -16,7 +15,8 @@ const EFFECTS = {
   function:['色彩魔力',[]],feather:['羽化透明度',[['radius','半径',1,12,4]]],
 };
 
-export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed}) {
+export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,storage}) {
+  const {deliverFile}=storage;
   const el=id=>document.getElementById(id);
   const strip=document.createElement('div');strip.className='command-strip';strip.innerHTML=`
     <div class="workspace-tabs" aria-label="创作单元"><button id="mode-board" class="selected">画板</button><button id="darkroom">暗房</button><button id="mode-library">图库</button></div>
