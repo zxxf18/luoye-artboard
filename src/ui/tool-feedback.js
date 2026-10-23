@@ -35,8 +35,6 @@ export function getToolFeedback(options) {
   return TOOL_FEEDBACK.find(entry=>entry.key===`${tool}:${value}`) || TOOL_FEEDBACK[0];
 }
 
-export function toolCursorSVG(entry) { return toolCursor(entry).svg; }
-
 export function scheduleToolSound(context, profile, volume=.6) {
   const level=.15*Math.max(0,Math.min(1,volume));
   if(!level)return ()=>{};

@@ -1,5 +1,5 @@
 // Pixel algorithms shared by editor, effect previews and deterministic replay.
-export const clampByte = value => Math.max(0, Math.min(255, Math.round(value)));
+const clampByte = value => Math.max(0, Math.min(255, Math.round(value)));
 export const rgb = hex => hex.match(/[a-f\d]{2}/gi).map(n => parseInt(n, 16));
 export function seededRandom(seed = 1) {
   let state = seed >>> 0;

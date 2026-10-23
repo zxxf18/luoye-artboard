@@ -4,7 +4,7 @@
 // cross-tool features have one vocabulary. It is capped and boundary-checked:
 // restoring a document never replays it.
 
-export const OPERATION_LIMIT = 2000;
+const OPERATION_LIMIT = 2000;
 export const OPERATION_TYPES = Object.freeze(['stroke', 'shape', 'fill', 'erase', 'stamp', 'layer-add', 'layer-remove', 'layer-move', 'layer-property', 'background', 'filter', 'fractal', 'text', 'animation', 'pixel', 'scratch', 'other']);
 
 export function validOperation(entry) {

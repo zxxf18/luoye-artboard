@@ -83,15 +83,6 @@ export function writeDraft(project, { revision = null } = {}) {
   return task;
 }
 
-export async function readDraft() {
-  const database = await openDraftDatabase();
-  return new Promise((resolve, reject) => {
-    const request = database.transaction('drafts').objectStore('drafts').get('current');
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(failStorage(request.error, '草稿读取'));
-  });
-}
-
 export async function discardCurrentDraft() {
   await draftWriteChain.catch(() => {});
   const database = await openDraftDatabase();

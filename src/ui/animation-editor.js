@@ -20,7 +20,7 @@ function assertFrame(frame, width, height) {
   return frame;
 }
 
-export function frameDurationForFps(fps) {
+function frameDurationForFps(fps) {
   const value = Number(fps);
   const selected = FPS_OPTIONS.reduce((best, option) =>
     Math.abs(option - value) < Math.abs(best - value) ? option : best, FPS_OPTIONS[1]);

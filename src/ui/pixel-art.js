@@ -3,7 +3,7 @@ import { makeCanvas } from '../core/engine.js';
 // Keep the grid small and predictable. A child can understand an 8 × 8 or
 // 16 × 16 picture immediately, while 32 × 32 still leaves room for details.
 export const PIXEL_GRID_SIZES = [8, 16, 24, 32];
-export const PIXEL_COLORS = ['#000000', '#285b49', '#759667', '#aeca96', '#e0b24a', '#ed9448', '#d9715f', '#cf6f83', '#b398b7', '#7694b9', '#68a9ae', '#ffffff'];
+const PIXEL_COLORS = ['#000000', '#285b49', '#759667', '#aeca96', '#e0b24a', '#ed9448', '#d9715f', '#cf6f83', '#b398b7', '#7694b9', '#68a9ae', '#ffffff'];
 
 function assertGridSize(value) {
   const size = Number(value);

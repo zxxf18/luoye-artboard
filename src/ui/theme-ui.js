@@ -4,7 +4,7 @@ import { themeScene } from './theme-scenes.js';
 export const THEME_STORAGE_KEY = 'luoye-theme';
 export const DEFAULT_THEME = 'autumn';
 
-export const THEMES = Object.freeze([
+const THEMES = Object.freeze([
   { id: 'spring', label: '春', caption: '柳风轻拂', icon: 'forest' },
   { id: 'summer', label: '夏', caption: '海边假日', icon: 'wave' },
   { id: 'autumn', label: '秋', caption: '暖色画室', icon: 'palette' },
@@ -21,7 +21,7 @@ function normalizeTheme(value) {
   return THEME_IDS.has(value) ? value : DEFAULT_THEME;
 }
 
-export function readTheme() {
+function readTheme() {
   try {
     return normalizeTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {

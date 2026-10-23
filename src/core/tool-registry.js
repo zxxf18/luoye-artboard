@@ -2,7 +2,7 @@
 // scratch, pixel art — is described here once. UI shells read registry
 // metadata instead of hard-coding per-tool branches, and the engine consumes
 // the same descriptors when routing gestures.
-export const TOOL_KINDS = Object.freeze(['brush', 'eraser', 'shape', 'fill', 'stamp', 'select', 'transform', 'filter', 'text', 'fractal', 'scratch', 'animation', 'pixel', 'utility']);
+const TOOL_KINDS = Object.freeze(['brush', 'eraser', 'shape', 'fill', 'stamp', 'select', 'transform', 'filter', 'text', 'fractal', 'scratch', 'animation', 'pixel', 'utility']);
 
 export const BUILTIN_TOOLS = [
   { id: 'pen', kind: 'brush', supports: { continuous: true, pressure: true, size: true, opacity: true } },

@@ -63,7 +63,7 @@ function eraserShapePath(ctx, shape, radius) {
  * destination-out alpha, so lower opacity behaves like a gentle partial erase
  * and composes correctly with existing paper erase masks.
  */
-export function shapeEraserDab(ctx, shape, x, y, size, opacity = 1, rotation = 0) {
+function shapeEraserDab(ctx, shape, x, y, size, opacity = 1, rotation = 0) {
   const diameter = Math.max(1, Number(size) || 1);
   const radius = diameter / 2;
   const parsedOpacity = Number(opacity);

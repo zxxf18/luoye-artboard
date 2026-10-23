@@ -15,7 +15,6 @@ function bounded(value,depth=0){
   throw new Error('录像参数无效。');
 }
 export function validateRecording(raw){
-  if(raw&&typeof raw.format==='string'&&/^[a-z]+-recording$/.test(raw.format))raw={...raw,format:'luoye-recording',slots:raw.slots?.map(slot=>slot?{...slot,base:validateProject(slot.base)}:slot)};
   if(!raw||raw.format!=='luoye-recording'||raw.version!==1||!Array.isArray(raw.slots)||raw.slots.length!==5)throw new Error('不是支持的五段绘画录像。');
   if(JSON.stringify(raw).length>MAX_BYTES)throw new Error('录像超过 64 MiB 上限。');
   for(const slot of raw.slots){if(slot===null)continue;validateProject(slot.base);let resourcePixels=0;

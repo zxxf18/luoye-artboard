@@ -2,7 +2,7 @@
 // arrive as platform pointer events with different field coverage; tools only
 // ever consume the normalized record produced here, so a brush behaves the
 // same whether the finger, the mouse or a pressure pen drew it.
-export const POINTER_TYPES = Object.freeze(['mouse', 'touch', 'pen']);
+const POINTER_TYPES = Object.freeze(['mouse', 'touch', 'pen']);
 
 // Pressure semantics per pointer type. Hardware pressure (0..1) is kept when
 // the platform reports one; otherwise a stable neutral value is defined per

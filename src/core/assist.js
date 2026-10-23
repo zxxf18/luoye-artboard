@@ -1,6 +1,6 @@
 const EPSILON = 0.0001;
 
-export const ASSIST_MODES = Object.freeze([
+const ASSIST_MODES = Object.freeze([
   { value: 'vertical', label: '左右对称' },
   { value: 'horizontal', label: '上下对称' },
   { value: 'four', label: '四向对称' },

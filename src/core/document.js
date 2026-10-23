@@ -7,7 +7,7 @@ export const SCHEMA_VERSIONS = Object.freeze({ canvas: 1, layers: 1, brushes: 1,
 // Redundant canvas index: width/height at the top level stay the source of
 // truth for compatibility; this block exists so new readers can describe the
 // paper without walking layers first.
-export function canvasIndex(width, height, background = '#ffffff') {
+function canvasIndex(width, height, background = '#ffffff') {
   return { width, height, background };
 }
 
