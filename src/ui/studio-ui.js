@@ -75,7 +75,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,s
   for(const input of el('function-modes').querySelectorAll('input'))input.oninput=()=>{input.nextElementSibling.textContent=input.value;preview();};
   selectEffectGroup('色彩调节');
   action('darkroom',()=>{engine.end();if(!engine.paperMode)engine.assertRaster();parameters();show('darkroom-dialog');});
-  action('apply-effect',async()=>{await engine.applyDarkroom(el('effect-kind').value,effectOptions());el('darkroom-dialog').close();toast('暗房效果已应用，可以撤销');});
+  action('apply-effect',async()=>{el('darkroom-dialog').close();try{await engine.applyDarkroom(el('effect-kind').value,effectOptions());toast('暗房效果已应用，可以撤销');}catch(error){toast(error.message||'效果没有应用，请重试。');}});
   el('geometry').onchange=()=>setTool(el('geometry').value);
   for(const [id,shape] of [['selection-rect','rect'],['selection-free','free']])el(id).onclick=()=>{el('selection-shape').value=shape;setTool('select');};
   action('mode-board',()=>setTool('pen'));action('mode-library',()=>{document.querySelector('.categories button').focus();toast('在右侧图库选择素材加入作品');});
