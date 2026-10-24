@@ -221,6 +221,7 @@ const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$
 const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;},storage:{galleryList,galleryPut,galleryGet,galleryTrash,writeDraft}});
 applyStoredTheme();
 const animationEditor = mountAnimationEditor({
+  setTool,
   engine,
   run,
   toast,
@@ -234,7 +235,7 @@ const classic = mountClassic({
   clearAnimations: () => run(() => engine.clearAnimated()),
   features: { animation: () => animationEditor.open(), pixel: () => pixelEditor.open() },
 });
-const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color, pickColor: classic.pickCustom });
+const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color, pickColor: classic.pickCustom, setTool });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));

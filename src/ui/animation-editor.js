@@ -139,7 +139,7 @@ function fitCanvas(source, target, alpha = 1) {
 }
 
 /** Mount the child-friendly editor and keep all painting inside its small canvas. */
-export function mountAnimationEditor({ engine, run, toast, getColor, getSecondaryColor }) {
+export function mountAnimationEditor({ engine, run, toast, getColor, getSecondaryColor, setTool }) {
   const dialog = document.createElement('dialog');
   dialog.id = 'animation-editor-dialog';
   dialog.className = 'animation-dialog';
@@ -243,7 +243,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   function open() { stopPlayback(); timeline.currentIndex = 0; loadCurrent(); syncCursor(); dialog.showModal(); dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
   function place() {
     stopPlayback(); snapshotCurrent(); const options = timeline.toLayerOptions();
-    const first = options.frames[0]; engine.addLayer('我的小动画', first, true, options); dialog.close(); toast('小动画已经放回画板，可以移动和放大它了。');
+    const first = options.frames[0]; engine.addLayer('我的小动画', first, true, options); dialog.close(); setTool?.('move'); toast('小动画已经放回画板，可以移动和放大它了。');
   }
   function drawPoint(event) {
     const rect = frameCanvas.getBoundingClientRect(); return editor.point(event, rect);

@@ -158,7 +158,7 @@ export class PixelArtModel {
 }
 
 /** Mount a focused pixel editor. It only commits a normal raster layer when the child taps “放回画板”. */
-export function mountPixelEditor({ engine, run, toast, getColor, pickColor } = {}) {
+export function mountPixelEditor({ engine, run, toast, getColor, pickColor, setTool } = {}) {
   const dialog = document.createElement('dialog');
   dialog.id = 'pixel-art-dialog'; dialog.className = 'pixel-art-dialog';
   dialog.innerHTML = `
@@ -197,7 +197,7 @@ export function mountPixelEditor({ engine, run, toast, getColor, pickColor } = {
   function place() {
     if (model.isEmpty()) { toast?.('先涂一格颜色，再放回画板。'); return; }
     const outputSize = Math.max(16, Math.min(512, Number(engine?.width) || 512, Number(engine?.height) || 512));
-    engine.end(); engine.addLayer('像素画', model.toCanvas(outputSize), true); dialog.close(); toast?.('像素画已经放回画板，可以移动和放大它了。');
+    engine.end(); engine.addLayer('像素画', model.toCanvas(outputSize), true); dialog.close(); setTool?.('move'); toast?.('像素画已经放回画板，可以移动和放大它了。');
   }
 
   for (const value of PIXEL_COLORS) {
