@@ -139,18 +139,38 @@ function fillPetal(ctx, angle, startR, len, width) {
 }
 
 function drawSnowflake(ctx, radius, depth, shades) {
-  const arm = (x, y, angle, len, w, level) => {
-    const ex = x + Math.cos(angle) * len, ey = y + Math.sin(angle) * len;
-    capsule(ctx, x, y, ex, ey, w, shades.main);
-    if (level >= depth) { ctx.fillStyle = shades.light; circle(ctx, ex, ey, w * .38); return; }
-    for (const side of [-1, 1]) arm(ex, ey, angle + side * Math.PI / 3, len * .44, w * .56, level + 1);
+  // 一朵经典枝晶雪花：六条长臂与六条短臂交错把轮廓撑圆，臂上对称生出
+  // 侧枝，枝尖缀亮色小珠；分形次数越多，侧枝越密、细节越丰富。
+  const arm = (angle, reach, width) => {
+    const bx = Math.cos(angle) * radius * .12, by = Math.sin(angle) * radius * .12;
+    const ex = Math.cos(angle) * radius * reach, ey = Math.sin(angle) * radius * reach;
+    capsule(ctx, bx, by, ex, ey, width, shades.main);
+    const branches = Math.min(6, 2 + depth);
+    for (let i = 1; i <= branches; i++) {
+      const t = .3 + i * (reach - .32) / (branches + .5);
+      const px = bx + (ex - bx) * t, py = by + (ey - by) * t;
+      const len = radius * .34 * (1 - t * .55), w = width * .42;
+      for (const side of [-1, 1]) {
+        const a = angle + side * Math.PI / 3.2;
+        const tx = px + Math.cos(a) * len, ty = py + Math.sin(a) * len;
+        capsule(ctx, px, py, tx, ty, w, shades.main);
+        ctx.fillStyle = shades.light; circle(ctx, tx, ty, w * .5);
+      }
+    }
+    ctx.fillStyle = shades.light; circle(ctx, ex, ey, width * .55);
+    ctx.fillStyle = shades.dark; circle(ctx, ex, ey, width * .32);
   };
-  ctx.fillStyle = shades.dark; circle(ctx, 0, 0, radius * .3);
-  ctx.fillStyle = shades.light; circle(ctx, 0, 0, radius * .15);
-  for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3 - Math.PI / 2;
-    arm(Math.cos(a) * radius * .15, Math.sin(a) * radius * .15, a, radius * .82, radius * .17, 1);
-  }
+  for (let i = 0; i < 6; i++) arm(i * Math.PI / 3 - Math.PI / 2, .92, radius * .16);
+  for (let i = 0; i < 6; i++) arm((i + .5) * Math.PI / 3 - Math.PI / 2, .68, radius * .1);
+  // 一圈亮珠环把轮廓收圆，也像雪花边缘的凝霜。
+  for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12; ctx.fillStyle = shades.light; circle(ctx, Math.cos(a) * radius * .82, Math.sin(a) * radius * .82, radius * .022); }
+  // 六边形晶核：深色外框、主色内层、亮色芯。
+  ctx.fillStyle = shades.dark;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 - Math.PI / 2, r = radius * .22; const x = Math.cos(a) * r, y = Math.sin(a) * r; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = shades.main; circle(ctx, 0, 0, radius * .13);
+  ctx.fillStyle = shades.light; circle(ctx, 0, 0, radius * .06);
 }
 
 function drawMandala(ctx, radius, depth, shades) {
