@@ -8,7 +8,7 @@
 /* 桌面模式按钮封顶后整组垂直居中；紧凑抽屉内容可溢出，保持顶部对齐。 */
 .playroom .tool-rail #tools.tools-centered{justify-content:center}.playroom .tool-button{width:100%;flex:1;min-height:calc(62px*var(--u));height:auto;max-height:calc(108px*var(--u));display:flex;flex-direction:column;gap:1px;border-radius:18px;padding:4px;background:#fff1dd;border:2px solid #ddb58e;color:var(--ink);font-size:calc(14px*var(--u))}.playroom .tool-button .playful-icon{width:calc(40px*var(--u));height:calc(40px*var(--u))}.playroom .tool-button[aria-pressed=true]:before{display:none}.playroom .tool-page{flex:none;width:100%;padding:8px 3px;display:flex;flex-direction:column;gap:2px;font-size:calc(14px*var(--u));background:var(--theme-control,#fff2d1)}
 /* 左右双箭头翻页：箭头按钮 + 居中页码。 */
-.playroom .tool-pager{flex:none;width:100%;max-width:100%;display:flex;align-items:center;justify-content:center;gap:3px;padding:4px 1px;background:var(--theme-control,#fff2d1);border-radius:14px}
+.playroom .tool-pager{flex:none;width:100%;max-width:100%;display:grid;grid-template-columns:30px minmax(0,1fr) 30px;align-items:center;gap:3px;padding:4px 1px;background:var(--theme-control,#fff2d1);border-radius:14px}
 .playroom .tool-page-arrow{min-width:30px;width:30px;min-height:40px;height:40px;padding:0;font-size:14px;line-height:1;border-radius:11px;background:var(--theme-surface,#fff1dd);border:2px solid var(--theme-border,#ddb58e);color:var(--ink);flex:none}
 .playroom .tool-page-arrow:hover:not(:disabled){background:var(--theme-hover,#ffe3b2);border-color:var(--theme-accent,#cc8a56)}
 .playroom .tool-page-label{font-size:calc(12px*var(--u));font-weight:700;color:var(--muted,#896443);text-align:center;white-space:nowrap}
