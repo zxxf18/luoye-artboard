@@ -86,7 +86,7 @@ export function scratchStyle(options = {}) {
   return {
     color: typeof options.color === 'string' && options.color.trim() ? options.color : '#c99559',
     secondaryColor: typeof options.secondaryColor === 'string' ? options.secondaryColor.trim() : '#f0d49f',
-    baseMode: options.baseMode === 'rainbow' ? 'rainbow' : 'solid',
+    baseMode: ['rainbow', 'transparent'].includes(options.baseMode) ? options.baseMode : 'solid',
     baseColor: typeof options.baseColor === 'string' && options.baseColor.trim() ? options.baseColor : '#fffdf8',
     baseSecondaryColor: typeof options.baseSecondaryColor === 'string' ? options.baseSecondaryColor.trim() : '',
   };
@@ -100,6 +100,8 @@ function paintScratchRainbow(ctx, width, height) {
 }
 export function paintScratchBase(ctx, width, height, style = {}) {
   const base = scratchStyle(style);
+  // 透明底：不铺任何颜色，刮开覆盖层后直接露出下面的图层。
+  if (base.baseMode === 'transparent') return;
   if (base.baseMode === 'rainbow') paintScratchRainbow(ctx, width, height);
   else if (base.baseSecondaryColor && typeof ctx.createLinearGradient === 'function') {
     const gradient = ctx.createLinearGradient(0, 0, width, height);

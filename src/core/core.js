@@ -189,7 +189,7 @@ export function validateProject(value) {
       for (const key of ['color', 'secondaryColor', 'baseColor', 'baseSecondaryColor']) {
         if (layer.scratchStyle[key] !== undefined && (typeof layer.scratchStyle[key] !== 'string' || layer.scratchStyle[key].length > 128)) fail('刮刮画颜色无效。');
       }
-      if (layer.scratchStyle.baseMode !== undefined && !['solid', 'rainbow'].includes(layer.scratchStyle.baseMode)) fail('刮刮画底色模式无效。');
+      if (layer.scratchStyle.baseMode !== undefined && !['solid', 'rainbow', 'transparent'].includes(layer.scratchStyle.baseMode)) fail('刮刮画底色模式无效。');
     }
     png(layer.image, layer.width, layer.height);
     bytes += layer.image.length;
