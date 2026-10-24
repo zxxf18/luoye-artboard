@@ -40,11 +40,11 @@
 .playroom #darkroom-dialog .effect-preview canvas{flex:1 1 auto;min-height:0;width:100%;max-width:100%;max-height:none;object-fit:contain;border-radius:8px;background:#fff}
 .playroom #darkroom-dialog .effect-preview>span{flex:none}
 .playroom .effect-kind-caption{font-size:13px;font-weight:700;color:var(--muted,#896443);margin:0 0 2px}
-.playroom .effect-kind-trigger{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;padding:6px 34px 6px 12px;position:relative;border:2px solid var(--theme-border,#d9b78d);border-radius:12px;background:var(--theme-control,#fffaf0);color:var(--ink);font:inherit;font-weight:650}
+.playroom .effect-kind-trigger{display:flex;align-items:center;justify-content:flex-start;gap:10px;min-height:44px;width:100%;padding:7px 34px 7px 12px;text-align:left;position:relative;border:2px solid var(--theme-border,#d9b78d);border-radius:12px;background:var(--theme-control,#fffaf0);color:var(--ink);font:inherit;font-weight:650}
 .playroom .effect-kind-trigger:hover{background:var(--theme-hover,#ffe3b2);border-color:var(--theme-accent,#cc8a56)}
 .playroom .effect-kind-single{display:flex;align-items:center;min-height:44px;padding:6px 12px;border:2px solid var(--theme-border,#d9b78d);border-radius:12px;background:var(--theme-control,#fffaf0);color:var(--ink);font-weight:650}
 .playroom .effect-kind-list{position:absolute;left:0;right:0;top:100%;z-index:7;margin-top:4px;background:var(--theme-control,#fffaf0);border:2px solid var(--theme-border,#d9b78d);border-radius:14px;padding:6px;max-height:240px;overflow:auto;box-shadow:0 10px 26px #6a493744}
-.playroom .effect-kind-row{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:6px 10px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.playroom .effect-kind-row{display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:42px;padding:6px 12px;text-align:left;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:600;text-align:left;cursor:pointer}
 .playroom .effect-kind-row:hover,.playroom .effect-kind-row[aria-selected="true"]{background:var(--theme-hover,#ffe3b2)}
 .playroom #darkroom-dialog .effect-layout>div:first-child{position:relative}
 .playroom #function-modes:not([hidden]){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-height:0}
@@ -2722,11 +2722,11 @@
 .playroom .pixel-art-color-button:hover { background: var(--theme-hover, #ffe3b2); border-color: var(--theme-accent, #cc8a56); }
 .playroom .pixel-art-color-button i { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--theme-border, #d9b78d); background: #285b49; }
 .playroom .animation-brush-picker { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.playroom .animation-brush-trigger { display: flex; align-items: center; gap: 8px; min-height: 44px; width: 100%; padding: 6px 34px 6px 10px; border: 2px solid var(--theme-border, #d9b78d); border-radius: 12px; background: var(--theme-control, #fffaf0); color: var(--ink); font: inherit; font-weight: 650; }
+.playroom .animation-brush-trigger { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; width: 100%; padding: 7px 34px 7px 12px; text-align: left; border: 2px solid var(--theme-border, #d9b78d); border-radius: 12px; background: var(--theme-control, #fffaf0); color: var(--ink); font: inherit; font-weight: 650; }
 .playroom .animation-brush-trigger:hover { background: var(--theme-hover, #ffe3b2); border-color: var(--theme-accent, #cc8a56); }
 .playroom .animation-brush-trigger .playful-icon, .playroom .animation-brush-trigger .animation-brush-icon svg { width: 28px; height: 28px; flex: none; }
 .playroom .animation-brush-list { position: absolute; left: 0; right: 0; top: 100%; z-index: 6; margin-top: 4px; background: var(--theme-control, #fffaf0); border: 2px solid var(--theme-border, #d9b78d); border-radius: 14px; padding: 6px; max-height: 264px; overflow: auto; box-shadow: 0 10px 26px #6a493744; }
-.playroom .animation-brush-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.playroom .animation-brush-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 6px 12px; text-align: left; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
 .playroom .animation-brush-row:hover, .playroom .animation-brush-row[aria-selected="true"] { background: var(--theme-hover, #ffe3b2); }
 .playroom .animation-brush-row .playful-icon { width: 26px; height: 26px; flex: none; }
 .playroom .animation-select-arrow { margin-left: auto; width: 16px; height: 16px; pointer-events: none; color: var(--ink); flex: none; }
