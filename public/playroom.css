@@ -36,7 +36,17 @@
 .playroom #effect-parameters output,.playroom #function-modes output{min-width:40px;text-align:right;font-weight:700;color:var(--muted,#896443)}
 .playroom #darkroom-dialog .effect-preview{background:#fff;align-self:stretch;justify-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px solid var(--theme-border,#d8b58e);border-radius:16px;padding:14px;min-height:0;min-width:0;color:var(--muted,#82614a)}
 .playroom #darkroom-dialog .effect-preview>span{font-size:13px;font-weight:700}
-.playroom #darkroom-dialog .effect-preview canvas{max-width:100%;max-height:calc(100% - 30px);object-fit:contain;border-radius:8px;background:#fff}
+.playroom #darkroom-dialog .effect-preview #effect-preview{flex:1 1 auto;min-height:0;display:flex}
+.playroom #darkroom-dialog .effect-preview canvas{flex:1 1 auto;min-height:0;width:100%;max-width:100%;max-height:none;object-fit:contain;border-radius:8px;background:#fff}
+.playroom #darkroom-dialog .effect-preview>span{flex:none}
+.playroom .effect-kind-caption{font-size:13px;font-weight:700;color:var(--muted,#896443);margin:0 0 2px}
+.playroom .effect-kind-trigger{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;padding:6px 34px 6px 12px;position:relative;border:2px solid var(--theme-border,#d9b78d);border-radius:12px;background:var(--theme-control,#fffaf0);color:var(--ink);font:inherit;font-weight:650}
+.playroom .effect-kind-trigger:hover{background:var(--theme-hover,#ffe3b2);border-color:var(--theme-accent,#cc8a56)}
+.playroom .effect-kind-single{display:flex;align-items:center;min-height:44px;padding:6px 12px;border:2px solid var(--theme-border,#d9b78d);border-radius:12px;background:var(--theme-control,#fffaf0);color:var(--ink);font-weight:650}
+.playroom .effect-kind-list{position:absolute;left:0;right:0;top:100%;z-index:7;margin-top:4px;background:var(--theme-control,#fffaf0);border:2px solid var(--theme-border,#d9b78d);border-radius:14px;padding:6px;max-height:240px;overflow:auto;box-shadow:0 10px 26px #6a493744}
+.playroom .effect-kind-row{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:6px 10px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.playroom .effect-kind-row:hover,.playroom .effect-kind-row[aria-selected="true"]{background:var(--theme-hover,#ffe3b2)}
+.playroom #darkroom-dialog .effect-layout>div:first-child{position:relative}
 .playroom #function-modes:not([hidden]){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-height:0}
 .playroom #function-modes fieldset{border:2px solid var(--theme-border,#e0bd91);border-radius:12px;margin:0;padding:8px 10px;min-width:0}
 .playroom #function-modes legend{font-size:13px;font-weight:700;color:var(--muted,#896443);padding:0 4px}
