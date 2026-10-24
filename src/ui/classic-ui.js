@@ -213,5 +213,5 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const moveSelected=document.createElement('button');moveSelected.id='move-selected-layer';moveSelected.innerHTML=playfulIcon('move')+'<span>移动</span>';moveSelected.onclick=()=>{setTool('move');layerDialog.close();};layerActions.prepend(moveSelected);
   el('add-layer').innerHTML=playfulIcon('paper')+'<span>加一张透明画纸</span>';el('add-layer').setAttribute('aria-label','加一张透明画纸');
   layerDialog.querySelector('[data-close]').textContent='选好了，返回画纸';
-  sync();return {groups:tools,sync};
+  sync();return {groups:tools,sync,pickCustom:paletteApi.openCustom};
 }

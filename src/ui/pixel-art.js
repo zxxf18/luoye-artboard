@@ -158,7 +158,7 @@ export class PixelArtModel {
 }
 
 /** Mount a focused pixel editor. It only commits a normal raster layer when the child taps “放回画板”. */
-export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
+export function mountPixelEditor({ engine, run, toast, getColor, pickColor } = {}) {
   const dialog = document.createElement('dialog');
   dialog.id = 'pixel-art-dialog'; dialog.className = 'pixel-art-dialog';
   dialog.innerHTML = `
@@ -170,7 +170,7 @@ export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
           <label class="pixel-art-field">格子大小<select id="pixel-art-size">${PIXEL_GRID_SIZES.map(size => `<option value="${size}"${size === 16 ? ' selected' : ''}>${size} × ${size}</option>`).join('')}</select></label>
           <div class="pixel-art-tool-row" role="group" aria-label="像素工具"><button type="button" data-pixel-tool="pen" aria-pressed="true">涂颜色</button><button type="button" data-pixel-tool="eraser" aria-pressed="false">橡皮</button><button type="button" data-pixel-tool="fill" aria-pressed="false">整片填色</button></div>
           <div class="pixel-art-palette" id="pixel-art-palette" aria-label="像素颜色"></div>
-          <label class="pixel-art-custom-color">自选颜色 <input id="pixel-art-color" type="color" value="#285b49" aria-label="像素画颜色"></label>
+          <button type="button" id="pixel-art-color" class="pixel-art-color-button" aria-label="自选像素画颜色"><i aria-hidden="true"></i><span>自选颜色</span></button>
           <p class="pixel-art-tip">按住拖动可以连续涂格子。透明格会保留画板内容。</p>
           <div class="pixel-art-actions"><button type="button" id="pixel-art-clear">清空</button><button type="button" id="pixel-art-place" class="primary">放回画板</button></div>
         </aside>
@@ -201,9 +201,12 @@ export function mountPixelEditor({ engine, run, toast, getColor } = {}) {
   }
 
   for (const value of PIXEL_COLORS) {
-    const swatch = document.createElement('button'); swatch.type = 'button'; swatch.className = 'pixel-swatch'; swatch.dataset.color = value; swatch.style.background = value; swatch.setAttribute('aria-label', `像素颜色 ${value}`); swatch.onclick = () => { color = value; colorInput.value = value; for (const item of dialog.querySelectorAll('.pixel-swatch')) item.setAttribute('aria-pressed', item === swatch); }; $('pixel-art-palette').append(swatch);
+    const swatch = document.createElement('button'); swatch.type = 'button'; swatch.className = 'pixel-swatch'; swatch.dataset.color = value; swatch.style.background = value; swatch.setAttribute('aria-label', `像素颜色 ${value}`); swatch.onclick = () => { color = value; syncCustomColor(); for (const item of dialog.querySelectorAll('.pixel-swatch')) item.setAttribute('aria-pressed', item === swatch); }; $('pixel-art-palette').append(swatch);
   }
-  colorInput.value = color; for (const item of dialog.querySelectorAll('.pixel-swatch')) item.setAttribute('aria-pressed', item.dataset.color === color); colorInput.oninput = () => { color = colorInput.value; tool = 'pen'; updateTools(); };
+  const syncCustomColor = () => { colorInput.querySelector('i').style.background = color; };
+  syncCustomColor(); for (const item of dialog.querySelectorAll('.pixel-swatch')) item.setAttribute('aria-pressed', item.dataset.color === color);
+  // 全软件只有「我的颜色」这一个调色板：像素画的自选颜色也走它。
+  colorInput.onclick = () => pickColor?.({ value: color, title: '给像素画选颜色', onApply: hex => { color = hex; tool = 'pen'; syncCustomColor(); for (const item of dialog.querySelectorAll('.pixel-swatch')) item.setAttribute('aria-pressed', item.dataset.color === color); updateTools(); } });
   for (const button of dialog.querySelectorAll('[data-pixel-tool]')) button.onclick = () => { tool = button.dataset.pixelTool; updateTools(); };
   function updateTools() { for (const button of dialog.querySelectorAll('[data-pixel-tool]')) button.setAttribute('aria-pressed', String(button.dataset.pixelTool === tool)); }
   sizeSelect.onchange = () => { model.resize(Number(sizeSelect.value)); render(); toast?.('网格已经调整，原来的图案也保留下来了。'); };

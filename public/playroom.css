@@ -2686,6 +2686,9 @@
 .playroom .animation-color-control { width: 100%; min-width: 56px; height: 38px; padding: 0; border: 2px solid var(--theme-border, #e1bc87); border-radius: 10px; background: #285b49; box-shadow: inset 0 0 0 2px var(--theme-surface, #fff8eb); }
 .playroom .animation-color-control:hover { filter: brightness(1.06); }
 .playroom .animation-sliders input[type="range"] { width: 100%; height: 38px; margin: 0; }
+.playroom .pixel-art-color-button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; border: 2px solid var(--theme-border, #d9b78d); border-radius: 12px; background: var(--theme-control, #fffaf0); color: var(--ink); font: inherit; font-weight: 650; }
+.playroom .pixel-art-color-button:hover { background: var(--theme-hover, #ffe3b2); border-color: var(--theme-accent, #cc8a56); }
+.playroom .pixel-art-color-button i { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--theme-border, #d9b78d); background: #285b49; }
 .playroom .animation-brush-picker { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .playroom .animation-brush-trigger { display: flex; align-items: center; gap: 8px; min-height: 44px; width: 100%; padding: 6px 34px 6px 10px; border: 2px solid var(--theme-border, #d9b78d); border-radius: 12px; background: var(--theme-control, #fffaf0); color: var(--ink); font: inherit; font-weight: 650; }
 .playroom .animation-brush-trigger:hover { background: var(--theme-hover, #ffe3b2); border-color: var(--theme-accent, #cc8a56); }

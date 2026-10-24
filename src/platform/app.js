@@ -227,14 +227,14 @@ const animationEditor = mountAnimationEditor({
   getColor: () => color,
   getSecondaryColor: () => $('background-color')?.value || '#ffffff',
 });
-const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color });
-mountClassic({
+const classic = mountClassic({
   setTool,
   getColor: () => color,
   setColor,
   clearAnimations: () => run(() => engine.clearAnimated()),
   features: { animation: () => animationEditor.open(), pixel: () => pixelEditor.open() },
 });
+const pixelEditor = mountPixelEditor({ engine, run, toast, getColor: () => color, pickColor: classic.pickCustom });
 theme = mountTheme();
 assist=mountAssist({engine,toast});
 document.addEventListener('scratch-reset', () => run(() => engine.resetScratchCard()));
