@@ -148,7 +148,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
       <div class="animation-heading"><div><span class="eyebrow">MAKE IT MOVE</span><h2>小动画</h2><p>画一张，复制一张，改一点，就会动起来。</p></div><button value="cancel" class="animation-close" aria-label="关闭小动画">×</button></div>
       <div class="animation-workspace">
         <div class="animation-stage"><div class="animation-stage-frame"><canvas id="animation-onion-canvas" aria-hidden="true"></canvas><canvas id="animation-frame-canvas" width="${DEFAULT_ANIMATION_SIZE.width}" height="${DEFAULT_ANIMATION_SIZE.height}" tabindex="0" aria-label="小动画当前帧"></canvas><span class="animation-frame-badge" id="animation-frame-badge">第 1 张</span></div></div>
-        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><label class="animation-select-label">画笔<span class="animation-select-wrap"><select id="animation-brush" data-direct-choice="true" aria-label="选择小动画画笔"></select><svg class="animation-select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></label><div class="animation-sliders"><label class="animation-color-label"><span class="animation-slider-caption">颜色</span><button type="button" id="animation-color" class="animation-color-control" aria-label="选择小动画画笔颜色" title="和画板上的画笔共用同一个调色板"></button></label><label class="animation-size-label"><span class="animation-slider-caption">粗细 <output id="animation-size-value">16</output></span><input id="animation-size" type="range" min="2" max="120" value="16"></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
+        <aside class="animation-controls" aria-label="小动画绘画工具"><div class="animation-control-heading"><strong>这一张怎么画</strong><span id="animation-tool-hint">用熟悉的画笔画当前帧</span></div><div class="animation-tool-row" role="group" aria-label="动画画笔工具"><button type="button" data-animation-tool="pen" class="is-active">画笔</button><button type="button" data-animation-tool="eraser">橡皮</button><button type="button" data-animation-tool="fill">填色</button><button type="button" data-animation-tool="line">直线</button><button type="button" data-animation-tool="rect">方框</button><button type="button" data-animation-tool="ellipse">圆圈</button></div><div class="animation-brush-picker"><label class="animation-select-label" id="animation-brush-caption">画笔</label><button type="button" id="animation-brush-button" class="animation-brush-trigger" aria-haspopup="listbox" aria-expanded="false"><span class="playful-icon" id="animation-brush-icon" aria-hidden="true"></span><span id="animation-brush-name"></span><svg class="animation-select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="animation-brush-list" class="animation-brush-list" role="listbox" aria-label="选择小动画画笔" hidden></div></div><div class="animation-sliders"><label class="animation-color-label"><span class="animation-slider-caption">颜色</span><button type="button" id="animation-color" class="animation-color-control" aria-label="选择小动画画笔颜色" title="和画板上的画笔共用同一个调色板"></button></label><label class="animation-size-label"><span class="animation-slider-caption">粗细 <output id="animation-size-value">16</output></span><input id="animation-size" type="range" min="2" max="120" value="16"></label></div><label class="animation-speed">播放速度<select id="animation-fps"><option value="6">慢 · 6 帧/秒</option><option value="8" selected>刚好 · 8 帧/秒</option><option value="12">快 · 12 帧/秒</option></select></label><label class="animation-onion-toggle"><input id="animation-onion" type="checkbox"><span>显示上一张的淡淡轮廓</span></label></aside>
       </div>
       <div class="animation-framebar"><div class="animation-framebar-heading"><strong>动画帧 <span id="animation-frame-count">1 / 12</span></strong><span>每张都是一小步</span></div><div id="animation-frame-strip" class="animation-frame-strip" aria-label="动画帧列表"></div></div>
       <div class="animation-actions"><div class="animation-actions-group"><button type="button" id="animation-prev">上一张</button><button type="button" id="animation-next">下一张</button><button type="button" id="animation-copy">复制这一张</button><button type="button" id="animation-blank">新空白帧</button><button type="button" id="animation-clear">清空这一张</button><button type="button" id="animation-delete">删除这一张</button></div><div class="animation-actions-group"><button type="button" id="animation-play" class="primary">${playfulIcon('play')}<span>播放</span></button><button type="button" id="animation-place" class="primary">${playfulIcon('new-paper')}<span>放回画板</span></button></div></div>
@@ -163,20 +163,39 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   let editor;
   editor = new DrawingEngine(frameCanvas, () => { if (!editor?.active?.canvas?.width || !editor.active.canvas.height) return; if (!syncing && !playing) snapshotCurrent(); renderFrameStrip(); drawOnion(); });
   editor.reset(timeline.width, timeline.height); editor.playing = false; clearInterval(editor.animationTimer); editor.paperMode = false;
-  const brushSelect = $('animation-brush');
-  for (const brush of BRUSHES) { const option = document.createElement('option'); option.value = brush.id; option.textContent = brush.name; brushSelect.append(option); }
+  const brushButton = $('animation-brush-button'), brushList = $('animation-brush-list');
+  let brushId = BRUSHES[0].id, brushOpen = false;
+  const brushOf = id => BRUSHES.find(b => b.id === id) || BRUSHES[0];
+  const renderBrushChoice = () => {
+    const brush = brushOf(brushId);
+    $('animation-brush-name').textContent = brush.name;
+    $('animation-brush-icon').replaceChildren(...playfulIcon(brush.id).match(/<svg[\s\S]*<\/svg>/).map(html => { const span = document.createElement('span'); span.innerHTML = html; return span.firstChild; }));
+    for (const row of brushList.children) row.setAttribute('aria-selected', String(row.dataset.brush === brushId));
+  };
+  const setBrushOpen = open => { brushOpen = open; brushList.hidden = !open; brushButton.setAttribute('aria-expanded', String(open)); };
+  for (const brush of BRUSHES) {
+    const row = document.createElement('button'); row.type = 'button'; row.className = 'animation-brush-row'; row.dataset.brush = brush.id; row.setAttribute('role', 'option');
+    row.innerHTML = playfulIcon(brush.id) + `<span>${brush.name}</span>`;
+    row.onclick = () => { brushId = brush.id; renderBrushChoice(); setBrushOpen(false); syncCursor(); };
+    brushList.append(row);
+  }
+  brushButton.onclick = () => setBrushOpen(!brushOpen);
+  brushList.addEventListener('click', event => { if (event.target === brushList) setBrushOpen(false); });
+  dialog.addEventListener('close', () => setBrushOpen(false));
+  document.addEventListener('pointerdown', event => { if (brushOpen && !event.target.closest('.animation-brush-picker')) setBrushOpen(false); }, true);
+  renderBrushChoice();
   // The frame canvas shares the illustrated tool cursors with the main board,
   // so the pointer always shows the brush or shape about to be used.
   const cursorCache = new Map();
   function syncCursor() {
-    const entry = getToolFeedback({ tool, pen: brushSelect.value });
+    const entry = getToolFeedback({ tool, pen: brushId, eraser: 'hard', fill: 'region' });
     if (!cursorCache.has(entry.key)) {
       const { svg, hotspot } = toolCursor(entry);
       cursorCache.set(entry.key, `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.join(' ')}, crosshair`);
     }
     frameCanvas.style.cursor = cursorCache.get(entry.key);
   }
-  brushSelect.addEventListener('change', syncCursor);
+  
 
   function snapshotCurrent() { if (timeline.currentFrame) timeline.replaceCurrent(copyCanvas(editor.active.canvas)); }
   function loadCurrent() {
@@ -229,7 +248,7 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   function drawPoint(event) {
     const rect = frameCanvas.getBoundingClientRect(); return editor.point(event, rect);
   }
-  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brush: brushSelect.value, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
+  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: Number($('animation-size').value), opacity: 1, brush: brushId, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
   frameCanvas.addEventListener('pointermove', event => { if (!drawing || event.pointerId !== pointerId) return; editor.update(drawPoint(event)); });
   const finish = event => { if (!drawing || event.pointerId !== pointerId) return; drawing = false; editor.end(event.type === 'pointercancel'); pointerId = undefined; snapshotCurrent(); updateUi(); };
   frameCanvas.addEventListener('pointerup', finish); frameCanvas.addEventListener('pointercancel', finish); frameCanvas.addEventListener('lostpointercapture', finish);
