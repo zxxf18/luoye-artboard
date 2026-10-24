@@ -398,9 +398,6 @@ export class PaintEngine {
     let layer = this.active;
     // 去掉刮刮画后仍停在刮刮画工具上：下一次落笔先重新盖一层，
     // 避免刮刮画笔直接画（擦）到普通画面图层上。
-    if (options.tool === 'scratch' && this.prepareScratchCard && !this.layers.some(item => item.role === 'scratch')) {
-      layer = this.prepareScratchCard();
-    }
     if (!layer?.visible) throw new Error('先显示当前图层，或选择另一个图层。');
     if ((layer.frames?.length || layer.sprites) && options.tool !== 'move') throw new Error('动画图层请用移动工具编辑；绘画时新建一个图层。');
     const local = toLayerPoint(point, layer);
