@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BRUSHES, gradientColorAt, rainbowColorAt } from '../src/core/brushes.js';
+import { BRUSHES, gradientColorAt, rainbowColorAt, prepareGradientStops } from '../src/core/brushes.js';
 
 test('儿童友好渐变笔刷提供稳定的画笔入口', () => {
   assert.deepEqual(
@@ -15,6 +15,15 @@ test('彩虹颜色由 seed 和位置决定，不依赖调用次数', () => {
   rainbowColorAt({ x: 80, y: 20 }, { x: 0, y: 0 }, 1234, 260);
   assert.equal(rainbowColorAt({ x: 40, y: 20 }, { x: 0, y: 0 }, 1234, 260), first);
   assert.notEqual(first, rainbowColorAt({ x: 40, y: 20 }, { x: 0, y: 0 }, 1235, 260));
+});
+
+test('彩虹笔按笔划进度换色，不把固定画布区域锁成同一种颜色', () => {
+  const gesture = { options: { brush: 'rainbow', size: 80, seed: 1234, color: '#ef5350' }, layer: { scale: 1 }, gradientDistance: 0 };
+  const first = prepareGradientStops(gesture, { x: 0, y: 0 }, { x: 80, y: 0 });
+  gesture.gradientDistance = 120;
+  const later = prepareGradientStops(gesture, { x: 0, y: 0 }, { x: 80, y: 0 });
+  assert.notEqual(first[0], later[0]);
+  assert.notEqual(first[4], later[4]);
 });
 
 test('双色渐变从前景色稳定过渡到第二色', () => {

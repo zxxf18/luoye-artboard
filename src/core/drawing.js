@@ -168,7 +168,7 @@ export class DrawingEngine extends EditorEngine {
     if (!geometry) {
       if (gesture.options.tool === 'eraser' && gesture.options.eraserMode === 'shape') shapeEraserSegment(ctx, gesture, start, end);
       else if (texture || paper) materialSegment(ctx, gesture, start, end, texture, paper, bounds);
-      else brushSegment(ctx, gesture, start, end);
+      else brushSegment(ctx, gesture, start, end, gradientStops);
       return;
     }
     const states = gesture.assistStates ??= [];
@@ -188,7 +188,7 @@ export class DrawingEngine extends EditorEngine {
     ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
     if (copy.options.tool === 'eraser' && copy.options.eraserMode === 'shape') shapeEraserSegment(ctx, copy, start, end);
     else if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
-    else brushSegment(ctx, copy, start, end);
+    else brushSegment(ctx, copy, start, end, gradientStops);
     ctx.restore();
     for (const key of ['bristles', 'random', 'dabStarted', 'dabTravel', 'gradientOrigin', 'shapeStarted', 'shapeTravel']) if (copy[key] !== undefined) state[key] = copy[key];
   }
@@ -392,12 +392,13 @@ export class DrawingEngine extends EditorEngine {
   segment(a,b){
     const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4,ctx=g.layer.canvas.getContext('2d');
     const texture=g.options.fillSource==='texture'?this.paintTexture:null,paper=g.options.paperGrain?this.paperTexture:null;
-    let maskBounds=null;
+    let maskBounds=null,gradientDistance=Math.max(0,Number(g.gradientDistance)||0);
     const material = g.options.tool==='pen' && (texture || paper);
     const distance=Math.hypot(b.x-a.x,b.y-a.y),maxSpan=material?Math.max(96,Math.min(320,width*1.5)):distance;
     const steps=Math.max(1,Math.ceil(distance/Math.max(1,maxSpan)));
     for(let part=0;part<steps;part++){
       const from=part/steps,to=(part+1)/steps,startPoint={x:a.x+(b.x-a.x)*from,y:a.y+(b.y-a.y)*from},endPoint={x:a.x+(b.x-a.x)*to,y:a.y+(b.y-a.y)*to};
+      g.gradientDistance=gradientDistance+distance*from;
       const sourceBounds={x:Math.min(startPoint.x,endPoint.x)-pad,y:Math.min(startPoint.y,endPoint.y)-pad,width:Math.abs(endPoint.x-startPoint.x)+pad*2,height:Math.abs(endPoint.y-startPoint.y)+pad*2};
       const gradientStops=prepareGradientStops(g,startPoint,endPoint);
       const copies=this.assistPairs(startPoint,endPoint,g.options,g.layer);
@@ -424,6 +425,7 @@ export class DrawingEngine extends EditorEngine {
         maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
         for(const { transformIndex } of copies) this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex,gradientStops);
       }
+      g.gradientDistance=gradientDistance+distance*to;
     }
     if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();
   }

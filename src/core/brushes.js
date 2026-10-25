@@ -24,6 +24,12 @@ function hexRgb(hex,fallback='#000000'){
   return [parseInt(value.slice(1,3),16),parseInt(value.slice(3,5),16),parseInt(value.slice(5,7),16)];
 }
 function rgbHex(rgb){return '#'+rgb.map(value=>Math.max(0,Math.min(255,Math.round(value))).toString(16).padStart(2,'0')).join('');}
+function rainbowHue(hue){
+  const chroma=1,hh=((hue%360)+360)%360/60,x=chroma*(1-Math.abs(hh%2-1));let rgb;
+  if(hh<1)rgb=[chroma,x,0];else if(hh<2)rgb=[x,chroma,0];else if(hh<3)rgb=[0,chroma,x];else if(hh<4)rgb=[0,x,chroma];else if(hh<5)rgb=[x,0,chroma];else rgb=[chroma,0,x];
+  return rgbHex(rgb.map(value=>value*255));
+}
+function rainbowProgressColorAt(progress,seed=0){return rainbowHue(seedUnit(seed)*360+progress*360);}
 function seedUnit(seed){
   let value=Number.isFinite(Number(seed))?Number(seed)>>>0:0;
   // A small integer mixer gives adjacent recorded seeds visibly different
@@ -36,10 +42,7 @@ function normalizeProgress(point,origin,length,seed=0){return Math.max(0,Math.mi
 
 /** Return a deterministic rainbow color for a canvas position. */
 export function rainbowColorAt(point,origin,seed=0,length=260){
-  const hue=(seedUnit(seed)*360+gradientScalar(point,origin)/Math.max(1,length)*360+360)%360;
-  const chroma=1,hh=hue/60,x=chroma*(1-Math.abs(hh%2-1));let rgb;
-  if(hh<1)rgb=[chroma,x,0];else if(hh<2)rgb=[x,chroma,0];else if(hh<3)rgb=[0,chroma,x];else if(hh<4)rgb=[0,x,chroma];else if(hh<5)rgb=[x,0,chroma];else rgb=[chroma,0,x];
-  return rgbHex(rgb.map(value=>value*255));
+  return rainbowHue(seedUnit(seed)*360+gradientScalar(point,origin)/Math.max(1,length)*360);
 }
 
 /** Return a deterministic foreground-to-secondary color for a canvas position. */
@@ -85,10 +88,11 @@ export function prepareGradientStops(gesture, a, b) {
   }
   const width=Math.max(1,Number(gesture.options.size||0)/Math.max(.01,Number(gesture.layer?.scale)||1));
   const length=Math.max(96,width*5),seed=gesture.options.seed??0;
-  const signature=[key,a.x,a.y,b.x,b.y,origin.x,origin.y,origin.direction?.x||0,origin.direction?.y||0,length,seed,gesture.options.color,gesture.options.secondaryColor||'#ffffff'].join('|');
+  const pathDistance=Math.max(0,Number(gesture.gradientDistance)||0),segmentDistance=Math.hypot(b.x-a.x,b.y-a.y);
+  const signature=[key,a.x,a.y,b.x,b.y,pathDistance,segmentDistance,origin.x,origin.y,origin.direction?.x||0,origin.direction?.y||0,length,seed,gesture.options.color,gesture.options.secondaryColor||'#ffffff'].join('|');
   if(gesture.gradientStopsSignature===signature&&gesture.gradientStops?.length===9)return gesture.gradientStops;
   const colorAt=key==='rainbow'
-    ?point=>rainbowColorAt(point,origin,seed,length)
+    ?point=>rainbowProgressColorAt((pathDistance+(segmentDistance?Math.hypot(point.x-a.x,point.y-a.y):0))/length,seed)
     :point=>gradientColorAt(point,origin,gesture.options.color,gesture.options.secondaryColor||'#ffffff',length,seed);
   const stops=[];
   for(let i=0;i<=8;i++){const t=i/8;stops.push(colorAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}));}
@@ -97,7 +101,7 @@ export function prepareGradientStops(gesture, a, b) {
   return stops;
 }
 
-export function brushSegment(ctx,g,a,b){
+export function brushSegment(ctx,g,a,b,gradientStops=null){
   const o=g.options;
   // One pipeline: pen brushes always use the current segmenter; eraser and
   // scratch share the destination-out ribbon below.
@@ -105,7 +109,7 @@ export function brushSegment(ctx,g,a,b){
   const key=o.brush||'pencil',w=o.size/g.layer.scale,ratio=Math.max(.15,Math.min(2,o.ratio??1)),alpha=o.opacity,random=g.random||(g.random=seededRandom(o.seed??1));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=alpha;
   if(key==='rainbow'||key==='duotone'){
-    const stops=g.gradientStops?.length===9?g.gradientStops:prepareGradientStops(g,a,b);
+    const stops=gradientStops?.length===9?gradientStops:g.gradientStops?.length===9?g.gradientStops:prepareGradientStops(g,a,b);
     gradientRibbon(ctx,a,b,Math.max(1,w*.72)*ratio,stops,alpha);
   }else if(key==='pencil'){
     ribbon(ctx,a,b,Math.max(1,w*.26)*ratio,o.color,alpha*.94);
