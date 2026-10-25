@@ -47,6 +47,8 @@ test('宽笔尖在多份辅助下合并密集采样，单份笔触保持原有�
   assert.equal(engine.strokeCoalesceDistance(gesture({ brush: 'pencil' })), 0);
   assert.equal(engine.strokeCoalesceDistance(gesture({ tool: 'eraser' })), 0);
   assert.equal(engine.strokeCoalesceDistance(gesture({ tool: 'eraser' })), 0);
+  // 默认彩虹笔的段长接近笔带宽，避免圆头短段叠成点状。
+  assert.ok(engine.strokeCoalesceDistance(gesture({ size: 24 })) > 10);
   // 合并距离跟随笔宽但有上限，避免长笔画跳点。
   assert.equal(engine.strokeCoalesceDistance(gesture({ size: 300 })), 72);
   // 最大笔尖的渐变带足够宽，可以安全跳过更多被覆盖的采样点。
