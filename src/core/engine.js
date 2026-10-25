@@ -430,7 +430,11 @@ export class PaintEngine {
     // already fills the skipped interval; line-like brushes use a smaller
     // tolerance to retain their contour.
     const factor = {
-      rainbow: .28, duotone: .28,
+      // Keep gradient segments close to the ribbon footprint. Very short
+      // round-capped segments read as a row of dots even when their colours
+      // are mathematically continuous; a wider step preserves the smooth
+      // path while reducing both cap overlap and gradient allocations.
+      rainbow: .5, duotone: .5,
       spray: .32, watercolor: .32, crayon: .34, chalk: .34, effect: .32,
       pencil: .18, brush: .18, marker: .18, tube: .18,
     }[options.brush];
