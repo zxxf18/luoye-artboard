@@ -21,3 +21,35 @@ export function collectPointerSamples(event, highFrequency = false) {
   if (!highFrequency || samples.at(-1) === event) return samples;
   return [...samples, event];
 }
+
+/**
+ * Keep only the newest value until the next animation frame. Expensive
+ * gestures such as warp can receive many pointer events while one pixel
+ * operation is still running; applying every queued event freezes the UI.
+ */
+export function createLatestFrameQueue(apply, { requestFrame, cancelFrame } = {}) {
+  const schedule = requestFrame || (callback => setTimeout(callback, 16));
+  const cancel = cancelFrame || (handle => clearTimeout(handle));
+  let handle = 0, pending, hasPending = false;
+  const flush = () => {
+    handle = 0;
+    if (!hasPending) return;
+    const value = pending;
+    pending = undefined; hasPending = false;
+    apply(value);
+  };
+  return {
+    enqueue(value) {
+      pending = value; hasPending = true;
+      if (!handle) handle = schedule(flush);
+    },
+    flush() {
+      if (handle) { cancel(handle); handle = 0; }
+      flush();
+    },
+    cancel() {
+      if (handle) cancel(handle);
+      handle = 0; pending = undefined; hasPending = false;
+    },
+  };
+}

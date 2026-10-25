@@ -21,7 +21,7 @@ import { applyStoredTheme, mountTheme } from '../ui/theme-ui.js';
 import { DEFAULT_BRUSH_SIZE } from '../core/brushes.js';
 import { mountAnimationEditor } from '../ui/animation-editor.js';
 import { mountPixelEditor } from '../ui/pixel-art.js';
-import { collectPointerSamples, isHighFrequencyEraser } from '../core/input-sampling.js';
+import { collectPointerSamples, createLatestFrameQueue, isHighFrequencyEraser } from '../core/input-sampling.js';
 import { toUnifiedPointer } from '../core/pointer.js';
 import { placeFractal } from '../ui/fractal-studio.js';
 
@@ -47,6 +47,7 @@ let engine, tool = 'pen', color = '#000000', zoom = 1, busy = false, ready = fal
 const shapeTools=new Set(['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star','polygon','bezier']);
 let shapeStyle={size:8,opacity:100};
 let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoint;
+const warpFrameQueue=createLatestFrameQueue(point=>{if(pointerId!==undefined&&['warp','paper-warp'].includes(engine?.gesture?.kind))engine.update(point);});
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
@@ -356,7 +357,7 @@ function updatePaintingPointer(event,{preview=true}={}){
   // pointer event avoids repeated getBoundingClientRect calls on tablets.
   const rect=$('painting').getBoundingClientRect();if(preview)previewStamp(engine.point(event,rect));
   if (event.pointerId !== pointerId) return;
-  const highFrequency=isHighFrequencyEraser(engine.gesture?.options);
+  const highFrequency=isHighFrequencyEraser(engine.gesture?.options),warpGesture=['warp','paper-warp'].includes(engine.gesture?.kind);
   // Once raw events are observed, pointermove may expose the same history in
   // its coalesced list, sometimes in an older order. Consume only its current
   // point so a soft eraser cannot erase the same area twice or briefly move
@@ -364,9 +365,9 @@ function updatePaintingPointer(event,{preview=true}={}){
   // Coalesced micro-steps are pointless for the warp smudge — each dab already
   // carries the full displacement — and multiplying ~250px pixel warps per
   // frame pegs the CPU. Consume only the freshest sample for it.
-  const latestOnly=engine.gesture?.rawPointerSampling||engine.gesture?.kind==='warp';
+  const latestOnly=engine.gesture?.rawPointerSampling||warpGesture;
   const samples=latestOnly?[event]:collectPointerSamples(event,highFrequency);
-  for(const sample of samples){const move=toUnifiedPointer(sample, source => engine.point(source, rect), 'move');engine.update({x:move.x,y:move.y});}
+  for(const sample of samples){const move=toUnifiedPointer(sample, source => engine.point(source, rect), 'move');if(warpGesture)warpFrameQueue.enqueue({x:move.x,y:move.y});else engine.update({x:move.x,y:move.y});}
 }
 $('painting').addEventListener('pointermove', event => updatePaintingPointer(event));
 // Pointermove stays the path for every tool. Raw samples are an additive
@@ -378,9 +379,9 @@ $('painting').addEventListener('pointerrawupdate', event => {
   updatePaintingPointer(event, { preview: false });
 });
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
-function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);try{engine.end(event.type==='pointercancel');}finally{pointerId=undefined;} }
+function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);if(event.type==='pointercancel')warpFrameQueue.cancel();else warpFrameQueue.flush();try{engine.end(event.type==='pointercancel');}finally{pointerId=undefined;} }
 $('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
-window.addEventListener('blur',()=>{clearInterval(stampTimer);engine.end();pointerId=undefined;previewStamp(null);});
+window.addEventListener('blur',()=>{clearInterval(stampTimer);warpFrameQueue.cancel();engine.end();pointerId=undefined;previewStamp(null);});
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
