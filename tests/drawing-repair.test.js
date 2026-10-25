@@ -124,6 +124,13 @@ test('paper eraser includes the visible gallery background with reversible per-l
  assert.equal(replacement.eraseMask,undefined);e.history.undo();assert.ok(e.layers.includes(background));assert.equal(background.eraseMask,mask);
 });
 
+test('single-copy rainbow strokes advance their accumulated distance',()=>{
+ const e=engine(),layer={width:64,height:64,scale:1,canvas:canvas(64,64)};
+ e.gesture={options:{tool:'pen',brush:'rainbow',size:24,opacity:1,color:'#ef5350',seed:1},layer,tiles:new Map()};
+ e.assistPairs=()=>[{start:{x:0,y:0},end:{x:20,y:0},transformIndex:0}];e.captureTiles=()=>{};e.drawAssistSegment=()=>{};e.layerMask=()=>null;e.maskTiles=()=>{};
+ e.segment({x:0,y:0},{x:20,y:0});assert.equal(e.gesture.gradientDistance,20);
+});
+
 test('paper warp composites once after updating every visible layer',()=>{
  const e=engine(),layer=id=>({id,width:64,height:64,canvas:canvas(64,64),visible:true,opacity:1,x:32,y:32,scale:1,rotation:0});
  e.layers=[layer('背景'),layer('分形')];e.warpCalls=0;e.renderCalls=0;e.drawLayer=()=>{};e.warpDab=()=>{e.warpCalls++;};e.render=()=>{e.renderCalls++;};

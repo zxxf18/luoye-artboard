@@ -407,6 +407,7 @@ export class DrawingEngine extends EditorEngine {
         this.captureTiles(g.layer,bounds,g.tiles);
         this.drawAssistSegment(ctx,g,startPoint,endPoint,material&&texture?texture:null,material&&paper?paper:null,sourceBounds,transformIndex,gradientStops);
         maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+        g.gradientDistance=gradientDistance+distance*to;
         continue;
       }
       const copyBounds=[]; let unionMinX=Infinity,unionMinY=Infinity,unionMaxX=-Infinity,unionMaxY=-Infinity;
