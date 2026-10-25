@@ -107,7 +107,7 @@ export function updatePaperWarp(engine,point){
       target.edit={kind:'warp',layer:target.layer,options:outer.options,last:target.last,tiles:new Map()};target.layer.canvas=canvas;
       for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip','eraseMask'])delete target.layer[key];
     }
-    engine.gesture=target.edit;engine.warpDab(local);target.last=local;
+    engine.gesture=target.edit;engine.warpDab(local,{render:false});target.last=local;
   }}finally{engine.gesture=outer;}engine.render();
 }
 export function endPaperWarp(engine,cancel){

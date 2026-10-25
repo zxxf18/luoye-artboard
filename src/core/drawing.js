@@ -221,10 +221,10 @@ export class DrawingEngine extends EditorEngine {
     }
     this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));
   }
-  warpDab(point){
+  warpDab(point,{render=true}={}){
     const g=this.gesture,l=g.layer,radius=Math.max(1,Math.min(600,g.options.radius||120))/l.scale,dx=point.x-g.last.x,dy=point.y-g.last.y,ctx=l.canvas.getContext('2d');
     const pad=Math.ceil(radius+Math.max(Math.abs(dx),Math.abs(dy))+3),x=Math.max(0,Math.floor(point.x-pad)),y=Math.max(0,Math.floor(point.y-pad)),w=Math.min(l.width,x+pad*2)-x,h=Math.min(l.height,y+pad*2)-y;if(w<=0||h<=0){g.last=point;return;}
-    const bounds={x,y,width:w,height:h};this.captureTiles(l,bounds,g.tiles);const before=ctx.getImageData(x,y,w,h);before.data.set(warpPixels(before.data,w,h,{...g.options,kind:g.options.warpKind||'push',x:point.x-x,y:point.y-y,dx,dy,radius}));ctx.putImageData(before,x,y);if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);this.maskTiles(l,g.tiles,g.selectionMask,bounds);g.last=point;this.render();
+    const bounds={x,y,width:w,height:h};this.captureTiles(l,bounds,g.tiles);const before=ctx.getImageData(x,y,w,h);before.data.set(warpPixels(before.data,w,h,{...g.options,kind:g.options.warpKind||'push',x:point.x-x,y:point.y-y,dx,dy,radius}));ctx.putImageData(before,x,y);if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);this.maskTiles(l,g.tiles,g.selectionMask,bounds);g.last=point;if(render)this.render();
   }
   reset(w,h){this.path=null;this.cloneSource=null;super.reset(w,h);}
   async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { DrawingEngine } from '../src/core/drawing.js';
 import { EditorEngine } from '../src/core/editor.js';
 import { PaintEngine } from '../src/core/engine.js';
-import { beginPaperErase, updatePaperErase, endPaperErase } from '../src/core/paper-tools.js';
+import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp } from '../src/core/paper-tools.js';
 import { History } from '../src/core/core.js';
 
 // Drawing algorithms use the same layer/gesture/history code as the app. Only
@@ -122,6 +122,13 @@ test('paper eraser includes the visible gallery background with reversible per-l
  assert.equal(background.eraseMask,mask);
  const replacement=e.replaceBackground('新背景',canvas(1920,1080),{role:'background',insertAt:0});
  assert.equal(replacement.eraseMask,undefined);e.history.undo();assert.ok(e.layers.includes(background));assert.equal(background.eraseMask,mask);
+});
+
+test('paper warp composites once after updating every visible layer',()=>{
+ const e=engine(),layer=id=>({id,width:64,height:64,canvas:canvas(64,64),visible:true,opacity:1,x:32,y:32,scale:1,rotation:0});
+ e.layers=[layer('背景'),layer('分形')];e.warpCalls=0;e.renderCalls=0;e.drawLayer=()=>{};e.warpDab=()=>{e.warpCalls++;};e.render=()=>{e.renderCalls++;};
+ beginPaperWarp(e,{x:32,y:32},{tool:'warp',warpKind:'push',radius:12});updatePaperWarp(e,{x:36,y:32});
+ assert.equal(e.warpCalls,2);assert.equal(e.renderCalls,1);
 });
 
 test('scene capacity reserves space to erase a background, including when replacing it',()=>{
