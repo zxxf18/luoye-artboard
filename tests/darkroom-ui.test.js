@@ -8,6 +8,9 @@ const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 
 test('暗房关闭按钮使用独立的圆形可聚焦控件', () => {
   assert.match(studio, /class="darkroom-close"[^>]*aria-label="关闭暗房"><span aria-hidden="true">×<\/span>/);
+  assert.match(studio, /const closeDialog=\(id,event\)=>\{event\?\.preventDefault\(\);event\?\.stopPropagation\(\);/);
+  assert.match(studio, /addEventListener\('click',event=>closeDialog\(button\.dataset\.close,event\)/);
+  assert.match(studio, /dialogs\.querySelector\('\.dialog-actions button\[data-close="darkroom-dialog"\]'\)\?\.setAttribute\('type','button'\)/);
   assert.match(styles, /\.playroom \.darkroom-close\{[^}]*border-radius:50%[^}]*z-index:8/);
   assert.match(styles, /\.playroom \.darkroom-close:focus-visible\{/);
 });
@@ -20,6 +23,7 @@ test('暗房预览空白区域使用棋盘格，透明画布不会盖住棋盘�
 
 test('色彩魔力通道使用暗房内的统一下拉，不打开全局选择弹窗', () => {
   assert.match(studio, /<select data-direct-choice="true" data-channel="\$\{i\}"/);
+  assert.match(studio, /<option value="none">不处理<\/option><option value="sin">正弦<\/option><option value="cos">余弦<\/option>/);
   assert.match(styles, /#function-modes select\[data-direct-choice="true"\]\{[^}]*min-height:38px/);
 });
 
