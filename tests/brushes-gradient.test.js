@@ -26,6 +26,14 @@ test('彩虹笔按笔划进度换色，不把固定画布区域锁成同一种�
   assert.notEqual(first[4], later[4]);
 });
 
+test('相邻彩虹线段共享首尾颜色，避免出现圆点式跳变', () => {
+  const gesture = { options: { brush: 'rainbow', size: 24, seed: 1234, color: '#ef5350' }, layer: { scale: 1 }, gradientDistance: 0 };
+  const first = prepareGradientStops(gesture, { x: 0, y: 0 }, { x: 24, y: 0 });
+  gesture.gradientDistance = 24;
+  const second = prepareGradientStops(gesture, { x: 24, y: 0 }, { x: 48, y: 0 });
+  assert.equal(first.at(-1), second[0]);
+});
+
 test('双色渐变从前景色稳定过渡到第二色', () => {
   const start = gradientColorAt({ x: 0, y: 0 }, { x: 0, y: 0 }, '#ff0000', '#0000ff', 160, 0);
   const end = gradientColorAt({ x: 160, y: 0 }, { x: 0, y: 0 }, '#ff0000', '#0000ff', 160, 0);

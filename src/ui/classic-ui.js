@@ -12,11 +12,12 @@ import { makeCanvas } from '../core/engine.js';
 export const CLASSIC_TOOLS = createToolRegistry().list().filter(tool => tool.label && !tool.variantOf).map(tool => [tool.id, tool.label]);
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
-  const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:913}};
+  const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:913},gradientDistance:0};
   let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};
     // 预览不走绘画引擎的 segment()，渐变停靠点必须按段刷新，
-    // 否则彩虹笔示例会停在起笔点的单一颜色上。
-    prepareGradientStops(g,a,b);brushSegment(ctx,g,a,b);a=b;}return canvas;
+    // 否则彩虹笔示例会停在起笔点的单一颜色上。距离沿整条示例笔迹推进，
+    // 让每个小段的首尾颜色连续，避免看起来像一串圆点。
+    const stops=prepareGradientStops(g,a,b);brushSegment(ctx,g,a,b,stops);g.gradientDistance+=Math.hypot(b.x-a.x,b.y-a.y);a=b;}return canvas;
 }
 
 export function mountClassic({setTool,getColor,setColor,clearAnimations,features}){

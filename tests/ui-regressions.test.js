@@ -10,6 +10,13 @@ test('渐变色文案与画笔入口保持一致', () => {
   assert.match(read('public/index.html'), /value="duotone">渐变色/);
 });
 
+test('彩虹笔预览沿整条示例笔迹连续推进颜色', () => {
+  const classic = read('src/ui/classic-ui.js');
+  assert.match(classic, /gradientDistance:0/);
+  assert.match(classic, /brushSegment\(ctx,g,a,b,stops\)/);
+  assert.match(classic, /g\.gradientDistance\+=Math\.hypot\(b\.x-a\.x,b\.y-a\.y\)/);
+});
+
 test('对称方式直接展开四个按钮，不再使用下拉或全局选择弹窗', () => {
   const assist = read('src/ui/assist-ui.js');
   assert.match(assist, /id="assist-mode-buttons"/);
