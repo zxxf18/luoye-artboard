@@ -49,6 +49,8 @@ test('宽笔尖在多份辅助下合并密集采样，单份笔触保持原有�
   assert.equal(engine.strokeCoalesceDistance(gesture({ tool: 'eraser' })), 0);
   // 合并距离跟随笔宽但有上限，避免长笔画跳点。
   assert.equal(engine.strokeCoalesceDistance(gesture({ size: 300 })), 72);
+  // 最大笔尖的渐变带足够宽，可以安全跳过更多被覆盖的采样点。
+  assert.ok(engine.strokeCoalesceDistance(gesture({ size: 600 })) > 72);
   assert.ok(engine.strokeCoalesceDistance(gesture({ size: 24 })) < 72);
 });
 

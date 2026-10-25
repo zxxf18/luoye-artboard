@@ -447,7 +447,12 @@ export class PaintEngine {
     // strokes keep their original sample density.
     if (!gradient && !multiCopyAssist) return 0;
     const width = Math.max(1, Number(options.size || 0)) / Math.max(.01, Number(gesture.layer?.scale) || 1);
-    return Math.max(2, Math.min(72, width * factor));
+    // A very wide gradient ribbon already covers a broad footprint. Keep the
+    // legacy 72px cap for ordinary sizes, but allow the largest tips to skip
+    // safely covered samples; this prevents thousands of redundant gradient
+    // strokes during a long drag without opening visible gaps.
+    const cap = gradient && width > 320 ? Math.min(180, width * factor) : 72;
+    return Math.max(2, Math.min(cap, width * factor));
   }
   segment(a, b) {
     const { layer, options: o, tiles } = this.gesture;
