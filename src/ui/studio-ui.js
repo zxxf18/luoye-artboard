@@ -51,7 +51,11 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,s
   const show=id=>{const d=el(id);d.showModal();d.tabIndex=-1;d.focus({preventScroll:true});};
   const action=(id,fn)=>el(id).onclick=()=>run(fn);
   const closeDialog=(id,event)=>{event?.preventDefault();event?.stopPropagation();const dialog=el(id);if(!dialog)return;if(dialog.open)dialog.close('cancel');else dialog.removeAttribute('open');};
-  for(const button of dialogs.querySelectorAll('[data-close]'))button.addEventListener('click',event=>closeDialog(button.dataset.close,event));
+  for(const button of dialogs.querySelectorAll('[data-close]')){
+    const closeFromPointer=event=>closeDialog(button.dataset.close,event);
+    button.addEventListener('pointerup',closeFromPointer);
+    button.addEventListener('click',closeFromPointer);
+  }
   action('copy',()=>{engine.copySelection();toast(engine.paperMode?'已复制圈选的画面':'已复制当前层中的画面');});action('cut',()=>{engine.copySelection(true);toast('已剪切，可以粘贴为新图层');});action('paste',()=>{const previous=getTool?.()||'pen';engine.paste();setTool(previous);});
   action('selection-menu',()=>show('selection-dialog'));
   for(const [id,fn] of [['select-all',()=>engine.selectAll()],['select-none',()=>engine.clearSelection()],['select-inverse',()=>engine.invertSelection()],['clear-selection-pixels',()=>engine.deleteSelection()]])action(id,()=>{fn();el('selection-dialog').close();});

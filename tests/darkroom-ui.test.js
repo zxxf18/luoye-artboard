@@ -9,7 +9,8 @@ const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
 test('暗房关闭按钮使用独立的圆形可聚焦控件', () => {
   assert.match(studio, /class="darkroom-close"[^>]*aria-label="关闭暗房"><span aria-hidden="true">×<\/span>/);
   assert.match(studio, /const closeDialog=\(id,event\)=>\{event\?\.preventDefault\(\);event\?\.stopPropagation\(\);/);
-  assert.match(studio, /addEventListener\('click',event=>closeDialog\(button\.dataset\.close,event\)/);
+  assert.match(studio, /addEventListener\('click',closeFromPointer\)/);
+  assert.match(studio, /addEventListener\('pointerup',closeFromPointer\)/);
   assert.match(studio, /dialogs\.querySelector\('\.dialog-actions button\[data-close="darkroom-dialog"\]'\)\?\.setAttribute\('type','button'\)/);
   assert.match(styles, /\.playroom \.darkroom-close\{[^}]*border-radius:50%[^}]*z-index:8/);
   assert.match(styles, /\.playroom \.darkroom-close:focus-visible\{/);
