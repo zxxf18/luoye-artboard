@@ -17,7 +17,7 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     doLast {
         exec {
             workingDir repositoryRoot
-            commandLine 'node', 'tools/build.mjs'
+            commandLine 'node', 'tools/build-client.mjs'
         }
         delete webAssets
         copy {
