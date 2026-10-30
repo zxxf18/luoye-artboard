@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const MIN_WIDTH = 1600, MIN_HEIGHT = 1000;
+  const largeWorkspace = window.LUOYE_PLATFORM === 'ios';
+  const MIN_WIDTH = largeWorkspace ? 1920 : 1600, MIN_HEIGHT = largeWorkspace ? 1080 : 1000;
   const frame = document.getElementById('tablet-frame');
   let layoutFrame = 0, metrics;
 

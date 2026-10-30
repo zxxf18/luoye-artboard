@@ -9,7 +9,7 @@ const read = name => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
 test('tablet shell keeps a desktop minimum while exactly filling every window', async () => {
   const source = await read('public/tablet-shell.js');
   new Script(source, { filename: 'tablet-shell.js' });
-  assert.match(source, /MIN_WIDTH = 1600, MIN_HEIGHT = 1000/);
+  assert.match(source, /MIN_WIDTH = largeWorkspace \? 1920 : 1600, MIN_HEIGHT = largeWorkspace \? 1080 : 1000/);
   assert.match(source, /scale = Math\.min\(width \/ MIN_WIDTH, height \/ MIN_HEIGHT\)/);
   assert.match(source, /logicalWidth = width \/ scale, logicalHeight = height \/ scale/);
   assert.match(source, /frame\.style\.transform = `scale\(\$\{scale\}\)`/);

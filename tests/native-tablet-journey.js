@@ -23,10 +23,10 @@ doc.body.dataset.tabletNativeProbe='preserved';
 await check('iPad 横屏外壳完整铺满且内页保持桌面视口',()=>{
  const metrics=window.LUOYETabletMetrics(),box=frame.getBoundingClientRect();
  assert(innerWidth>=innerHeight,`不是横屏视口：${innerWidth}×${innerHeight}`);
- assert(metrics&&metrics.logicalWidth>=1600-0.001&&metrics.logicalHeight>=1000-0.001,'逻辑视口低于 1600×1000');
+ assert(metrics&&metrics.logicalWidth>=1920-0.001&&metrics.logicalHeight>=1080-0.001,'逻辑视口低于 1920×1080');
  for(const [actual,expected,label] of [[box.width,innerWidth,'宽'],[box.height,innerHeight,'高']])assert(Math.abs(actual-expected)<=1,`外壳没有铺满${label}：${actual}/${expected}`);
  assert(Math.abs(box.left)<=1&&Math.abs(box.top)<=1,'外壳边缘存在留白');
- assert(app.innerWidth>=1600&&app.innerHeight>=1000,'内页进入小屏断点');
+ assert(app.innerWidth>=1920&&app.innerHeight>=1080,'内页进入小屏断点');
  assert(!doc.body.hasAttribute('data-mobile-panel'),'iPad 进入了抽屉布局');
  const paper=doc.getElementById('viewport').getBoundingClientRect();assert(paper.width>=300&&paper.height>=180,'画纸空间过小');
  return {viewport:{width:innerWidth,height:innerHeight},metrics};
