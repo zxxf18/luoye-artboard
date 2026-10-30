@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundle, root } from './bundle.mjs';
 import { canvasAssets } from './canvas-assets.mjs';
+import { renderTabletShell } from './tablet-shell.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
 
@@ -35,11 +36,13 @@ export async function build({ client = false } = {}) {
     await mkdir(output, { recursive: true });
     await cp(path.join(root, 'public'), output, { recursive: true,
       filter: source => !['public/assets/candidates','public/assets/original','public/assets/thumbs','public/assets/illustrated','public/assets/redrawn-v14','public/assets/fairy-v15','public/assets/library-v16/masters'].some(directory => source === path.join(root, directory)) });
-    if (client) {
-      const indexPath = path.join(output, 'index.html');
-      const index = await readFile(indexPath, 'utf8');
-      await writeFile(indexPath, buildIndex(index, { client }), 'utf8');
-    }
+    const indexPath = path.join(output, 'index.html');
+    const index = await readFile(indexPath, 'utf8');
+    const outputIndex = buildIndex(index, { client });
+    if (client) await writeFile(indexPath, outputIndex, 'utf8');
+    const tabletPath = path.join(output, 'tablet.html');
+    const tablet = await readFile(tabletPath, 'utf8');
+    await writeFile(tabletPath, renderTabletShell(tablet, outputIndex), 'utf8');
     await writeFile(path.join(output, 'app.js'), script);
     await writeFile(path.join(output, 'canvas-assets.js'), await canvasAssets(path.join(root,'public')));
     console.log(`Desktop interface resources built: ${output}${client ? ' (client)' : ''}`);

@@ -21,6 +21,7 @@ final class LuoyeWebViewController: UIViewController {
     private var initialGeometryRequested = false
     var interfaceReady = false
     private var immersive = false
+    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
     init() {
         let smoke = Self.readSmokeConfiguration()
@@ -86,28 +87,32 @@ final class LuoyeWebViewController: UIViewController {
           `;
           document.head.append(style);
         })();
-        """, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        """, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
         webView.configuration.userContentController.addUserScript(script)
         webView.configuration.userContentController.addUserScript(WKUserScript(
             source: "window.LUOYE_PLATFORM = 'ios';",
             injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
+            forMainFrameOnly: false
         ))
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true) else {
             showError("应用内没有找到画板资源。"); return
         }
-        webView.loadFileURL(root.appendingPathComponent("index.html"), allowingReadAccessTo: root)
+        let entry = isPad ? "tablet.html" : "index.html"
+        webView.loadFileURL(root.appendingPathComponent(entry), allowingReadAccessTo: root)
     }
 
     override var prefersStatusBarHidden: Bool { immersive }
     override var prefersHomeIndicatorAutoHidden: Bool { immersive }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        isPad ? .landscape : super.supportedInterfaceOrientations
+    }
     override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .landscapeRight }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         guard let scene = view.window?.windowScene else { return }
         #if DEBUG
-        let orientation = smoke?.orientation ?? [.landscapeLeft, .landscapeRight]
+        let orientation: UIInterfaceOrientationMask = isPad ? .landscape : (smoke?.orientation ?? [.landscapeLeft, .landscapeRight])
         #else
         let orientation: UIInterfaceOrientationMask = [.landscapeLeft, .landscapeRight]
         #endif
@@ -116,8 +121,9 @@ final class LuoyeWebViewController: UIViewController {
             return
         }
         initialGeometryRequested = true
-        // The app starts in a landscape workspace on both iPhone and iPad.
-        // A later user rotation remains allowed by Info.plist and UIKit.
+        setNeedsUpdateOfSupportedInterfaceOrientations()
+        // The app starts in a landscape workspace. iPhone rotation remains
+        // available; iPad is landscape-only in its full-screen configuration.
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { error in
             NSLog("Luoye initial orientation request failed: %@", error.localizedDescription)
         }
@@ -170,7 +176,7 @@ final class LuoyeWebViewController: UIViewController {
                 }
                 self.finishSmoke(["ok": true, "result": payload])
             case .failure(let error):
-                self.finishSmoke(["ok": false, "error": error.localizedDescription])
+                self.finishSmoke(["ok": false, "error": error.localizedDescription, "details": (error as NSError).userInfo.description])
             }
         }
         #endif

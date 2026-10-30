@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>平板弹性视口验收</title>
+<style>
+  body{margin:0;padding:16px;font:15px system-ui,sans-serif;color:#603f32;background:#fff4df}
+  iframe{display:block;border:0;transform-origin:top left}
+  #preview{display:flex;gap:16px;align-items:flex-start;margin-top:12px;overflow:auto}
+  #direct{position:absolute;left:-3000px;top:0;width:1600px;height:1000px}
+  #shell{flex:none}
+  li{margin:6px 0}
+</style>
+<h1 id="summary">正在检查平板弹性视口…</h1>
+<ol id="results"></ol>
+<div id="preview"><iframe id="shell" title="平板外壳测试窗口" scrolling="no"></iframe></div>
+<iframe id="direct" title="桌面直接页面对照" src="/" scrolling="no"></iframe>
+<script type="module" src="tablet-shell.js"></script>
+</html>
