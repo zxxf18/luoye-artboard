@@ -110,7 +110,8 @@ class MainActivity : Activity() {
                 }
             }
         }
-        webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
+        val entry = if (resources.configuration.smallestScreenWidthDp >= 600) "tablet.html" else "index.html"
+        webView.loadUrl("https://appassets.androidplatform.net/assets/www/$entry")
     }
 
     fun handleBridge(channel: String, payload: String) {

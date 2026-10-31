@@ -1,6 +1,6 @@
 # Android 构建
 
-这是一个 Kotlin + AndroidX WebView 宿主，包名为 `cn.com.yebuluo`。它在构建时执行仓库根目录的 `npm run build`，把生成的 `dist/` 同步到 `app/src/main/assets/www/`，然后通过 `WebViewAssetLoader` 使用同源 HTTPS URL 加载页面。
+这是一个 Kotlin + AndroidX WebView 宿主，包名为 `cn.com.yebuluo`。它在构建时执行仓库根目录的客户端资源构建，把生成的 `dist/` 同步到 `app/src/main/assets/www/`，然后通过 `WebViewAssetLoader` 使用同源 HTTPS URL 加载页面。客户端资源不包含网站统计脚本。
 
 Activity 默认锁定横屏，并保持可调整窗口尺寸。手机横屏、平板横屏和分屏窄窗口由 Web 端响应式布局处理：画布优先保持可绘制宽度，小尺寸下左侧画笔盒、右侧工具栏和底部参数/素材栏自动收起，通过顶部抽屉入口打开，按钮和滑块保留至少 44dp 的触控目标。Android 真机仍需覆盖低分辨率手机、10 英寸平板和分屏模式做最终验收。
 
@@ -12,7 +12,7 @@ Activity 默认锁定横屏，并保持可调整窗口尺寸。手机横屏、�
 
 ```sh
 npm test
-npm run build
+npm run build:client
 cd android
 gradle assembleDebug
 ```

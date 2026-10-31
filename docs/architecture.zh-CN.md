@@ -6,23 +6,23 @@
 
 ```
 public/index.html          应用外壳：静态控件 + CSP + 资源清单
-src/app.js                 装配入口：创建引擎并按依赖顺序挂载各 mount*() 模块
-src/engine.js              PaintEngine：图层模型、合成与缓存、采样合并、序列化
-src/editor.js              EditorEngine：选区、填充、回放命令（继承 PaintEngine）
-src/drawing.js             DrawingEngine：笔触/贴图/刮刮画/辅助对称（继承 EditorEngine）
-src/brushes.js             11 种笔刷的绘制规则与渐变停靠点缓存
-src/assist.js              对称几何（纯函数，含快速路径描述符）
-src/paper-tools.js         画板级橡皮/变形手势（engine 首参的独立函数）
-src/input-sampling.js      指针采样：合并样本 + 橡皮原始指针流判定
-src/animation-editor.js    小动画编辑器（独立的 DrawingEngine 实例 + 时间轴模型）
-src/pixel-art.js           像素画编辑器（独立模型 + 弹窗）
+src/platform/app.js        装配入口：创建引擎并按依赖顺序挂载各 mount*() 模块
+src/core/engine.js         PaintEngine：图层模型、合成与缓存、采样合并、序列化
+src/core/editor.js         EditorEngine：选区、填充、回放命令（继承 PaintEngine）
+src/core/drawing.js        DrawingEngine：笔触/贴图/刮刮画/辅助对称（继承 EditorEngine）
+src/core/brushes.js        11 种笔刷的绘制规则与渐变停靠点缓存
+src/core/assist.js         对称几何（纯函数，含快速路径描述符）
+src/core/paper-tools.js    画板级橡皮/变形手势（engine 首参的独立函数）
+src/core/input-sampling.js 指针采样：合并样本 + 橡皮原始指针流判定
+src/ui/animation-editor.js 小动画编辑器（独立的 DrawingEngine 实例 + 时间轴模型）
+src/ui/pixel-art.js        像素画编辑器（独立模型 + 弹窗）
 UI 挂载模块                 classic-ui（编排）、classic-scratch（刮刮画面板）、
                            classic-mobile（小屏抽屉）、palette-ui、assist-ui、
                            studio-ui、gallery-ui、recorder-ui、text/creative/
                            music/materials/display/theme-ui、tool-feedback 等
 ```
 
-挂载顺序有依赖：`app.js` 先建 animation/pixel 编辑器再调 `mountClassic`，
+挂载顺序有依赖：`src/platform/app.js` 先建 animation/pixel 编辑器再调 `mountClassic`，
 因为工具栏第三页通过 `features` 回调直接打开它们。
 
 ## 打包约束（最重要）
@@ -37,6 +37,10 @@ UI 挂载模块                 classic-ui（编排）、classic-scratch（刮�
 - `package.json` 的 version 变化会改变 `app.js?v=` 查询串；开发时浏览器
   可能缓存旧脚本，验证界面行为时优先相信 `tools/browser-acceptance.mjs`
   （每次全新 Chrome + 全新端口），而不是常驻标签页。
+- `npm run build` 生成网站资源并保留可选的远程统计脚本；
+  `tools/build-client.mjs` 生成客户端资源并在构建期移除该脚本。
+  macOS、Windows、Android 和 iOS 构建都必须使用客户端入口，不能依赖
+  WebView 运行时判断是否联网。
 
 ## 测试层次
 
@@ -59,6 +63,7 @@ UI 挂载模块                 classic-ui（编排）、classic-scratch（刮�
 
 ## 已知的历史包袱（有意保留）
 
-- `brushes-legacy.js`：旧录像版本的笔刷规则，回放兼容必需。
+- `src/ui/recording.js` 与 `src/ui/recorder-ui.js`：绘画录像的录制、恢复和回放，
+  兼容边界由录像格式校验守护。
 - `public/classic.css` 与 `styles.css` 的基础层：旧外壳样式，playroom/
   tool-shelf 在其上覆盖。

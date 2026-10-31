@@ -22,7 +22,7 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     func setHost(_ host: LuoyeWebViewController) { self.host = host }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.frameInfo.isMainFrame, message.frameInfo.securityOrigin.protocol == "file" else { return }
+        guard isTrustedMessageFrame(message.frameInfo) else { return }
         switch message.name {
         case "ready":
             host?.interfaceReady = true
@@ -56,6 +56,11 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
         guard let url = navigationAction.request.url else { decisionHandler(.cancel); return }
         let site = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true).standardizedFileURL.path ?? ""
         let allowed = site + "/"
+        if url.absoluteString == "about:srcdoc", UIDevice.current.userInterfaceIdiom == .pad,
+           webView.url?.lastPathComponent == "tablet.html" {
+            decisionHandler(.allow)
+            return
+        }
         if url.isFileURL {
             decisionHandler(url.standardizedFileURL.path.hasPrefix(allowed) ? .allow : .cancel)
             return
@@ -91,6 +96,18 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         if let pendingOpen { self.pendingOpen = nil; pendingOpen(nil); return }
         if let pendingExport { self.pendingExport = nil; sendFileResult(id: pendingExport.id, saved: false); try? FileManager.default.removeItem(at: pendingExport.url) }
+    }
+
+    private func isTrustedMessageFrame(_ frame: WKFrameInfo) -> Bool {
+        guard frame.securityOrigin.protocol == "file" else { return false }
+        if frame.isMainFrame { return true }
+        guard UIDevice.current.userInterfaceIdiom == .pad,
+              webView?.url?.lastPathComponent == "tablet.html" else { return false }
+        let sourceURL = frame.request.url
+        if sourceURL?.absoluteString == "about:srcdoc" { return true }
+        guard let root = Bundle.main.resourceURL?.appendingPathComponent("site", isDirectory: true).standardizedFileURL.path,
+              let url = sourceURL?.standardizedFileURL else { return false }
+        return url.path.hasPrefix(root + "/")
     }
 
     private func handleFile(_ body: Any) {

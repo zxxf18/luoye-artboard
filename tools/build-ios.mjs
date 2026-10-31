@@ -2,6 +2,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { build } from './build.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const resources = path.join(root, 'ios', 'Resources');
@@ -16,8 +17,7 @@ if (xcode.status !== 0 || !/^Xcode /m.test(xcode.stdout || '')) {
 }
 if (!['iphonesimulator', 'iphoneos'].includes(sdk)) throw new Error('SDK 必须是 iphonesimulator 或 iphoneos。');
 
-const webBuild = spawnSync('node', ['tools/build.mjs'], { cwd: root, stdio: 'inherit' });
-if (webBuild.status !== 0) process.exit(webBuild.status || 1);
+await build({ client: true });
 await rm(resources, { recursive: true, force: true });
 await mkdir(path.join(resources, 'audio'), { recursive: true });
 await mkdir(path.join(resources, 'Assets.xcassets', 'AppIcon.appiconset'), { recursive: true });
@@ -42,11 +42,6 @@ await writeFile(path.join(resources, 'Assets.xcassets', 'AppIcon.appiconset', 'C
   images: [{ filename: 'AppIcon-1024.png', idiom: 'universal', platform: 'ios', size: '1024x1024' }],
   info: { author: 'xcode', version: 1 },
 }) + '\n');
-// The desktop page keeps an optional remote usage tracker. The iOS bundle is
-// fully offline and does not need a network request during launch.
-const indexPath = path.join(resources, 'site', 'index.html');
-const index = await readFile(indexPath, 'utf8');
-await writeFile(indexPath, index.replace(/<script defer src="https:\/\/yebuluo\.com\.cn\/stats\/tracker\.js"[^>]*><\/script>/, ''), 'utf8');
 await mkdir(release, { recursive: true });
 
 const result = spawnSync('xcodebuild', [

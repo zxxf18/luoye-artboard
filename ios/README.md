@@ -2,7 +2,7 @@
 
 iOS 版本沿用 `dist/` 中的绘画页面，由 UIKit + WKWebView 提供原生容器。这样画笔、素材、图层、辅助、主题、动画、草稿和画夹只维护一套实现，iPhone 和 iPad 通过同一份 Pointer Events 代码支持手指与 Apple Pencil。
 
-目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2），默认以横向布局优先，但允许竖屏、iPad 分屏和 Stage Manager。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
+目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2）。iPhone 保留系统方向切换；iPad 使用全屏横屏和独立弹性视口，提供更大的中央画板。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
 
 ## 构建
 
@@ -18,13 +18,13 @@ npm run build:ios
 SDK=iphoneos CONFIGURATION=Release npm run build:ios
 ```
 
-构建脚本会先生成当前 `dist/`，复制到应用资源，再复制已授权的 `GeneralUser-GS.sf2` 音色库及其许可证，最后调用 `xcodebuild`。资源目录是临时生成的并被 Git 忽略，不应手工提交。
+构建脚本会先生成不含网站统计脚本的客户端 `dist/`，复制到应用资源，再复制已授权的 `GeneralUser-GS.sf2` 音色库及其许可证，最后调用 `xcodebuild`。资源目录是临时生成的并被 Git 忽略，不应手工提交。
 
 Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arguments 在模拟器中运行现有原生烟测。结果会写到应用沙盒的 `Documents/<输出前缀>.checks.json` 和 `Documents/<输出前缀>.png`；使用 `LUOYE_SMOKE_FILES=1` 时，工程、PNG 和 JPEG 会写到同一前缀下，便于 `simctl` 拉取。示例：
 
 ```sh
 CONFIGURATION=Debug npm run build:ios
-xcrun simctl install booted build/releases/v1.11.0/落叶画板-iphonesimulator.app
+xcrun simctl install booted build/releases/v1.12.0/落叶画板-iphonesimulator.app
 xcrun simctl launch booted cn.com.yebuluo.luoyeartboard \
   -LUOYE_SMOKE_SCRIPT native-child-journey.js \
   -LUOYE_SMOKE_OUTPUT child \

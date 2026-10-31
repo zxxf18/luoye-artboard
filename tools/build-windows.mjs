@@ -2,9 +2,10 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, access, rm, cp, writeFile, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { root } from './bundle.mjs';
-import './build.mjs';
+import { build } from './build.mjs';
 import { version, releaseRoot, versionDocs } from './release-paths.mjs';
 import { createHash } from 'node:crypto';
+await build({ client: true });
 const local=path.join(root,'build/tooling/dotnet',process.platform==='win32'?'dotnet.exe':'dotnet');
 let dotnet=process.env.LUOYE_DOTNET||local;try{await access(dotnet);}catch{dotnet='dotnet';}
 await mkdir(path.join(root,'build/dotnet-home'),{recursive:true});

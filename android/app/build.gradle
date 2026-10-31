@@ -17,7 +17,7 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     doLast {
         exec {
             workingDir repositoryRoot
-            commandLine 'node', 'tools/build.mjs'
+            commandLine 'node', 'tools/build-client.mjs'
         }
         delete webAssets
         copy {
@@ -37,8 +37,8 @@ android {
         applicationId 'cn.com.yebuluo'
         minSdk 23
         targetSdk 35
-        versionCode 11100
-        versionName '1.11.0'
+        versionCode 11200
+        versionName '1.12.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 

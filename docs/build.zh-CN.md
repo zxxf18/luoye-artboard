@@ -13,6 +13,8 @@ npm run dev
 
 打开 `http://127.0.0.1:4173`。浏览器预览运行共用的编辑器；原生文件对话框和 MIDI 播放由桌面宿主提供。
 
+网站构建使用 `npm run build`，会保留可选的远程统计脚本。客户端构建使用 `npm run build:client`，会在构建期移除该脚本；macOS、Windows、Android 和 iOS 构建都使用客户端变体。
+
 ## macOS 应用
 
 在 macOS 上构建，需要 Xcode Command Line Tools、Swift 6 和 macOS SDK：
@@ -21,7 +23,7 @@ npm run dev
 npm run build:mac
 ```
 
-当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本不执行应用签名和公证。
+当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本会移除网站统计脚本，但不执行应用签名和公证。
 
 ## iPhone / iPad 应用
 
@@ -31,7 +33,7 @@ iOS 版本使用 UIKit + WKWebView，目标为 iOS 16+，同时支持 iPhone 和
 npm run build:ios
 ```
 
-默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
+默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成不含网站统计脚本的客户端 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。iPad 固定全屏横屏；尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
 
 ## Windows 应用
 
@@ -49,7 +51,7 @@ build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
 npm run build:windows
 ```
 
-x64 应用及其 .NET 运行时输出到 `build/releases/v<version>/windows-amd64/`。首次还原 NuGet 包需要联网。交叉构建出安装包不等于已在 Windows 上验证；分发前需在目标系统运行检查。
+x64 应用及其 .NET 运行时输出到 `build/releases/v<version>/windows-amd64/`，客户端资源不包含网站统计脚本。首次还原 NuGet 包需要联网。交叉构建出安装包不等于已在 Windows 上验证；分发前需在目标系统运行检查。
 
 ## Windows 安装器
 

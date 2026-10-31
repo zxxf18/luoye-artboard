@@ -13,6 +13,12 @@ npm run dev
 
 Open `http://127.0.0.1:4173`. This browser preview runs the shared editor; native file dialogs and MIDI playback are provided by the desktop hosts.
 
+`npm run build` produces the website resources and keeps the optional remote usage tracker. Native client builds use the offline client variant, which removes that tracker while copying the same editor resources:
+
+```sh
+npm run build:client
+```
+
 ## macOS app
 
 Build on macOS with Xcode Command Line Tools, Swift 6, and the macOS SDK:
@@ -21,7 +27,7 @@ Build on macOS with Xcode Command Line Tools, Swift 6, and the macOS SDK:
 npm run build:mac
 ```
 
-The current target is Apple Silicon (arm64), macOS 13+. The application is written to `build/releases/v<version>/落叶画板.app`, where `<version>` comes from `package.json`. The build script does not sign or notarize the app.
+The current target is Apple Silicon (arm64), macOS 13+. The application is written to `build/releases/v<version>/落叶画板.app`, where `<version>` comes from `package.json`. The build script removes the website usage tracker from the bundled client and does not sign or notarize the app.
 
 ## iPhone / iPad app
 
@@ -31,7 +37,7 @@ The iOS target uses UIKit and WKWebView, supports iOS 16+, and includes both iPh
 npm run build:ios
 ```
 
-This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. Touch, Apple Pencil, audio interruptions, background recovery, and iPad split views must be checked on Simulator and a real device separately.
+This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. iPad uses a full-screen landscape workspace; touch, Apple Pencil, audio interruptions, and background recovery must be checked on Simulator and a real device separately.
 
 ## Windows app
 
@@ -49,7 +55,7 @@ Then run:
 npm run build:windows
 ```
 
-The x64 application is written to `build/releases/v<version>/windows-amd64/` with its .NET runtime. The first NuGet restore requires network access. Cross-building a package does not verify it on Windows; run the app on the target system before distributing it.
+The x64 application is written to `build/releases/v<version>/windows-amd64/` with its .NET runtime. The client bundle does not include the website usage tracker. The first NuGet restore requires network access. Cross-building a package does not verify it on Windows; run the app on the target system before distributing it.
 
 ## Windows installer
 
