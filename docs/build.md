@@ -37,7 +37,7 @@ The iOS target uses UIKit and WKWebView, supports iOS 16+, and includes both iPh
 npm run build:ios
 ```
 
-This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. Touch, Apple Pencil, audio interruptions, background recovery, and iPad split views must be checked on Simulator and a real device separately.
+This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. iPad uses a full-screen landscape workspace; touch, Apple Pencil, audio interruptions, and background recovery must be checked on Simulator and a real device separately.
 
 ## Windows app
 

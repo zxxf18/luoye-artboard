@@ -2,7 +2,7 @@
 
 iOS 版本沿用 `dist/` 中的绘画页面，由 UIKit + WKWebView 提供原生容器。这样画笔、素材、图层、辅助、主题、动画、草稿和画夹只维护一套实现，iPhone 和 iPad 通过同一份 Pointer Events 代码支持手指与 Apple Pencil。
 
-目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2），默认以横向布局优先，但允许竖屏、iPad 分屏和 Stage Manager。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
+目标为 iOS 16 及以上，Universal target 同时包含 iPhone（1）和 iPad（2）。iPhone 保留系统方向切换；iPad 使用全屏横屏和独立弹性视口，提供更大的中央画板。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
 
 ## 构建
 
@@ -24,7 +24,7 @@ Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arg
 
 ```sh
 CONFIGURATION=Debug npm run build:ios
-xcrun simctl install booted build/releases/v1.11.0/落叶画板-iphonesimulator.app
+xcrun simctl install booted build/releases/v1.12.0/落叶画板-iphonesimulator.app
 xcrun simctl launch booted cn.com.yebuluo.luoyeartboard \
   -LUOYE_SMOKE_SCRIPT native-child-journey.js \
   -LUOYE_SMOKE_OUTPUT child \

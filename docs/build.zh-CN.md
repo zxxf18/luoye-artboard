@@ -33,7 +33,7 @@ iOS 版本使用 UIKit + WKWebView，目标为 iOS 16+，同时支持 iPhone 和
 npm run build:ios
 ```
 
-默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成不含网站统计脚本的客户端 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
+默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成不含网站统计脚本的客户端 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。iPad 固定全屏横屏；尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
 
 ## Windows 应用
 

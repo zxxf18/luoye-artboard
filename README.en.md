@@ -71,7 +71,7 @@ The current interface is in Simplified Chinese. See the [build guide](docs/build
 ### iPhone / iPad
 
 - iOS 16 or later
-- Universal app with iPhone and iPad portrait, landscape, and iPad split-view support
+- Universal app with iPhone portrait and landscape support; iPad uses a full-screen landscape workspace with a larger central canvas
 - Finger and Apple Pencil input; projects, images, and MIDI use the system Files picker
 - The repository includes a buildable iOS target; device distribution still requires Xcode signing
 

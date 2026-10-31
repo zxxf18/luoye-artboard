@@ -14,7 +14,7 @@ test('client build removes the remote tracker and keeps local scripts', () => {
   const output = buildIndex(index, { client: true });
   assert.doesNotMatch(output, /https:\/\/yebuluo\.com\.cn/);
   assert.match(output, /<script src="android-bridge\.js"><\/script>/);
-  assert.match(output, /<script src="app\.js\?v=1\.11\.1"><\/script>/);
+  assert.match(output, /<script src="app\.js\?v=1\.12\.0"><\/script>/);
 });
 
 test('native build entrypoints use the client resource variant', async () => {
