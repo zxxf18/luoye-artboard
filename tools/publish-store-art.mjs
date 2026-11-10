@@ -47,7 +47,7 @@ for(const job of plan){
  }
  item.thumbnail=prefix+'thumbs/'+job.id+'.webp';
  await sharp(path.join(root,'public',item.src)).resize(240,240,{fit:'inside'}).webp({quality:88,alphaQuality:100}).toFile(path.join(output,'thumbs',job.id+'.webp'));
- Object.assign(item,{quality:'original-imagegen-preschool-store',artDirection:'原创幼儿绘本水粉风格；无品牌与知名角色；保持既有主题与分类。',artNote:job.mode==='background'?'ImageGen 原创无品牌背景；独立场景。':'ImageGen 原创帧表；逐格裁切，动态分组保留配色变体。',masterSource:'local-only/store-art/masters/'+job.id+'.png'});
+ Object.assign(item,{quality:'original-imagegen-preschool-store',artDirection:job.artDirection||'原创幼儿绘本水粉风格；无品牌与知名角色；保持既有主题与分类。',artNote:job.mode==='background'?'ImageGen 原创无品牌背景；独立场景。':'ImageGen 原创帧表；逐格裁切，动态分组保留配色变体。',masterSource:'local-only/store-art/masters/'+job.id+'.png'});
  records.push({id:job.id,name:job.name,mode:job.mode,sha256:createHash('sha256').update(bytes).digest('hex'),prompt:job.prompt,edits:job.edits||[],method:'built-in-imagegen',sourceWidth:meta.width,sourceHeight:meta.height});
 }
 await writeFile(path.join(root,'public/assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');

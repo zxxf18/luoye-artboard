@@ -1560,7 +1560,7 @@
     "width": 1600,
     "height": 900,
     "alphaRequired": false,
-    "artDirection": "原创幼儿绘本水粉风格；无品牌与知名角色；保持既有主题与分类。",
+    "artDirection": "原创无品牌写实摄影风格；自然光线、真实材质，避免可识别车型及品牌标识。",
     "artNote": "ImageGen 原创无品牌背景；独立场景。",
     "masterSource": "local-only/store-art/masters/bg178-parking-realistic.png"
   },
@@ -1674,7 +1674,7 @@
     "width": 1600,
     "height": 900,
     "alphaRequired": false,
-    "artDirection": "原创幼儿绘本水粉风格；无品牌与知名角色；保持既有主题与分类。",
+    "artDirection": "原创无品牌写实摄影风格；自然光线、真实材质，避免可识别车型及品牌标识。",
     "artNote": "ImageGen 原创无品牌背景；独立场景。",
     "masterSource": "local-only/store-art/masters/bg178-delivery-realistic.png"
   },

@@ -2833,9 +2833,10 @@
     "id": "bg178-parking-realistic",
     "name": "充电停车场",
     "mode": "background",
-    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 充电停车场, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book natural gouache style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "prompt": "Use case photorealistic-natural. Create ONE original realistic photographic background for a children's drawing app, wide 16:9. Scene: a quiet leafy public parking lot with two small generic electric cars seen mostly from the rear or side at a distance, modest plain charging posts, brick paving, mature shade trees and low neutral buildings. Authentic architectural photography, physically plausible perspective, natural daylight, restrained natural colors, realistic stone, glass, leaves and shadows; welcoming and calm, suitable for young children. Leave a large open uncluttered foreground for drawing. Invent all vehicle and building designs: no recognizable manufacturer-specific silhouettes, grilles, lights, badges or charging station designs. NO text, letters, logos, trademarks, license plate numbers, dealership names, people or watermark. Absolutely not cartoon, illustration, gouache, watercolor, toy cars or exaggerated rounded forms. Full-bleed single cohesive scene.",
     "category": "background",
-    "collection": "bg-road"
+    "collection": "bg-road",
+    "artDirection": "原创无品牌写实摄影风格；自然光线、真实材质，避免可识别车型及品牌标识。"
   },
   {
     "id": "bg178-parking-papercut",
@@ -2881,9 +2882,10 @@
     "id": "bg178-delivery-realistic",
     "name": "超级充电区",
     "mode": "background",
-    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 超级充电区, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book natural gouache style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "prompt": "Use case photorealistic-natural. Create ONE original realistic photographic background for a children's drawing app, wide 16:9. Scene: a small independent automobile service and vehicle handover courtyard, an unmarked warm modern low-rise building with open garage bays, one generic compact electric car seen from the side at middle distance, a few plain charging posts and landscaped trees. Authentic architectural photography, physically plausible perspective, natural daylight, restrained natural colors, realistic stone, glass, leaves and shadows; welcoming and calm, suitable for young children. Leave a large open uncluttered foreground for drawing. Invent all vehicle and building designs: no recognizable manufacturer-specific silhouettes, grilles, lights, badges or charging station designs. NO text, letters, logos, trademarks, license plate numbers, dealership names, people or watermark. Absolutely not cartoon, illustration, gouache, watercolor, toy cars or exaggerated rounded forms. Full-bleed single cohesive scene.",
     "category": "background",
-    "collection": "bg-road"
+    "collection": "bg-road",
+    "artDirection": "原创无品牌写实摄影风格；自然光线、真实材质，避免可识别车型及品牌标识。"
   },
   {
     "id": "bg178-delivery-papercut",
