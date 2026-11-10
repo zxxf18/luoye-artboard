@@ -8,6 +8,9 @@ def webOutput = new File(repositoryRoot, 'dist')
 def webAssets = new File(projectDir, 'src/main/assets/www')
 def distribution = providers.gradleProperty('distribution').getOrElse('community')
 if (!(distribution in ['community', 'store'])) throw new GradleException('distribution must be community or store')
+def projectLink = providers.gradleProperty('projectLink').getOrElse('default')
+def donationLink = providers.gradleProperty('donationLink').getOrElse('default')
+if (![projectLink, donationLink].every { it in ['default', 'on', 'off'] }) throw new GradleException('projectLink and donationLink must be on or off')
 def signingProperties = new Properties()
 def signingFile = file(System.getenv('LUOYE_SIGNING_PROPERTIES') ?: "${System.getProperty('user.home')}/.android-keystores/luoye-release/signing.properties")
 if (signingFile.exists()) signingFile.withInputStream { signingProperties.load(it) }
@@ -15,6 +18,8 @@ def hasReleaseSigning = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword'
 
 def syncWebAssets = tasks.register('syncWebAssets') {
     inputs.property('distribution', distribution)
+    inputs.property('projectLink', projectLink)
+    inputs.property('donationLink', donationLink)
     inputs.file(new File(repositoryRoot, 'package.json'))
     inputs.dir(new File(repositoryRoot, 'public'))
     inputs.dir(new File(repositoryRoot, 'src'))
@@ -24,7 +29,9 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     doLast {
         exec {
             workingDir repositoryRoot
-            commandLine(['node', 'tools/build-client.mjs'] + (distribution == 'store' ? ['--store'] : []))
+            commandLine(['node', 'tools/build-client.mjs'] + (distribution == 'store' ? ['--store'] : []) +
+                (projectLink == 'default' ? [] : ["--project-link=${projectLink}"]) +
+                (donationLink == 'default' ? [] : ["--donation-link=${donationLink}"]))
         }
         delete webAssets
         copy {

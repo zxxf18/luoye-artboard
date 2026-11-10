@@ -2,17 +2,18 @@ const shell=document.querySelector('#shell'),direct=document.querySelector('#dir
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function assert(value,message){if(!value)throw Error(message);}
 function near(actual,expected,message,tolerance=1){assert(Math.abs(actual-expected)<=tolerance,`${message}: ${actual} / ${expected}`);}
-async function ready(doc){for(let i=0;i<400&&doc.body?.dataset.appReady!=='true';i++)await pause(25);assert(doc.body?.dataset.appReady==='true','应用未完成初始化');doc.querySelector('#recover-dialog[open] [value="cancel"]')?.click();await pause(100);}
+// The iframe may still hold about:blank when this module starts. Re-read its document while navigation finishes.
+async function ready(frame){for(let i=0;i<400&&frame.contentDocument?.body?.dataset.appReady!=='true';i++)await pause(25);const doc=frame.contentDocument;assert(doc?.body?.dataset.appReady==='true','应用未完成初始化');doc.querySelector('#recover-dialog[open] [value="cancel"]')?.click();await pause(100);}
 function size(frame,width,height){frame.style.width=width+'px';frame.style.height=height+'px';frame.style.transform=`scale(${Math.min(1,1100/width)})`;}
 function stroke(win,doc,x=.2,y=.25,endX=.65,endY=.55){
  const canvas=doc.getElementById('painting'),box=canvas.getBoundingClientRect(),capture=canvas.setPointerCapture;canvas.setPointerCapture=()=>{};
  try{for(const [type,px,py,buttons] of [['pointerdown',x,y,1],['pointermove',endX,endY,1],['pointerup',endX,endY,0]])canvas.dispatchEvent(new win.PointerEvent(type,{bubbles:true,pointerId:91,pointerType:'pen',button:0,buttons,clientX:box.x+box.width*px,clientY:box.y+box.height*py}));}finally{canvas.setPointerCapture=capture;}
 }
 try{
- await ready(direct.contentDocument);
+ await ready(direct);
  size(shell,1600,1000);await new Promise(resolve=>{shell.onload=resolve;shell.src='/tablet.html';});
  const shellWindow=shell.contentWindow,frame=shell.contentDocument.getElementById('tablet-frame');
- await ready(frame.contentDocument);
+ await ready(frame);
  const app=frame.contentWindow,doc=frame.contentDocument;
  results.push({name:'平板外壳加载完整画板',passed:true});
 
