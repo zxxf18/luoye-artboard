@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
@@ -17,6 +18,11 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.Toast
+import android.widget.FrameLayout
+import android.window.OnBackInvokedDispatcher
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import org.json.JSONObject
@@ -43,9 +49,30 @@ class MainActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         webView = WebView(this)
-        setContentView(webView)
+        // Android 15 draws target-35 apps under system bars. Keep interactive
+        // WebView content inside their insets, including tablet caption bars.
+        val container = FrameLayout(this)
+        container.addView(webView, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT,
+        ))
+        ViewCompat.setOnApplyWindowInsetsListener(container) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime(),
+            )
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
+        setContentView(container)
+        ViewCompat.requestApplyInsets(container)
         configureWebView()
+        if (Build.VERSION.SDK_INT >= 33) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
+                requestBack()
+            }
+        }
     }
 
     private fun configureWebView() {
@@ -258,10 +285,19 @@ class MainActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (closeInFlight) return
+        requestBack()
+    }
+
+    private fun requestBack() {
+        val dismissDialog = "const app=document.getElementById('tablet-frame')?.contentWindow||window;const dialogs=app.document.querySelectorAll('dialog[open]');const dialog=dialogs[dialogs.length-1];"
+        // A repeated Back may cancel the save/exit prompt already awaiting a result.
+        if (closeInFlight) {
+            webView.evaluateJavascript("(()=>{$dismissDialog if(dialog)dialog.close('cancel');})()", null)
+            return
+        }
         closeInFlight = true
         webView.evaluateJavascript(
-            "(async()=>{try{AndroidBridge.closeResult(JSON.stringify(await window.LUOYERequestClose()))}catch(e){AndroidBridge.closeError(e.message||'退出失败')}})()",
+            "(async()=>{try{$dismissDialog if(dialog){dialog.close('cancel');AndroidBridge.closeResult(JSON.stringify({action:'cancel'}));return;}AndroidBridge.closeResult(JSON.stringify(await window.LUOYERequestClose()))}catch(e){AndroidBridge.closeError(e.message||'退出失败')}})()",
             null,
         )
     }
