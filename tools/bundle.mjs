@@ -7,6 +7,7 @@ export const root = fileURLToPath(new URL('../', import.meta.url));
 export async function bundle() {
 const files = ['core/core.js', 'core/document.js', 'core/pointer.js', 'core/operations.js', 'core/tool-registry.js', 'core/pixels.js', 'core/warps.js','core/geometry.js', 'core/bundled-images.js','core/engine.js', 'core/animated-effects.js', 'core/editor.js','core/brushes.js','core/shape-eraser.js','core/materials.js','core/paper-tools.js','core/assist.js','core/drawing.js', 'core/storage-format.js', 'platform/storage.js', 'ui/icons.js', 'ui/studio-ui.js','ui/gallery-ui.js','ui/recording.js','ui/recorder-ui.js','core/text.js','ui/text-ui.js','ui/creative-ui.js','ui/palette-ui.js','core/input-sampling.js','ui/playful-icons.js','ui/animation-editor.js','ui/pixel-art.js','ui/choice-art.js','ui/classic-scratch.js','ui/classic-mobile.js','ui/fractal-studio.js','ui/classic-ui.js','ui/assist-ui.js','ui/playful-controls.js','ui/display-ui.js','ui/audio-preferences.js','ui/tool-cursors.js','ui/tool-feedback.js','ui/music-ui.js','ui/materials-ui.js','ui/theme-scenes.js','ui/theme-ui.js', 'platform/app.js'];
   files.splice(files.indexOf('platform/app.js'),0,'platform/close-flow.js');
+  files.splice(files.indexOf('ui/classic-ui.js'),0,'ui/support-links.js');
   const contents = await Promise.all(files.map(name => readFile(path.join(root, 'src', name), 'utf8')));
   const { version } = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   const music = JSON.parse(await readFile(path.join(root, 'public/music/tracks.json'), 'utf8'));

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { bundle, root } from './bundle.mjs';
 import { canvasAssets } from './canvas-assets.mjs';
 import { renderTabletShell } from './tablet-shell.mjs';
+import { runtimeAssetPaths, includeAsset } from './runtime-assets.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
 
@@ -14,11 +15,13 @@ export function stripRemoteTracker(html) {
   return html.replace(TRACKER_SCRIPT, '').replaceAll(` ${TRACKER_ORIGIN}`, '');
 }
 
-export function buildIndex(html, { client = false } = {}) {
-  return client ? stripRemoteTracker(html) : html;
+export function buildIndex(html, { client = false, distribution = 'community', showProjectLink = distribution !== 'store', showDonationLink = distribution !== 'store' } = {}) {
+  const output = client ? stripRemoteTracker(html) : html;
+  if (!['community', 'store'].includes(distribution)) throw new Error('Unknown distribution: '+distribution);
+  return output.replace('<html', `<html data-project-link="${showProjectLink}" data-donation-link="${showDonationLink}"`);
 }
 
-export async function build({ client = false } = {}) {
+export async function build({ client = false, distribution = 'community', showProjectLink, showDonationLink } = {}) {
   const lock = path.join(root, 'build/desktop-build.lock');
   mkdirSync(path.dirname(lock), { recursive: true });
   try {
@@ -34,12 +37,15 @@ export async function build({ client = false } = {}) {
     // Remove generated output so old or rejected assets cannot survive a rebuild.
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
+    const assetPaths = runtimeAssetPaths(JSON.parse(await readFile(path.join(root,'public/assets/catalog.json'),'utf8')));
     await cp(path.join(root, 'public'), output, { recursive: true,
-      filter: source => !['public/assets/candidates','public/assets/original','public/assets/thumbs','public/assets/illustrated','public/assets/redrawn-v14','public/assets/fairy-v15','public/assets/library-v16/masters'].some(directory => source === path.join(root, directory)) });
+      filter: source => includeAsset(path.relative(path.join(root,'public'),source).split(path.sep).join('/'),assetPaths) });
     const indexPath = path.join(output, 'index.html');
     const index = await readFile(indexPath, 'utf8');
-    const outputIndex = buildIndex(index, { client });
-    if (client) await writeFile(indexPath, outputIndex, 'utf8');
+    const outputIndex = buildIndex(index, { client, distribution, showProjectLink, showDonationLink });
+    await writeFile(indexPath, outputIndex, 'utf8');
+    await cp(path.join(root,'LICENSE'),path.join(output,'LICENSE.txt'));
+    await writeFile(path.join(output,'SOURCE.txt'),'Corresponding source: https://github.com/zxxf18/luoye-artboard\nLicense: GNU AGPL version 3.\n');
     const tabletPath = path.join(output, 'tablet.html');
     const tablet = await readFile(tabletPath, 'utf8');
     await writeFile(tabletPath, renderTabletShell(tablet, outputIndex), 'utf8');
