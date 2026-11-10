@@ -7,5 +7,6 @@ export function runtimeAssetPaths(catalog) {
  return paths;
 }
 export function includeAsset(relative, paths) {
+ if(relative==='assets/legacy-catalog.json')return false;
  return !/^assets\/.*\.(?:png|jpe?g|webp|gif|svg|bmp)$/i.test(relative)||paths.has(relative);
 }

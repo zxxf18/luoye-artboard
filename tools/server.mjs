@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { bundle, root } from './bundle.mjs';
+import { selectAssetCatalog } from './asset-distribution.mjs';
 const publicRoot = path.join(root, 'public');
 const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.svg':'image/svg+xml' };
 const gzipAsync = promisify(gzip);
@@ -22,6 +23,13 @@ const server = http.createServer(async (request, response) => {
   try {
     if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); response.end(); return; }
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+    if (pathname === '/assets/catalog.js' || pathname === '/assets/catalog.json') {
+      const [current,legacy] = await Promise.all(['catalog.json','legacy-catalog.json'].map(name=>readFile(path.join(publicRoot,'assets',name),'utf8').then(JSON.parse)));
+      const catalog = selectAssetCatalog(current,legacy,'community');
+      const javascript = pathname.endsWith('.js');
+      await send(request,response,javascript?'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n':JSON.stringify(catalog),{'Content-Type':mime[javascript?'.js':'.json'],'Cache-Control':'no-store'});
+      return;
+    }
     if (pathname === '/tablet.html') {
       const [shell, index] = await Promise.all([readFile(path.join(publicRoot, 'tablet.html'), 'utf8'), readFile(path.join(publicRoot, 'index.html'), 'utf8')]);
       await send(request, response, renderTabletShell(shell, index), { 'Content-Type': mime['.html'], 'Cache-Control': 'no-store' });

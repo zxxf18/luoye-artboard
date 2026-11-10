@@ -5,6 +5,7 @@ import { bundle, root } from './bundle.mjs';
 import { canvasAssets } from './canvas-assets.mjs';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { runtimeAssetPaths, includeAsset } from './runtime-assets.mjs';
+import { selectAssetCatalog } from './asset-distribution.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
 
@@ -37,9 +38,13 @@ export async function build({ client = false, distribution = 'community', showPr
     // Remove generated output so old or rejected assets cannot survive a rebuild.
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
-    const assetPaths = runtimeAssetPaths(JSON.parse(await readFile(path.join(root,'public/assets/catalog.json'),'utf8')));
+    const [current,legacy] = await Promise.all(['catalog.json','legacy-catalog.json'].map(name=>readFile(path.join(root,'public/assets',name),'utf8').then(JSON.parse)));
+    const catalog = selectAssetCatalog(current,legacy,distribution);
+    const assetPaths = runtimeAssetPaths(catalog);
     await cp(path.join(root, 'public'), output, { recursive: true,
       filter: source => includeAsset(path.relative(path.join(root,'public'),source).split(path.sep).join('/'),assetPaths) });
+    await writeFile(path.join(output,'assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
+    await writeFile(path.join(output,'assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
     const indexPath = path.join(output, 'index.html');
     const index = await readFile(indexPath, 'utf8');
     const outputIndex = buildIndex(index, { client, distribution, showProjectLink, showDonationLink });
@@ -57,4 +62,4 @@ export async function build({ client = false, distribution = 'community', showPr
   }
 }
 
-if (path.resolve(process.argv[1] || '') === fileURLToPath(import.meta.url)) await build();
+if (path.resolve(process.argv[1] || '') === fileURLToPath(import.meta.url)) await build({distribution:process.argv.includes('--store')?'store':'community'});
