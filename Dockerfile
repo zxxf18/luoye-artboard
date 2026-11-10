@@ -7,8 +7,10 @@ COPY package.json ./
 COPY public ./public
 COPY src ./src
 COPY tools ./tools
+COPY resources ./resources
+COPY LICENSE ./LICENSE
 
-RUN npm run build
+RUN npm run build -- --store
 
 FROM nginx:1.27-alpine AS runtime
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf

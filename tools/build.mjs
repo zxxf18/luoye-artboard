@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { bundle, root } from './bundle.mjs';
 import { canvasAssets } from './canvas-assets.mjs';
 import { renderTabletShell } from './tablet-shell.mjs';
-import { runtimeAssetPaths, includeAsset } from './runtime-assets.mjs';
-import { selectAssetCatalog } from './asset-distribution.mjs';
+import { runtimeAssetPaths, includeAsset } from './assets/runtime-assets.mjs';
+import { readAssetCatalog } from './assets/asset-distribution.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
 
@@ -38,8 +38,7 @@ export async function build({ client = false, distribution = 'community', showPr
     // Remove generated output so old or rejected assets cannot survive a rebuild.
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
-    const [current,legacy] = await Promise.all(['catalog.json','legacy-catalog.json'].map(name=>readFile(path.join(root,'public/assets',name),'utf8').then(JSON.parse)));
-    const catalog = selectAssetCatalog(current,legacy,distribution);
+    const catalog = await readAssetCatalog(root,distribution);
     const assetPaths = runtimeAssetPaths(catalog);
     await cp(path.join(root, 'public'), output, { recursive: true,
       filter: source => includeAsset(path.relative(path.join(root,'public'),source).split(path.sep).join('/'),assetPaths) });

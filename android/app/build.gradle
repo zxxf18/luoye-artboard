@@ -22,6 +22,7 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     inputs.property('donationLink', donationLink)
     inputs.file(new File(repositoryRoot, 'package.json'))
     inputs.dir(new File(repositoryRoot, 'public'))
+    inputs.dir(new File(repositoryRoot, 'resources'))
     inputs.dir(new File(repositoryRoot, 'src'))
     inputs.dir(new File(repositoryRoot, 'tools'))
     outputs.dir(webAssets)

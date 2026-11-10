@@ -45,12 +45,12 @@ Gradle 默认读取上述配置；其他构建机通过 `LUOYE_SIGNING_PROPERTIE
 
 ## 素材与许可
 
-- 重绘计划和完整提示词：`tools/art/store-refresh.json`。
+- 重绘计划和完整提示词：`tools/assets/manifests/store-refresh.json`。
 - 生成方式：内置 ImageGen；原始帧表在 `local-only/store-art/masters/`，不随 APK 分发。
-- 发布工具：`node tools/publish-store-art.mjs`。检查全批次齐全、透明图含 alpha 后，切帧并更新两个目录索引。
+- 发布工具：`node tools/assets/publish-store-art.mjs`。检查全批次齐全、透明图含 alpha 后，切帧并更新两个目录索引。
 - 新版分类、ID、分组数及帧间隔保持不变；动态分组由原创动作帧生成不同配色。
-- `public/assets/legacy-catalog.json` 保存重绘前的 111 个条目。非上线版追加 `-legacy` ID 和“（旧版）”名称，与新版并存；旧版原始图片路径保留。
-- `tools/asset-distribution.mjs` 统一选取渠道索引：community 共 1693 条，store 共 1582 条。开发服务器使用 community；构建时生成对应渠道的 catalog.json/catalog.js，不修改源索引。
+- `resources/assets/legacy-catalog.json` 保存重绘前的 111 个条目。非上线版追加 `-legacy` ID 和“（旧版）”名称，与新版并存；旧版原始图片路径保留。
+- `tools/assets/asset-distribution.mjs` 统一选取渠道索引：community 共 1693 条，store 共 1582 条。开发服务器使用 community；构建时生成对应渠道的 catalog.json/catalog.js，不修改源索引。
 - 新增替换背景中，充电停车场、交付中心充电区采用原创无品牌写实摄影风格；其他绘本背景及原有其余风格继续保留。
 - 原创无品牌设计可降低侵权风险，不代表法律上的绝对无争议保证。
 - 商店开关只控制推广入口。客户端包保留 `LICENSE.txt` 和 `SOURCE.txt`，不取消 AGPL 的声明及对应源码义务。正式分发前，应将对应版本完整源码以满足许可证的方式提供，并核对所有其他素材的权利链。
@@ -62,8 +62,8 @@ Gradle 默认读取上述配置；其他构建机通过 `LUOYE_SIGNING_PROPERTIE
 ## 本轮完成与验证
 
 - 32 组连续图片、22 组动态图片及 45 组独立动画，共 99 张原创帧表；保留 944 张魔法袋帧与 360 张动画帧的数量和分类契约。
-- 12 张停车场/交付中心背景替换为原创无品牌场景；完整提示词与生成来源、原图 SHA-256 记录在 `tools/art/store-refresh-provenance.json`。
-- `node tools/audit-store-art.mjs`：99 张帧表全部通过逐帧透明度、非空和切分边界检查。
+- 12 张停车场/交付中心背景替换为原创无品牌场景；完整提示词与生成来源、原图 SHA-256 记录在 `tools/assets/manifests/store-refresh-provenance.json`。
+- `node tools/assets/audit-store-art.mjs`：99 张帧表全部通过逐帧透明度、非空和切分边界检查。
 - 220 项 Node 测试通过；浏览器 frames、stamps、tablet-shell 回归通过。平板测试修复了持有导航前 about:blank 文档的竞态，验收条件和等待时限保持不变。
 - 商店“关于”窗口在 1600×1000、2000×1200、1000×600 下检查通过，无空白链接行、无越界、无运行错误。
 - Android `lintRelease assembleRelease` 成功；`apksigner verify` 通过 v1/v2 签名验证；缺少签名配置的 release 构建按预期失败。

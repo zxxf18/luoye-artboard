@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,access} from 'node:fs/promises';
-import {selectAssetCatalog} from '../tools/asset-distribution.mjs';
-import {runtimeAssetPaths,includeAsset} from '../tools/runtime-assets.mjs';
+import {selectAssetCatalog} from '../tools/assets/asset-distribution.mjs';
+import {runtimeAssetPaths,includeAsset} from '../tools/assets/runtime-assets.mjs';
 const current=JSON.parse(await readFile(new URL('../public/assets/catalog.json',import.meta.url)));
-const legacy=JSON.parse(await readFile(new URL('../public/assets/legacy-catalog.json',import.meta.url)));
+const legacy=JSON.parse(await readFile(new URL('../resources/assets/legacy-catalog.json',import.meta.url)));
 test('community retains all current entries and exposes the previous replacements separately',async()=>{
  const merged=selectAssetCatalog(current,legacy,'community');
  assert.equal(merged.length,current.length+111);assert.equal(new Set(merged.map(x=>x.id)).size,merged.length);

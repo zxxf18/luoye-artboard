@@ -1,4 +1,4 @@
-// Only runtime paths belong in a distributable; master/legacy images stay in Git history.
+// Only indexed runtime images belong in a distributable; source archives remain outside it.
 export function runtimeAssetPaths(catalog) {
  const paths=new Set();
  for(const item of catalog){

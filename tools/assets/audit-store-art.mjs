@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 const sharp=createRequire(import.meta.url)(process.env.LUOYE_SHARP||'/Users/zhaoxin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp');
-const root=path.resolve(import.meta.dirname,'..'),plan=JSON.parse(await readFile(path.join(root,'tools/art/store-refresh.json'))),errors=[],sheets=[];
+const root=path.resolve(import.meta.dirname,'../..'),plan=JSON.parse(await readFile(path.join(root,'tools/assets/manifests/store-refresh.json'))),errors=[],sheets=[];
 for(const p of plan.filter(x=>x.mode!=='background')){
  const {data,info}=await sharp(path.join(root,'local-only/store-art/masters',p.id+'.png')).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const cells=[];

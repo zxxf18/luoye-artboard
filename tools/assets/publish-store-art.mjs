@@ -3,20 +3,20 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 const sharp=createRequire(import.meta.url)(process.env.LUOYE_SHARP||'/Users/zhaoxin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp');
-const root=path.resolve(import.meta.dirname,'..');
-const plan=JSON.parse(await readFile(path.join(root,'tools/art/store-refresh.json'),'utf8'));
+const root=path.resolve(import.meta.dirname,'../..');
+const plan=JSON.parse(await readFile(path.join(root,'tools/assets/manifests/store-refresh.json'),'utf8'));
 const source=path.join(root,'local-only/store-art/masters');
-const output=path.join(root,'public/assets/store-original');
 const catalog=JSON.parse(await readFile(path.join(root,'public/assets/catalog.json'),'utf8'));
 // Fail before touching the catalog if the batch is incomplete.
 for(const job of plan)await access(path.join(source,job.id+'.png'));
-await mkdir(path.join(output,'sprites'),{recursive:true});
-await mkdir(path.join(output,'thumbs'),{recursive:true});
 const records=[];
 for(const job of plan){
  const item=catalog.find(x=>x.id===job.id);if(!item)throw Error('Unknown asset '+job.id);
  const bytes=await readFile(path.join(source,job.id+'.png')),meta=await sharp(bytes).metadata();
- const prefix='assets/store-original/';
+ const prefix=`assets/${item.category}/store/`;
+ const output=path.join(root,'public',prefix);
+ await mkdir(path.join(output,'sprites'),{recursive:true});
+ await mkdir(path.join(output,'thumbs'),{recursive:true});
  if(job.mode==='background'){
   await sharp(bytes).resize(1600,900,{fit:'cover'}).webp({quality:90}).toFile(path.join(output,'sprites',job.id+'.webp'));
   Object.assign(item,{src:prefix+'sprites/'+job.id+'.webp',width:1600,height:900});
@@ -52,5 +52,5 @@ for(const job of plan){
 }
 await writeFile(path.join(root,'public/assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
 await writeFile(path.join(root,'public/assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
-await writeFile(path.join(root,'tools/art/store-refresh-provenance.json'),JSON.stringify(records,null,2)+'\n');
+await writeFile(path.join(root,'tools/assets/manifests/store-refresh-provenance.json'),JSON.stringify(records,null,2)+'\n');
 console.log(`Published ${records.length} original replacements; catalog IDs, categories and groups preserved.`);
