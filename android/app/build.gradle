@@ -6,8 +6,15 @@ plugins {
 def repositoryRoot = rootProject.projectDir.parentFile
 def webOutput = new File(repositoryRoot, 'dist')
 def webAssets = new File(projectDir, 'src/main/assets/www')
+def distribution = providers.gradleProperty('distribution').getOrElse('community')
+if (!(distribution in ['community', 'store'])) throw new GradleException('distribution must be community or store')
+def signingProperties = new Properties()
+def signingFile = file(System.getenv('LUOYE_SIGNING_PROPERTIES') ?: "${System.getProperty('user.home')}/.android-keystores/luoye-release/signing.properties")
+if (signingFile.exists()) signingFile.withInputStream { signingProperties.load(it) }
+def hasReleaseSigning = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword'].every { signingProperties.getProperty(it) }
 
 def syncWebAssets = tasks.register('syncWebAssets') {
+    inputs.property('distribution', distribution)
     inputs.file(new File(repositoryRoot, 'package.json'))
     inputs.dir(new File(repositoryRoot, 'public'))
     inputs.dir(new File(repositoryRoot, 'src'))
@@ -17,7 +24,7 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     doLast {
         exec {
             workingDir repositoryRoot
-            commandLine 'node', 'tools/build-client.mjs'
+            commandLine(['node', 'tools/build-client.mjs'] + (distribution == 'store' ? ['--store'] : []))
         }
         delete webAssets
         copy {
@@ -42,8 +49,22 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(signingProperties.getProperty('storeFile'))
+                storePassword signingProperties.getProperty('storePassword')
+                keyAlias signingProperties.getProperty('keyAlias')
+                keyPassword signingProperties.getProperty('keyPassword')
+                enableV1Signing true // Android 6 (API 23) compatibility.
+                enableV2Signing true
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (hasReleaseSigning) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -58,6 +79,15 @@ android {
 
     packaging {
         resources.excludes += '/META-INF/{AL2.0,LGPL2.1}'
+    }
+}
+
+// Debug builds remain available without secrets; release must never silently be unsigned.
+tasks.configureEach { task ->
+    if (task.name == 'preReleaseBuild') {
+        task.doFirst {
+            if (!hasReleaseSigning) throw new GradleException('Release signing is missing. Set LUOYE_SIGNING_PROPERTIES to your private signing.properties.')
+        }
     }
 }
 

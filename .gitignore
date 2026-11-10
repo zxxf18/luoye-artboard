@@ -10,6 +10,11 @@ __pycache__/
 .env*
 *.pem
 *.p12
+*.jks
+*.keystore
+**/signing.properties
+**/keystore.properties
+android/app/build/
 local-only/reference/
 test-results/
 native/windows/bin/
