@@ -1,0 +1,2896 @@
+[
+  {
+    "id": "animation-0",
+    "name": "散步的小刺猬",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 散步的小刺猬. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim0",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1",
+    "name": "打哈欠的小狗",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 打哈欠的小狗. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim0",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2",
+    "name": "梳羽的鹦鹉",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 梳羽的鹦鹉. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3",
+    "name": "举重小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 举重小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4",
+    "name": "滴答小闹钟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 滴答小闹钟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-5",
+    "name": "散步的小猫",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 散步的小猫. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim0",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-6",
+    "name": "走路的小鸭",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 走路的小鸭. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-7",
+    "name": "开屏的孔雀",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 开屏的孔雀. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-8",
+    "name": "啄米的小鸡",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 啄米的小鸡. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-0",
+    "name": "划水的小海龟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 划水的小海龟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-1",
+    "name": "摆尾的小金鱼",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 摆尾的小金鱼. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-2",
+    "name": "划水的小虾",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 划水的小虾. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-3",
+    "name": "挥钳的小螃蟹",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 挥钳的小螃蟹. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-4",
+    "name": "开合的小贝壳",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 开合的小贝壳. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-5",
+    "name": "游动的小海马",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 游动的小海马. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-6",
+    "name": "跃水的海豚",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 跃水的海豚. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-7",
+    "name": "游动的海蛇",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 游动的海蛇. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-8",
+    "name": "摆尾的海豚",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 摆尾的海豚. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-9",
+    "name": "挥鳍的鳐鱼",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 挥鳍的鳐鱼. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-1-10",
+    "name": "吐泡泡的小鱼",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 吐泡泡的小鱼. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim1",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-0",
+    "name": "展翅的小鸟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 展翅的小鸟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-1",
+    "name": "拍拍翅膀",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 拍拍翅膀. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-2",
+    "name": "啄木鸟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 啄木鸟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-3",
+    "name": "点头的鹦鹉",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 点头的鹦鹉. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-4",
+    "name": "眨眼的猫头鹰",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 眨眼的猫头鹰. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-5",
+    "name": "飞翔的海鸥",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飞翔的海鸥. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-6",
+    "name": "啄食的小鸟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 啄食的小鸟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-2-7",
+    "name": "漫步的白鹭",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 漫步的白鹭. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim2",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-0",
+    "name": "扬帆的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 扬帆的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-1",
+    "name": "骑车的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 骑车的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8,
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all white, cream and tinted paper backgrounds; preserve exact grid layout and subjects; real transparent alpha."
+      }
+    ]
+  },
+  {
+    "id": "animation-3-2",
+    "name": "举重的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 举重的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-3",
+    "name": "跳绳的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 跳绳的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-4",
+    "name": "跑步的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 跑步的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-5",
+    "name": "读书的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 读书的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8,
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all white, cream and tinted paper backgrounds; preserve exact grid layout and subjects; real transparent alpha."
+      }
+    ]
+  },
+  {
+    "id": "animation-3-6",
+    "name": "爬行的小宝宝",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 爬行的小宝宝. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-7",
+    "name": "挥手的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 挥手的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-8",
+    "name": "扫地的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 扫地的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-3-9",
+    "name": "钓鱼的小朋友",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 钓鱼的小朋友. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim3",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-0",
+    "name": "转动车轮的小汽车",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 转动车轮的小汽车. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-1",
+    "name": "滴答小闹钟",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 滴答小闹钟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-2",
+    "name": "渐渐亮起的台灯",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 渐渐亮起的台灯. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-3",
+    "name": "旋转的小龙卷风",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 旋转的小龙卷风. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-4",
+    "name": "点火的小火箭",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 点火的小火箭. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-5",
+    "name": "转动的唱片机",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 转动的唱片机. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "animation-4-6",
+    "name": "倒水的小水壶",
+    "mode": "animation",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 倒水的小水壶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "animation",
+    "collection": "anim4",
+    "frameCount": 8
+  },
+  {
+    "id": "girl-1-0",
+    "name": "贝壳与海星",
+    "mode": "static",
+    "cols": 4,
+    "rows": 4,
+    "count": 13,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 贝壳与海星. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 13 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 4 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:4.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-1",
+    "name": "彩色蝴蝶",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 9,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 彩色蝴蝶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 9 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-2",
+    "name": "热带鱼群",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 9,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 热带鱼群. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 9 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-3",
+    "name": "缤纷花朵",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 缤纷花朵. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 8 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-4",
+    "name": "水上小船",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 6,
+    "prompt": "Create six charming miniature toy boats: wooden rowing boat, striped sailboat, little tugboat, bamboo raft, swan pedal boat and dragon canoe. Production transparent sticker sheet for a preschool painting app, gorgeous original gouache illustration. EXACT 4 columns x 2 rows equal square cells, 6 stickers in row-major order, unused final cells fully empty. Every sticker isolated with substantial transparent padding. NO white paper, NO cream backdrop, NO shadows or colored fog outside the stickers. REAL FULLY TRANSPARENT BACKGROUND alpha 0 across all empty space. Preserve full subjects inside cells, never touch grid boundaries. No lettering, logos, watermarks, grid lines or checkerboard. Overall sheet aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all background completely; isolated transparent cutouts; preserve grid positions and subject colors."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-5",
+    "name": "飞行小飞机",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 6,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飞行小飞机. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 6 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 2 cells and 6 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-6",
+    "name": "林间小鸟",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 林间小鸟. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 2 cells and 7 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-7",
+    "name": "小蜜蜂",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Create seven different charming little honey bees: hovering, resting on a leaf, visiting a pink blossom, carrying pollen, holding a little basket, near lavender, waving tiny forelegs. Production transparent sticker sheet for a preschool painting app, gorgeous original gouache illustration. EXACT 4 columns x 2 rows equal square cells, 7 stickers in row-major order, unused final cells fully empty. Every sticker isolated with substantial transparent padding. NO white paper, NO cream backdrop, NO shadows or colored fog outside the stickers. REAL FULLY TRANSPARENT BACKGROUND alpha 0 across all empty space. Preserve full subjects inside cells, never touch grid boundaries. No lettering, logos, watermarks, grid lines or checkerboard. Overall sheet aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-8",
+    "name": "彩色纽扣",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 彩色纽扣. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 8 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-9",
+    "name": "糖果小汽车",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 糖果小汽车. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 8 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-10",
+    "name": "扑克牌",
+    "mode": "static",
+    "cols": 4,
+    "rows": 4,
+    "count": 15,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 扑克牌. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 15 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 4 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:4.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-11",
+    "name": "枝叶与果实",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 10,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 枝叶与果实. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 10 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-12",
+    "name": "彩色叶片",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 彩色叶片. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 8 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-13",
+    "name": "花纹圆章",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 花纹圆章. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 2 cells and 7 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-14",
+    "name": "星座星星贴",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 11,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 星座星星贴. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 11 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-15",
+    "name": "星座小伙伴",
+    "mode": "static",
+    "cols": 4,
+    "rows": 4,
+    "count": 13,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 星座小伙伴. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 13 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 4 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:4.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-16",
+    "name": "动物和星星",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 12,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 动物和星星. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 12 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all white, cream and tinted paper backgrounds; preserve exact grid layout and subjects; real transparent alpha."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-17",
+    "name": "卷角小羊群",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 12,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 卷角小羊群. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 12 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-18",
+    "name": "金色麦穗",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 12,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 金色麦穗. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 12 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-19",
+    "name": "甜甜草莓",
+    "mode": "static",
+    "cols": 4,
+    "rows": 4,
+    "count": 13,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 甜甜草莓. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 13 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 4 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:4.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 4 cells and 13 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-20",
+    "name": "快乐小螃蟹",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 快乐小螃蟹. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all white, cream and tinted paper backgrounds; preserve exact grid layout and subjects; real transparent alpha."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-21",
+    "name": "绿叶蔬菜",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 10,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 绿叶蔬菜. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 10 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-22",
+    "name": "红伞小蘑菇",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 10,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 红伞小蘑菇. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 10 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-23",
+    "name": "小鸟头像",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 10,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 小鸟头像. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 10 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 3 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 3 cells and 10 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-24",
+    "name": "可爱长耳伙伴",
+    "mode": "static",
+    "cols": 4,
+    "rows": 3,
+    "count": 10,
+    "prompt": "Create ten different charming floppy-eared baby rabbits: tan sitting, grey sleeping, cream standing, white holding carrot, grey hopping, tan with tiny flowers, brown looking at butterfly, white rolling, grey with clover, tan snuggled in a blanket. Production transparent sticker sheet for a preschool painting app, gorgeous original gouache illustration. EXACT 4 columns x 3 rows equal square cells, 10 stickers in row-major order, unused final cells fully empty. Every sticker isolated with substantial transparent padding. NO white paper, NO cream backdrop, NO shadows or colored fog outside the stickers. REAL FULLY TRANSPARENT BACKGROUND alpha 0 across all empty space. Preserve full subjects inside cells, never touch grid boundaries. No lettering, logos, watermarks, grid lines or checkerboard. Overall sheet aspect ratio 4:3.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Remove all background completely; isolated transparent cutouts; preserve grid positions and subject colors."
+      },
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Scale each of ten rabbits to 70 percent in its 4 by 3 grid cell; generous transparent margin on all four sides."
+      }
+    ]
+  },
+  {
+    "id": "girl-1-25",
+    "name": "郁金香花丛",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 郁金香花丛. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-26",
+    "name": "紫色葡萄",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 紫色葡萄. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-27",
+    "name": "彩色鹦鹉",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 彩色鹦鹉. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-28",
+    "name": "惊讶小圆脸",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 惊讶小圆脸. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-29",
+    "name": "摇摇木马",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 摇摇木马. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-30",
+    "name": "快乐小龙群",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 7,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 快乐小龙群. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 7 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-1-31",
+    "name": "秋日落叶",
+    "mode": "static",
+    "cols": 4,
+    "rows": 2,
+    "count": 5,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 秋日落叶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly 5 distinct variations of the named subject, varied colors and natural poses, for a continuous stamp brush. Each cell is a separate distinct complete illustration. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale. Leave unused final cells empty transparent. Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      },
+      {
+        "frames": 1,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-0",
+    "name": "生长的粉花",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 生长的粉花. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-1",
+    "name": "摇曳的青草",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 摇曳的青草. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-2",
+    "name": "轻飘蓝烟",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Create one transparent sprite sheet, STRICT 4 columns by 2 rows equal square cells, exactly eight frames row-major order. Eight sequential animation poses of ONLY a small curl of pale blue harmless magical mist, curling upward and gently dissipating. Only mist, no creature, no source object. Soft original preschool gouache storybook style. Same scale, generous empty transparent margin inside each cell. Entire background truly transparent alpha 0, no paper, no fog outside the subject. NO BIRDS, NO ANIMALS, NO PEOPLE, NO FACES, no plants, no text, no logos, no grid, no checkerboard. Overall aspect ratio 2:1.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-3",
+    "name": "升起的蓝泡泡",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Create one transparent sprite sheet, STRICT 4 columns by 2 rows equal square cells, exactly eight frames row-major order. Eight sequential animation poses of ONLY a cluster of three translucent blue soap bubbles gently rising, changing highlights and spacing, continuous loop. Only bubbles. Soft original preschool gouache storybook style. Same scale, generous empty transparent margin inside each cell. Entire background truly transparent alpha 0, no paper, no fog outside the subject. NO BIRDS, NO ANIMALS, NO PEOPLE, NO FACES, no plants, no text, no logos, no grid, no checkerboard. Overall aspect ratio 2:1.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-4",
+    "name": "蓝色郁金香",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 蓝色郁金香. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-5",
+    "name": "黄色枝头花",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 黄色枝头花. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-6",
+    "name": "紫色枝头花",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 紫色枝头花. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-7",
+    "name": "细叶小草",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 细叶小草. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-8",
+    "name": "发芽的草丛",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 发芽的草丛. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-9",
+    "name": "蓝色蒲公英",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 蓝色蒲公英. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ],
+    "edits": [
+      {
+        "method": "built-in-imagegen",
+        "purpose": "Clean transparent cutouts; remove cream haze and grey halos; preserve 4 by 2 cells and 8 subjects; generous transparent margins; unused final cells transparent."
+      }
+    ]
+  },
+  {
+    "id": "girl-2-10",
+    "name": "爬动的小瓢虫",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case illustration-story. Create a production-ready transparent sprite sheet for an original preschool painting app. One cute natural ladybug, soft rounded gouache children's picture-book style, coral red wing cases with charcoal spots, six tiny legs, small head, anatomically recognizable, no anthropomorphic clothes or face. A STRICT 4 columns x 2 rows equal-cell grid, 8 sequential animation frames read left to right then second row: ladybug walking in place viewed from slightly overhead, legs alternate coherently. Same scale, camera, centered body position and clear padding in every cell, nothing crosses cell boundaries. No grid lines, labels, text, numbers, logos, checkerboard or background. True transparent alpha. Each cell square; sheet overall aspect 2:1. High quality hand-painted illustration, no branded or known fictional character.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-11",
+    "name": "飞舞的蝴蝶",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飞舞的蝴蝶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-12",
+    "name": "低垂的铃兰",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 低垂的铃兰. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-13",
+    "name": "旋转的星星",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 旋转的星星. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-14",
+    "name": "游动的热带鱼",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 游动的热带鱼. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-15",
+    "name": "飘动的水草",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飘动的水草. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-16",
+    "name": "红珊瑚",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 红珊瑚. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-17",
+    "name": "透明泡泡",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 透明泡泡. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-18",
+    "name": "生长的小蘑菇",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 生长的小蘑菇. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-19",
+    "name": "转动的小风车",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 转动的小风车. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-20",
+    "name": "飘落的枫叶",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飘落的枫叶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "girl-2-21",
+    "name": "飞舞的绿叶",
+    "mode": "dynamic",
+    "cols": 4,
+    "rows": 2,
+    "count": 8,
+    "prompt": "Use case: illustration-story. Original production sprite sheet for preschool drawing app. Subject: 飞舞的绿叶. Soft rounded high-quality gouache picture-book illustration, warm gentle colors, recognizable natural anatomy, very appealing for children ages 3-7. Exactly eight sequential coherent animation poses of the named action, with real articulated limb/wing/petal/tail movement rather than merely translating the whole object. A seamless gentle looping action, consistent character identity and scale. STRICT 4 columns x 2 rows of equal square cells, row-major order. Each subject fully inside its own cell, centered with generous transparent margins, aligned consistent scale.  Actual transparent alpha background, no white rectangles, no checkerboard, no grid lines, no labels, no letters or numbers, no watermark. No brand marks or recognizable franchise characters. Natural animal expressions; objects and plants do not have human faces. Overall aspect ratio 4:2.",
+    "category": "fairy",
+    "collection": "girl",
+    "groups": [
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      },
+      {
+        "frames": 8,
+        "frameDuration": 160
+      }
+    ]
+  },
+  {
+    "id": "bg178-parking-comic",
+    "name": "林荫停车场",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 林荫停车场, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book hand-painted comic style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-parking-oil",
+    "name": "屋顶停车场",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 屋顶停车场, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book soft oil painting style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-parking-watercolor",
+    "name": "地下停车库",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 地下停车库, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book watercolor style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-parking-pencil",
+    "name": "海边停车场",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 海边停车场, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book colored pencil style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-parking-realistic",
+    "name": "充电停车场",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 充电停车场, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book natural gouache style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-parking-papercut",
+    "name": "商场停车楼",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 商场停车楼, a friendly generic neighborhood parking area, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book layered paper cut style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-comic",
+    "name": "交付中心外景",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 交付中心外景, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book hand-painted comic style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-oil",
+    "name": "交付大厅",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 交付大厅, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book soft oil painting style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-watercolor",
+    "name": "交车庭院",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 交车庭院, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book watercolor style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-pencil",
+    "name": "待交付停车区",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 待交付停车区, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book colored pencil style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-realistic",
+    "name": "超级充电区",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 超级充电区, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book natural gouache style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  },
+  {
+    "id": "bg178-delivery-papercut",
+    "name": "交车体验道路",
+    "mode": "background",
+    "prompt": "Use case illustration-story. Create one original full-bleed 16:9 landscape background for a preschool painting app. Scene: 交车体验道路, a friendly generic neighborhood vehicle handover and service courtyard, only invented rounded little vehicles with simple generic silhouettes, no resemblance to a specific manufacturer, no logos, no lettering anywhere. Rich gentle children's picture-book layered paper cut style. Clear perspective, trees, warm architecture, keep 40 percent open calm space for children to draw. No people, no faces on objects, no trademarks, no Tesla T, no recognizable branded charging stations or car models, no watermarks, no border, one coherent scene.",
+    "category": "background",
+    "collection": "bg-road"
+  }
+]
