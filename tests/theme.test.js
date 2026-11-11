@@ -7,6 +7,7 @@ const theme = readFileSync(new URL('src/ui/theme-ui.js', root), 'utf8');
 const app = readFileSync(new URL('src/platform/app.js', root), 'utf8');
 const display = readFileSync(new URL('src/ui/display-ui.js', root), 'utf8');
 const classic = readFileSync(new URL('src/ui/classic-ui.js', root), 'utf8');
+const i18n = readFileSync(new URL('src/ui/i18n.js', root), 'utf8');
 const scenes = readFileSync(new URL('src/ui/theme-scenes.js', root), 'utf8');
 const icons = readFileSync(new URL('src/ui/playful-icons.js', root), 'utf8');
 const palette = readFileSync(new URL('src/ui/palette-ui.js', root), 'utf8');
@@ -66,7 +67,9 @@ test('theme and settings entries stay in their intended containers', () => {
   assert.doesNotMatch(theme, /more-dialog \\.more-actions/);
   assert.match(display, /id='display-open'/);
   assert.match(classic, /id='about-open'/);
-  assert.match(classic, /actions\.append\(aboutButton\)/);
+  assert.match(classic, /header\.append\(moreButton,aboutButton\)/);
+  assert.match(classic, /mountLanguageSettings\(actions\)/);
+  assert.match(i18n, /actions\.append\(row\)/);
   assert.match(app, /mountDisplay\(\)/);
 });
 
@@ -79,7 +82,6 @@ test('settings drawer gives every action a shared icon and aligned text slot', (
   assert.match(classic, /rename\.id='rename-open'/);
   assert.match(classic, /settingButton\(paperSize,'paper','画纸尺寸'\)/);
   assert.match(classic, /settingButton\(button,icon,label\)/);
-  assert.match(classic, /settingButton\(aboutButton,'palette','关于'\)/);
   assert.match(classic, /settingButton\(rename,'pencil','给画起名字'\)/);
   assert.match(display, /button\.className='more-action'/);
   assert.match(icons, /image:'<rect/);

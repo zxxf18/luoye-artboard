@@ -101,10 +101,10 @@ export function updatePaperWarp(engine,point){
   const outer=engine.gesture;
   try{for(const target of outer.targets){
     const local=toLayerPoint(point,target.layer),r=(outer.options.radius||120)/target.layer.scale;
-    if(local.x+r<0||local.y+r<0||local.x-r>target.layer.width||local.y-r>target.layer.height){target.last=local;continue;}
+    if(local.x+r<0||local.y+r<0||local.x-r>target.layer.width||local.y-r>target.layer.height){target.last=local;if(target.edit)target.edit.last=local;continue;}
     if(!target.edit){
       const canvas=makeCanvas(target.layer.width,target.layer.height);engine.drawLayer(canvas.getContext('2d'),target.layer);
-      target.edit={kind:'warp',layer:target.layer,options:outer.options,last:target.last,tiles:new Map()};target.layer.canvas=canvas;
+      target.edit={kind:'warp',layer:target.layer,options:outer.options,last:target.last};target.layer.canvas=canvas;
       for(const key of ['frames','sprites','spriteGroups','spriteMask','spriteClip','eraseMask'])delete target.layer[key];
     }
     engine.gesture=target.edit;engine.warpDab(local,{render:false});target.last=local;

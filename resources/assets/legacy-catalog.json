@@ -1915,7 +1915,7 @@
   },
   {
     "id": "girl-1-0",
-    "name": "贝壳与海星",
+    "name": "海螺与海星",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-0-g0.webp",
     "width": 150,
@@ -2184,7 +2184,7 @@
   },
   {
     "id": "girl-1-1",
-    "name": "彩色蝴蝶",
+    "name": "斑纹蝴蝶",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-1-g0.webp",
     "width": 344,
@@ -2381,7 +2381,7 @@
   },
   {
     "id": "girl-1-2",
-    "name": "热带鱼群",
+    "name": "珊瑚礁鱼群",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-2-g0.webp",
     "width": 320,
@@ -2578,7 +2578,7 @@
   },
   {
     "id": "girl-1-3",
-    "name": "缤纷花朵",
+    "name": "花朵万花筒",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-3-g0.webp",
     "width": 348,
@@ -2757,7 +2757,7 @@
   },
   {
     "id": "girl-1-4",
-    "name": "水上小船",
+    "name": "彩帆与快艇",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-4-g0.webp",
     "width": 319,
@@ -2900,7 +2900,7 @@
   },
   {
     "id": "girl-1-5",
-    "name": "飞行小飞机",
+    "name": "飞机大集合",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-5-g0.webp",
     "width": 340,
@@ -3043,7 +3043,7 @@
   },
   {
     "id": "girl-1-6",
-    "name": "林间小鸟",
+    "name": "枝头彩鸟",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-6-g0.webp",
     "width": 361,
@@ -3204,7 +3204,7 @@
   },
   {
     "id": "girl-1-7",
-    "name": "小蜜蜂",
+    "name": "花园昆虫",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-7-g0.webp",
     "width": 281,
@@ -3365,7 +3365,7 @@
   },
   {
     "id": "girl-1-8",
-    "name": "彩色纽扣",
+    "name": "亮晶晶的珠宝",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-8-g0.webp",
     "width": 318,
@@ -3544,7 +3544,7 @@
   },
   {
     "id": "girl-1-9",
-    "name": "糖果小汽车",
+    "name": "糖果色车队",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-9-g0.webp",
     "width": 378,
@@ -3723,7 +3723,7 @@
   },
   {
     "id": "girl-1-10",
-    "name": "扑克牌",
+    "name": "花鸟图案牌",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-10-g0.webp",
     "width": 228,
@@ -4032,7 +4032,7 @@
   },
   {
     "id": "girl-1-11",
-    "name": "枝叶与果实",
+    "name": "枝头鲜果",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-11-g0.webp",
     "width": 176,
@@ -4247,7 +4247,7 @@
   },
   {
     "id": "girl-1-12",
-    "name": "彩色叶片",
+    "name": "枫叶与嫩叶",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-12-g0.webp",
     "width": 389,
@@ -4426,7 +4426,7 @@
   },
   {
     "id": "girl-1-13",
-    "name": "花纹圆章",
+    "name": "彩色浮雕章",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-13-g0.webp",
     "width": 317,
@@ -4587,7 +4587,7 @@
   },
   {
     "id": "girl-1-14",
-    "name": "星座星星贴",
+    "name": "星形动物贴",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-14-g0.webp",
     "width": 323,
@@ -4820,7 +4820,7 @@
   },
   {
     "id": "girl-1-15",
-    "name": "星座小伙伴",
+    "name": "星座图鉴",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-15-g0.webp",
     "width": 276,
@@ -5089,7 +5089,7 @@
   },
   {
     "id": "girl-1-16",
-    "name": "动物和星星",
+    "name": "动物的星星宝藏",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-16-g0.webp",
     "width": 226,
@@ -5340,7 +5340,7 @@
   },
   {
     "id": "girl-1-17",
-    "name": "卷角小羊群",
+    "name": "小羊的奇遇",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-17-g0.webp",
     "width": 282,
@@ -5591,7 +5591,7 @@
   },
   {
     "id": "girl-1-18",
-    "name": "金色麦穗",
+    "name": "麦穗和叶子",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-18-g0.webp",
     "width": 287,
@@ -5842,7 +5842,7 @@
   },
   {
     "id": "girl-1-19",
-    "name": "甜甜草莓",
+    "name": "水果大集合",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-19-g0.webp",
     "width": 242,
@@ -6111,7 +6111,7 @@
   },
   {
     "id": "girl-1-20",
-    "name": "快乐小螃蟹",
+    "name": "海边螃蟹",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-20-g0.webp",
     "width": 414,
@@ -6272,7 +6272,7 @@
   },
   {
     "id": "girl-1-21",
-    "name": "绿叶蔬菜",
+    "name": "菜园里的蔬菜",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-21-g0.webp",
     "width": 316,
@@ -6487,7 +6487,7 @@
   },
   {
     "id": "girl-1-22",
-    "name": "红伞小蘑菇",
+    "name": "彩帽蘑菇",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-22-g0.webp",
     "width": 291,
@@ -6702,7 +6702,7 @@
   },
   {
     "id": "girl-1-23",
-    "name": "小鸟头像",
+    "name": "花间小鸟",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-23-g0.webp",
     "width": 287,
@@ -6917,7 +6917,7 @@
   },
   {
     "id": "girl-1-24",
-    "name": "可爱长耳伙伴",
+    "name": "兔子与野花",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-24-g0.webp",
     "width": 282,
@@ -7132,7 +7132,7 @@
   },
   {
     "id": "girl-1-25",
-    "name": "郁金香花丛",
+    "name": "郁金香与蓝花",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-25-g0.webp",
     "width": 296,
@@ -7293,7 +7293,7 @@
   },
   {
     "id": "girl-1-26",
-    "name": "紫色葡萄",
+    "name": "葡萄和南瓜",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-26-g0.webp",
     "width": 332,
@@ -7454,7 +7454,7 @@
   },
   {
     "id": "girl-1-27",
-    "name": "彩色鹦鹉",
+    "name": "展翅小伙伴",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-27-g0.webp",
     "width": 313,
@@ -7615,7 +7615,7 @@
   },
   {
     "id": "girl-1-28",
-    "name": "惊讶小圆脸",
+    "name": "水边小动物",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-28-g0.webp",
     "width": 314,
@@ -7776,7 +7776,7 @@
   },
   {
     "id": "girl-1-29",
-    "name": "摇摇木马",
+    "name": "木马与小伙伴",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-29-g0.webp",
     "width": 332,
@@ -7937,7 +7937,7 @@
   },
   {
     "id": "girl-1-30",
-    "name": "快乐小龙群",
+    "name": "破壳飞龙",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-30-g0.webp",
     "width": 350,
@@ -8098,7 +8098,7 @@
   },
   {
     "id": "girl-1-31",
-    "name": "秋日落叶",
+    "name": "秋叶标本",
     "category": "fairy",
     "src": "assets/fairy/sprites/girl-1-31-g0.webp",
     "width": 321,
@@ -8223,7 +8223,7 @@
   },
   {
     "id": "girl-2-0",
-    "name": "生长的粉花",
+    "name": "圆瓣粉花",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-0-g0-f7.webp",
     "width": 480,
@@ -8583,7 +8583,7 @@
   },
   {
     "id": "girl-2-1",
-    "name": "摇曳的青草",
+    "name": "尖尖青草",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-1-g0-f7.webp",
     "width": 480,
@@ -8891,7 +8891,7 @@
   },
   {
     "id": "girl-2-2",
-    "name": "轻飘蓝烟",
+    "name": "一缕淡烟",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-2-g0-f7.webp",
     "width": 480,
@@ -9086,7 +9086,7 @@
   },
   {
     "id": "girl-2-3",
-    "name": "升起的蓝泡泡",
+    "name": "一串小蓝泡泡",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-3-g0-f7.webp",
     "width": 480,
@@ -9241,7 +9241,7 @@
   },
   {
     "id": "girl-2-4",
-    "name": "蓝色郁金香",
+    "name": "尖瓣蓝郁金香",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-4-g0-f7.webp",
     "width": 480,
@@ -9456,7 +9456,7 @@
   },
   {
     "id": "girl-2-5",
-    "name": "黄色枝头花",
+    "name": "成簇小黄花",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-5-g0-f7.webp",
     "width": 480,
@@ -9651,7 +9651,7 @@
   },
   {
     "id": "girl-2-6",
-    "name": "紫色枝头花",
+    "name": "一束小紫花",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-6-g0-f7.webp",
     "width": 480,
@@ -9846,7 +9846,7 @@
   },
   {
     "id": "girl-2-7",
-    "name": "细叶小草",
+    "name": "一撮细青草",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-7-g0-f7.webp",
     "width": 480,
@@ -10031,7 +10031,7 @@
   },
   {
     "id": "girl-2-8",
-    "name": "发芽的草丛",
+    "name": "尖叶嫩芽",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-8-g0-f7.webp",
     "width": 480,
@@ -10206,7 +10206,7 @@
   },
   {
     "id": "girl-2-9",
-    "name": "蓝色蒲公英",
+    "name": "白色蒲公英",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-9-g0-f7.webp",
     "width": 480,
@@ -10389,7 +10389,7 @@
   },
   {
     "id": "girl-2-10",
-    "name": "爬动的小瓢虫",
+    "name": "圆点小瓢虫",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-10-g0-f7.webp",
     "width": 480,
@@ -10542,7 +10542,7 @@
   },
   {
     "id": "girl-2-11",
-    "name": "飞舞的蝴蝶",
+    "name": "粉翅小蝴蝶",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-11-g0-f7.webp",
     "width": 480,
@@ -10737,7 +10737,7 @@
   },
   {
     "id": "girl-2-12",
-    "name": "低垂的铃兰",
+    "name": "星形小白花",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-12-g0-f7.webp",
     "width": 480,
@@ -10932,7 +10932,7 @@
   },
   {
     "id": "girl-2-13",
-    "name": "旋转的星星",
+    "name": "金色五角星",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-13-g0-f7.webp",
     "width": 480,
@@ -11087,7 +11087,7 @@
   },
   {
     "id": "girl-2-14",
-    "name": "游动的热带鱼",
+    "name": "橙色条纹鱼",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-14-g0-f7.webp",
     "width": 480,
@@ -11247,7 +11247,7 @@
   },
   {
     "id": "girl-2-15",
-    "name": "飘动的水草",
+    "name": "蓝绿水草",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-15-g0-f7.webp",
     "width": 480,
@@ -11430,7 +11430,7 @@
   },
   {
     "id": "girl-2-16",
-    "name": "红珊瑚",
+    "name": "粉枝珊瑚",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-16-g0-f7.webp",
     "width": 480,
@@ -11585,7 +11585,7 @@
   },
   {
     "id": "girl-2-17",
-    "name": "透明泡泡",
+    "name": "清透小泡泡",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-17-g0-f7.webp",
     "width": 480,
@@ -11746,7 +11746,7 @@
   },
   {
     "id": "girl-2-18",
-    "name": "生长的小蘑菇",
+    "name": "三朵斑点蘑菇",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-18-g0-f7.webp",
     "width": 480,
@@ -11901,7 +11901,7 @@
   },
   {
     "id": "girl-2-19",
-    "name": "转动的小风车",
+    "name": "彩色风车屋",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-19-g0-f7.webp",
     "width": 480,
@@ -12096,7 +12096,7 @@
   },
   {
     "id": "girl-2-20",
-    "name": "飘落的枫叶",
+    "name": "金黄小枫叶",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-20-g0-f7.webp",
     "width": 480,
@@ -12331,7 +12331,7 @@
   },
   {
     "id": "girl-2-21",
-    "name": "飞舞的绿叶",
+    "name": "脉纹小绿叶",
     "category": "fairy",
     "src": "assets/animation/sprites/girl-2-21-g0-f7.webp",
     "width": 480,

@@ -69,7 +69,7 @@ def record_source(asset, record):
     method=record["method"]
     if method=="original-drawing":
         asset["masterSource"]="tools/assets/gallery-frame-art.py"
-        asset["artNote"]="按原相框主题重新绘制，中央为真实透明区。"
+        asset["artNote"]="保留原主题，以原创角饰与边纹重绘，中央完全透明。"
     elif method=="restored-original-v1.4-frame":
         asset["masterSource"]=f"local-only/gallery-quality/masters/{asset['id']}.png"
         asset["artNote"]="恢复带真实透明区的自有绘本相框原画。"
@@ -78,10 +78,12 @@ def record_source(asset, record):
         asset["artNote"]="ImageGen 水彩蓝烟帧表，保留四组配色与八帧循环。"
 
 
-def repair_sprites(catalog, output, masters):
+def repair_sprites(catalog, output, masters, *, frames_only=False):
     records=[]
     for asset in catalog:
         key=asset["id"]
+        if frames_only and key not in DRAWINGS["THEMES"]:
+            continue
         if key in FRAME_RESTORATIONS:
             source=masters/(key+".png")
             image=Image.open(source).convert("RGBA")
@@ -89,7 +91,7 @@ def repair_sprites(catalog, output, masters):
             record={"id":key,"method":"restored-original-v1.4-frame","masterSha256":digest(source)}
         elif key in DRAWINGS["THEMES"]:
             image=DRAWINGS["draw_frame"](key,(asset["width"],asset["height"]))
-            record={"id":key,"method":"original-drawing","theme":DRAWINGS["THEMES"][key][0]}
+            record={"id":key,"method":"original-drawing","theme":DRAWINGS["THEMES"][key][0],"edgeStyle":DRAWINGS["THEMES"][key][1]}
         elif key=="girl-2-2":
             source=masters/(key+".png")
             with Image.open(source) as sheet:
@@ -117,20 +119,16 @@ def digest(path):
         return hashlib.file_digest(f,"sha256").hexdigest()
 
 
-def image_for(asset, output, svg_preview):
+def image_for(asset, output):
     source=output/asset["src"]
     if not source.exists():
         source=PUBLIC/asset["src"]
-    if source.suffix==".svg":
-        if svg_preview is None:
-            raise ValueError("Supply --stop-sign-png with a rasterized copy of the SVG stop sign")
-        source=svg_preview
     with Image.open(source) as image:
         return image.convert("RGBA")
 
 
-def thumbnail(asset, output, svg_preview):
-    image=image_for(asset,output,svg_preview)
+def thumbnail(asset, output):
+    image=image_for(asset,output)
     category=asset["category"]
     if category=="background":
         return image.convert("RGB").resize((384,216),RESAMPLE)
@@ -160,35 +158,39 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--masters",type=Path,default=MASTERS)
-    parser.add_argument("--stop-sign-png",type=Path,required=True)
+    parser.add_argument("--frames-only",action="store_true",help="Redraw numbered frames and their thumbnails only")
     args=parser.parse_args()
-    current,legacy=[json.loads(p.read_text()) for p in (CURRENT,LEGACY)]
+    current=json.loads(CURRENT.read_text())
+    legacy=[] if args.frames_only else json.loads(LEGACY.read_text())
     output=args.output
-    records=repair_sprites(current,output,args.masters)
+    records=repair_sprites(current,output,args.masters,frames_only=args.frames_only)
     by_id={a["id"]:a for a in current}
     for record in records:
         record_source(by_id[record["id"]],record)
     paths=set()
-    entries=current+legacy
+    entries=[by_id[record["id"]] for record in records] if args.frames_only else current+legacy
     for asset in entries:
-        if asset["id"]=="road-stop-sign":
-            asset["thumbnail"]="assets/background/thumbs/road-stop-sign.webp"
         path=asset["thumbnail"]
         if path in paths:
             raise ValueError(f"Shared thumbnail path: {path}")
         paths.add(path)
 
     def render(asset):
-        image=thumbnail(asset,output,args.stop_sign_png)
+        image=thumbnail(asset,output)
         save_webp(image,output/asset["thumbnail"],90)
 
     with ThreadPoolExecutor(max_workers=6) as pool:
         for _ in pool.map(render,entries):
             pass
     (output/"catalog.json").write_text(json.dumps(current,ensure_ascii=False,indent=2)+"\n")
-    (output/"legacy-catalog.json").write_text(json.dumps(legacy,ensure_ascii=False,indent=2)+"\n")
+    if args.frames_only:
+        provenance=ROOT/"tools/assets/manifests/gallery-quality-provenance.json"
+        updated_ids={record["id"] for record in records}
+        records=[record for record in json.loads(provenance.read_text()) if record["id"] not in updated_ids]+records
+    else:
+        (output/"legacy-catalog.json").write_text(json.dumps(legacy,ensure_ascii=False,indent=2)+"\n")
     (output/"gallery-quality-provenance.json").write_text(json.dumps(records,ensure_ascii=False,indent=2)+"\n")
-    print(f"Built {len(entries)} previews and {len(records)} repaired entries")
+    print(f"Built {len(entries)} previews and wrote provenance for {len(records)} entries")
 
 
 if __name__=="__main__":

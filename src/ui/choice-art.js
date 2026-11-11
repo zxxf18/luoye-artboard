@@ -7,6 +7,7 @@ let choiceArtSequence=0;
 export function choiceArt(select, option) {
   const view=document.createElement('span');view.className='choice-picture';view.setAttribute('aria-hidden','true');
   const key=select.id,value=option.value;
+  if(key==='ui-language'){view.innerHTML=playfulIcon('language');return view;}
   if(['paint-source','paper-grain'].includes(key)&&!['color','custom','none'].includes(value)) {
     const image=document.createElement('img');image.src=(window.LUOYE_ASSETS||[]).find(a=>a.id===value)?.thumbnail||'assets/'+value+'.png';image.alt='';view.append(image);return view;
   }
@@ -38,12 +39,22 @@ export function choiceArt(select, option) {
     drawing='<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/><path d="'+shape+'" fill="#fffaf0" stroke="#8d6c55" stroke-width="2" stroke-linejoin="round"/>';
   }
   if(key==='eraser-mode') drawing=value==='shape'?'<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/><path d="m32 13 5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1z" fill="#fffaf0" stroke="#8d6c55" stroke-width="2"/>':`<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/>${value==='rect'?'<rect x="14" y="20" width="35" height="26" rx="2" fill="#fffaf0" stroke="#8d6c55" stroke-dasharray="4 3"/>':`<path d="M15 44 44 19" stroke="#fffaf0" stroke-width="${value==='soft'?22:13}" stroke-linecap="round" opacity="${value==='soft'?.55:1}"/>`}<path d="m30 35 15-17 12 10-15 17Z" fill="#f1a396" stroke="#875944" stroke-width="2"/><path d="m30 35 6-7 12 10-6 7Z" fill="#ffe7bf"/>`;
-  if(key==='fill-mode') {
-    const gradient=value.includes('gradient'),base=value==='all'||value==='gradient',gradientId='choice-fill-'+(++choiceArtSequence);
-    drawing='<defs><linearGradient id="'+gradientId+'"><stop stop-color="#f2b560"/><stop offset="1" stop-color="#e69aab"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="9" fill="#fff7e5" stroke="#d9bb8d" stroke-width="2"/>';
-    drawing+=`<path d="${value==='ellipse'?'M7 48a24 10 0 1 0 48 0 24 10 0 1 0-48 0':base?'M7 9H57V56H7Z':value==='rect'?'M9 39H54V56H9Z':'M8 54V39L21 28 34 39V54Z'}" fill="${gradient?'url(#'+gradientId+')':'#eeb46b'}" stroke="#a76e4d" stroke-width="2"/>`;
-    drawing+='<g transform="translate(28 4) rotate(14 12 17)"><path d="M1 12Q1-5 24 12" stroke="#886348" fill="none" stroke-width="3"/><path d="M0 12h25l-3 25H4Z" fill="#f3b994" stroke="#88583e" stroke-width="2"/><ellipse cx="12" cy="12" rx="13" ry="5" fill="#fff4d8" stroke="#88583e" stroke-width="2"/><ellipse cx="12" cy="12" rx="9" ry="2" fill="#eaa343"/><circle cx="9" cy="23" r="1.5" fill="#79523d"/><circle cx="17" cy="23" r="1.5" fill="#79523d"/><path d="M10 28q3 4 6 0" stroke="#79523d" stroke-width="2" fill="none"/><path d="M-1 14q-10 11-8 19" stroke="#eaa343" stroke-width="5" fill="none"/></g>';
-    if(gradient)drawing+='<path d="M8 57h43m-5-4 5 4-5 4" stroke="#97624a" stroke-width="2"/>';
+  if(key==='fill-mode'){
+    const gradient=value==='gradient'||value==='region-gradient';
+    const fillId='choice-fill-'+(++choiceArtSequence);
+    const paint=gradient?`url(#${fillId})`:'#f7be69';
+    const region='M10 40c3-7 10-9 15-5 5-8 14-7 18-2 5 0 9 5 9 9v7H10Z';
+    const swatches={
+      region:`<path d="${region}" fill="${paint}"/><path d="M33 13c0 5 5 7 5 11a5 5 0 0 1-10 0c0-4 5-7 5-11Z" fill="#f7be69"/>`,
+      all:`<rect x="9" y="10" width="46" height="44" rx="7" fill="${paint}"/><path d="M18 22v-4h5m23 26v4h-5" stroke="#fff6e2" fill="none"/>`,
+      gradient:`<rect x="9" y="10" width="46" height="44" rx="7" fill="${paint}"/>`,
+      'region-gradient':`<path d="M10 42c7-12 16-6 21-18 3-7 19-8 22 4v21H10Z" fill="${paint}"/>`,
+      closed:`<path d="M16 20c9-10 18-6 20 1 11-2 15 5 13 12-2 14-22 20-29 12-7-6-10-18-4-25Z" fill="${paint}"/><path d="M13 15c10-11 23-9 29 1 12 0 16 8 13 19-4 17-27 24-39 15C6 43 3 24 13 15Z" fill="none" stroke-dasharray="3 4"/>`,
+      ellipse:`<ellipse cx="32" cy="32" rx="21" ry="15" fill="${paint}"/><path d="M17 31c1-4 5-7 10-8" stroke="#fff6e2" fill="none"/>`,
+      rect:`<rect x="12" y="17" width="40" height="30" rx="3" fill="${paint}"/><path d="M17 28v-6h8" stroke="#fff6e2" fill="none"/>`
+    };
+    const direction='<path d="M17 40 46 26m-7-3 7 3-3 7" stroke="#714e51" fill="none"/>';
+    drawing=`<defs><linearGradient id="${fillId}" x2="1" y2="0"><stop stop-color="#ffdb83"/><stop offset="1" stop-color="#dc8caa"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="11" fill="#fff9eb" stroke="#d9bb8d"/><g stroke="#805640" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">${swatches[value]||''}${gradient?direction:''}</g>`;
   }
   if(key==='warp-kind')drawing=value==='push'?'<path d="M12 8v48M26 8C6 22 51 34 26 56M40 8v48M54 8v48" fill="none" stroke="#84b5a1" stroke-width="4"/><path d="M13 32h32m-8-9 9 9-9 9" stroke="#aa6347" fill="none" stroke-width="4"/>':'<circle cx="32" cy="32" r="22" fill="#b6daca"/><circle cx="32" cy="32" r="12" fill="#f7d69b"/><path d="m15 15-7-7m0 10V8h10m31 41 7 7m-10 0h10V46" stroke="#92563c" fill="none" stroke-width="4"/>';
   if(key==='board-filter-kind')drawing={ripple:'<ellipse cx="32" cy="32" rx="26" ry="20"/><ellipse cx="32" cy="32" rx="17" ry="12"/><ellipse cx="32" cy="32" rx="7" ry="5"/>',twist:'<path d="M32 31c-18-20-36 16-11 24 37 12 52-41 20-48C16 0 6 13 7 24"/>',waterfall:'<path d="M12 6c-10 18 20 25 0 49M26 6c-10 18 20 25 0 49M40 6c-10 18 20 25 0 49M54 6c-10 18 20 25 0 49"/>','point-light':'<circle cx="32" cy="32" r="10" fill="#f5c570"/><path d="M32 3v10m0 38v10M3 32h10m38 0h10M12 12l7 7m26 26 7 7M12 52l7-7m26-26 7-7"/>','direction-light':'<path d="m9 12 43 5-30 34Z" fill="#ffe5a1"/><path d="m9 12 35 26m-13-1 13 1-4-13"/>'}[value]||'';

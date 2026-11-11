@@ -180,20 +180,6 @@
     "prompt": "Use case: illustration-story. Create ONE original full-bleed 16:9 wide background for a preschool painting application, at highest native landscape resolution. Scene: a generic unbranded delivery center with a short curved test-drive lane beside a glass pavilion, one blue electric car on a distant straight section, broad open approach and low landscaping; exact small  sign. Medium: high-craft layered cut-paper illustration, broad clean colored paper silhouettes, subtle dimensional overlap shadows. Match the polished illustrated backgrounds already used in a children's painting library. Moderate richness: 6-9 recognizable objects or broad environmental groups, 40 percent calm open drawing space. Clear foreground framing, open middle ground, quiet distance. Believable architecture and road perspective, coherent limited natural palette with gentle accents. Each scene is a complete independently composed illustration. No humans, no faces on objects, no busy tiny decoration, no watermark, border, collage, multiple panels or diagram. No lettering, logos, recognizable brand designs or brand-specific charging stations. Never substitute simple SVG-like primitive shapes or a generic vector placeholder. Keep painting texture tasteful and medium-specific."
   },
   {
-    "id": "sign-stop",
-    "name": "停车让行",
-    "category": "sticker",
-    "collection": "road-signs",
-    "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: an upright red octagonal stop sign, white inner border, one large clearly painted white Chinese character 停 centered. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
-  },
-  {
-    "id": "sign-yield",
-    "name": "减速让行",
-    "category": "sticker",
-    "collection": "road-signs",
-    "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: an inverted triangular yield sign with red border, white center and one bold black Chinese character 让. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
-  },
-  {
     "id": "sign-no-entry",
     "name": "禁止驶入",
     "category": "sticker",
@@ -313,13 +299,6 @@
     "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: a circular blue sign with a clear simple white bicycle pictogram. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
   },
   {
-    "id": "sign-parking",
-    "name": "停车场",
-    "category": "sticker",
-    "collection": "road-signs",
-    "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: a blue square parking sign with one large white letter P. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
-  },
-  {
     "id": "sign-crosswalk",
     "name": "人行横道",
     "category": "sticker",
@@ -339,13 +318,6 @@
     "category": "sticker",
     "collection": "road-signs",
     "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: a blue square service sign containing one simple white fuel-pump pictogram. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
-  },
-  {
-    "id": "sign-hospital",
-    "name": "医院",
-    "category": "sticker",
-    "collection": "road-signs",
-    "prompt": "Use case: illustration-story. Asset: ONE isolated traffic-sign sticker for a children's painting library. Subject: a blue square information sign with one large white capital letter H. Mount the sign on one complete short gray metal pole with a small simple rounded foot, all fully visible. Mostly front-facing so its symbol remains exceptionally clear, subtle thickness on one edge. Style: premium hand-painted preschool watercolor and gouache storybook art, natural believable object structure, softly varied pigment, confident refined edges, delicate paper brush texture within the painted object, gentle dimensional shading. Match warm handmade watercolor object stickers such as painted pencils and airships. Sign colors and symbols remain recognizable. No face, anthropomorphism, extra decorations, road scene, surrounding scenery, border, caption, watermark or extra signage. Exactly one complete sign, centered, generous 8 percent margin, square canvas at highest native resolution. Genuinely transparent background, preserve alpha, no white matte and no checkerboard painted into the image. This must be finished raster illustration, not flat SVG clipart or crude primitives."
   },
   {
     "id": "sign-children",

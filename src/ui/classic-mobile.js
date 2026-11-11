@@ -11,6 +11,13 @@ export function mountMobileShelf({ left, subtools, parameter, dock, onNarrowChan
   const mobileButtons=new Map();
   for(const [panel,label,target] of mobileItems){const button=document.createElement('button');button.type='button';button.className='mobile-command';button.dataset.mobilePanel=panel;button.textContent=label;button.setAttribute('aria-controls',target);button.setAttribute('aria-expanded','false');button.onclick=()=>setMobilePanel(panel);mobileCommands.append(button);mobileButtons.set(panel,button);}
   const focusButton=document.createElement('button');focusButton.type='button';focusButton.className='mobile-command mobile-focus-command';focusButton.textContent='画布';focusButton.setAttribute('aria-controls','viewport');focusButton.setAttribute('aria-expanded','true');focusButton.onclick=()=>setMobilePanel('focus');mobileCommands.append(focusButton);mobileButtons.set('focus',focusButton);
+  const darkroomButton=document.createElement('button');
+  darkroomButton.type='button';
+  darkroomButton.className='mobile-command mobile-darkroom-command';
+  darkroomButton.textContent='暗房';
+  darkroomButton.setAttribute('aria-haspopup','dialog');
+  darkroomButton.onclick=()=>document.getElementById('darkroom').click();
+  mobileCommands.append(darkroomButton);
   document.querySelector('.canvas-topbar').append(mobileCommands);
   let narrowWindow=false;
   function syncMobileShelfControls(panel){

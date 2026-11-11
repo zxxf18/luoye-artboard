@@ -15,8 +15,10 @@ const restored=new DrawingEngine(makeCanvas(320,180));await restored.restore(awa
 check(performance.now()-start<3000,'小场景滤镜与保存不会长期阻塞');
 
 e.asyncEffects=true;e.reset(1920,1080);e.paperMode=true;e.addLayer('动态图',solid('#fa5544',200,160),true,{frames:Array.from({length:8},(_,i)=>solid(i%2?'#fa5544':'#55aa44',200,160)),frameDuration:100});
-let ticks=0;const heartbeat=setInterval(()=>ticks++,5);await e.applyBoardFilter('waterfall',{radius:600});clearInterval(heartbeat);
-check(ticks>0,'1080 滤镜分步执行，事件循环仍可响应');check(!e.effectRunning,'效果完成后解除操作状态');
+let responsive=false;
+const heartbeat=setTimeout(()=>{responsive=e.effectRunning;},0);
+await e.applyBoardFilter('waterfall',{radius:600});clearTimeout(heartbeat);
+check(responsive,'1080 滤镜分步执行，事件循环仍可响应');check(!e.effectRunning,'效果完成后解除操作状态');
 const beforeCancel=e.layers.slice(),history=e.history.past.length;const pending=e.applyBoardFilter('twist',{radius:600});setTimeout(()=>{e.effectCancelled=true;},0);let cancelled=false;try{await pending;}catch(error){cancelled=error.name==='AbortError';}
 check(cancelled&&e.layers.every((l,i)=>l===beforeCancel[i])&&e.history.past.length===history,'取消滤镜保留全部原图层和历史');check(!e.effectRunning,'取消后解除操作状态');
 e.activeId=e.layers.at(-1).id;const target=e.active,oldScale=target.scale;e.resizeActiveObject(1.5);check(target.scale===oldScale*1.5&&target.frames.length===8,'动态小伙伴可以缩放且继续播放');e.undo();check(target.scale===oldScale,'动态缩放可以撤销');

@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { bundle, root } from './bundle.mjs';
-import { readAssetCatalog } from './assets/asset-distribution.mjs';
+import { readAssetCatalog, renderRuntimeAssetCatalog } from './assets/asset-distribution.mjs';
 const publicRoot = path.join(root, 'public');
 const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.svg':'image/svg+xml' };
 const gzipAsync = promisify(gzip);
@@ -26,7 +26,7 @@ const server = http.createServer(async (request, response) => {
     if (pathname === '/assets/catalog.js' || pathname === '/assets/catalog.json') {
       const catalog = await readAssetCatalog(root,'community');
       const javascript = pathname.endsWith('.js');
-      await send(request,response,javascript?'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n':JSON.stringify(catalog),{'Content-Type':mime[javascript?'.js':'.json'],'Cache-Control':'no-store'});
+      await send(request,response,javascript?renderRuntimeAssetCatalog(catalog):JSON.stringify(catalog),{'Content-Type':mime[javascript?'.js':'.json'],'Cache-Control':'no-store'});
       return;
     }
     if (pathname === '/tablet.html') {

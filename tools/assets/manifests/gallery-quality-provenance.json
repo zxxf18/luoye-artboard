@@ -10,106 +10,257 @@
     "masterSha256": "2b55a5dc93a14bbbd18a2c5366a943d88c568aaa2620a392796dc16ea15a5256"
   },
   {
-    "id": "frame-2",
-    "method": "original-drawing",
-    "theme": "moon"
-  },
-  {
-    "id": "frame-5",
-    "method": "original-drawing",
-    "theme": "filigree"
-  },
-  {
-    "id": "frame-6",
-    "method": "original-drawing",
-    "theme": "lavender"
-  },
-  {
-    "id": "frame-7",
-    "method": "original-drawing",
-    "theme": "bubble"
-  },
-  {
-    "id": "frame-11",
-    "method": "original-drawing",
-    "theme": "daisy"
-  },
-  {
-    "id": "frame-12",
-    "method": "original-drawing",
-    "theme": "blossom"
-  },
-  {
-    "id": "frame-13",
-    "method": "original-drawing",
-    "theme": "river"
-  },
-  {
-    "id": "frame-17",
-    "method": "original-drawing",
-    "theme": "lamb"
-  },
-  {
-    "id": "frame-18",
-    "method": "original-drawing",
-    "theme": "violet"
-  },
-  {
-    "id": "frame-21",
-    "method": "original-drawing",
-    "theme": "daisy"
-  },
-  {
-    "id": "frame-22",
-    "method": "original-drawing",
-    "theme": "violet"
-  },
-  {
-    "id": "frame-24",
-    "method": "original-drawing",
-    "theme": "winter"
-  },
-  {
-    "id": "frame-25",
-    "method": "original-drawing",
-    "theme": "linen"
-  },
-  {
-    "id": "frame-27",
-    "method": "original-drawing",
-    "theme": "candy"
-  },
-  {
-    "id": "frame-28",
-    "method": "original-drawing",
-    "theme": "meadow"
-  },
-  {
-    "id": "frame-30",
-    "method": "original-drawing",
-    "theme": "river"
-  },
-  {
-    "id": "frame-32",
-    "method": "original-drawing",
-    "theme": "moon"
-  },
-  {
-    "id": "frame-37",
-    "method": "original-drawing",
-    "theme": "filigree"
-  },
-  {
-    "id": "frame-39",
-    "method": "original-drawing",
-    "theme": "meadow"
-  },
-  {
     "id": "girl-2-2",
     "method": "built-in-imagegen",
     "masterSha256": "db1c001dd4ec0d9b2c4a5eb1de32f463e71a78c3aedff1bcc341551bedbfd1d0",
     "prompt": "Use case: illustration-story. A production sprite sheet for a preschool digital painting app. Exactly 8 poses of ONE light blue watercolor smoke wisp, laid out in a strict 4-column by 2-row equal cell grid, read left to right then second row. True transparent background (RGBA), no visible grid or checkerboard, no text, no letters or objects, no drop shadow. Each cell has one connected flowing S-shaped curl made of softly scalloped pale cyan and cornflower-blue gouache swirls, with a recognizably blue, readable semi-opaque core and subtly feathered outer edges. Keep the silhouette fully inside the central 72% width and height of every cell, generous fully transparent gutters. At small thumbnail size the blue curl must still read clearly on a warm cream background. Progress the same puff as it gently curls and rises, with consistent scale and origin, then loops naturally back to pose one. Children’s watercolor storybook, fine dry-brush texture, simple readable shapes, no black outlines. Wide 2:1 canvas.",
     "groups": 4,
     "framesPerGroup": 8
+  },
+  {
+    "id": "frame-0",
+    "method": "original-drawing",
+    "theme": "star",
+    "edgeStyle": "wood"
+  },
+  {
+    "id": "frame-1",
+    "method": "original-drawing",
+    "theme": "lemon",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-2",
+    "method": "original-drawing",
+    "theme": "moon",
+    "edgeStyle": "cloud"
+  },
+  {
+    "id": "frame-3",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "wood"
+  },
+  {
+    "id": "frame-4",
+    "method": "original-drawing",
+    "theme": "river",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-5",
+    "method": "original-drawing",
+    "theme": "filigree",
+    "edgeStyle": "gilt"
+  },
+  {
+    "id": "frame-6",
+    "method": "original-drawing",
+    "theme": "lavender",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-7",
+    "method": "original-drawing",
+    "theme": "bubble",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-8",
+    "method": "original-drawing",
+    "theme": "filigree",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-9",
+    "method": "original-drawing",
+    "theme": "lemon",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-10",
+    "method": "original-drawing",
+    "theme": "daisy",
+    "edgeStyle": "wood"
+  },
+  {
+    "id": "frame-11",
+    "method": "original-drawing",
+    "theme": "daisy",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-12",
+    "method": "original-drawing",
+    "theme": "blossom",
+    "edgeStyle": "stripe"
+  },
+  {
+    "id": "frame-13",
+    "method": "original-drawing",
+    "theme": "river",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-14",
+    "method": "original-drawing",
+    "theme": "sunflower",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-15",
+    "method": "original-drawing",
+    "theme": "blossom",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-16",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-17",
+    "method": "original-drawing",
+    "theme": "lamb",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-18",
+    "method": "original-drawing",
+    "theme": "violet",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-19",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-20",
+    "method": "original-drawing",
+    "theme": "meadow",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-21",
+    "method": "original-drawing",
+    "theme": "daisy",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-22",
+    "method": "original-drawing",
+    "theme": "violet",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-23",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-24",
+    "method": "original-drawing",
+    "theme": "winter",
+    "edgeStyle": "cloud"
+  },
+  {
+    "id": "frame-25",
+    "method": "original-drawing",
+    "theme": "linen",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-26",
+    "method": "original-drawing",
+    "theme": "blossom",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-27",
+    "method": "original-drawing",
+    "theme": "candy",
+    "edgeStyle": "stripe"
+  },
+  {
+    "id": "frame-28",
+    "method": "original-drawing",
+    "theme": "meadow",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-29",
+    "method": "original-drawing",
+    "theme": "filigree",
+    "edgeStyle": "gilt"
+  },
+  {
+    "id": "frame-30",
+    "method": "original-drawing",
+    "theme": "river",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-31",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "gilt"
+  },
+  {
+    "id": "frame-32",
+    "method": "original-drawing",
+    "theme": "moon",
+    "edgeStyle": "wave"
+  },
+  {
+    "id": "frame-33",
+    "method": "original-drawing",
+    "theme": "sunflower",
+    "edgeStyle": "wood"
+  },
+  {
+    "id": "frame-34",
+    "method": "original-drawing",
+    "theme": "lavender",
+    "edgeStyle": "quilt"
+  },
+  {
+    "id": "frame-35",
+    "method": "original-drawing",
+    "theme": "violet",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-36",
+    "method": "original-drawing",
+    "theme": "daisy",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-37",
+    "method": "original-drawing",
+    "theme": "filigree",
+    "edgeStyle": "gilt"
+  },
+  {
+    "id": "frame-38",
+    "method": "original-drawing",
+    "theme": "meadow",
+    "edgeStyle": "tile"
+  },
+  {
+    "id": "frame-39",
+    "method": "original-drawing",
+    "theme": "meadow",
+    "edgeStyle": "vine"
+  },
+  {
+    "id": "frame-40",
+    "method": "original-drawing",
+    "theme": "fern",
+    "edgeStyle": "wood"
   }
 ]

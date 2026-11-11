@@ -4,6 +4,16 @@ import { closedFloodFill, toLayerPoint } from './core.js';
 import { regionMask, combineMasks, blendMasked, applyEffect, rgb } from './pixels.js';
 import { shapePath } from './geometry.js';
 
+// A stamp stroke can revisit a tile many times. Classify it once per gesture.
+function selectionTileCoverage(mask,stride,{x,y,before:{width,height}}){
+  const first=!!mask[y*stride+x];
+  for(let row=0;row<height;row++){
+    const start=(y+row)*stride+x;
+    for(let column=0;column<width;column++)if(!!mask[start+column]!==first)return 'mixed';
+  }
+  return first?'inside':'outside';
+}
+
 export class EditorEngine extends PaintEngine {
   reset(width,height) { this.selection=null;this.selectionCanvas=null;this.selectionBounds=null;super.reset(width,height);this.onSelectionChange?.(); }
   async restore(raw) { const title=await super.restore(raw);this.clearSelection();return title; }
@@ -55,17 +65,41 @@ export class EditorEngine extends PaintEngine {
     const data=c.getContext('2d').getImageData(0,0,layer.width,layer.height).data,mask=new Uint8ClampedArray(layer.width*layer.height);
     for(let i=0;i<mask.length;i++)mask[i]=data[i*4+3]>=128?255:0;return mask;
   }
-  maskTiles(layer,tiles,mask=this.layerMask(layer),bounds=null) {
-    if(!mask)return;const ctx=layer.canvas.getContext('2d');
+  maskTiles(layer,tiles,mask=this.layerMask(layer),bounds=null,coverage=null) {
+    if(!mask)return;
+    const ctx=layer.canvas.getContext('2d');
     for(const t of tiles.values()){
-      if(bounds&&(t.x+t.before.width<bounds.x||t.y+t.before.height<bounds.y||t.x>bounds.x+bounds.width||t.y>bounds.y+bounds.height))continue;
-      const image=ctx.getImageData(t.x,t.y,t.before.width,t.before.height);
-      for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++)if(!mask[(y+t.y)*layer.width+x+t.x]){const i=(y*image.width+x)*4;image.data.set(t.before.data.subarray(i,i+4),i);}
-      ctx.putImageData(image,t.x,t.y);
+      const {x,y,before}=t,{width,height}=before;
+      if(bounds&&(x+width<bounds.x||y+height<bounds.y||x>bounds.x+bounds.width||y>bounds.y+bounds.height))continue;
+      if(coverage){
+        let state=coverage.get(t);
+        if(!state){
+          state=selectionTileCoverage(mask,layer.width,t);
+          coverage.set(t,state);
+        }
+        if(state==='inside')continue;
+        if(state==='outside'){
+          ctx.putImageData(before,x,y);
+          continue;
+        }
+      }
+      const image=ctx.getImageData(x,y,width,height);
+      const source=new Uint32Array(before.data.buffer,before.data.byteOffset,width*height);
+      const target=new Uint32Array(image.data.buffer,image.data.byteOffset,width*height);
+      for(let row=0;row<height;row++){
+        const start=(y+row)*layer.width+x;
+        for(let column=0;column<width;column++){
+          if(!mask[start+column]){
+            const i=row*width+column;
+            target[i]=source[i];
+          }
+        }
+      }
+      ctx.putImageData(image,x,y);
     }
   }
   segment(a,b){super.segment(a,b);const g=this.gesture;if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask);}
-  recordPixels(layer,tiles){this.maskTiles(layer,tiles);super.recordPixels(layer,tiles);}
+  recordPixels(layer,tiles,mask=this.layerMask(layer)){this.maskTiles(layer,tiles,mask);super.recordPixels(layer,tiles);}
   assertRaster(){if(!this.active?.visible)throw new Error('请先显示当前图层。');if(this.active.frames?.length||this.active.sprites)throw new Error('动画层请先定格为图片，再修改像素。');}
   mutatePixels(callback) {
     this.assertRaster();const layer=this.active,ctx=layer.canvas.getContext('2d'),before=ctx.getImageData(0,0,layer.width,layer.height);
@@ -76,9 +110,26 @@ export class EditorEngine extends PaintEngine {
   mutatePaper(callback){return runPaperEffect(this,callback);}
   clearPixels(){this.mutatePixels(data=>{for(let i=3;i<data.length;i+=4)data[i]=0;return data;});}
   applyDarkroom(kind,options={}){if(this.paperMode){const effect=(data,w,h)=>applyEffect(data,w,h,kind,options);effect.spaceIndependent=true;return this.mutatePaper(effect);}this.mutatePixels((data,w,h)=>applyEffect(data,w,h,kind,options));}
-  effectPreview(kind,options={}){
-    if(!this.paperMode)this.assertRaster();const layer=this.paperMode?{canvas:makeCanvas(this.width,this.height),width:this.width,height:this.height}:this.active;if(this.paperMode)this.paint(layer.canvas.getContext('2d'));const fit=Math.min(1,320/Math.max(layer.width,layer.height)),c=makeCanvas(Math.max(1,Math.round(layer.width*fit)),Math.max(1,Math.round(layer.height*fit))),ctx=c.getContext('2d');ctx.drawImage(layer.canvas,0,0,c.width,c.height);
-    const pixels=ctx.getImageData(0,0,c.width,c.height);pixels.data.set(applyEffect(pixels.data,c.width,c.height,kind,options));ctx.putImageData(pixels,0,0);return c;
+  capturePreview(maxSide){
+    if(!this.paperMode)this.assertRaster();
+    const {width,height}=this.paperMode?this:this.active;
+    const scale=Math.min(1,maxSide/Math.max(width,height));
+    const canvas=makeCanvas(Math.max(1,Math.round(width*scale)),Math.max(1,Math.round(height*scale)));
+    const ctx=canvas.getContext('2d');
+    ctx.save();
+    ctx.scale(canvas.width/width,canvas.height/height);
+    if(this.paperMode){
+      ctx.fillStyle='#fff';
+      ctx.fillRect(0,0,width,height);
+      this.drawLayers(ctx);
+    }else this.drawLayer(ctx,this.active);
+    ctx.restore();
+    return {canvas,ctx,source:ctx.getImageData(0,0,canvas.width,canvas.height).data};
+  }
+  effectPreview(kind,options={}, {canvas,ctx,source}=this.capturePreview(320)){
+    const {width,height}=canvas;
+    ctx.putImageData(new ImageData(applyEffect(source,width,height,kind,options),width,height),0,0);
+    return canvas;
   }
   copySelection(cut=false){
     if(!this.paperMode)this.assertRaster();const bounds=this.selection?this.selectionBounds:{x:0,y:0,width:this.width,height:this.height};if(!bounds)throw new Error('选区是空的。');

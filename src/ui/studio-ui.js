@@ -1,4 +1,5 @@
 import { sourceUICopy } from './i18n.js';
+import { choiceChevron } from './playful-icons.js';
 import { makeCanvas } from '../core/engine.js';
 
 const EFFECTS = {
@@ -37,7 +38,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,s
   const dialogs=document.createElement('div');dialogs.innerHTML=`
     <dialog id="selection-dialog"><h2>选区操作</h2><p>所有像素工具都只修改选区内的画面。取消选区后恢复整层编辑。</p><div class="dialog-grid"><button id="select-all">全选</button><button id="select-none">取消选区</button><button id="select-inverse">反选</button><button id="clear-selection-pixels">清除所选像素</button></div><div class="dialog-actions"><button data-close="selection-dialog">完成</button></div></dialog>
     <dialog id="layer-dialog"><h2>管理当前图层</h2><p id="current-layer-name"></p><div class="dialog-grid"><button id="use-stamp">用作印章</button><button id="duplicate-layer">复制图层</button><button id="clear-layer">清空图层</button><button id="merge-bottom">合并到最底层</button><button id="flip-x">水平翻转</button><button id="flip-y">垂直翻转</button><button id="rotate-90">旋转 90°</button><button id="export-layer">输出透明 PNG</button><button id="animation-toggle">播放／暂停动画</button><button id="freeze-animation">将动画定格</button></div><label>图层不透明度 <input id="layer-opacity" type="range" min="0" max="100" value="100"></label><div class="dialog-actions"><button data-close="layer-dialog">完成</button></div></dialog>
-    <dialog id="darkroom-dialog" class="wide-dialog"><button type="button" class="darkroom-close" data-close="darkroom-dialog" aria-label="关闭暗房"><span aria-hidden="true">×</span></button><h2>暗房</h2><nav id="darkroom-categories" class="darkroom-categories" aria-label="暗房七个单元"></nav><p>先在小图上预览，确认后应用到当前图层。画布上有选区时，仅修改选区。</p><div class="effect-layout"><div><label class="effect-kind-caption" for="effect-kind">处理方式</label><select id="effect-kind" data-direct-choice="true" hidden></select><div class="effect-kind-picker"><button type="button" id="effect-kind-button" class="effect-kind-trigger" aria-haspopup="listbox" aria-expanded="false" hidden><span id="effect-kind-name"></span><svg class="animation-select-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span id="effect-kind-single" class="effect-kind-single" hidden></span><div id="effect-kind-list" class="effect-kind-list" role="listbox" aria-label="处理方式" hidden></div></div><div id="effect-parameters"></div></div><div class="effect-preview"><div id="effect-preview"></div></div></div><div id="function-modes" hidden><label>红色函数 <select data-channel="0"><option value="sin">正弦</option><option value="cos">余弦</option><option value="none">不处理</option></select></label><label>绿色函数 <select data-channel="1"><option value="sin">正弦</option><option value="cos">余弦</option><option value="none">不处理</option></select></label><label>蓝色函数 <select data-channel="2"><option value="sin">正弦</option><option value="cos">余弦</option><option value="none">不处理</option></select></label></div><div class="dialog-actions"><button data-close="darkroom-dialog">取消</button><button id="apply-effect" class="primary">应用效果</button></div></dialog>`;
+    <dialog id="darkroom-dialog" class="wide-dialog"><button type="button" class="darkroom-close" data-close="darkroom-dialog" aria-label="关闭暗房"><span aria-hidden="true">×</span></button><h2>暗房</h2><nav id="darkroom-categories" class="darkroom-categories" aria-label="暗房七个单元"></nav><p>先预览效果，再应用到画面。有选区时，仅修改选区。</p><div class="effect-layout"><div><label class="effect-kind-caption" for="effect-kind">处理方式</label><select id="effect-kind" data-direct-choice="true" hidden></select><div class="effect-kind-picker"><button type="button" id="effect-kind-button" class="effect-kind-trigger" aria-haspopup="listbox" aria-expanded="false" hidden><span id="effect-kind-name"></span>${choiceChevron()}</button><span id="effect-kind-single" class="effect-kind-single" hidden></span><div id="effect-kind-list" class="effect-kind-list" role="listbox" aria-label="处理方式" hidden></div></div><div id="effect-parameters"></div></div><div class="effect-preview"><div id="effect-preview"></div></div></div><div id="function-modes" hidden></div><div class="dialog-actions"><button data-close="darkroom-dialog">取消</button><button id="apply-effect" class="primary">应用效果</button></div></dialog>`;
   document.body.append(dialogs);
   dialogs.querySelector('.dialog-actions button[data-close="darkroom-dialog"]')?.setAttribute('type','button');
   const combinations=document.createElement('div');combinations.id='selection-combination';combinations.dataset.option='select';combinations.setAttribute('role','group');combinations.setAttribute('aria-label','圈选组合');combinations.innerHTML='<strong>组合</strong><div class="selection-choices"></div>';
@@ -89,7 +90,7 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,s
       select.hidden=true;
       const picker=document.createElement('div');picker.className='effect-kind-picker function-kind-picker';
       const button=document.createElement('button');button.type='button';button.className='effect-kind-trigger';button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');
-      const name=document.createElement('span');const arrow=document.createElement('span');arrow.className='choice-arrow';arrow.textContent='▾';button.append(name,arrow);
+      const name=document.createElement('span');button.append(name);button.insertAdjacentHTML('beforeend',choiceChevron());
       const list=document.createElement('div');list.className='effect-kind-list';list.setAttribute('role','listbox');list.hidden=true;
       const pickerState={button,list,open:false};
       const sync=()=>{name.textContent=sourceUICopy(select.selectedOptions[0])||'';for(const row of list.children)row.setAttribute('aria-selected',String(row.dataset.value===select.value));};
@@ -99,12 +100,31 @@ export function mountStudio({engine,run,toast,setTool,getTool,getColor,changed,s
     }
   }
   buildFunctionPickers();  function effectOptions(){const p={color:getColor(),background:el('background-color').value};for(const input of el('effect-parameters').querySelectorAll('input'))p[input.dataset.param]=Number(input.value);p.modes=[...el('function-modes').querySelectorAll('select')].map(e=>e.value);p.channels=[{},{},{}];for(const input of el('function-modes').querySelectorAll('input'))p.channels[Number(input.dataset.index)][input.dataset.channelParam]=Number(input.value);p.dx=[p.rx||0,p.gx||0,p.bx||0];p.dy=[p.ry||0,p.gy||0,p.by||0];return p;}
-  function preview(){try{el('effect-preview').replaceChildren(engine.effectPreview(el('effect-kind').value,effectOptions()));}catch(e){el('effect-preview').textContent=e.message;}}
+  const darkroom=el('darkroom-dialog'),previewStage=el('effect-preview');
+  let previewFrame,previewSource;
+  function preview(){
+    if(!darkroom.open||previewFrame!==undefined)return;
+    previewFrame=requestAnimationFrame(()=>{
+      previewFrame=undefined;
+      if(!darkroom.open)return;
+      try{
+        previewSource??=engine.capturePreview(640);
+        engine.effectPreview(el('effect-kind').value,effectOptions(),previewSource);
+        if(previewStage.firstChild!==previewSource.canvas)previewStage.replaceChildren(previewSource.canvas);
+      }catch(e){previewStage.textContent=e.message;}
+    });
+  }
   function parameters(){el('effect-parameters').replaceChildren();for(const [key,label,min,max,value] of EFFECTS[el('effect-kind').value][1]){const row=document.createElement('label');row.textContent=label+' ';const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=value;input.dataset.param=key;input.setAttribute('aria-label',label);const output=document.createElement('output');output.textContent=value;input.oninput=()=>{output.textContent=input.value;preview();};row.append(input,output);el('effect-parameters').append(row);}el('function-modes').hidden=el('effect-kind').value!=='function';syncEffectPicker();preview();}
+  darkroom.addEventListener('close',()=>{
+    if(darkroom.open)return;
+    cancelAnimationFrame(previewFrame);
+    previewFrame=previewSource=undefined;
+    previewStage.replaceChildren();
+  });
   el('effect-kind').onchange=parameters;el('effect-kind-button').onclick=()=>setEffectOpen(!effectPicker.open);window.addEventListener('resize',()=>{positionEffectList();positionFunctionPickers();});el('darkroom-dialog').addEventListener('scroll',()=>{positionEffectList();positionFunctionPickers();},true);el('darkroom-dialog').addEventListener('close',()=>{setEffectOpen(false);closeFunctionPickers();});document.addEventListener('pointerdown',event=>{if(effectPicker.open&&!event.target.closest('.effect-kind-list,#effect-kind-button'))setEffectOpen(false);if(!event.target.closest('.function-kind-picker'))closeFunctionPickers();},true);for(const select of el('function-modes').querySelectorAll('select'))select.onchange=preview;
   for(const input of el('function-modes').querySelectorAll('input'))input.oninput=()=>{input.nextElementSibling.textContent=input.value;preview();};
   selectEffectGroup('色彩调节');
-  action('darkroom',()=>{engine.end();if(!engine.paperMode)engine.assertRaster();parameters();show('darkroom-dialog');});
+  action('darkroom',()=>{engine.end();if(!engine.paperMode)engine.assertRaster();show('darkroom-dialog');parameters();});
   action('apply-effect',async()=>{el('darkroom-dialog').close();try{await engine.applyDarkroom(el('effect-kind').value,effectOptions());toast('暗房效果已应用，可以撤销');}catch(error){toast(error.message||'效果没有应用，请重试。');}});
   el('geometry').onchange=()=>setTool(el('geometry').value);
   for(const [id,shape] of [['selection-rect','rect'],['selection-free','free']])el(id).onclick=()=>{el('selection-shape').value=shape;setTool('select');};

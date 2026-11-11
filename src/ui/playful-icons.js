@@ -15,7 +15,7 @@ const art={
  duotone:'<path d="M11 45h46" stroke="#e77870" stroke-width="14" stroke-linecap="round"/><path d="M11 45h46" stroke="#7c9ed1" stroke-width="7" stroke-linecap="round" opacity=".9"/><circle cx="12" cy="45" r="6" fill="#e77870"/><circle cx="56" cy="45" r="6" fill="#7c9ed1"/>',
  eraser:'<path fill="#ed9aab" d="M8 40 32 12q4-4 8 0l18 17q4 4 0 8L36 60H26z"/><path fill="#fbe4ba" d="m9 39 22 21h9l18-22-25-21z"/><path d="m16 47 13 12m17-1h13"/>',
  stamp:'<path fill="#efb08b" d="M13 24q-4 35 19 37 26 0 20-37z"/><path fill="#e28174" d="m14 24 6-8 5 8 8-10 8 10 7-8 4 8z"/><path fill="#ffdc73" d="m32 30 4 8 9 1-6 6 1 9-8-5-8 4 2-8-6-7 9-1z"/>',
- fill:'<path fill="#a5c9cd" d="m28 13 26 24-22 22L7 36z"/><path d="M23 20V11q0-9 8-6l17 12q8 8 1 18" fill="none"/><path fill="#ffbd67" d="m8 36 24 23 21-21z"/><path fill="#ee8a75" d="M57 42c-12 13-3 19 2 13q4-5-2-13z"/>',
+ fill:'<g transform="rotate(-27 29 32)"><path d="M14 25v-6a13 13 0 0 1 26 0v6" fill="none" stroke-width="3.2"/><path fill="#81b6b0" d="M10 25h37l-4 23q-1 6-7 7H21q-6-1-7-7z"/><path fill="#c4e2d4" stroke="none" d="m15 29 4 18q1 4 5 4h4V29z"/><ellipse cx="28.5" cy="25" rx="19" ry="7" fill="#fff0c4"/><path d="M14 26q15-7 29 0-15 8-29 0Z" fill="#efa651" stroke="none"/></g><path d="M50 30q3 6 6 10 5 8-2 11-8 2-8-5 0-5 4-16Z" fill="#efa651"/><path d="m54 54 2 5 5 2-5 2-2 4-2-4-5-2 5-2Z" fill="#f6d581" stroke="none"/>',
  picker:'<path fill="#c1b0d7" d="m27 27 19-19q5-5 10 1 5 5 0 10L38 38z"/><path fill="#d5edf0" d="m25 24 17 16-24 21-10-1v-9z"/><path d="m14 48 10 10"/><path fill="#ec9778" d="M9 58v-9l10-10 13 12-15 10z"/>',
  line:'<path fill="#ffd47b" d="M9 10h35v34H9z"/><path fill="#a6c8bb" d="m36 29 24 32H16z"/><circle cx="45" cy="22" r="13" fill="#ec9c96"/>',
  text:'<path fill="#f6c875" d="M8 10h49v13H41v37H26V23H8z"/><path d="M13 16h37M31 53h6" stroke="#fff3d2"/>',
@@ -27,6 +27,7 @@ const art={
  clone:'<path fill="#e1b489" d="M14 42h38l6 14H8z"/><path fill="#b5a8cc" d="M22 42v-8q18-5 6-16-6-9 5-13 15-2 15 9 0 9-7 13v15z"/><path d="M10 61h46" stroke="#dc8c79" stroke-width="4"/>',
  fractal:'<path d="M31 61V25M31 50 15 37m16 2 19-19M22 44 8 43m14 1-4-19m22 6 17-1M40 31l-1-18M31 32 20 15m11 11L40 8" stroke="#87ac83" stroke-width="5" fill="none"/><circle cx="31" cy="59" r="3" fill="#e1b578"/>',
  scratch:'<path d="m13 48 30-30 10 10-30 30z" fill="#cbd8dc"/><path d="m17 44 24-24m-18 34 24-24" stroke="#fff7df" stroke-width="3"/><path d="M8 56h48" stroke="#d98b67" stroke-width="5"/><path d="M17 15q15-9 30 0" fill="none" stroke="#efbd62" stroke-width="4"/>',
+ language:'<circle cx="32" cy="32" r="24" fill="#b5dce1"/><path d="M8 32h48M14 19h36M14 45h36" fill="none"/><ellipse cx="32" cy="32" rx="11" ry="24" fill="none"/>',
  palette:'<path fill="#ffdb94" d="M8 25c10-27 54-17 51 10-1 10-14 3-18 12-4 18-27 12-32-2-2-6-3-12-1-20z"/><circle cx="22" cy="22" r="5" fill="#ee8b79"/><circle cx="39" cy="18" r="5" fill="#91bda4"/><circle cx="48" cy="31" r="5" fill="#a6aed7"/><circle cx="18" cy="39" r="5" fill="#efb45b"/><circle cx="32" cy="43" r="5" fill="#fff5dc"/>',
  music:'<path d="M27 45V13l28-6v30" stroke-width="5" fill="none"/><path d="m28 22 26-6" stroke-width="5"/><ellipse cx="18" cy="49" rx="11" ry="8" fill="#e79daf"/><ellipse cx="46" cy="41" rx="11" ry="8" fill="#e79daf"/>',
  pixel:'<rect x="12.5" y="12.5" width="17" height="17" rx="2" fill="#e7b167"/><rect x="34.5" y="12.5" width="17" height="17" rx="2" fill="#78b889"/><rect x="12.5" y="34.5" width="17" height="17" rx="2" fill="#7ca5d0"/><rect x="34.5" y="34.5" width="17" height="17" rx="2" fill="#ed8a75"/><path d="M13 57h38" stroke="#705142" stroke-width="5"/>',
@@ -64,7 +65,10 @@ Object.assign(art,{
 });
 art['grow']='<circle cx="30" cy="28" r="23" fill="#b8d7ae"/><circle cx="23" cy="22" r="2" fill="#705142"/><circle cx="37" cy="22" r="2" fill="#705142"/><path d="M23 31q7 9 14 0" fill="none"/><circle cx="48" cy="48" r="15" fill="#ffe5a4"/><path d="M40 48h16m-8-8v16" stroke-width="4"/>';
 art['shrink']='<circle cx="27" cy="29" r="17" fill="#b8d7ae"/><circle cx="22" cy="24" r="1.6" fill="#705142"/><circle cx="32" cy="24" r="1.6" fill="#705142"/><path d="M22 31q5 6 10 0" fill="none"/><circle cx="48" cy="48" r="15" fill="#f5c1ab"/><path d="M40 48h16" stroke-width="4"/>';
-const faces={eraser:[34,37],fill:[28,39],stamp:[32,43],tube:[33,34],spray:[32,40],text:[33,38],paper:[30,43],folder:[31,42]};
+const faces={eraser:[34,37],stamp:[32,43],tube:[33,34],spray:[32,40],text:[33,38],paper:[30,43],folder:[31,42]};
+export function choiceChevron(){
+  return '<svg class="choice-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
 export function playfulIcon(name){return `<svg viewBox="0 0 68 68" class="playful-icon" aria-hidden="true" focusable="false"><g transform="translate(2 1)" stroke="#705142" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${art[name]||art.palette}${faces[name]?`<g transform="translate(${faces[name][0]} ${faces[name][1]})"><ellipse cx="-5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><ellipse cx="5" cy="0" rx="1.7" ry="2.3" fill="#684438" stroke="none"/><path d="M-4 5q4 5 8 0" stroke-width="1.5" fill="none"/><circle cx="-9" cy="4" r="2.5" fill="#e7978e" stroke="none"/><circle cx="9" cy="4" r="2.5" fill="#e7978e" stroke="none"/></g>`:''}</g></svg>`;}
 
 // The product mark is the illustrated child holding a brush. Each theme has a

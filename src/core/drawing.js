@@ -4,7 +4,7 @@ import { makeCanvas, paintScratchBase, paintScratchCover, scratchStyle } from '.
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
 import { brushSegment, prepareGradientStops } from './brushes.js';
 import { shapeEraserSegment } from './shape-eraser.js';
-import { warpPixels } from './warps.js';
+import { applyWarpRegion, warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
 import { seededRandom } from './pixels.js';
 import { assistCopies, assistGuideLines, assistPointSetCopies, assistPointSets, assistSegmentCopies, assistSegmentCopiesFromGeometry, assistTransformDescriptors, normalizeAssistConfig } from './assist.js';
@@ -222,16 +222,26 @@ export class DrawingEngine extends EditorEngine {
   setPaperTexture(image){this.paperTexture=textureData(image);}
   applyBoardFilter(kind,options={}){
     if(this.paperMode){
-      const effect=(data,w,h,space)=>{const point=space?toLayerPoint({x:options.x??this.width/2,y:options.y??this.height/2},space):null;return warpPixels(data,w,h,{...options,kind,...(point?{x:point.x,y:point.y,radius:(options.radius||120)/space.scale}:{})});};
-      effect.worldRegion={x:options.x??this.width/2,y:options.y??this.height/2,radius:options.radius||120};
+      const center={x:options.x??this.width/2,y:options.y??this.height/2};
+      const radius=options.radius||120;
+      const effect={worldRegion:{...center,radius},applyToCanvas:(ctx,space,mask)=>{
+        const point=space?toLayerPoint(center,space):center;
+        applyWarpRegion(ctx,{...options,...point,kind,radius:radius/(space?.scale||1)},mask);
+      }};
       return this.mutatePaper(effect);
     }
     this.mutatePixels((data,w,h)=>warpPixels(data,w,h,{...options,kind}));
   }
   warpDab(point,{render=true}={}){
     const g=this.gesture,l=g.layer,radius=Math.max(1,Math.min(600,g.options.radius||120))/l.scale,dx=point.x-g.last.x,dy=point.y-g.last.y,ctx=l.canvas.getContext('2d');
-    const pad=Math.ceil(radius+Math.max(Math.abs(dx),Math.abs(dy))+3),x=Math.max(0,Math.floor(point.x-pad)),y=Math.max(0,Math.floor(point.y-pad)),w=Math.min(l.width,x+pad*2)-x,h=Math.min(l.height,y+pad*2)-y;if(w<=0||h<=0){g.last=point;return;}
-    const bounds={x,y,width:w,height:h};this.captureTiles(l,bounds,g.tiles);const before=ctx.getImageData(x,y,w,h);before.data.set(warpPixels(before.data,w,h,{...g.options,kind:g.options.warpKind||'push',x:point.x-x,y:point.y-y,dx,dy,radius}));ctx.putImageData(before,x,y);if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);this.maskTiles(l,g.tiles,g.selectionMask,bounds);g.last=point;if(render)this.render();
+    if(g.tiles){
+      const x=Math.max(0,Math.floor(point.x-radius)),y=Math.max(0,Math.floor(point.y-radius));
+      const w=Math.min(l.width,Math.ceil(point.x+radius)+1)-x,h=Math.min(l.height,Math.ceil(point.y+radius)+1)-y;
+      if(w>0&&h>0)this.captureTiles(l,{x,y,width:w,height:h},g.tiles);
+    }
+    if(g.selectionMask===undefined)g.selectionMask=this.layerMask(l);
+    applyWarpRegion(ctx,{...g.options,kind:g.options.warpKind||'push',x:point.x,y:point.y,dx,dy,radius},g.selectionMask);
+    g.last=point;if(render)this.render();
   }
   reset(w,h){this.path=null;this.cloneSource=null;super.reset(w,h);}
   async restore(raw){const title=await super.restore(raw);this.path=null;this.cloneSource=null;
@@ -286,11 +296,11 @@ export class DrawingEngine extends EditorEngine {
   repeatStamp(force=false){
     const g=this.gesture;
     if(!g || (!force&&performance.now()-(g.lastStampTime||0)<150))return false;
-    if(g.kind==='stamp')this.specialDab(g.last);
+    if(g.kind==='stamp'){this.specialDab(g.last);this.flushStampMask(g);}
     if(g.kind==='fairy-dynamic')this.dynamicDab(g.last);
     return ['stamp','fairy-dynamic'].includes(g.kind);
   }
-  drawLayer(ctx,layer,time,applyMask=true){super.drawLayer(ctx,this.strokePreview?.id===layer.id?this.strokePreview:layer,time,applyMask);}
+  drawLayer(ctx,layer,time,applyMask=true,sample=null){super.drawLayer(ctx,this.strokePreview?.id===layer.id?this.strokePreview:layer,time,applyMask,sample);}
   paint(ctx,guides=false){
     const line=this.gesture;
     if(guides&&line?.kind==='brush-line'){
@@ -392,7 +402,12 @@ export class DrawingEngine extends EditorEngine {
         g.source.getContext('2d').putImageData(source.getContext('2d').getImageData(0,0,source.width,source.height),0,0);
         g.offset={x:this.cloneSource.point.x-local.x,y:this.cloneSource.point.y-local.y};
       }
-      this.gesture=g;this.specialDab(local);return;
+      if(g.kind==='stamp'){
+        g.selectionAtStart=this.selection;
+        const mask=this.layerMask(layer);
+        if(mask)g.stampMask={mask,tiles:new Set(),coverage:new Map()};
+      }
+      this.gesture=g;this.specialDab(local);this.flushStampMask(g);return;
     }
     super.begin(point,options);
   }
@@ -440,23 +455,48 @@ export class DrawingEngine extends EditorEngine {
   specialDab(p){
     const g=this.gesture,o=g.options,ctx=g.layer.canvas.getContext('2d'),size=o.size/g.layer.scale;
     g.lastStampTime=performance.now();
-    const geometry=this.assistGeometry(o,g.layer),points=g.kind==='stamp'?this.assistPoints(p,o,g.layer,true):[p],behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1),index=g.kind==='clone'?0:(behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length),image=g.kind==='clone'?null:this.stampImages[index],scale=image?size/Math.max(image.width,image.height):1,rotation=image?(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180:0,sourceAngle=geometry?.config.mode==='radial'?Math.atan2(p.y-geometry.center.y,p.x-geometry.center.x):0;
-    let maskBounds=null;
-    for(const point of points){
-      const bounds={x:point.x-size*2,y:point.y-size*2,width:size*4,height:size*4};
-      this.captureTiles(g.layer,bounds,g.tiles);ctx.save();ctx.globalAlpha=o.opacity;
-      if(g.kind==='clone'){ctx.beginPath();ctx.arc(point.x,point.y,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(g.source,-g.offset.x,-g.offset.y);}
-      else{
-        const radial=Math.hypot(p.x-geometry?.center.x,p.y-geometry?.center.y)>0.001&&geometry?.config.mode==='radial';
-        const copyAngle=radial?Math.atan2(point.y-geometry.center.y,point.x-geometry.center.x)-sourceAngle:0;
-        const mirrorX=!radial&&(['vertical','four'].includes(geometry?.config.mode))&&Math.abs(point.x-(geometry.center.x*2-p.x))<.001;
-        const mirrorY=!radial&&(['horizontal','four'].includes(geometry?.config.mode))&&Math.abs(point.y-(geometry.center.y*2-p.y))<.001;
-        ctx.translate(point.x,point.y);ctx.scale(mirrorX?-1:1,mirrorY?-1:1);ctx.rotate(rotation+copyAngle);ctx.drawImage(image,-image.width*scale/2,-image.height*scale/2,image.width*scale,image.height*scale);
+    if(g.kind==='clone'){
+      const radius=size/2,pad=radius+2,bounds={x:p.x-pad,y:p.y-pad,width:pad*2,height:pad*2};
+      this.captureTiles(g.layer,bounds,g.tiles);
+      ctx.save();ctx.globalAlpha=o.opacity;
+      ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(g.source,-g.offset.x,-g.offset.y);ctx.restore();
+      if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);
+      this.maskTiles(g.layer,g.tiles,g.selectionMask,bounds);
+    }else{
+      const geometry=this.assistGeometry(o,g.layer),points=this.assistPoints(p,o,g.layer,true);
+      const behavior=this.fairyBehavior,random=g.random??=seededRandom(o.seed??1);
+      const index=behavior?.randomOrder?Math.floor(random()*this.stampImages.length):g.stampIndex%this.stampImages.length;
+      const image=this.stampImages[index],scale=size/Math.max(image.width,image.height);
+      const width=image.width*scale,height=image.height*scale;
+      const rotation=(random()-.5)*2*Math.min(45,Math.max(0,Number(behavior?.rotation)||0))*Math.PI/180;
+      const mode=geometry?.config.mode,center=geometry?.center;
+      const radial=mode==='radial'&&Math.hypot(p.x-center.x,p.y-center.y)>.001;
+      const sourceAngle=radial?Math.atan2(p.y-center.y,p.x-center.x):0;
+      for(const point of points){
+        const angle=rotation+(radial?Math.atan2(point.y-center.y,point.x-center.x)-sourceAngle:0);
+        const mirrorX=!radial&&(mode==='vertical'||mode==='four')&&Math.abs(point.x-(center.x*2-p.x))<.001;
+        const mirrorY=!radial&&(mode==='horizontal'||mode==='four')&&Math.abs(point.y-(center.y*2-p.y))<.001;
+        // Capture the rotated footprint plus room for antialiasing. A broad
+        // square here needlessly turns long drags into full-paper readbacks.
+        const cos=Math.abs(Math.cos(angle)),sin=Math.abs(Math.sin(angle));
+        const padX=(cos*width+sin*height)/2+2,padY=(sin*width+cos*height)/2+2;
+        const bounds={x:point.x-padX,y:point.y-padY,width:padX*2,height:padY*2};
+        this.captureTiles(g.layer,bounds,g.tiles,g.stampMask?.tiles);
+        ctx.save();ctx.globalAlpha=o.opacity;
+        ctx.translate(point.x,point.y);ctx.scale(mirrorX?-1:1,mirrorY?-1:1);ctx.rotate(angle);
+        ctx.drawImage(image,-width/2,-height/2,width,height);ctx.restore();
       }
-      ctx.restore();
-      maskBounds=maskBounds?{x:Math.min(maskBounds.x,bounds.x),y:Math.min(maskBounds.y,bounds.y),width:Math.max(maskBounds.x+maskBounds.width,bounds.x+bounds.width)-Math.min(maskBounds.x,bounds.x),height:Math.max(maskBounds.y+maskBounds.height,bounds.y+bounds.height)-Math.min(maskBounds.y,bounds.y)}:bounds;
+      g.stampIndex++;
+      if(this.fairyMode==='static')this.fairyStampIndex=g.stampIndex;
     }
-    if(g.kind!=='clone')g.stampIndex++;if(g.kind==='stamp'&&this.fairyMode==='static')this.fairyStampIndex=g.stampIndex;if(g.selectionMask===undefined)g.selectionMask=this.layerMask(g.layer);this.maskTiles(g.layer,g.tiles,g.selectionMask,maskBounds);this.render();
+    this.render();
+  }
+  flushStampMask(gesture){
+    const stamp=gesture.stampMask;
+    if(!stamp?.tiles.size)return;
+    this.maskTiles(gesture.layer,stamp.tiles,stamp.mask,null,stamp.coverage);
+    stamp.tiles.clear();
   }
   update(point){
     const g=this.gesture;if(!g){super.update(point);return;}
@@ -468,6 +508,7 @@ export class DrawingEngine extends EditorEngine {
     if(['stamp','clone'].includes(g.kind)){
       const end=toLayerPoint(point,g.layer),dx=end.x-g.last.x,dy=end.y-g.last.y,distance=Math.hypot(dx,dy),spacing=Math.max(.5,g.options.size/g.layer.scale*(g.kind==='clone'?.15:g.options.stampSpacing??.7));
       for(let d=spacing-g.travel;d<=distance;d+=spacing)this.specialDab({x:g.last.x+dx*d/distance,y:g.last.y+dy*d/distance});
+      this.flushStampMask(g);
       g.travel=(g.travel+distance)%spacing;g.last=end;g.end=end;return;
     }
     super.update(point);
@@ -501,7 +542,9 @@ export class DrawingEngine extends EditorEngine {
     else {
       if(g.kind==='brush-line')this.segment(g.start,g.end);
       if(g.kind==='erase-rect'){this.captureTiles(g.layer,{x:0,y:0,width:g.layer.width,height:g.layer.height},g.tiles);g.layer.canvas.getContext('2d').clearRect(Math.min(g.start.x,g.end.x),Math.min(g.start.y,g.end.y),Math.abs(g.end.x-g.start.x),Math.abs(g.end.y-g.start.y));}
-      this.recordPixels(g.layer,g.tiles);
+      // Every touched stamp tile was clipped after its input sample.
+      const alreadyMasked=g.kind==='stamp'&&g.selectionAtStart===this.selection;
+      this.recordPixels(g.layer,g.tiles,alreadyMasked?null:undefined);
     }
     this.gesture=null;this.changed();
   }

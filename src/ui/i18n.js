@@ -81,8 +81,8 @@ export function mountLanguageSettings(actions) {
   const label = document.createElement('span');
   label.textContent = '语言';
   const select = document.createElement('select');
-  select.dataset.directChoice = 'true';
   select.id = 'ui-language';
+  select.setAttribute('aria-label', '语言');
   for (const { id, label: name } of [{ id: 'auto', label: '跟随系统' }, ...localeOptions]) {
     const option = document.createElement('option');
     option.value = id;
@@ -92,7 +92,7 @@ export function mountLanguageSettings(actions) {
   select.value = preference;
   if (!select.value) select.value = preference = 'auto';
   row.append(label, select);
-  actions.before(row);
+  actions.append(row);
 
   // Track the source separately so a language switch can update existing UI
   // without rebuilding controls or reloading the current drawing.

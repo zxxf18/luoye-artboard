@@ -19,5 +19,5 @@ test('gallery opens with colored backgrounds before stickers', () => {
   assert.ok(categoryBlock.indexOf("background: '彩色背景'") < categoryBlock.indexOf("sticker: '小伙伴'"));
   assert.match(app, /let libraryCategory='background'/);
   assert.match(app, /let galleryLocation=\{category:'background'/);
-  assert.match(app, /setColor\(color\); chooseCategory\('background'\)/);
+  assert.match(app, /chooseCategory\(libraryCategory\);/);
 });

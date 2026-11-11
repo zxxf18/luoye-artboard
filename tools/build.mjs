@@ -5,7 +5,7 @@ import { bundle, root } from './bundle.mjs';
 import { canvasAssets } from './canvas-assets.mjs';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { runtimeAssetPaths, includeAsset } from './assets/runtime-assets.mjs';
-import { readAssetCatalog } from './assets/asset-distribution.mjs';
+import { readAssetCatalog, renderRuntimeAssetCatalog } from './assets/asset-distribution.mjs';
 import { addOfflineWebShell, finalizeOfflineWeb, offlineWebFiles } from './offline-web.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
@@ -49,7 +49,7 @@ export async function build({ client = false, distribution = 'community', showPr
       return includeAsset(relative, assetPaths);
     } });
     await writeFile(path.join(output,'assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
-    await writeFile(path.join(output,'assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
+    await writeFile(path.join(output,'assets/catalog.js'),renderRuntimeAssetCatalog(catalog));
     const indexPath = path.join(output, 'index.html');
     const index = await readFile(indexPath, 'utf8');
     const outputIndex = buildIndex(index, { client: client || offlineWeb, distribution, showProjectLink, showDonationLink });

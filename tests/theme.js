@@ -67,8 +67,6 @@ function themedControlResiduals(doc) {
 async function inspectAboutIcon(doc, themeId) {
   const themeDialog = doc.querySelector('#theme-dialog');
   if (themeDialog?.open) themeDialog.close();
-  doc.querySelector('#more-open')?.click();
-  await pause(20);
   const aboutButton = doc.querySelector('#about-open');
   assert(visible(aboutButton), `关于入口不可见：${themeId}`);
   aboutButton.click();
@@ -135,7 +133,18 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     const aboutSignatures = [];
     assert(doc.querySelector('#theme-open')?.closest('.header-actions'), '换肤入口不在主工具栏');
     assert(doc.querySelector('#display-open')?.closest('#more-dialog .more-actions'), '界面大小入口未放入设置');
-    assert(doc.querySelector('#about-open')?.parentElement?.lastElementChild === doc.querySelector('#about-open'), '关于必须是设置最后一项');
+    assert(doc.querySelector('#about-open')?.closest('.header-actions'), '关于入口未放入主工具栏');
+    const settings = doc.querySelector('#more-dialog .more-actions');
+    assert(settings?.lastElementChild?.matches('.language-setting'), '语言必须是设置最后一项');
+    doc.querySelector('#more-open')?.click();
+    const settingsDialog = settings.closest('dialog');
+    assert(settingsDialog.open && settingsDialog.scrollWidth <= settingsDialog.clientWidth, '设置弹窗出现横向滚动');
+    doc.querySelector('#ui-language-choose')?.click();
+    const chooser = doc.querySelector('#choice-dialog');
+    assert(settingsDialog.open && chooser?.open, '语言应使用画板选项弹窗并保留设置');
+    chooser.querySelector('#choice-cancel')?.click();
+    assert(settingsDialog.open && !chooser.open, '取消语言选择应返回设置');
+    doc.querySelector('#more-done')?.click();
     assert(inside(brandIcon, doc.querySelector('.app-header')), '左上应用图标超出顶部栏边界');
     for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {
       const dialog = await pick(doc, id);

@@ -22,13 +22,13 @@ legacy catalogs and repairs damaged frames and the blue-smoke sprite sheet.
 Build the staged output with Pillow installed:
 
 ```sh
-python3 tools/assets/refine-gallery.py --output build/art-quality/staged \
-  --stop-sign-png build/art-quality/stop-sign.png
+python3 tools/assets/refine-gallery.py --output build/art-quality/staged
 ```
 
-The PNG argument is a rasterization of `public/assets/background/stop-sign.svg`.
 The optional `--masters` path defaults to `local-only/gallery-quality/masters/`.
 It contains the two restored Luoye frames and the generated blue-smoke sheet
-listed in `manifests/gallery-quality-provenance.json`. The other replacement
-frames are drawn by `gallery-frame-art.py`. Reapply the gallery pass after
+listed in `manifests/gallery-quality-provenance.json`. The numbered frames are drawn by
+`gallery-frame-art.py`. To regenerate just those sprites and thumbnails, use
+`python3 tools/assets/refine-gallery.py --frames-only --output build/frame-art`.
+Reapply the gallery pass after
 republishing the original store batch to reproduce the latest runtime art.

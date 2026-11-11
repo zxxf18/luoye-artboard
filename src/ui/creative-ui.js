@@ -1,4 +1,3 @@
-import { makeCanvas, loadImage } from '../core/engine.js';
 import { warpPixels } from '../core/warps.js';
 
 export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
@@ -21,10 +20,12 @@ export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
   document.addEventListener('toolchange',showOptions);el('board-filter-kind').onchange=showOptions;showOptions();
   const filterDialog=document.createElement('dialog');filterDialog.className='wide-dialog';filterDialog.innerHTML='<h2>画板滤镜</h2><div class="effect-preview" id="board-preview"></div><p>预览以画纸中心为作用点；也可关闭后点击画纸指定位置。小伙伴会继续播放动画。</p><div class="dialog-actions"><button id="board-cancel">取消</button><button id="board-apply" class="primary">确定</button></div>';document.body.append(filterDialog);
   el('filter-preview-button').onclick=()=>run(()=>{
-    const width=engine.paperMode?engine.width:engine.active.width,height=engine.paperMode?engine.height:engine.active.height,scale=Math.min(1,400/Math.max(width,height));
-    const original=makeCanvas(width,height);if(engine.paperMode)engine.paint(original.getContext('2d'));else engine.drawLayer(original.getContext('2d'),engine.active);
-    const c=makeCanvas(Math.max(1,Math.round(width*scale)),Math.max(1,Math.round(height*scale))),ctx=c.getContext('2d');ctx.drawImage(original,0,0,c.width,c.height);
-    const data=ctx.getImageData(0,0,c.width,c.height);data.data.set(warpPixels(data.data,c.width,c.height,{...options(),kind:options().filterKind,radius:options().radius/(engine.paperMode?1:engine.active.scale)*scale}));ctx.putImageData(data,0,0);el('board-preview').replaceChildren(c);filterDialog.showModal();
+    const width=engine.paperMode?engine.width:engine.active.width;
+    const {canvas,ctx,source}=engine.capturePreview(400),o=options();
+    const result=warpPixels(source,canvas.width,canvas.height,{...o,kind:o.filterKind,radius:o.radius/(engine.paperMode?1:engine.active.scale)*canvas.width/width});
+    ctx.putImageData(new ImageData(result,canvas.width,canvas.height),0,0);
+    el('board-preview').replaceChildren(canvas);
+    filterDialog.showModal();
   });
   el('board-cancel').onclick=()=>filterDialog.close();el('board-apply').onclick=()=>run(async()=>{filterDialog.close();el('tool-settings')?.close();await engine.applyBoardFilter(options().filterKind,{...options(),radius:options().radius/(engine.paperMode?1:engine.active.scale)});});
   return {options,open};

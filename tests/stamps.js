@@ -19,6 +19,19 @@ await check('旋转印章不越过选区，撤销、重做和取消保留像素'
  paint();e.end();const after=e.exportPNG(),pixels=e.active.canvas.getContext('2d').getImageData(64,0,64,128).data;
  assert(pixels.every((v,i)=>i%4!==3||v===0),'印章越过选区');assert(after!==before,'印章未落笔');e.undo();assert(e.exportPNG()===before,'撤销失败');e.redo();assert(e.exportPNG()===after,'重做失败');paint();e.end(true);assert(e.exportPNG()===after,'取消留下痕迹');
 });
+await check('旋转印章在全选时只读回实际落点磁贴',()=>{
+ const e=engine();e.reset(384,384);e.setFairyGroups(groups,'static',{randomOrder:true,rotation:45});e.selectAll();
+ const ctx=e.active.canvas.getContext('2d'),original=ctx.getImageData.bind(ctx),reads=[];
+ ctx.getImageData=(x,y,width,height)=>{reads.push([x,y,width,height]);return original(x,y,width,height);};
+ const before=e.exportPNG();
+ e.begin({x:50,y:60},{tool:'stamp',size:32,stampSpacing:.2,opacity:.6,seed:9});
+ e.update({x:95,y:75});e.repeatStamp(true);e.end();
+ const after=e.exportPNG();
+ assert(reads.length===2&&reads.every(rect=>rect.join()==='0,0,128,128'),'多次落点只需读取一张磁贴的前后快照');
+ assert(after!==before,'印章未落笔');
+ e.undo();assert(e.exportPNG()===before,'紧边界撤销后仍有像素');
+ e.redo();assert(e.exportPNG()===after,'紧边界重做像素不同');
+});
 await check('删除选区录像保留整张画纸上的可编辑内容语义',async()=>{
  const e=engine();e.paperMode=true;e.active.canvas.getContext('2d').fillRect(5,5,80,80);e.addLayer('空图层');e.selectShape('rect',{x:0,y:0},{x:50,y:50});const r=new Recorder(e);await r.start(0,'圈选删除');e.deleteSelection();r.stop();const output=makeCanvas(128,128);await r.replay(0,Infinity,output);assert(output.toDataURL()===e.exportPNG(),'删除回放不同');
 });

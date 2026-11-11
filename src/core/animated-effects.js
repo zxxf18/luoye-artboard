@@ -27,7 +27,9 @@ export function* paperEffectSteps(engine, callback) {
   }
   if(predicted>90000000||predicted+before.reduce((n,l)=>n+engine.layerPixels(l),0)>120000000)throw Error('这幅画的动画比较多，请分几次处理或减少一些重复图案。原画还保留着。');
   function process(canvas,space,mask){
-    const ctx=canvas.getContext('2d'),pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const ctx=canvas.getContext('2d');
+    if(callback.applyToCanvas){callback.applyToCanvas(ctx,space,mask);return canvas;}
+    const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
     const candidate=callback(pixels.data,canvas.width,canvas.height,space);
     ctx.putImageData(new ImageData(blendMasked(pixels.data,candidate,mask),canvas.width,canvas.height),0,0);return canvas;
   }

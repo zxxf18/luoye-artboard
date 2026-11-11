@@ -1698,32 +1698,6 @@
     "masterSource": "local-only/store-art/masters/bg178-delivery-papercut.png"
   },
   {
-    "id": "road-sign-v178-sign-stop",
-    "name": "停车让行",
-    "category": "sticker",
-    "collection": "road-signs",
-    "quality": "preschool-road-sign-v178",
-    "src": "assets/background/sprites/road-sign-v178-sign-stop.webp",
-    "thumbnail": "assets/background/thumbs/road-sign-v178-sign-stop.webp",
-    "width": 1254,
-    "height": 1254,
-    "alphaRequired": true,
-    "artDirection": "独立生成的水粉水彩绘本交通标志；透明背景、完整支架、符号清晰。"
-  },
-  {
-    "id": "road-sign-v178-sign-yield",
-    "name": "减速让行",
-    "category": "sticker",
-    "collection": "road-signs",
-    "quality": "preschool-road-sign-v178",
-    "src": "assets/background/sprites/road-sign-v178-sign-yield.webp",
-    "thumbnail": "assets/background/thumbs/road-sign-v178-sign-yield.webp",
-    "width": 1254,
-    "height": 1254,
-    "alphaRequired": true,
-    "artDirection": "独立生成的水粉水彩绘本交通标志；透明背景、完整支架、符号清晰。"
-  },
-  {
     "id": "road-sign-v178-sign-no-entry",
     "name": "禁止驶入",
     "category": "sticker",
@@ -1945,19 +1919,6 @@
     "artDirection": "独立生成的水粉水彩绘本交通标志；透明背景、完整支架、符号清晰。"
   },
   {
-    "id": "road-sign-v178-sign-parking",
-    "name": "停车场",
-    "category": "sticker",
-    "collection": "road-signs",
-    "quality": "preschool-road-sign-v178",
-    "src": "assets/background/sprites/road-sign-v178-sign-parking.webp",
-    "thumbnail": "assets/background/thumbs/road-sign-v178-sign-parking.webp",
-    "width": 1254,
-    "height": 1254,
-    "alphaRequired": true,
-    "artDirection": "独立生成的水粉水彩绘本交通标志；透明背景、完整支架、符号清晰。"
-  },
-  {
     "id": "road-sign-v178-sign-crosswalk",
     "name": "人行横道",
     "category": "sticker",
@@ -1991,19 +1952,6 @@
     "quality": "preschool-road-sign-v178",
     "src": "assets/background/sprites/road-sign-v178-sign-gas.webp",
     "thumbnail": "assets/background/thumbs/road-sign-v178-sign-gas.webp",
-    "width": 1254,
-    "height": 1254,
-    "alphaRequired": true,
-    "artDirection": "独立生成的水粉水彩绘本交通标志；透明背景、完整支架、符号清晰。"
-  },
-  {
-    "id": "road-sign-v178-sign-hospital",
-    "name": "医院",
-    "category": "sticker",
-    "collection": "road-signs",
-    "quality": "preschool-road-sign-v178",
-    "src": "assets/background/sprites/road-sign-v178-sign-hospital.webp",
-    "thumbnail": "assets/background/thumbs/road-sign-v178-sign-hospital.webp",
     "width": 1254,
     "height": 1254,
     "alphaRequired": true,
@@ -14684,7 +14632,7 @@
   },
   {
     "id": "role3-0",
-    "name": "红菠萝",
+    "name": "菠萝",
     "category": "sticker",
     "src": "assets/misc/sprites/role3-0.webp",
     "width": 951,
@@ -14703,7 +14651,8 @@
     "collection": "role3",
     "thumbnail": "assets/misc/thumbs/role3-0.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/role3-0.png",
+    "masterSource": "local-only/gallery-quality/masters/role3-0.png",
+    "artNote": "以 ImageGen 将果身调整为成熟的金黄色，保留绿色冠叶与透明底。",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
   },
   {
@@ -16124,7 +16073,7 @@
   },
   {
     "id": "role3-60",
-    "name": "植物61",
+    "name": "芒果",
     "category": "sticker",
     "src": "assets/misc/sprites/role3-60.webp",
     "width": 1024,
@@ -16143,8 +16092,9 @@
     "collection": "role3",
     "thumbnail": "assets/misc/thumbs/role3-60.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/role3-60.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "local-only/gallery-quality/masters/role3-60.png",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "ImageGen 原创水粉芒果，整果与切丁果肉，透明背景。"
   },
   {
     "id": "role3-61",
@@ -20008,30 +19958,6 @@
     "thumbnail": "assets/misc/thumbs/role5-43.webp",
     "alphaRequired": true,
     "masterSource": "assets/library-v16/masters/role5-43.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
-  },
-  {
-    "id": "role5-44",
-    "name": "物品45",
-    "category": "sticker",
-    "src": "assets/misc/sprites/role5-44.webp",
-    "width": 1024,
-    "height": 869,
-    "quality": "preschool-natural-v16",
-    "sources": [
-      {
-        "path": "glib/lib/role5/044.jpg",
-        "sha256": "0b88d6088ff2eca63dcb9d5fb41658564d418873f3a3be08ae0e995bd276bd6d"
-      },
-      {
-        "path": "glib/lib/role5/044a.bmp",
-        "sha256": "9a736a1d59fe9f96f1b522927cd09bb54dcc20cd10e87da644d96bbfb8a70c93"
-      }
-    ],
-    "collection": "role5",
-    "thumbnail": "assets/misc/thumbs/role5-44.webp",
-    "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/role5-44.png",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
   },
   {
@@ -24639,8 +24565,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-0.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-0.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-1",
@@ -24663,8 +24590,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-1.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-1.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-2",
@@ -24689,7 +24617,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-3",
@@ -24712,8 +24640,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-3.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-3.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-4",
@@ -24736,8 +24665,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-4.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-4.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-5",
@@ -24762,7 +24692,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-6",
@@ -24787,7 +24717,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-7",
@@ -24812,7 +24742,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-8",
@@ -24835,8 +24765,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-8.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-8.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-9",
@@ -24859,8 +24790,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-9.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-9.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-10",
@@ -24883,8 +24815,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-10.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-10.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-11",
@@ -24909,7 +24842,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-12",
@@ -24934,7 +24867,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-13",
@@ -24959,7 +24892,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-14",
@@ -24982,8 +24915,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-14.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-14.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-15",
@@ -25006,8 +24940,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-15.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-15.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-16",
@@ -25030,8 +24965,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-16.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-16.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-17",
@@ -25056,7 +24992,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-18",
@@ -25081,7 +25017,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-19",
@@ -25104,8 +25040,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-19.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-19.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-20",
@@ -25128,8 +25065,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-20.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-20.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-21",
@@ -25154,7 +25092,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-22",
@@ -25179,7 +25117,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-23",
@@ -25202,8 +25140,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-23.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-23.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-24",
@@ -25228,7 +25167,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-25",
@@ -25253,7 +25192,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-26",
@@ -25276,8 +25215,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-26.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-26.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-27",
@@ -25302,7 +25242,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-28",
@@ -25327,7 +25267,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-29",
@@ -25350,8 +25290,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-29.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-29.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-30",
@@ -25376,7 +25317,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-31",
@@ -25399,8 +25340,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-31.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-31.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-32",
@@ -25425,7 +25367,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-33",
@@ -25448,8 +25390,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-33.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-33.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-34",
@@ -25472,8 +25415,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-34.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-34.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-35",
@@ -25496,8 +25440,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-35.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-35.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-36",
@@ -25520,8 +25465,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-36.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-36.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-37",
@@ -25546,7 +25492,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-38",
@@ -25569,8 +25515,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-38.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-38.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-39",
@@ -25595,7 +25542,7 @@
     "alphaRequired": true,
     "masterSource": "tools/assets/gallery-frame-art.py",
     "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
-    "artNote": "按原相框主题重新绘制，中央为真实透明区。"
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "frame-40",
@@ -25618,8 +25565,9 @@
     "collection": "frame",
     "thumbnail": "assets/frame/thumbs/frame-40.webp",
     "alphaRequired": true,
-    "masterSource": "assets/library-v16/masters/frame-40.png",
-    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。"
+    "masterSource": "tools/assets/gallery-frame-art.py",
+    "artDirection": "自然结构基础上的学龄前水粉水彩绘本风格；禁止动物、植物和物品拟人化。",
+    "artNote": "保留原主题，以原创角饰与边纹重绘，中央完全透明。"
   },
   {
     "id": "paper-0",
@@ -45204,18 +45152,5 @@
     "masterSource": "local-only/store-art/masters/girl-2-21.png",
     "artDirection": "原创幼儿绘本水粉风格；无品牌与知名角色；保持既有主题与分类。",
     "motionProfile": "flutter"
-  },
-  {
-    "id": "road-stop-sign",
-    "name": "停车标志",
-    "category": "sticker",
-    "collection": "road-signs",
-    "src": "assets/background/stop-sign.svg",
-    "thumbnail": "assets/background/thumbs/road-stop-sign.webp",
-    "width": 320,
-    "height": 320,
-    "theme": "road",
-    "quality": "original-vector-v176",
-    "artNote": "独立绘制的道路主题 SVG 素材。"
   }
 ]

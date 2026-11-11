@@ -40,11 +40,10 @@ export async function loadImage(src) {
   if (cached) { imageCache.delete(key); imageCache.set(key, cached); return cached.image; }
   const pending = imageLoads.get(src);
   if (pending) return pending;
-  const source=await bundledImageSource(src);
-  const task = new Promise((resolve, reject) => {
+  const task = bundledImageSource(src).then(source => new Promise((resolve, reject) => {
     const image = new Image(); image.onload = () => resolve(image);
     image.onerror = () => reject(new Error('图片无法读取，请检查素材或文件。')); image.src = globalThis.LUOYE_IMAGE_DATA?.[src] || source;
-  });
+  }));
   imageLoads.set(src, task);
   try { const image = await task; if (key) rememberImage(key, image); return image; }
   finally { if (imageLoads.get(src) === task) imageLoads.delete(src); }
@@ -118,6 +117,10 @@ export function paintScratchCover(ctx, width, height, style = {}) {
   ctx.fillRect(0, 0, width, height);
 }
 
+function hasVisibleAnimation(layer) {
+  return layer.visible && layer.opacity > 0 && (layer.frames?.length || layer.sprites?.length);
+}
+
 export class PaintEngine {
   constructor(canvas, onChange) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.onChange = onChange;
@@ -133,7 +136,7 @@ export class PaintEngine {
     // layer for each frame. This keeps input latency independent of layer count.
     this.gestureComposite=null;
     this.metrics={frames:0,submissionMs:0,maxSubmissionMs:0,staticCacheHits:0,gestureCacheBuilds:0,gestureCacheHits:0,scenePrefixBuilds:0,scenePrefixHits:0,gradientStopCalculations:0};
-    this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(l => l.frames?.length || l.sprites?.length)) this.render(); }, 100);
+    this.animationTimer = setInterval(() => { if (this.playing && this.layers.some(hasVisibleAnimation)) this.render(); }, 100);
     this.reset(1920, 1080);
   }
   reset(width, height) {
@@ -235,12 +238,18 @@ export class PaintEngine {
     let canvas=surfaces[kind];if(!canvas||canvas.width!==layer.width||canvas.height!==layer.height)canvas=surfaces[kind]=makeCanvas(layer.width,layer.height,false);
     const ctx=canvas.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,canvas.width,canvas.height);return canvas;
   }
-  drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0, applyMask=true) {
-    if(applyMask&&layer.eraseMask){const c=this.compositeSurface(layer,'erase'),target=c.getContext('2d');this.drawLayer(target,layer,time,false);target.globalCompositeOperation='destination-in';target.drawImage(layer.eraseMask,0,0);ctx.drawImage(c,0,0);return;}
+  drawLayer(ctx, layer, time = this.playing ? performance.now()-this.animationStart : this.animationTime||0, applyMask=true, sample=null) {
+    if(applyMask&&layer.eraseMask){const c=this.compositeSurface(layer,'erase'),target=c.getContext('2d');this.drawLayer(target,layer,time,false,sample);target.globalCompositeOperation='destination-in';target.drawImage(layer.eraseMask,0,0);ctx.drawImage(c,0,0);return;}
     if(layer.sprites){
       let target=ctx,clipCanvas;
       if(layer.spriteClip){clipCanvas=this.compositeSurface(layer,'clip');target=clipCanvas.getContext('2d');}
       for(const item of layer.sprites){
+        if(sample){
+          // A pick samples a single layer-local pixel. Keep every sprite that
+          // can touch it, including overlapping translucent sprites and masks.
+          const radius=item.size/2+1;
+          if(Math.abs(item.x-sample.x-.5)>radius||Math.abs(item.y-sample.y-.5)>radius)continue;
+        }
         const group=layer.spriteGroups[item.group],elapsed=Math.max(0,time-(item._birth||0)),frame=group.frames[Math.floor(elapsed/group.frameDuration)%group.frames.length],scale=item.size/Math.max(frame.width,frame.height);
         const source=sizedStampFrame(frame,item.size*Math.max(1,layer.scale));
         const alpha=target.globalAlpha;target.globalAlpha=alpha*item.opacity;target.drawImage(source,item.x-frame.width*scale/2,item.y-frame.height*scale/2,frame.width*scale,frame.height*scale);target.globalAlpha=alpha;
@@ -259,7 +268,7 @@ export class PaintEngine {
     // read for every layer, this keeps animated layers on the same frame when
     // a scene contains many of them.
     const frameTime=this.playing?performance.now()-this.animationStart:this.animationTime||0;
-    const hasPlayingDynamic=this.playing&&this.layers.some(layer=>layer.visible&&(layer.frames?.length||layer.sprites?.length));
+    const hasPlayingDynamic=this.playing&&this.layers.some(hasVisibleAnimation);
     if (!this.gesture&&!hasPlayingDynamic) {
       if (!this.staticComposite || this.staticComposite.width!==this.width || this.staticComposite.height!==this.height) {
         // This surface is only drawn from and then blitted to the visible
@@ -317,8 +326,7 @@ export class PaintEngine {
     if (!hasPlayingDynamic) return null;
     let first = -1;
     for (let index = 0; index < this.layers.length; index++) {
-      const layer = this.layers[index];
-      if (layer.frames?.length || layer.sprites) { first = index; break; }
+      if (hasVisibleAnimation(this.layers[index])) { first = index; break; }
     }
     if (first <= 0) return null;
     if (gestureLayer && this.layers.indexOf(gestureLayer) < first) return null;
@@ -347,24 +355,38 @@ export class PaintEngine {
     return { x: (event.clientX - r.left) * this.width / r.width, y: (event.clientY - r.top) * this.height / r.height };
   }
   pickLayer(point) {
-    for(const layer of [...this.layers].reverse()){
+    let ctx;
+    for(let i=this.layers.length-1;i>=0;i--){
+      const layer=this.layers[i];
       if(!layer.visible||layer.opacity===0||layer.role==='background')continue;
       const local=toLayerPoint(point,layer),x=Math.floor(local.x),y=Math.floor(local.y);
       if(x<0||y<0||x>=layer.width||y>=layer.height)continue;
-      const sample=makeCanvas(1,1),ctx=sample.getContext('2d');ctx.translate(-x,-y);this.drawLayer(ctx,layer);
+      const canvas=layer.canvas;
+      if(!layer.sprites&&!layer.frames?.length&&!layer.eraseMask&&canvas.width===layer.width&&canvas.height===layer.height){
+        if(canvas.getContext('2d').getImageData(x,y,1,1).data[3]>8)return layer;
+        continue;
+      }
+      ctx??=makeCanvas(1,1).getContext('2d');
+      ctx.clearRect(0,0,1,1);
+      ctx.save();ctx.translate(-x,-y);this.drawLayer(ctx,layer,undefined,true,{x,y});ctx.restore();
       if(ctx.getImageData(0,0,1,1).data[3]>8)return layer;
     }
     return null;
   }
-  captureTiles(layer, bounds, tiles) {
+  captureTiles(layer, bounds, tiles, touched = null) {
     const context = layer.canvas.getContext('2d'), size = 128;
     const minX = Math.max(0, Math.floor(bounds.x / size)), minY = Math.max(0, Math.floor(bounds.y / size));
     const maxX = Math.min(Math.ceil(layer.width / size) - 1, Math.floor((bounds.x + bounds.width) / size));
     const maxY = Math.min(Math.ceil(layer.height / size) - 1, Math.floor((bounds.y + bounds.height) / size));
     for (let y = minY; y <= maxY; y++) for (let x = minX; x <= maxX; x++) {
-      const key = `${x}:${y}`; if (tiles.has(key)) continue;
-      const left = x * size, top = y * size;
-      tiles.set(key, { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) });
+      const key = `${x}:${y}`;
+      let tile = tiles.get(key);
+      if (!tile) {
+        const left = x * size, top = y * size;
+        tile = { x: left, y: top, before: context.getImageData(left, top, Math.min(size, layer.width - left), Math.min(size, layer.height - top)) };
+        tiles.set(key, tile);
+      }
+      touched?.add(tile);
     }
   }
   captureTilesMany(layer, boundsList, tiles) {
