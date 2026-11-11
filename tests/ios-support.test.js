@@ -14,6 +14,8 @@ test('iOS target declares a universal iPhone/iPad, landscape-first app', async (
   const index = await read('public/index.html');
   assert.doesNotMatch(plist, /UIDeviceFamily|MinimumOSVersion/);
   assert.equal([...project.matchAll(/TARGETED_DEVICE_FAMILY = "1,2";/g)].length, 2);
+  assert.equal([...project.matchAll(/SDKROOT = iphoneos;/g)].length, 2);
+  assert.equal([...project.matchAll(/SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";/g)].length, 2);
   assert.equal([...project.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = 16\.0;/g)].length, 2);
   assert.match(build, /'TARGETED_DEVICE_FAMILY=2', 'IPHONEOS_DEPLOYMENT_TARGET=15\.8'/);
   assert.match(plist, /UISupportedInterfaceOrientations/);
