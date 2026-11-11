@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readAssetCatalog } from './assets/asset-distribution.mjs';
+import { root } from './bundle.mjs';
 
 const { chromium, webkit } = createRequire(import.meta.url)(process.env.LUOYE_PLAYWRIGHT || 'playwright');
 const url = process.argv[2] || 'http://127.0.0.1:4173/offline/';
 const browsers = { chromium, webkit };
 const names = process.argv.slice(3);
-const expectedAssetCount = Number(process.env.LUOYE_OFFLINE_ASSET_COUNT || 1582);
+const expectedAssetCount = Number(process.env.LUOYE_OFFLINE_ASSET_COUNT || (await readAssetCatalog(root, 'store')).length);
 const ipad = {
   viewport: { width: 1024, height: 768 },
+  locale: 'zh-CN',
   hasTouch: true,
   userAgent: 'Mozilla/5.0 (iPad; CPU OS 15_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1',
 };
