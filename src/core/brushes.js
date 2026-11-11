@@ -70,6 +70,117 @@ function gradientRibbon(ctx,a,b,width,stops,alpha){
   ribbon(ctx,a,b,width,segmentGradient(ctx,a,b,stops),alpha);
 }
 
+function watercolorGradient(ctx, color, width, center = 0) {
+  const gradient = ctx.createRadialGradient(center, center, width * .08, center, center, width * .52);
+  gradient.addColorStop(0, color + '10');
+  gradient.addColorStop(.55, color + '25');
+  gradient.addColorStop(.83, color + '18');
+  gradient.addColorStop(1, color + '00');
+  return gradient;
+}
+
+function watercolorTip(ctx, gesture, width, color, alpha) {
+  if (width < 8) return null;
+  const owner = gesture.brushTipOwner ?? gesture;
+  const cached = owner.watercolorTip;
+  if (cached?.width === width && cached.color === color && cached.alpha === alpha) return cached.canvas;
+  const canvas = ctx.canvas?.ownerDocument?.createElement('canvas');
+  if (!canvas) return null;
+  // The pigment profile stays constant through a stroke. Rasterize it once
+  // instead of evaluating a new radial gradient for every dab and every axis.
+  // Keep tiny tips on the exact gradient path. Bound the raster for very
+  // large layer-space tips because the profile scales smoothly.
+  const resolution = Math.min(512, Math.ceil(width * 1.08));
+  canvas.width = resolution; canvas.height = resolution;
+  const tip = canvas.getContext('2d', { willReadFrequently: true });
+  if (!tip) return null;
+  tip.globalAlpha = alpha;
+  tip.fillStyle = watercolorGradient(tip, color, Math.min(width, resolution / 1.08), resolution / 2);
+  tip.fillRect(0, 0, resolution, resolution);
+  owner.watercolorTip = { width, color, alpha, canvas };
+  return canvas;
+}
+
+function walkDabs(gesture, a, b, spacing, dab) {
+  if (!gesture.dabStarted) {
+    dab(a.x, a.y);
+    gesture.dabStarted = true;
+    gesture.dabTravel = 0;
+  }
+  const dx = b.x - a.x, dy = b.y - a.y, distance = Math.hypot(dx, dy);
+  if (!distance) return;
+  const travel = gesture.dabTravel || 0;
+  for (let d = spacing - travel; d <= distance; d += spacing) dab(a.x + dx * d / distance, a.y + dy * d / distance);
+  gesture.dabTravel = (travel + distance) % spacing;
+}
+
+function particleDab(ctx, brush, width, alpha, random) {
+  if (brush === 'spray') {
+    for (let i = 0; i < 22; i++) {
+      const angle = random() * brushTau;
+      const radius = Math.min(width * .78, Math.sqrt(-2 * Math.log(Math.max(.00001, random()))) * width * .19);
+      const size = Math.max(.55, width * (.006 + random() * .014));
+      ctx.globalAlpha = alpha * (.25 + random() * .65);
+      ctx.beginPath(); ctx.arc(Math.cos(angle) * radius, Math.sin(angle) * radius, size, 0, brushTau); ctx.fill();
+    }
+    return;
+  }
+  const chalk = brush === 'chalk', count = Math.min(180, Math.max(40, Math.round(width * (chalk ? 1.4 : 3))));
+  for (let i = 0; i < count; i++) {
+    const angle = random() * brushTau, radius = Math.sqrt(random()) * width * (chalk ? .58 : .48);
+    const size = Math.max(.6, width * (chalk ? .045 : .025) * (.5 + random()));
+    ctx.globalAlpha = alpha * (chalk ? .12 + random() * .3 : .45 + random() * .5);
+    ctx.fillRect(Math.cos(angle) * radius, Math.sin(angle) * radius, size * (chalk ? 1 : 2), size);
+  }
+}
+
+function drawSharedParticles(ctx, gesture, a, b, width, ratio, random, paint) {
+  const owner = gesture.particleScratchOwner;
+  // Large particle tips draw fewer dabs. Compositing their mostly empty
+  // rotated footprints can cost more than drawing the particles directly.
+  const maxWidth = gesture.options.brush === 'spray' ? 40 : 64;
+  if (!owner || width > maxWidth || !random.snapshot) return false;
+  const seed = random.snapshot(), started = gesture.dabStarted, travel = gesture.dabTravel;
+  let scratch = owner.particleScratch;
+  if (scratch?.a === a && scratch.b === b) {
+    // Copies can diverge when a segment sits on an axis and identical copies
+    // are omitted. Keep their individual random and spacing state.
+    if (scratch.seed !== seed || scratch.started !== started || scratch.travel !== travel) return false;
+    random.restore(scratch.nextSeed);
+    gesture.dabStarted = scratch.nextStarted;
+    gesture.dabTravel = scratch.nextTravel;
+  } else {
+    const pad = Math.ceil(width * Math.max(1, ratio)) + 2;
+    const left = Math.floor(Math.min(a.x, b.x)) - pad, top = Math.floor(Math.min(a.y, b.y)) - pad;
+    const w = Math.ceil(Math.max(a.x, b.x)) + pad - left, h = Math.ceil(Math.max(a.y, b.y)) + pad - top;
+    const maxPixels = 512 * 512;
+    if (w > 1024 || h > 1024 || w * h > maxPixels) return false;
+    if (!scratch || scratch.canvas.width < w || scratch.canvas.height < h) {
+      const canvas = ctx.canvas?.ownerDocument?.createElement('canvas');
+      if (!canvas) return false;
+      // Grow in blocks so changes in segment length reuse the same surface.
+      const growW = Math.max(scratch?.canvas.width || 0, Math.ceil(w / 32) * 32);
+      const growH = Math.max(scratch?.canvas.height || 0, Math.ceil(h / 32) * 32);
+      canvas.width = growW * growH <= maxPixels ? growW : w;
+      canvas.height = growW * growH <= maxPixels ? growH : h;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      if (!context) return false;
+      scratch = owner.particleScratch = { canvas, context };
+    }
+    const { context } = scratch;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, w, h);
+    context.setTransform(1, 0, 0, 1, -left, -top);
+    context.fillStyle = gesture.options.color;
+    paint(context);
+    Object.assign(scratch, { a, b, seed, started, travel, left, top, w, h,
+      nextSeed: random.snapshot(), nextStarted: gesture.dabStarted, nextTravel: gesture.dabTravel });
+  }
+  ctx.globalAlpha = 1;
+  ctx.drawImage(scratch.canvas, 0, 0, scratch.w, scratch.h, scratch.left, scratch.top, scratch.w, scratch.h);
+  return true;
+}
+
 /**
  * Prepare the nine colour stops used by a gradient brush. The source segment
  * is shared by all assisted copies, while each copy still creates its own
@@ -101,7 +212,7 @@ export function prepareGradientStops(gesture, a, b) {
   return stops;
 }
 
-export function brushSegment(ctx,g,a,b,gradientStops=null){
+export function brushSegment(ctx,g,a,b,gradientStops=null,dabTransform=null){
   const o=g.options;
   // One pipeline: pen brushes always use the current segmenter; eraser and
   // scratch share the destination-out ribbon below.
@@ -127,22 +238,41 @@ export function brushSegment(ctx,g,a,b,gradientStops=null){
     g.bristles ||= Array.from({length:17},()=>({offset:(random()-.5)*w,thickness:w*(.014+random()*.028),alpha:.22+random()*.55}));
     for(const bristle of g.bristles)ribbon(ctx,a,b,Math.max(.6,bristle.thickness),o.color,alpha*bristle.alpha,bristle.offset*.25*ratio,bristle.offset*ratio);
   }else{
-    const spacing=Math.max(.8,w*(key==='effect'?.85:key==='spray'?.12:.12)),distance=Math.hypot(b.x-a.x,b.y-a.y);
-    const dab=(x,y)=>{ctx.save();ctx.translate(x,y);ctx.scale(ratio,1);ctx.globalAlpha=alpha;
+    const spacing=Math.max(.8,w*(key==='effect'?.85:.12));
+    const tip=key==='watercolor'?watercolorTip(ctx,g,w,o.color,alpha):null;
+    if(tip)ctx.globalAlpha=1;
+    if(key==='spray'||key==='crayon'||key==='chalk'){
+      const paint=target=>walkDabs(g,a,b,spacing,(x,y)=>{
+        target.save();target.translate(x,y);target.scale(ratio,1);
+        particleDab(target,key,w,alpha,random);
+        target.restore();
+      });
+      if(!drawSharedParticles(ctx,g,a,b,w,ratio,random,paint))paint(ctx);
+      ctx.restore();
+      return;
+    }
+    const dab=(x,y)=>{
+      if(dabTransform){
+        const {a,b,c,d,e,f}=dabTransform;
+        const sourceX=x;
+        x=a*sourceX+c*y+e;
+        y=b*sourceX+d*y+f;
+      }
+      if(tip){
+        const width=Math.ceil(w*1.08);
+        if(ratio===1&&width===tip.width)ctx.drawImage(tip,Math.round(x-width/2),Math.round(y-width/2));
+        else ctx.drawImage(tip,x-width*ratio/2,y-width/2,width*ratio,width);
+        return;
+      }
+      ctx.save();ctx.translate(x,y);ctx.scale(ratio,1);ctx.globalAlpha=alpha;
       if(key==='watercolor'){
-        const gradient=ctx.createRadialGradient(0,0,w*.08,0,0,w*.52);gradient.addColorStop(0,o.color+'10');gradient.addColorStop(.55,o.color+'25');gradient.addColorStop(.83,o.color+'18');gradient.addColorStop(1,o.color+'00');ctx.fillStyle=gradient;ctx.fillRect(-w*.54,-w*.54,w*1.08,w*1.08);
-      }else if(key==='spray'){
-        for(let i=0;i<22;i++){const angle=random()*brushTau,r=Math.min(w*.78,Math.sqrt(-2*Math.log(Math.max(.00001,random())))*w*.19),size=Math.max(.55,w*(.006+random()*.014));ctx.globalAlpha=alpha*(.25+random()*.65);ctx.beginPath();ctx.arc(Math.cos(angle)*r,Math.sin(angle)*r,size,0,brushTau);ctx.fill();}
-      }else if(key==='crayon'||key==='chalk'){
-        const chalk=key==='chalk',count=Math.min(180,Math.max(40,Math.round(w*(chalk?1.4:3))));
-        for(let i=0;i<count;i++){const angle=random()*brushTau,r=Math.sqrt(random())*w*(chalk?.58:.48),size=Math.max(.6,w*(chalk?.045:.025)*(0.5+random()));ctx.globalAlpha=alpha*(chalk?.12+random()*.3:.45+random()*.5);ctx.fillRect(Math.cos(angle)*r,Math.sin(angle)*r,size*(chalk?1:2),size);}
+        ctx.fillStyle=watercolorGradient(ctx,o.color,w);ctx.fillRect(-w*.54,-w*.54,w*1.08,w*1.08);
       }else if(key==='effect'){
         ctx.rotate((random()-.5)*.7);ctx.fillStyle=o.color;ctx.strokeStyle=tint(o.color,-.2);ctx.lineWidth=Math.max(.8,w*.028);starPath(ctx,w*.45);ctx.fill();ctx.stroke();ctx.fillStyle=tint(o.color,.8);starPath(ctx,w*.2);ctx.fill();ctx.fillStyle=o.color;ctx.globalAlpha=alpha*.6;ctx.beginPath();ctx.arc(w*.5,-w*.38,w*.055,0,brushTau);ctx.fill();
       }
       ctx.restore();
     };
-    if(!g.dabStarted){dab(a.x,a.y);g.dabStarted=true;g.dabTravel=0;}
-    if(distance){for(let d=spacing-(g.dabTravel||0);d<=distance;d+=spacing)dab(a.x+(b.x-a.x)*d/distance,a.y+(b.y-a.y)*d/distance);g.dabTravel=((g.dabTravel||0)+distance)%spacing;}
+    walkDabs(g,a,b,spacing,dab);
   }
   ctx.restore();
 }

@@ -8,6 +8,7 @@ export const offlineWebFiles = new Set([workerFile, 'offline-web.js', 'offline-w
 
 export function addOfflineWebShell(html) {
   return html.replace('<html', '<html data-offline-web="true"')
+    .replace('initial-scale=1,viewport-fit=cover', 'initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover')
     .replace('</head>', `  <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="branding/app-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">

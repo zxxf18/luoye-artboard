@@ -3,7 +3,10 @@ const clampByte = value => Math.max(0, Math.min(255, Math.round(value)));
 export const rgb = hex => hex.match(/[a-f\d]{2}/gi).map(n => parseInt(n, 16));
 export function seededRandom(seed = 1) {
   let state = seed >>> 0;
-  return () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296; };
+  const next = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296; };
+  next.snapshot = () => state;
+  next.restore = value => { state = value >>> 0; };
+  return next;
 }
 export function regionMask(data, width, height, x, y, tolerance = 20) {
   const mask = new Uint8ClampedArray(width * height), seen = new Uint8Array(mask.length);

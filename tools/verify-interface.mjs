@@ -88,10 +88,26 @@ try{
  });
  await check('32 项暗房效果及三个色彩函数通道',async()=>{
   await tool('pen');await draw();const before=await picture(),groups=await page.locator('#darkroom-categories button').allTextContents();let count=0;
-  for(const group of groups){await click('#darkroom');await page.locator('#darkroom-categories button').filter({hasText:group}).click();const values=await page.locator('#effect-kind option').evaluateAll(es=>es.map(e=>e.value));await click('#darkroom-dialog [data-close]');
-   for(const value of values){await click('#darkroom');await page.locator('#darkroom-categories button').filter({hasText:group}).click();await choose('effect-kind',value);
-    if(value==='function'){const ids=await page.locator('#function-modes select').evaluateAll(es=>es.map(e=>e.id));for(const id of ids)for(const v of ['cos','none','sin'])await choose(id,v);}
-    await click('#apply-effect');await click('#undo');assert.equal(await picture(),before,value+' undo');count++;
+  const dialog=page.locator('#darkroom-dialog'),painting=page.locator('#painting');
+  assert(await dialog.isHidden(),'暗房关闭时应从页面隐藏');
+  const canvasBounds=await painting.boundingBox();
+  for(const group of groups){await click('#darkroom');await page.locator('#darkroom-categories button').filter({hasText:group}).click();const values=await page.locator('#effect-kind option').evaluateAll(es=>es.map(e=>e.value));await click('#darkroom-dialog .darkroom-close');
+   assert(await dialog.isHidden(),'取消后应隐藏暗房');
+   for(const value of values){await click('#darkroom');await page.locator('#darkroom-categories button').filter({hasText:group}).click();
+    if(values.length>1){await click('#effect-kind-button');await click(`#effect-kind-list [data-value="${value}"]`);}
+    if(value==='function'){
+     for(const picker of await page.locator('#function-modes .function-kind-picker').all()){
+      for(const mode of ['cos','none','sin']){
+       await picker.locator('.effect-kind-trigger').click();await idle();
+       await picker.locator(`[data-value="${mode}"]`).click();await idle();
+      }
+     }
+    }
+    assert(await page.locator('#darkroom-dialog:modal').isVisible(),'暗房应以模态弹窗打开');
+    await click('#apply-effect');
+    assert(await dialog.isHidden(),value+' 应用后应隐藏暗房');
+    assert.deepEqual(await painting.boundingBox(),canvasBounds,value+' 应用后应保持画板位置和尺寸');
+    await click('#undo');assert.equal(await picture(),before,value+' undo');count++;
    }
   }assert.equal(count,32);
  });

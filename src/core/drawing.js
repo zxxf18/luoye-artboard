@@ -183,13 +183,20 @@ export class DrawingEngine extends EditorEngine {
     // surface. Sharing it avoids allocating one large temporary canvas per
     // symmetry axis when a thick textured brush is used.
     copy.materialScratchOwner = gesture;
+    copy.brushTipOwner = gesture;
+    if (geometry.transforms.length >= 4 && copy.options.strokeMode !== 'line' && !texture && !paper) copy.particleScratchOwner = gesture;
     if (gradientStops) copy.gradientStops = gradientStops;
     copy.start = start; copy.end = end;
-    ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
-    if (copy.options.tool === 'eraser' && copy.options.eraserMode === 'shape') shapeEraserSegment(ctx, copy, start, end);
-    else if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
-    else brushSegment(ctx, copy, start, end, gradientStops);
-    ctx.restore();
+    if (copy.options.tool === 'pen' && copy.options.brush === 'watercolor' && (copy.options.ratio ?? 1) === 1 && !texture && !paper) {
+      // A circular tip needs its position transformed, but never its pixels.
+      brushSegment(ctx, copy, start, end, gradientStops, geometry.transforms[transformIndex]);
+    } else {
+      ctx.save();this.applyAssistTransform(ctx, geometry, transformIndex);
+      if (copy.options.tool === 'eraser' && copy.options.eraserMode === 'shape') shapeEraserSegment(ctx, copy, start, end);
+      else if (texture || paper) materialSegment(ctx, copy, start, end, texture, paper, bounds);
+      else brushSegment(ctx, copy, start, end, gradientStops);
+      ctx.restore();
+    }
     for (const key of ['bristles', 'random', 'dabStarted', 'dabTravel', 'gradientOrigin', 'shapeStarted', 'shapeTravel']) if (copy[key] !== undefined) state[key] = copy[key];
   }
   drawAssistGuides(ctx) {

@@ -7,6 +7,12 @@
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   const appleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (appleMobile) {
+    // Older iPadOS can still start a page pinch despite the viewport hint.
+    for (const type of ['gesturestart', 'gesturechange']) {
+      document.addEventListener(type, event => event.preventDefault(), { passive: false });
+    }
+  }
   let hideTimer;
   let updateVersion;
   let dismissedVersion;

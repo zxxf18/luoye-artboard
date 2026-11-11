@@ -30,6 +30,48 @@
 }
 #offline-setup[hidden], #offline-setup [hidden] { display: none; }
 
+html[data-offline-web] .playroom .swatch[aria-pressed="true"] {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-accent, #874b30);
+}
+
+html[data-offline-web] .playroom .swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-surface, #fff8e7), 0 0 0 4px var(--theme-accent, #874b30);
+}
+
+/* Lock the document on a touchscreen. The app's internal scroll areas and
+   the drawing surface keep their own scrolling and pointer behavior. */
+@media (any-pointer: coarse) {
+  html[data-offline-web],
+  html[data-offline-web] body.playroom {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html[data-offline-web] body.playroom {
+    position: fixed;
+    inset: 0;
+  }
+
+  html[data-offline-web] .playroom img {
+    -webkit-user-drag: none;
+  }
+
+  html[data-offline-web] .playroom :is(input:not([type]), input[type="text"], input[type="number"], input[type="search"], select, textarea, [contenteditable="true"]) {
+    font-size: max(16px, 1em);
+    -webkit-touch-callout: default;
+  }
+}
+
 /* Keep the wide tablet workspace in CSS pixels so the paper grows without
    shrinking the entire interface, including its touch targets. */
 @media (orientation: landscape) and (min-width: 861px) and (min-height: 601px) and (any-pointer: coarse) {
@@ -152,12 +194,24 @@
     display: none;
   }
 
-  html[data-offline-web] .playroom :is(.left-actions, .classic-colors) button {
+  html[data-offline-web] .playroom :is(.left-actions button, .classic-colors button, .subtool-box > .primary) {
     padding-inline: 2px;
   }
 
-  html[data-offline-web] .playroom .left-actions button {
-    font-size: 13px;
+  html[data-offline-web] .playroom :is(.left-actions button, .subtool-box > .primary) {
+    gap: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  html[data-offline-web] .playroom :is(.left-actions button, .subtool-box > .primary) .playful-icon {
+    width: 24px;
+    height: 24px;
+    flex: none;
+  }
+
+  html[data-offline-web] .playroom :is(.header-actions button, .workspace-tabs button, .zoom-controls button, .tool-pager button, .quick-palette button, .classic-parameters button) {
+    touch-action: none;
   }
 
   html[data-offline-web] .playroom .classic-left .subtool-card,
