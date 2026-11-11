@@ -33,7 +33,9 @@ npm run build:web:offline -- --store
 
 将 `build/offline/` 发布到固定的 HTTPS 地址，例如 `https://board.yebuluo.com.cn/offline/`。仓库的 Docker 构建会把上线版离线包放到 `/offline/`。静态托管时保留目录结构，让 `/offline/` 返回 `index.html`，缺失的资源返回 404，并允许浏览器重新验证 `offline-worker.js` 与 `offline-precache.json`。本机可用 `python3 -m http.server 4173 --bind 127.0.0.1 --directory build` 在 `http://127.0.0.1:4173/offline/` 验证。
 
-在 iPad 的 Safari 里打开离线版地址，点「分享 → 添加到主屏幕」。从主屏幕打开画板，保持联网直到显示「离线下载完成」。此后断网也能打开画板，草稿会自动保存在设备上，重开时可继续。Safari 普通网页、离线版和原生版的草稿分别保存，迁移作品时用「保存作品」导出工程文件，再在目标版本打开。离线包首次下载约 203 MiB，已安装的旧版会保留到新版下载完成并关闭旧页面。
+在 iPad 的 Safari 里打开离线版地址，点「分享 → 添加到主屏幕」。从主屏幕打开画板，保持联网直到显示「离线下载完成」。此后断网也能打开画板，草稿会自动保存在设备上，重开时可继续。Safari 普通网页、离线版和原生版的草稿分别保存，迁移作品时用「保存作品」导出工程文件，再在目标版本打开。
+
+上线版首次下载约 472 MiB，包含全部 1,582 项上线素材。不加 `--store` 可构建包含旧版素材的完整社区版。已有安装会继续使用旧资源，下载完成后退出并重开即可切换到新版。后续更新复用内容一致的资源。
 
 已安装 Playwright 时，可以运行 `node tools/offline-web-acceptance.mjs` 验证本地构建的离线重开、素材读取、触控画画与草稿恢复。
 

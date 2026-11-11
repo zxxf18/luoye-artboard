@@ -6,7 +6,6 @@ import { canvasAssets } from './canvas-assets.mjs';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { runtimeAssetPaths, includeAsset } from './assets/runtime-assets.mjs';
 import { readAssetCatalog } from './assets/asset-distribution.mjs';
-import { selectOfflineAssets } from './assets/offline-assets.mjs';
 import { addOfflineWebShell, finalizeOfflineWeb, offlineWebFiles } from './offline-web.mjs';
 import { Script } from 'node:vm';
 import {mkdirSync,rmSync} from 'node:fs';
@@ -41,10 +40,8 @@ export async function build({ client = false, distribution = 'community', showPr
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
     const publicRoot = path.join(root, 'public');
-    const fullCatalog = await readAssetCatalog(root, distribution);
-    const pack = offlineWeb ? await selectOfflineAssets(fullCatalog, publicRoot) : null;
-    const catalog = pack?.catalog ?? fullCatalog;
-    const assetPaths = pack?.paths ?? runtimeAssetPaths(catalog);
+    const catalog = await readAssetCatalog(root, distribution);
+    const assetPaths = runtimeAssetPaths(catalog);
     await cp(publicRoot, output, { recursive: true, filter: source => {
       const relative = path.relative(publicRoot, source).split(path.sep).join('/');
       if (offlineWebFiles.has(relative)) return offlineWeb;

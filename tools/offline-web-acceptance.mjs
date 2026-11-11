@@ -5,6 +5,7 @@ const { chromium, webkit } = createRequire(import.meta.url)(process.env.LUOYE_PL
 const url = process.argv[2] || 'http://127.0.0.1:4173/offline/';
 const browsers = { chromium, webkit };
 const names = process.argv.slice(3);
+const expectedAssetCount = Number(process.env.LUOYE_OFFLINE_ASSET_COUNT || 1582);
 const ipad = {
   viewport: { width: 1024, height: 768 },
   hasTouch: true,
@@ -35,6 +36,7 @@ for (const name of names.length ? names : Object.keys(browsers)) {
     watchErrors(page);
     await page.goto(new URL('?launch=home', url).href);
     await page.locator('body[data-app-ready="true"]').waitFor();
+    assert.equal(await page.evaluate(() => window.LUOYE_ASSETS.length), expectedAssetCount, 'offline catalog has the complete edition');
     const offlineBackgrounds = await page.evaluate(async () => {
       const backgrounds = window.LUOYE_ASSETS.filter(item => item.category === 'background' && !item.coloring);
       const samples = new Map(backgrounds.map(item => [item.collection, item.src]));
