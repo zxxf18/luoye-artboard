@@ -16,3 +16,18 @@ Source-only metadata is separated from public files:
 - `local-only/store-art/masters/`: local generation masters, excluded from Git and distributables.
 
 `tools/assets/asset-distribution.mjs` is the shared catalog loader for builds and the development server. Store builds contain 1582 current entries; community builds contain 1693 entries including the 111 previous entries. Neither build ships the source archive index. Docker explicitly uses the store distribution.
+
+## Classic interface drawings
+
+The 283 JPEGs under `public/classic/` are Luoye drawings made from vector-style
+shapes, gradients and procedural patterns. They cover the desk (1), board (7),
+parameter panels (40), dialogs (30), paint tools (99), recent tools (88) and
+toolbar (18). The filenames, image dimensions and sprite-sheet divisions
+preserve the existing asset layout.
+
+Run `python3 tools/prepare-interface.py` with Pillow installed to regenerate
+the drawings, or pass `--output <directory>` to render a separate copy. The
+renderer uses its own drawing instructions and the dimensions in
+`tools/assets/manifests/classic-redraw.json`. The manifest also records the
+previous files' SHA-256 hashes for checking the replacement. The renderer does
+not load the previous artwork or the reference application's files.
