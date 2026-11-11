@@ -77,6 +77,8 @@ The current interface is in Simplified Chinese. See the [build guide](docs/build
 
 ## Build from source
 
+For a Home Screen app that can reopen offline on iPadOS 15.8 or later, see the [offline Web App build and installation](docs/build.md#offline-web-app).
+
 ### Editor and tests
 
 - Node.js 22 or later

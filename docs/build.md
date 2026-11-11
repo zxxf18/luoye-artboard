@@ -29,6 +29,16 @@ npm run build:mac
 
 The current target is Apple Silicon (arm64), macOS 13+. The application is written to `build/releases/v<version>/落叶画板.app`, where `<version>` comes from `package.json`. The build script removes the website usage tracker from the bundled client and does not sign or notarize the app.
 
+## Offline Web App
+
+```sh
+npm run build:web:offline -- --store
+```
+
+Serve `build/offline/` at a stable HTTPS URL. The Docker build serves the store edition at `/offline/`. A static host should serve `index.html` for that directory, return 404 for missing files, and allow revalidation of `offline-worker.js` and `offline-precache.json`. For a local preview, run `python3 -m http.server 4173 --bind 127.0.0.1 --directory build` and open `http://127.0.0.1:4173/offline/`.
+
+On iPadOS 15.8 or later, open the HTTPS URL in Safari and use Share → Add to Home Screen. Launch from the new icon and stay online until the download completes. The board and local drafts work offline after that. Drafts are separate from the online site and the native app. To move a work in progress, export the project file and open it in the other edition.
+
 ## iPhone / iPad app
 
 The iOS target uses UIKit and WKWebView. The default build supports iOS and iPadOS 16 or later. The iPad-only build supports iPadOS 15.8 or later. A full Xcode installation is required because Command Line Tools do not include the iOS SDK or Simulator:

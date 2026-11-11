@@ -10,11 +10,12 @@ COPY tools ./tools
 COPY resources ./resources
 COPY LICENSE ./LICENSE
 
-RUN npm run build -- --store
+RUN npm run build -- --store && npm run build:web:offline -- --store
 
 FROM nginx:1.27-alpine AS runtime
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /workspace/dist/ /usr/share/nginx/html/
+COPY --from=build /workspace/build/offline/ /usr/share/nginx/html/offline/
 
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

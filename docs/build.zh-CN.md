@@ -25,6 +25,18 @@ npm run build:mac
 
 当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本会移除网站统计脚本，但不执行应用签名和公证。
 
+## 离线 Web App
+
+```sh
+npm run build:web:offline -- --store
+```
+
+将 `build/offline/` 发布到固定的 HTTPS 地址，例如 `https://board.yebuluo.com.cn/offline/`。仓库的 Docker 构建会把上线版离线包放到 `/offline/`。静态托管时保留目录结构，让 `/offline/` 返回 `index.html`，缺失的资源返回 404，并允许浏览器重新验证 `offline-worker.js` 与 `offline-precache.json`。本机可用 `python3 -m http.server 4173 --bind 127.0.0.1 --directory build` 在 `http://127.0.0.1:4173/offline/` 验证。
+
+在 iPad 的 Safari 里打开离线版地址，点「分享 → 添加到主屏幕」。从主屏幕打开画板，保持联网直到显示「离线下载完成」。此后断网也能打开画板，草稿会自动保存在设备上，重开时可继续。Safari 普通网页、离线版和原生版的草稿分别保存，迁移作品时用「保存作品」导出工程文件，再在目标版本打开。离线包首次下载约 203 MiB，已安装的旧版会保留到新版下载完成并关闭旧页面。
+
+已安装 Playwright 时，可以运行 `node tools/offline-web-acceptance.mjs` 验证本地构建的离线重开、素材读取、触控画画与草稿恢复。
+
 ## iPhone / iPad 应用
 
 iOS 版本使用 UIKit + WKWebView。默认构建支持 iOS/iPadOS 16+，iPad 专用构建支持 iPadOS 15.8+。构建需要完整 Xcode（Command Line Tools 不包含 iOS SDK 和模拟器）：

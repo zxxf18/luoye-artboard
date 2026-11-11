@@ -3,7 +3,7 @@ import { DrawingEngine } from '../core/drawing.js';
 import { mountGallery } from '../ui/gallery-ui.js';
 import { mountRecorder } from '../ui/recorder-ui.js';
 import { mountStudio } from '../ui/studio-ui.js';
-import { deliverFile, preserveDraft, writeDraft, discardCurrentDraft, galleryList, galleryPut, galleryGet, galleryTrash, writeRecordingDraft, readRecordingDraft } from '../platform/storage.js';
+import { deliverFile, preserveDraft, readDraftsForRecovery, writeDraft, discardCurrentDraft, galleryList, galleryPut, galleryGet, galleryTrash, writeRecordingDraft, readRecordingDraft } from '../platform/storage.js';
 import { createCloseFlow } from './close-flow.js';
 import { playfulIcon } from '../ui/playful-icons.js';
 import { icon } from '../ui/icons.js';
@@ -27,6 +27,7 @@ import { placeFractal } from '../ui/fractal-studio.js';
 
 const $ = id => document.getElementById(id);
 const catalog = window.LUOYE_ASSETS || [];
+const offlineWeb = document.documentElement.dataset.offlineWeb === 'true';
 const toolNames = { pen: '画笔', eraser: '橡皮', fill: '油漆桶', move: '移动', line: '直线', rect: '矩形', ellipse: '椭圆', text: '文字', picker: '取色', select:'选区', magic:'魔力棒', stamp:'印章', clone:'仿制',warp:'变形','board-filter':'滤镜',fractal:'分形',scratch:'刮刮画' };
 const hints = { pen: '拿起画笔，把想象画下来', eraser: '轻轻擦掉画纸上已有的笔迹', fill: '点击画纸里想填色的区域', move: '拖动当前图层，让小伙伴找到好位置', line: '按住拖动，画一条直线', rect: '按住拖动，画一个矩形', ellipse: '按住拖动，画一个椭圆', text: '点击画面，放上想说的话', picker: '点击画面，取一个喜欢的颜色', scratch:'在覆盖层上刮开一条路，看看下面的颜色' };
 // 后续版本补充的工具提示并入同一张表，避免在 setTool 里层层覆盖。
@@ -130,16 +131,29 @@ function changed() {
   assist?.sync?.();
   revision++; renderLayers(); layoutCanvas(); $('canvas-size').textContent = `${engine.width} × ${engine.height}`;
   if (!ready) return;
-  $('save-state').textContent = '正在保留这份想象…'; clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {draftInFlight=(async () => {
+  $('save-state').textContent = '正在保留这份想象…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDraft, 900);
+}
+function saveDraft() {
+  clearTimeout(saveTimer);
+  saveTimer = undefined;
+  draftInFlight = (async () => {
     const savingRevision = revision;
     try {
       const project = await engine.serialize($('title').value.trim() || '我的画');
       if(savingRevision!==revision)return;
       await writeDraft(project, { revision: savingRevision });
-      if (savingRevision === revision) $('save-state').textContent = '草稿已临时保留 · 退出时可选择保存';
-    } catch { $('save-state').textContent = '草稿未保存，请手动保存作品'; }
-  })();}, 900);
+      if (savingRevision === revision) {
+        $('save-state').textContent = offlineWeb ? '草稿已保存在此设备' : '草稿已临时保留 · 退出时可选择保存';
+      }
+    } catch {
+      if (savingRevision === revision) {
+        $('save-state').textContent = '草稿未保存，请手动保存作品';
+        if (offlineWeb) toast($('save-state').textContent);
+      }
+    }
+  })();
 }
 let libraryCategory='background',libraryCollection='',libraryPage=0,selectedAssetId='',selectedFairyAsset=null;
 let galleryLocation={category:'background',collection:'',page:0};
@@ -219,7 +233,11 @@ for (const [category, name] of Object.entries({ background: '彩色背景', stic
 engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('background');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed, storage:{deliverFile} });
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画',storage:{deliverFile,writeRecordingDraft,readRecordingDraft}});
-const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;},storage:{galleryList,galleryPut,galleryGet,galleryTrash,writeDraft}});
+const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;},storage:{
+  galleryList,galleryPut,galleryGet,galleryTrash,
+  // The offline edition uses one revision sequence for automatic and gallery writes.
+  writeDraft: offlineWeb ? project => writeDraft(project, { revision }) : writeDraft,
+}});
 applyStoredTheme();
 const animationEditor = mountAnimationEditor({
   setTool,
@@ -381,7 +399,19 @@ $('painting').addEventListener('pointerrawupdate', event => {
 $('painting').addEventListener('pointerleave',()=>previewStamp(null));
 function finishPointer(event) { if(event.pointerId!==pointerId)return;clearInterval(stampTimer);if(event.type==='pointercancel')warpFrameQueue.cancel();else warpFrameQueue.flush();try{engine.end(event.type==='pointercancel');}finally{pointerId=undefined;} }
 $('painting').addEventListener('pointerup',finishPointer);$('painting').addEventListener('pointercancel',finishPointer);$('painting').addEventListener('lostpointercapture',finishPointer);
-window.addEventListener('blur',()=>{clearInterval(stampTimer);warpFrameQueue.cancel();engine.end();pointerId=undefined;previewStamp(null);});
+function finishDrawingInput() {
+  clearInterval(stampTimer);
+  warpFrameQueue.cancel();
+  engine.end();
+  pointerId = undefined;
+  previewStamp(null);
+}
+window.addEventListener('blur', finishDrawingInput);
+if (offlineWeb) document.addEventListener('visibilitychange', () => {
+  if (!ready || document.visibilityState !== 'hidden') return;
+  finishDrawingInput();
+  if (saveTimer !== undefined) saveDraft();
+});
 document.addEventListener('keydown', event => {
   if (busy || event.target.matches('input,select,textarea') || document.querySelector('dialog[open]')) return;
   if(event.key==='Enter'&&engine.path){event.preventDefault();run(()=>engine.finishPath());return;}
@@ -422,10 +452,49 @@ window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); poin
 // This prevents the old shell from flashing during module startup while keeping
 // its dimensions available for the first layout pass.
 document.body.classList.remove('app-loading');
-async function initialize() {
-  try {
+async function recoverOfflineDraft() {
+  const drafts = await readDraftsForRecovery();
+  if (!drafts.length) return;
+  const dialog = $('recover-dialog');
+  const choice = await new Promise(resolve => {
+    dialog.addEventListener('close', () => resolve(dialog.returnValue), { once: true });
+    showDialog('recover-dialog');
+  });
+  if (choice !== 'recover') {
     await preserveDraft();
-  } catch { $('save-state').textContent = '可手动保存作品'; }
+    toast('旧草稿已保留在「我的画夹」');
+    return;
+  }
+  for (const [index, project] of drafts.entries()) {
+    try {
+      $('title').value = await engine.restore(project);
+      $('save-state').textContent = index === 0 ? '已恢复上次草稿' : '已恢复上一份可用草稿';
+      toast($('save-state').textContent);
+      return;
+    } catch {
+      // A damaged newer copy can still leave a usable older snapshot.
+    }
+  }
+  $('save-state').textContent = '无法恢复草稿，原稿已保留';
+  toast($('save-state').textContent);
+}
+async function initialize() {
+  if (offlineWeb) {
+    busy = true;
+    document.body.setAttribute('aria-busy', 'true');
+  }
+  try {
+    if (offlineWeb) await recoverOfflineDraft();
+    else await preserveDraft();
+  } catch {
+    $('save-state').textContent = offlineWeb ? '草稿读取失败，可手动保存作品' : '可手动保存作品';
+    if (offlineWeb) toast($('save-state').textContent);
+  } finally {
+    if (offlineWeb) {
+      busy = false;
+      document.body.removeAttribute('aria-busy');
+    }
+  }
   ready = true;
   document.body.dataset.appReady='true';
   savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';

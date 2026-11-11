@@ -84,6 +84,7 @@
 
 - 现代浏览器（Chrome、Edge、Safari 或 Firefox）
 - 在线版本地址：[board.yebuluo.com.cn](https://board.yebuluo.com.cn)
+- iPadOS 15.8+ 可使用独立的离线 Web App，构建和安装见[离线版说明](docs/build.zh-CN.md#离线-web-app)
 
 ## 从源码构建
 

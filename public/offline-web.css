@@ -1,0 +1,31 @@
+#offline-setup {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  max-width: min(440px, calc(100vw - 28px));
+  padding: 10px 14px;
+  border: 1px solid #b9ab91;
+  border-radius: 12px;
+  background: #fffaf0;
+  color: #342b22;
+  box-shadow: 0 4px 16px #342b2233;
+  font: 15px/1.45 system-ui, sans-serif;
+}
+#offline-setup p { margin: 0; }
+#offline-setup progress { width: 100%; height: 8px; accent-color: #285b49; }
+#offline-setup button {
+  min-height: 40px;
+  padding: 4px 10px;
+  border: 1px solid #9e8d70;
+  border-radius: 8px;
+  background: white;
+  color: #342b22;
+  font: inherit;
+  cursor: pointer;
+}
+#offline-setup[hidden], #offline-setup [hidden] { display: none; }

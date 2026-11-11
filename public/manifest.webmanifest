@@ -1,0 +1,13 @@
+{
+  "name": "落叶画板",
+  "short_name": "落叶画板",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4ead8",
+  "theme_color": "#f4ead8",
+  "icons": [
+    { "src": "branding/app-icon.png", "sizes": "1254x1254", "type": "image/png" }
+  ]
+}

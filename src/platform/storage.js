@@ -1,7 +1,8 @@
-import { validateProject } from '../core/core.js';
 import { DRAFT_STORAGE_VERSION, createDraftRecord, galleryMetadata, previousSessionId, shouldSkipDraftWrite, storageErrorMessage } from '../core/storage-format.js';
 
-const DATABASE_NAME = 'luoye-studio';
+const DATABASE_NAME = globalThis.document?.documentElement?.dataset?.offlineWeb === 'true'
+  ? 'luoye-studio-offline'
+  : 'luoye-studio';
 const DATABASE_VERSION = 3;
 let draftDatabase;
 let draftPreparation;
@@ -81,6 +82,19 @@ export function writeDraft(project, { revision = null } = {}) {
   const task = draftWriteChain.catch(() => {}).then(() => writeDraftNow(project, revision));
   draftWriteChain = task.catch(() => {});
   return task;
+}
+
+export async function readDraftsForRecovery() {
+  const database = await openDraftDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction('drafts');
+    const store = transaction.objectStore('drafts');
+    const current = store.get('current');
+    const previous = store.get('previous');
+    finishTransaction(transaction, resolve, reject, '草稿读取', () => (
+      current.result ? [current.result.project, previous.result?.project].filter(Boolean) : []
+    ));
+  });
 }
 
 export async function discardCurrentDraft() {
