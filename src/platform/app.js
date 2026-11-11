@@ -1,3 +1,4 @@
+import { hasUICopy, localizedUICopy, sourceUICopy } from '../ui/i18n.js';
 import { makeCanvas, loadImage } from '../core/engine.js';
 import { DrawingEngine } from '../core/drawing.js';
 import { mountGallery } from '../ui/gallery-ui.js';
@@ -51,15 +52,28 @@ let saveTimer, pointerId, studio, assist, stampTimer, stampSize = 160, hoverPoin
 const warpFrameQueue=createLatestFrameQueue(point=>{if(pointerId!==undefined&&['warp','paper-warp'].includes(engine?.gesture?.kind))engine.update(point);});
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
+let displayedDefaultTitle = DEFAULT_TITLE;
+function currentTitle() {
+  const title = $('title').value.trim();
+  return title === displayedDefaultTitle ? DEFAULT_TITLE : title || '我的画';
+}
+function setDrawingTitle(title) {
+  $('title').value = title === DEFAULT_TITLE ? displayedDefaultTitle : title;
+}
+document.addEventListener('uilanguagechange', () => {
+  const wasDefault = $('title').value === displayedDefaultTitle;
+  displayedDefaultTitle = localizedUICopy(DEFAULT_TITLE);
+  if (wasDefault) setDrawingTitle(DEFAULT_TITLE);
+});
 const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
-function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `落叶画板_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
+function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${localizedUICopy('落叶画板')}_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
 function setCanvasCursor(){const canvas=$('painting');canvas.dataset.tool=tool;canvas.dataset.brush=$('brush')?.value||'pencil';}
 
 function toast(message) { const status=$('tool-hint');status.textContent=message;status.title=message;status.setAttribute('role','status'); }
 async function run(action) {
   if (busy) return;
   busy = true; document.body.setAttribute('aria-busy', 'true');
-  try { return await action(); } catch (error) { toast(error.message || '操作没有完成，请重试。'); if(error.name!=='AbortError')console.error(error); }
+  try { return await action(); } catch (error) { toast(error.message && hasUICopy(error.message) ? error.message : '操作没有完成，请重试。'); if(error.name!=='AbortError')console.error(error); }
   finally { busy = false; document.body.removeAttribute('aria-busy'); }
 }
 function bind(id, action) { $(id).addEventListener('click', () => run(action)); }
@@ -141,7 +155,7 @@ function saveDraft() {
   draftInFlight = (async () => {
     const savingRevision = revision;
     try {
-      const project = await engine.serialize($('title').value.trim() || '我的画');
+      const project = await engine.serialize(currentTitle());
       if(savingRevision!==revision)return;
       await writeDraft(project, { revision: savingRevision });
       if (savingRevision === revision) {
@@ -150,7 +164,7 @@ function saveDraft() {
     } catch {
       if (savingRevision === revision) {
         $('save-state').textContent = '草稿未保存，请手动保存作品';
-        if (offlineWeb) toast($('save-state').textContent);
+        if (offlineWeb) toast(sourceUICopy($('save-state')));
       }
     }
   })();
@@ -232,8 +246,8 @@ for (const [category, name] of Object.entries({ background: '彩色背景', stic
 }
 engine = new DrawingEngine($('painting'), changed); engine.paperMode = true;engine.asyncEffects=true;engine.notice=toast; changed(); setTool('pen'); setColor(color); chooseCategory('background');
 studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:()=>color, changed, storage:{deliverFile} });
-const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:()=>$('title').value.trim()||'我的画',storage:{deliverFile,writeRecordingDraft,readRecordingDraft}});
-const gallery=mountGallery({engine,run,toast,getTitle:()=>$('title').value.trim()||'我的画',setTitle:title=>{$('title').value=title;changed();savedRevision=revision;savedTitle=title;},storage:{
+const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:currentTitle,storage:{deliverFile,writeRecordingDraft,readRecordingDraft}});
+const gallery=mountGallery({engine,run,toast,getTitle:currentTitle,setTitle:title=>{setDrawingTitle(title);changed();savedRevision=revision;savedTitle=currentTitle();},storage:{
   galleryList,galleryPut,galleryGet,galleryTrash,
   // The offline edition uses one revision sequence for automatic and gallery writes.
   writeDraft: offlineWeb ? project => writeDraft(project, { revision }) : writeDraft,
@@ -299,7 +313,7 @@ async function newBlank(width=engine.width,height=engine.height){
   clearInterval(stampTimer);pointerId=undefined;engine.end();
   await gallery.backup();
   engine.reset(width,height);zoom=1;selectedAssetId='';selectedFairyAsset=null;
-  $('title').value=DEFAULT_TITLE;setTool('pen');$('mode-board').click();
+  setDrawingTitle(DEFAULT_TITLE);setTool('pen');$('mode-board').click();
   changed();toast('已新建空白画纸，旧作已保留在画夹');
 }
 function resetSettings(){
@@ -312,14 +326,14 @@ bind('paper-size-open',()=>{engine.end();$('preset').value=`${engine.width},${en
 bind('new-quick',()=>newBlank());
 if($('reset-settings'))$('reset-settings').onclick=()=>run(async()=>resetSettings());
 $('new-dialog').addEventListener('close',event=>{if(event.target!==$('new-dialog')||$('new-dialog').returnValue!=='create')return;const [w,h]=$('preset').value.split(',').map(Number);run(()=>newBlank(w,h));});
-bind('save', async () => { engine.end(); const title = $('title').value.trim() || '我的画',savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(title===DEFAULT_TITLE||!title?timestampName('luoyex'):`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
+bind('save', async () => { engine.end(); const title = currentTitle(),savingRevision=revision; const project = await engine.serialize(title); const result=await deliverFile(title===DEFAULT_TITLE||!title?timestampName('luoyex'):`${title}.luoyex`, 'application/json', JSON.stringify(project));if(result==='文件已保存'){savedRevision=savingRevision;savedTitle=title;}toast(result); });
 bind('export',()=>showDialog('export-dialog'));
-$('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()&&$('title').value.trim()!==DEFAULT_TITLE?$('title').value.trim()+'_':timestampName('').replace(/\.$/,''))+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
+$('export-dialog').addEventListener('close',()=>run(async()=>{if($('export-dialog').returnValue!=='export')return;engine.end();const format=$('export-format').value,c=makeCanvas(engine.width,engine.height);engine.paint(c.getContext('2d'));toast(await deliverFile(($('title').value.trim()&&currentTitle()!==DEFAULT_TITLE?$('title').value.trim()+'_':timestampName('').replace(/\.$/,''))+(format==='png'?'.png':'.jpg'),'image/'+format,c.toDataURL('image/'+format,.92)));}));
 bind('open', () => $('file-input').click()); bind('import-image', () => $('image-input').click());
 $('file-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
   if (file.size > 128 * 1024 * 1024) throw new Error('工程超过当前支持的 128 MiB 上限。');
-  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); $('title').value = await engine.restore(data); changed();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画'; toast('作品打开了，接着画吧');
+  const data = JSON.parse(await file.text());await gallery.backup();engine.end(); setDrawingTitle(await engine.restore(data)); changed();savedRevision=revision;savedTitle=currentTitle(); toast('作品打开了，接着画吧');
 });
 $('image-input').onchange = event => run(async () => {
   const file = event.target.files[0]; event.target.value = ''; if (!file) return;
@@ -430,7 +444,7 @@ window.LUOYEFlushBeforeClose=async()=>{
   engine.end();engine.finishPath(true);clearTimeout(saveTimer);
   if(!closeSnapshot||closeSnapshot.revision!==revision){
     const png=engine.exportPNG(),snapshotRevision=revision;
-    const project=await engine.serialize($('title').value.trim()||'我的画');
+    const project=await engine.serialize(currentTitle());
     closeSnapshot={sessionId,revision:snapshotRevision,project,png};
   }
   await writeDraft(closeSnapshot.project, { revision: closeSnapshot.revision });await recorder.flush();
@@ -442,10 +456,10 @@ window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,spri
 closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
 window.LUOYERequestClose=createCloseFlow({
- hasChanges:()=>revision!==savedRevision||($('title').value.trim()||'我的画')!==savedTitle,
+ hasChanges:()=>revision!==savedRevision||currentTitle()!==savedTitle,
  ask:()=>new Promise(resolve=>{closeDialog.returnValue='cancel';closeDialog.addEventListener('close',()=>resolve(closeDialog.returnValue),{once:true});closeDialog.showModal();}),
  save:()=>window.LUOYEFlushBeforeClose(),
- discard:async()=>{clearTimeout(saveTimer);await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';}
+ discard:async()=>{clearTimeout(saveTimer);await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=currentTitle();}
 });
 window.addEventListener('blur', () => { if (engine.gesture) { engine.end(); pointerId = undefined; } });
 // The base HTML is intentionally hidden until the classic UI has replaced it.
@@ -467,16 +481,16 @@ async function recoverOfflineDraft() {
   }
   for (const [index, project] of drafts.entries()) {
     try {
-      $('title').value = await engine.restore(project);
+      setDrawingTitle(await engine.restore(project));
       $('save-state').textContent = index === 0 ? '已恢复上次草稿' : '已恢复上一份可用草稿';
-      toast($('save-state').textContent);
+      toast(sourceUICopy($('save-state')));
       return;
     } catch {
       // A damaged newer copy can still leave a usable older snapshot.
     }
   }
   $('save-state').textContent = '无法恢复草稿，原稿已保留';
-  toast($('save-state').textContent);
+  toast(sourceUICopy($('save-state')));
 }
 async function initialize() {
   if (offlineWeb) {
@@ -488,7 +502,7 @@ async function initialize() {
     else await preserveDraft();
   } catch {
     $('save-state').textContent = offlineWeb ? '草稿读取失败，可手动保存作品' : '可手动保存作品';
-    if (offlineWeb) toast($('save-state').textContent);
+    if (offlineWeb) toast(sourceUICopy($('save-state')));
   } finally {
     if (offlineWeb) {
       busy = false;
@@ -497,7 +511,7 @@ async function initialize() {
   }
   ready = true;
   document.body.dataset.appReady='true';
-  savedRevision=revision;savedTitle=$('title').value.trim()||'我的画';
+  savedRevision=revision;savedTitle=currentTitle();
   if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:3,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
 }
 initialize();
@@ -509,5 +523,5 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&engine.effe
 
 const objectControls=document.createElement('div');objectControls.id='object-controls';objectControls.hidden=true;objectControls.innerHTML='<div><strong id="object-caption"></strong><span>拖动它换位置，点按钮调大小</span></div><button id="object-smaller" aria-label="缩小画里的小伙伴">'+playfulIcon('shrink')+'<span>变小</span></button><button id="object-bigger" aria-label="放大画里的小伙伴">'+playfulIcon('grow')+'<span>变大</span></button>';
 document.querySelector('.classic-parameters').append(objectControls);$('object-smaller').onclick=()=>$('smaller').click();$('object-bigger').onclick=()=>$('bigger').click();
-function objectState(){const layer=engine.active;objectControls.hidden=tool!=='move'||!layer||layer.role==='background';if(layer)$('object-caption').textContent=layer.sprites?'调整这串动态图案':layer.name;}
+function objectState(){const layer=engine.active;objectControls.hidden=tool!=='move'||!layer||layer.role==='background';if(layer){const caption=$('object-caption');caption.textContent=layer.sprites?'调整这串动态图案':layer.name;}}
 document.addEventListener('toolchange',objectState);document.addEventListener('objectchange',objectState);objectState();

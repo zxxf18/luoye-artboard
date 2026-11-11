@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.webkit.CookieManager
@@ -37,6 +38,7 @@ class MainActivity : Activity() {
     private var pendingSave: PendingSave? = null
     private var closeInFlight = false
     private var music: AndroidMusic? = null
+    private var uiCopy = JSONObject()
 
     private data class PendingSave(
         val id: String?,
@@ -148,6 +150,9 @@ class MainActivity : Activity() {
             try {
                 when (channel) {
                     "ready" -> Unit
+                    "locale" -> if (payload.length <= 16000) {
+                        uiCopy = JSONObject(payload)
+                    }
                     "files" -> handleFileMessage(JSONObject(payload))
                     "display" -> handleDisplayMessage(JSONObject(payload))
                     "music" -> handleMusicMessage(JSONObject(payload))
@@ -157,7 +162,10 @@ class MainActivity : Activity() {
                 val id = runCatching { optionalId(JSONObject(payload)) }.getOrNull()
                 if (channel == "music") dispatch("native-music-result", result(id, error = error.message))
                 else if (id != null) dispatch("native-file-result", result(id, error = error.message))
-                else toast(error.message ?: "操作失败")
+                else {
+                    Log.w("Luoye", "Native action failed", error)
+                    toast("操作没有完成，请重试。")
+                }
             }
         }
     }
@@ -280,7 +288,8 @@ class MainActivity : Activity() {
     fun handleCloseError(message: String) {
         mainHandler.post {
             closeInFlight = false
-            toast("作品还没有保存成功：$message")
+            Log.w("Luoye", "Close failed: $message")
+            toast("作品还没有保存成功，画室会保持打开。")
         }
     }
 
@@ -359,7 +368,7 @@ class MainActivity : Activity() {
         return candidate.take(120).ifBlank { "落叶画板文件" }
     }
 
-    private fun toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun toast(message: String) = Toast.makeText(this, uiCopy.optString(message, message), Toast.LENGTH_SHORT).show()
 
     companion object {
         private const val REQUEST_OPEN = 4101

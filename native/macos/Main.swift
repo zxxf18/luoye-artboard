@@ -14,27 +14,35 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private let smokePath = ProcessInfo.processInfo.environment["LUOYE_SMOKE_OUTPUT"]
     private lazy var music = StudioMusic(observeOutput: true)
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    private var uiCopy: [String: String] = [:]
+
+    private func label(_ source: String) -> String { uiCopy[source] ?? source }
+
+    private func configureMenu() {
         let menu = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "退出落叶画板", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: label("退出落叶画板"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         menu.addItem(appItem)
-        let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
-        let editMenu = NSMenu(title: "编辑")
-        editMenu.addItem(withTitle: "复制", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editMenu.addItem(withTitle: "剪切", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        editMenu.addItem(withTitle: "粘贴", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        editMenu.addItem(withTitle: "全选", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem(title: label("编辑"), action: nil, keyEquivalent: "")
+        let editMenu = NSMenu(title: label("编辑"))
+        editMenu.addItem(withTitle: label("复制"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: label("剪切"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: label("粘贴"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: label("全选"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editItem.submenu = editMenu
         menu.addItem(editItem)
         NSApp.mainMenu = menu
+    }
 
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        configureMenu()
         let configuration = WKWebViewConfiguration()
         if smokePath != nil { configuration.websiteDataStore = .nonPersistent() }
         configuration.userContentController.add(self, name: "files")
         configuration.userContentController.add(self, name: "ready")
+        configuration.userContentController.add(self, name: "locale")
         configuration.userContentController.add(self, name: "music")
         configuration.userContentController.add(self, name: "display")
         configuration.userContentController.add(self, name: "assets")
@@ -99,7 +107,8 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                     let saved = try StudioArchive(root: root).save(decision["payload"] as Any)
                     self.logger.notice("Artwork archived: \(saved.path)")
                 } catch {
-                    self.showError("作品还没有保存成功，画室会保持打开。\n" + error.localizedDescription)
+                    self.logger.error("Artwork save failed: \(error.localizedDescription)")
+                    self.showError("作品还没有保存成功，画室会保持打开。", title: "草稿未能保存")
                     sender.reply(toApplicationShouldTerminate: false)
                     return
                 }
@@ -112,9 +121,9 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             case .failure(let error):
                 self.logger.error("Draft flush failed: \(error.localizedDescription)")
                 let alert = NSAlert()
-                alert.messageText = "草稿未能保存"
-                alert.informativeText = "创作室将保持打开。请先将作品保存为工程文件，再重试退出。"
-                alert.addButton(withTitle: "继续画画")
+                alert.messageText = self.label("草稿未能保存")
+                alert.informativeText = self.label("创作室将保持打开。请先将作品保存为工程文件，再重试退出。")
+                alert.addButton(withTitle: self.label("继续画画"))
                 alert.runModal()
                 sender.reply(toApplicationShouldTerminate: false)
             }
@@ -200,6 +209,12 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
                 } else { finishSmoke(view: view, path: smokePath) }
 
             }
+            return
+        }
+        if message.name == "locale", let labels = message.body as? [String: String], labels.count <= 24 {
+            uiCopy = labels.filter { $0.key.count <= 120 && $0.value.count <= 280 }
+            window?.title = label("落叶画板")
+            configureMenu()
             return
         }
         if message.name == "assets" { handleAsset(message.body); return }
@@ -356,11 +371,11 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         } catch { logger.error("File result failed: \(error.localizedDescription)") }
     }
 
-    private func showError(_ message: String) {
+    private func showError(_ message: String, title: String = "创作室暂时没有打开") {
         logger.error("Load failed: \(message)")
         let alert = NSAlert()
-        alert.messageText = "创作室暂时没有打开"
-        alert.informativeText = message
+        alert.messageText = label(title)
+        alert.informativeText = label(message)
         alert.runModal()
     }
 }

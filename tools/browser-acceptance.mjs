@@ -17,7 +17,7 @@ try{
   // pins the viewport.
   const suite=name.split('@')[0],viewport=name.includes('@')?name.split('@')[1]:'1440x900';
   const [viewportWidth,viewportHeight]=viewport.split('x').map(Number);
-  const page=await browser.newPage({viewport:{width:viewportWidth,height:viewportHeight}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const page=await browser.newPage({locale:'zh-CN',viewport:{width:viewportWidth,height:viewportHeight}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
    await page.goto(url+'/tests/'+suite+'.html');
    await page.waitForFunction(()=>{

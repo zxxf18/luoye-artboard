@@ -18,6 +18,8 @@ sealed class StudioWindow : Form
     readonly string profile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"LuoyeBoard");
     StudioMusic? music;
     bool ready, closing, approved;
+    readonly Dictionary<string,string> uiCopy = new();
+    string Label(string source) => uiCopy.TryGetValue(source, out var value) ? value : source;
     Rectangle normalBounds;
     bool fullscreen;
     public StudioWindow()
@@ -41,11 +43,11 @@ sealed class StudioWindow : Form
                 e.Handled=true;
                 if(!e.IsUserInitiated || (e.Uri!="https://github.com/zxxf18/luoye-artboard" && e.Uri!="https://index.yebuluo.com.cn/donate/"))return;
                 try {System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri){UseShellExecute=true});}
-                catch(Exception error){MessageBox.Show(this,"无法打开浏览器："+error.Message,Text);}
+                catch(Exception error){System.Diagnostics.Debug.WriteLine(error);MessageBox.Show(this,Label("无法打开浏览器，请稍后重试"),Text);}
             };
             core.PermissionRequested+=(_,e)=>e.State=CoreWebView2PermissionState.Deny;
             core.WebMessageReceived+=Message;
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("window.LUOYE_PLATFORM='windows';window.webkit={messageHandlers:Object.fromEntries(['ready','files','music','display'].map(channel=>[channel,{postMessage:payload=>window.chrome.webview.postMessage({channel,payload})}]))};");
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("window.LUOYE_PLATFORM='windows';window.webkit={messageHandlers:Object.fromEntries(['ready','files','music','display','locale'].map(channel=>[channel,{postMessage:payload=>window.chrome.webview.postMessage({channel,payload})}]))};");
             core.Navigate("https://luoye.local/index.html");
         } catch(WebView2RuntimeNotFoundException) {
             MessageBox.Show(this,"请先运行安装包内的 MicrosoftEdgeWebView2RuntimeInstallerX64.exe，再打开落叶画板。",Text);approved=true;Close();
@@ -66,6 +68,14 @@ sealed class StudioWindow : Form
                     ready=true;
                     var fonts=new System.Drawing.Text.InstalledFontCollection().Families.Select(f=>f.Name).Order().ToArray();
                     await web.ExecuteScriptAsync("window.LUOYESetFonts("+JsonSerializer.Serialize(fonts)+")");break;
+                case "locale":
+                    uiCopy.Clear();
+                    foreach(var entry in body.EnumerateObject().Take(24))
+                        if(entry.Name.Length<=120 && entry.Value.ValueKind==JsonValueKind.String &&
+                           entry.Value.GetString() is { Length: <= 280 } copy)
+                            uiCopy[entry.Name]=copy;
+                    Text=Label("落叶画板");
+                    break;
                 case "files": await SaveFile(body,id);break;
                 case "display": SetDisplay(body.GetProperty("action").GetString());break;
                 case "music":
@@ -104,7 +114,7 @@ sealed class StudioWindow : Form
         if(mime=="application/json")bytes=System.Text.Encoding.UTF8.GetBytes(content);
         else if((mime=="image/png"||mime=="image/jpeg")&&content.StartsWith("data:"+mime+";base64,"))bytes=Convert.FromBase64String(content[(content.IndexOf(',')+1)..]);
         else throw new InvalidDataException("文件格式无效。");
-        using var dialog=new SaveFileDialog{FileName=Path.GetFileName(body.GetProperty("name").GetString()),Filter="作品文件|*.luoyex;*.luoyer;*.png;*.jpg|所有文件|*.*",OverwritePrompt=true};
+        using var dialog=new SaveFileDialog{FileName=Path.GetFileName(body.GetProperty("name").GetString()),Filter=$"{Label("作品文件")}|*.luoyex;*.luoyer;*.png;*.jpg|{Label("所有文件")}|*.*",OverwritePrompt=true};
         if(dialog.ShowDialog(this)!=DialogResult.OK){await Reply("native-file-result",new{id,saved=false});return;}
         var destination=dialog.FileName??throw new IOException("请选择保存位置。");
         var tmp=destination+"."+Guid.NewGuid()+".tmp";
@@ -145,7 +155,7 @@ sealed class StudioWindow : Form
                 else if(action!="exit")throw new IOException("退出选择无效。");
             } finally {web.CoreWebView2.WebMessageReceived-=Handler;}
             approved=true;Close();
-        } catch(Exception ex) {MessageBox.Show(this,"作品还没有保存成功，画室会保持打开。\n"+ex.Message,Text);}
+        } catch(Exception ex) {System.Diagnostics.Debug.WriteLine(ex);MessageBox.Show(this,Label("作品还没有保存成功，画室会保持打开。"),Text);}
         finally {closing=false;}
     }
 }

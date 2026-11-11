@@ -1,3 +1,4 @@
+import { localizedUICopy } from './i18n.js';
 import { Recorder } from './recording.js';
 
 export function mountRecorder({engine,run,toast,getColor,getTitle,storage}){
@@ -16,7 +17,7 @@ export function mountRecorder({engine,run,toast,getColor,getTitle,storage}){
   action('recordings',()=>{engine.end();el('record-position').value=0;recorder.onState();dialog.showModal();});
   action('record-start',async()=>{await recorder.start(slot(),getTitle());dialog.close();toast('开始记录每一步；点击「正在录制」结束或查看');});
   action('record-stop',()=>recorder.stop());
-  action('record-export',async()=>toast(await deliverFile('我的绘画录像.luoyer','application/json',JSON.stringify(recorder.export()))));
+  action('record-export',async()=>toast(await deliverFile(localizedUICopy('我的绘画录像.luoyer'),'application/json',JSON.stringify(recorder.export()))));
   action('record-import',()=>el('record-file').click());el('record-file').onchange=()=>run(async()=>{const file=el('record-file').files[0];el('record-file').value='';if(!file)return;if(file.size>64*1024*1024)throw new Error('录像文件不能超过 64 MiB。');recorder.import(JSON.parse(await file.text()));el('record-position').value=0;toast('五段录像已打开');});
   action('record-first',()=>preview(0));action('record-prev',()=>preview(Math.max(0,Number(el('record-position').value)-1)));action('record-next',()=>preview(Number(el('record-position').value)+1));action('record-last',()=>preview(Number(el('record-position').max)));action('record-play',()=>preview(Number(el('record-position').max),true));
   el('record-pause').onclick=()=>controller?.abort();el('record-close').onclick=()=>{controller?.abort();dialog.close();};dialog.addEventListener('cancel',()=>controller?.abort());

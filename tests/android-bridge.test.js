@@ -11,7 +11,7 @@ test('Android bridge exposes the desktop-compatible channels and JSON payloads',
   vm.runInNewContext(source, context);
   context.webkit.messageHandlers.files.postMessage({ id: 'x', name: '画.luoyex' });
   assert.deepEqual(messages, [{ channel: 'files', payload: '{"id":"x","name":"画.luoyex"}' }]);
-  assert.deepEqual(Object.keys(context.webkit.messageHandlers).sort(), ['display', 'files', 'music', 'ready']);
+  assert.deepEqual(Object.keys(context.webkit.messageHandlers).sort(), ['display', 'files', 'locale', 'music', 'ready']);
 });
 
 test('Android bridge does not replace an existing desktop or browser webkit object', () => {

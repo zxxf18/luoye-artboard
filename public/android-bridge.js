@@ -2,7 +2,7 @@
 // desktop hosts leave it undefined, so the existing web fallbacks stay intact.
 (() => {
   if (!globalThis.AndroidBridge?.post || globalThis.webkit?.messageHandlers) return;
-  const channels = ['ready', 'files', 'music', 'display'];
+  const channels = ['ready', 'files', 'music', 'display', 'locale'];
   globalThis.webkit = { messageHandlers: Object.fromEntries(channels.map(channel => [channel, {
     postMessage(payload) {
       globalThis.AndroidBridge.post(channel, JSON.stringify(payload ?? null));

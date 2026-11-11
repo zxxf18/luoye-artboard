@@ -27,6 +27,10 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
         case "ready":
             host?.interfaceReady = true
             host?.runSmokeIfRequested()
+        case "locale":
+            if let labels = message.body as? [String: String], labels.count <= 24 {
+                host?.uiCopy = labels.filter { $0.key.count <= 120 && $0.value.count <= 280 }
+            }
         case "files": handleFile(message.body)
         case "music": handleMusic(message.body)
         case "display": handleDisplay(message.body)
@@ -73,7 +77,8 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        host?.showError("画板资源没有打开：" + error.localizedDescription)
+        NSLog("Luoye resources could not load: %@", error.localizedDescription)
+        host?.showError("画板资源没有打开。")
     }
 
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {

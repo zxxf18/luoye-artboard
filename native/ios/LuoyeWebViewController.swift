@@ -20,6 +20,7 @@ final class LuoyeWebViewController: UIViewController {
     private var smokeOrientationReady = true
     private var initialGeometryRequested = false
     var interfaceReady = false
+    var uiCopy: [String: String] = [:]
     private var immersive = false
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
@@ -42,7 +43,7 @@ final class LuoyeWebViewController: UIViewController {
         bridge.setHost(self)
         bridge.webView = view
         bridge.presenter = self
-        for name in ["ready", "files", "music", "display", "assets"] {
+        for name in ["ready", "files", "music", "display", "assets", "locale"] {
             content.add(bridge, name: name)
         }
         view.uiDelegate = bridge
@@ -245,8 +246,8 @@ final class LuoyeWebViewController: UIViewController {
 
     func showError(_ message: String) {
         guard presentedViewController == nil else { return }
-        let alert = UIAlertController(title: "画板暂时没有打开", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "好", style: .default))
+        let alert = UIAlertController(title: uiCopy["画板暂时没有打开"] ?? "画板暂时没有打开", message: uiCopy[message] ?? message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: uiCopy["好"] ?? "好", style: .default))
         present(alert, animated: true)
     }
 }

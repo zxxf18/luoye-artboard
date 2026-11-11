@@ -103,7 +103,7 @@
 .playroom #layer-dialog .layer-name{display:flex;align-items:center;justify-content:flex-start;text-align:left;gap:12px;flex:1;min-width:0;padding:4px}
 .playroom #layer-dialog .layer-name span{overflow-wrap:anywhere}
 .playroom #layer-dialog .layer-thumb{width:88px;height:58px;flex:none;background:repeating-conic-gradient(#f1e3cc 0% 25%,#fff9ed 0% 50%) 50%/14px 14px;object-fit:contain}
-.playroom .layer-row.active .layer-name:after{content:'✓ 已选';white-space:nowrap;font-size:12px;margin-left:auto}
+.playroom .layer-row.active .layer-name:after{content:'✓';white-space:nowrap;font-size:12px;margin-left:auto}
 .playroom #layer-dialog .eye-button{font-size:13px;gap:4px;flex:none;padding:5px;min-width:76px}
 .playroom .layer-guide{padding:10px 14px;border-radius:14px;background:#ffebc7}
 .playroom #layer-dialog .layer-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -2839,5 +2839,271 @@
   .playroom .animation-actions button {
     min-height: 36px;
     padding: 5px 8px;
+  }
+}
+
+.playroom #more-dialog .language-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 8px;
+  margin-block: 0 12px;
+  overflow-wrap: anywhere;
+}
+.playroom #ui-language {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  font: inherit;
+}
+.playroom #more-dialog .more-action {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.playroom .header-actions button > span:not(.playful-icon),
+.playroom .tool-button > span:not(.playful-icon),
+.playroom .brush-card > span:not(.playful-icon, .brush-sample),
+.playroom .subtool-card > span:not(.playful-icon),
+.playroom .mobile-command,
+.playroom dialog .dialog-actions button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
+}
+.playroom dialog .dialog-actions {
+  flex-wrap: wrap;
+}
+.playroom .tool-button > .playful-icon,
+.playroom .header-actions button > .playful-icon {
+  flex-shrink: 0;
+}
+:root:not(:lang(zh)) .playroom .assist-card-heading small {
+  white-space: normal;
+}
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom[data-mobile-panel="tools"] .tool-rail .tool-button > .playful-icon {
+    max-height: 23px;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card > span:not(.brush-sample) {
+    white-space: normal !important;
+    line-height: 1.15 !important;
+  }
+}
+
+.playroom #layer-dialog .layer-actions button,
+.playroom .choice-card > span,
+.playroom .more-action > span,
+.playroom .effect-kind-row,
+.playroom .effect-dialog label,
+.playroom .assist-field-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom .tool-dock .asset > span:not(.asset-add) {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 861px) and (min-height: 601px) {
+  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
+    font-size: calc(11px * var(--u));
+    line-height: 1.1;
+  }
+  :root:not(:lang(zh)) .playroom .header-actions :is(#new-quick, #reset-settings) > .playful-icon {
+    max-height: calc(23px * var(--u));
+  }
+}
+
+/* Let dialog content choose its height and wrap inside its controls. */
+.playroom dialog button,
+.playroom dialog label,
+.playroom dialog .choice-button > span {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom dialog :is(input, select, textarea) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.playroom dialog .record-controls label {
+  flex: 0 1 auto;
+  gap: 6px;
+}
+.playroom dialog .record-controls .choice-button {
+  flex: 0 1 auto;
+}
+.playroom #text-dialog .text-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.playroom #text-dialog :is(.text-layout > div, .text-style-grid > label, .text-result) {
+  min-inline-size: 0;
+}
+.playroom #text-dialog .text-style-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.playroom #text-dialog .text-texture-actions .picture-action > span {
+  min-inline-size: 0;
+}
+.playroom #layer-dialog .dialog-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr));
+  gap: 8px;
+}
+.playroom #layer-dialog .dialog-grid button {
+  padding-inline: 8px;
+}
+.playroom[data-theme] .theme-dialog {
+  overflow-y: auto;
+}
+.playroom[data-theme] .theme-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 174px), 1fr));
+}
+.playroom[data-theme] .theme-card {
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+}
+.playroom[data-theme] .theme-card-preview {
+  width: 40px;
+  height: 40px;
+}
+.playroom[data-theme] .theme-card-copy {
+  gap: 3px;
+  padding-inline-end: 8px;
+}
+.playroom[data-theme] .theme-card-copy small {
+  white-space: normal;
+  overflow: visible;
+  font-size: 11px;
+  line-height: 1.25;
+}
+.playroom #darkroom-dialog .darkroom-categories button {
+  min-height: 44px;
+  padding: 6px;
+  line-height: 1.2;
+}
+.playroom #darkroom-dialog .darkroom-categories .playful-icon {
+  width: 24px;
+  height: 24px;
+}
+.playroom .animation-tool-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.playroom .animation-tool-row button {
+  min-height: 34px;
+  padding: 4px 6px;
+}
+.playroom .animation-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.playroom .music-tracks .choice-button,
+.playroom .music-transport button {
+  min-inline-size: 0;
+}
+:root:not(:lang(zh)) .playroom .header-actions button {
+  gap: 1px;
+}
+:root:not(:lang(zh)) .playroom .header-actions button > .playful-icon {
+  max-height: calc(22px * var(--u));
+}
+
+@media (max-width: 600px) {
+  .playroom #text-dialog .text-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .playroom #text-dialog .effect-preview {
+    min-height: 120px;
+    padding: 12px;
+  }
+  .playroom #darkroom-dialog[open] {
+    height: auto;
+    grid-template-rows: none;
+    padding: 14px;
+    overflow-y: auto;
+  }
+  .playroom #darkroom-dialog .darkroom-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .playroom #darkroom-dialog .darkroom-categories button {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .playroom #darkroom-dialog .effect-layout {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: visible;
+  }
+  .playroom #darkroom-dialog .effect-preview {
+    min-height: 120px;
+  }
+  .playroom[data-theme] .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .playroom[data-theme] .theme-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    padding: 9px;
+    align-items: start;
+  }
+  .playroom[data-theme] .theme-card-preview {
+    grid-row: auto;
+  }
+  .playroom[data-theme] .theme-card-copy {
+    padding-inline-end: 0;
+  }
+}
+@media (max-width: 360px) {
+  .playroom #more-dialog .more-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 641px) and (min-height: 501px) {
+  :root:not(:lang(zh)) .playroom .header-actions button {
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: calc(60px * var(--u));
+    max-width: calc(118px * var(--u));
+    padding-inline: 8px;
+  }
+  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
+    font-size: calc(11px * var(--u));
+    line-height: 1.2;
+  }
+}
+
+.playroom #text-dialog .text-style {
+  align-items: center;
+  hyphens: auto;
+  line-height: 1.25;
+}
+.playroom #text-dialog .text-style-icon {
+  flex: none;
+  line-height: 1;
+}
+@media (max-width: 600px) {
+  .playroom #text-dialog .text-style-icon {
+    display: none;
+  }
+}
+@media (max-width: 640px), (max-height: 500px) {
+  :root:not(:lang(zh)) .playroom .header-actions button {
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 44px;
+    max-width: 92px;
+    padding-inline: 6px;
+  }
+  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
+    font-size: 10px;
+    line-height: 1.15;
+  }
+  :root:not(:lang(zh)) .playroom .header-actions button > .playful-icon {
+    max-height: 19px;
   }
 }
