@@ -9,10 +9,13 @@ const read = name => readFile(path.join(root, name), 'utf8');
 
 test('iOS target declares a universal iPhone/iPad, landscape-first app', async () => {
   const plist = await read('ios/Info.plist');
+  const project = await read('ios/LuoyeArtboard.xcodeproj/project.pbxproj');
+  const build = await read('tools/build-ios.mjs');
   const index = await read('public/index.html');
-  assert.match(plist, /UIDeviceFamily/);
-  assert.match(plist, /<integer>1<\/integer>/);
-  assert.match(plist, /<integer>2<\/integer>/);
+  assert.doesNotMatch(plist, /UIDeviceFamily|MinimumOSVersion/);
+  assert.equal([...project.matchAll(/TARGETED_DEVICE_FAMILY = "1,2";/g)].length, 2);
+  assert.equal([...project.matchAll(/IPHONEOS_DEPLOYMENT_TARGET = 16\.0;/g)].length, 2);
+  assert.match(build, /'TARGETED_DEVICE_FAMILY=2', 'IPHONEOS_DEPLOYMENT_TARGET=15\.8'/);
   assert.match(plist, /UISupportedInterfaceOrientations/);
   assert.match(plist, /UIInterfaceOrientationLandscapeLeft/);
   assert.match(plist, /UIInterfaceOrientationLandscapeRight/);

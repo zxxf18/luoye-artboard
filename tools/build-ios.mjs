@@ -9,6 +9,7 @@ const resources = path.join(root, 'ios', 'Resources');
 const release = path.join(root, 'build', 'releases', 'v' + JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8')).version);
 const configuration = process.env.CONFIGURATION || 'Debug';
 const sdk = process.env.SDK || 'iphonesimulator';
+const device = process.env.IOS_DEVICE || 'universal';
 
 if (process.platform !== 'darwin') throw new Error('iOS application must be built on macOS with Xcode.');
 const xcode = spawnSync('xcodebuild', ['-version'], { encoding: 'utf8' });
@@ -16,6 +17,10 @@ if (xcode.status !== 0 || !/^Xcode /m.test(xcode.stdout || '')) {
   throw new Error('没有检测到完整 Xcode。当前只有 Command Line Tools，无法编译 iPhone/iPad 应用；请安装 Xcode 后重试。');
 }
 if (!['iphonesimulator', 'iphoneos'].includes(sdk)) throw new Error('SDK 必须是 iphonesimulator 或 iphoneos。');
+if (!['universal', 'ipad'].includes(device)) throw new Error('IOS_DEVICE 必须是 universal 或 ipad。');
+const deviceSettings = device === 'ipad'
+  ? ['TARGETED_DEVICE_FAMILY=2', 'IPHONEOS_DEPLOYMENT_TARGET=15.8']
+  : [];
 
 await build({ client: true });
 await rm(resources, { recursive: true, force: true });
@@ -51,11 +56,12 @@ const result = spawnSync('xcodebuild', [
   '-sdk', sdk,
   '-derivedDataPath', 'build/ios-derived',
   'CODE_SIGNING_ALLOWED=NO',
+  ...deviceSettings,
   'build',
 ], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
 const product = path.join(root, 'build', 'ios-derived', 'Build', 'Products', `${configuration}-${sdk}`, '落叶画板.app');
-const target = path.join(release, `落叶画板-${sdk}.app`);
+const target = path.join(release, `落叶画板-${device === 'ipad' ? 'ipad-' : ''}${sdk}.app`);
 await rm(target, { recursive: true, force: true });
 await cp(product, target, { recursive: true });
 console.log(`iOS application built: ${target}`);

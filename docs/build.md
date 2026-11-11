@@ -31,11 +31,13 @@ The current target is Apple Silicon (arm64), macOS 13+. The application is writt
 
 ## iPhone / iPad app
 
-The iOS target uses UIKit and WKWebView, supports iOS 16+, and includes both iPhone and iPad. A full Xcode installation is required; Command Line Tools do not include the iOS SDK or Simulator:
+The iOS target uses UIKit and WKWebView. The default build supports iOS and iPadOS 16 or later. The iPad-only build supports iPadOS 15.8 or later. A full Xcode installation is required because Command Line Tools do not include the iOS SDK or Simulator:
 
 ```sh
 npm run build:ios
 ```
+
+For an iPad-only device build, use `IOS_DEVICE=ipad SDK=iphoneos CONFIGURATION=Release npm run build:ios`.
 
 This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. iPad uses a full-screen landscape workspace; touch, Apple Pencil, audio interruptions, and background recovery must be checked on Simulator and a real device separately.
 

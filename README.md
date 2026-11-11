@@ -75,7 +75,7 @@
 
 ### iPhone / iPad
 
-- iOS 16 或更高版本
+- 通用版需要 iOS/iPadOS 16 或更高版本，源码也可构建适用于 iPadOS 15.8 或更高版本的 iPad 专用版
 - Universal 应用，iPhone 支持横竖屏；iPad 固定全屏横屏，并提供更大的中央画板
 - 支持手指与 Apple Pencil；工程、图片和音乐通过系统“文件”面板导入/导出
 - 当前仓库提供可构建的 iOS target；发布到设备仍需要 Xcode 的签名配置

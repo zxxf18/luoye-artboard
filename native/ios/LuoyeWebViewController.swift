@@ -121,11 +121,11 @@ final class LuoyeWebViewController: UIViewController {
             return
         }
         initialGeometryRequested = true
-        setNeedsUpdateOfSupportedInterfaceOrientations()
-        // The app starts in a landscape workspace. iPhone rotation remains
-        // available; iPad is landscape-only in its full-screen configuration.
-        scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { error in
-            NSLog("Luoye initial orientation request failed: %@", error.localizedDescription)
+        if #available(iOS 16.0, *) {
+            setNeedsUpdateOfSupportedInterfaceOrientations()
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { error in
+                NSLog("Luoye initial orientation request failed: %@", error.localizedDescription)
+            }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
             guard let self else { return }

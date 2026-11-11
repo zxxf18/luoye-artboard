@@ -2,8 +2,19 @@ export function shapePath(kind, a, b, points = []) {
   const path = new Path2D(), x = Math.min(a.x,b.x), y = Math.min(a.y,b.y), w = Math.abs(b.x-a.x), h = Math.abs(b.y-a.y);
   if (kind === 'line') { path.moveTo(a.x,a.y); path.lineTo(b.x,b.y); }
   else if (kind === 'ellipse') path.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);
-  else if (kind === 'roundrect') path.roundRect(x,y,w,h,Math.min(w,h)/5);
-  else if (['triangle','pentagon','hexagon','star'].includes(kind)) {
+  else if (kind === 'roundrect') {
+    const radius = Math.min(w, h) / 5;
+    if (typeof path.roundRect === 'function') {
+      path.roundRect(x, y, w, h, radius);
+    } else {
+      path.moveTo(x + radius, y);
+      path.arcTo(x + w, y, x + w, y + h, radius);
+      path.arcTo(x + w, y + h, x, y + h, radius);
+      path.arcTo(x, y + h, x, y, radius);
+      path.arcTo(x, y, x + w, y, radius);
+      path.closePath();
+    }
+  } else if (['triangle','pentagon','hexagon','star'].includes(kind)) {
     const count=kind==='triangle'?3:kind==='pentagon'?5:kind==='hexagon'?6:10;
     for(let i=0;i<count;i++){const angle=i/count*Math.PI*2-Math.PI/2,r=kind==='star'&&i%2?.45:1,px=x+w/2+Math.cos(angle)*w/2*r,py=y+h/2+Math.sin(angle)*h/2*r;i?path.lineTo(px,py):path.moveTo(px,py);}path.closePath();
   } else if (kind === 'polygon' || kind === 'free' || kind === 'bezier') {

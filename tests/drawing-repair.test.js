@@ -5,6 +5,7 @@ import { EditorEngine } from '../src/core/editor.js';
 import { PaintEngine } from '../src/core/engine.js';
 import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp } from '../src/core/paper-tools.js';
 import { History } from '../src/core/core.js';
+import { shapePath } from '../src/core/geometry.js';
 
 // Drawing algorithms use the same layer/gesture/history code as the app. Only
 // the raster device is replaced here; native tests check actual pixels/layout.
@@ -15,8 +16,26 @@ function groups(n=4){return Array.from({length:n},()=>({frameDuration:160,frames
 function draw(e,source,count=4,size=160){e.fairyGroups=source;e.fairyMode='dynamic';e.begin({x:200,y:200},{tool:'stamp',size,opacity:1});for(let i=1;i<count;i++)e.dynamicDab({x:200+i*2,y:200});e.end();}
 
 const previousDocument=globalThis.document,previousPath=globalThis.Path2D;
-before(()=>{globalThis.document={createElement:()=>canvas(1,1)};globalThis.Path2D=class {moveTo(){}lineTo(){}rect(){}bezierCurveTo(){}};});
+before(()=>{globalThis.document={createElement:()=>canvas(1,1)};globalThis.Path2D=class {
+  commands = [];
+  moveTo(...args){this.commands.push(['moveTo', ...args]);}
+  arcTo(...args){this.commands.push(['arcTo', ...args]);}
+  closePath(){this.commands.push(['closePath']);}
+  lineTo(){}rect(){}bezierCurveTo(){}
+};});
 after(()=>{globalThis.document=previousDocument;globalThis.Path2D=previousPath;});
+
+test('rounded rectangle keeps all four corners on WebKit without Path2D.roundRect', () => {
+  const path = shapePath('roundrect', {x: 50, y: 30}, {x: 10, y: 10});
+  assert.deepEqual(path.commands, [
+    ['moveTo', 14, 10],
+    ['arcTo', 50, 10, 50, 30, 4],
+    ['arcTo', 50, 30, 10, 30, 4],
+    ['arcTo', 10, 30, 10, 10, 4],
+    ['arcTo', 10, 10, 50, 10, 4],
+    ['closePath'],
+  ]);
+});
 
 test('open lines and curves always stroke even after a filled shape',()=>{
  const calls=[],ctx={...context(),stroke(){calls.push(['stroke',this.strokeStyle]);},fill(){calls.push(['fill',this.fillStyle]);}};

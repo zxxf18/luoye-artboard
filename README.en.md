@@ -70,7 +70,7 @@ The current interface is in Simplified Chinese. See the [build guide](docs/build
 
 ### iPhone / iPad
 
-- iOS 16 or later
+- The universal build requires iOS or iPadOS 16 or later. An iPad-only build for iPadOS 15.8 or later is also available from source.
 - Universal app with iPhone portrait and landscape support; iPad uses a full-screen landscape workspace with a larger central canvas
 - Finger and Apple Pencil input; projects, images, and MIDI use the system Files picker
 - The repository includes a buildable iOS target; device distribution still requires Xcode signing
