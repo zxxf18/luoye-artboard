@@ -29,13 +29,13 @@
   cursor: pointer;
 }
 #offline-setup[hidden], #offline-setup [hidden] { display: none; }
+.offline-drawer-toggle { display: none; }
 
 /* Keep the wide tablet workspace in CSS pixels so the paper grows without
    shrinking the entire interface, including its touch targets. */
 @media (orientation: landscape) and (min-width: 861px) and (min-height: 601px) and (any-pointer: coarse) {
   html[data-offline-web] .playroom {
-    --left: clamp(110px, 10.75vw, 146px);
-    --right: clamp(80px, 7.8vw, 108px);
+    --right: clamp(78px, 7.6vw, 104px);
     --header: 54px;
   }
 
@@ -61,130 +61,59 @@
   }
 
   html[data-offline-web] .playroom .workspace {
-    gap: 5px;
-    padding: 5px;
+    grid-template-columns: minmax(0, 1fr) var(--right);
+    gap: 4px;
+    padding: 4px;
   }
 
   html[data-offline-web] .playroom .studio {
+    grid-column: 1;
     gap: 4px;
   }
 
   html[data-offline-web] .playroom .viewport {
-    padding: 3px;
+    padding: 2px;
     border-radius: 12px;
   }
 
-  html[data-offline-web] .playroom .classic-left,
   html[data-offline-web] .playroom .tool-rail {
+    grid-column: 2;
     padding: 4px;
     gap: 4px;
     border-radius: 14px;
   }
 
-  html[data-offline-web] .playroom .classic-left {
-    overflow-y: auto;
-  }
-
-  html[data-offline-web] .playroom .classic-left h2 {
-    font-size: 13px;
-  }
-
-  html[data-offline-web] .playroom .classic-left .brush-box {
-    gap: 4px;
-  }
-
-  html[data-offline-web] .playroom .classic-left .brush-card {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    justify-items: center;
-    gap: 2px;
-    min-height: 52px;
-    padding: 2px;
-    border-radius: 10px;
-  }
-
-  html[data-offline-web] .playroom .brush-card > .playful-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  html[data-offline-web] .playroom .brush-card > span:not(.brush-sample) {
-    font-size: 12px;
-    text-align: center;
-  }
-
-  html[data-offline-web] .playroom .brush-card .brush-sample {
-    display: none;
-  }
-
-  html[data-offline-web] .playroom .classic-colors {
-    padding: 1px;
+  html[data-offline-web] .playroom .offline-drawer-toggle {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    min-height: 44px;
+    padding: 4px 8px;
     border-radius: 12px;
   }
 
-  html[data-offline-web] .playroom .classic-colors h3 {
-    margin: 2px 0;
-    font-size: 12px;
+  .offline-drawer-toggle[aria-expanded="true"] {
+    background: var(--theme-selected, #ffe3b2);
   }
 
-  html[data-offline-web] .playroom .color-pair {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    height: auto;
-    gap: 2px;
-  }
-
-  html[data-offline-web] .playroom .color-pair #swap-colors {
-    grid-column: 1 / -1;
-    width: 100%;
-    margin: 0;
-  }
-
-  html[data-offline-web] .playroom #foreground-history {
-    overflow-x: auto;
-  }
-
-  html[data-offline-web] .playroom #foreground-history:has(> span:only-child) {
+  .playroom.library-open #offline-parameters-toggle,
+  .playroom.library-open #offline-brush-toggle .brush-label,
+  .playroom:not(.library-open) #offline-brush-toggle .library-label {
     display: none;
   }
 
-  html[data-offline-web] .playroom :is(.left-actions, .classic-colors) button {
-    padding-inline: 2px;
+  html[data-offline-web] .playroom .classic-left {
+    display: none;
+    position: absolute;
+    grid-area: auto;
+    inset: 52px auto 4px 4px;
+    width: 216px;
+    overflow-y: auto;
+    z-index: 6;
   }
 
-  html[data-offline-web] .playroom .left-actions button {
-    font-size: 13px;
-  }
-
-  html[data-offline-web] .playroom .classic-left .subtool-card,
-  html[data-offline-web] .playroom .classic-left #library-groups .subtool-card {
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    min-height: 48px;
-    padding: 3px;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  html[data-offline-web] .playroom .classic-left .subtool-card > :is(img, .choice-picture, .playful-icon) {
-    width: 30px;
-    height: 24px;
-    object-fit: contain;
-  }
-
-  html[data-offline-web] .playroom .classic-left #stroke-buttons {
-    gap: 3px;
-    padding: 0;
-  }
-
-  html[data-offline-web] .playroom .classic-left #stroke-buttons button {
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    padding: 2px;
-    font-size: 10px;
-    white-space: nowrap;
+  html[data-offline-web] .playroom[data-offline-drawer="brush"] .classic-left {
+    display: flex;
   }
 
   html[data-offline-web] .playroom .tool-rail #tools,
@@ -222,11 +151,21 @@
   }
 
   html[data-offline-web] .playroom:not(.library-open) .tool-dock {
-    height: clamp(124px, calc(35vh - 120px), 154px);
+    position: relative;
+    height: 48px;
+    grid-template-rows: 48px;
   }
 
   html[data-offline-web] .playroom:not(.library-open) .classic-parameters {
-    gap: 4px;
-    padding: 3px 6px;
+    display: none;
+  }
+
+  html[data-offline-web] .playroom[data-offline-drawer="parameters"]:not(.library-open) .classic-parameters {
+    display: grid;
+    position: absolute;
+    inset: auto 0 calc(100% + 4px);
+    min-height: 108px;
+    max-height: 40vh;
+    z-index: 5;
   }
 }

@@ -17,8 +17,8 @@ async function checkLandscapeCanvas(page) {
   await canvas.waitFor();
   const bounds = await canvas.boundingBox();
   const { width, height } = ipad.viewport;
-  assert.ok(bounds && bounds.width >= 768 && bounds.height >= 416,
-    `1024×768 iPad needs at least 768×416 of visible canvas, got ${JSON.stringify(bounds)}`);
+  assert.ok(bounds && bounds.width >= 900 && bounds.height >= 506,
+    `1024×768 iPad needs at least 900×506 of visible canvas, got ${JSON.stringify(bounds)}`);
   assert.ok(bounds.x >= 0 && bounds.y >= 0 && bounds.x + bounds.width <= width && bounds.y + bounds.height <= height,
     `landscape canvas stays within the screen, got ${JSON.stringify(bounds)}`);
   return bounds;
@@ -67,8 +67,29 @@ for (const name of names.length ? names : Object.keys(browsers)) {
     await page.locator('#more-open').tap();
     await page.locator('#more-dialog[open]').waitFor();
     await page.locator('#more-done').tap();
+    const wideBounds = await checkLandscapeCanvas(page);
+    const brushToggle = page.locator('#offline-brush-toggle');
+    const parametersToggle = page.locator('#offline-parameters-toggle');
+    await page.locator('#classic-left').waitFor({ state: 'hidden' });
+    await brushToggle.tap();
+    await page.locator('#classic-left .brush-card[data-brush="pencil"]').waitFor();
+    assert.equal(await brushToggle.getAttribute('aria-expanded'), 'true');
+    assert.equal((await checkLandscapeCanvas(page)).width, wideBounds.width);
+    await page.keyboard.press('Escape');
+    assert.equal(await brushToggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'offline-brush-toggle');
+    await parametersToggle.tap();
+    await page.locator('#offline-tool-parameters #size').waitFor();
+    assert.equal((await checkLandscapeCanvas(page)).width, wideBounds.width);
+    const beforeDismiss = await page.locator('#painting').evaluate(element => element.toDataURL());
+    await page.touchscreen.tap(wideBounds.x + wideBounds.width / 2, wideBounds.y + wideBounds.height / 2);
+    await page.locator('#offline-tool-parameters').waitFor({ state: 'hidden' });
+    assert.equal(await page.locator('#painting').evaluate(element => element.toDataURL()), beforeDismiss,
+      'dismissing a drawer over the paper does not leave a mark');
     await page.locator('#mode-library').tap();
     await page.locator('#asset-grid img').first().waitFor();
+    await page.getByRole('button', { name: '分类', exact: true }).tap();
+    await page.locator('#library-groups .subtool-card').nth(1).tap();
     await page.locator('#mode-board').tap();
     const toolPage = page.locator('#tool-page-label');
     const initialToolPage = await toolPage.textContent();
