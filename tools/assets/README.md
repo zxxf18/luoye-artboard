@@ -16,3 +16,19 @@ node tools/assets/publish-store-art.mjs
 Publishing requires the original masters under `local-only/store-art/masters/` and Sharp (set `LUOYE_SHARP` if necessary). Normal application builds only need the checked-in runtime assets and catalogs.
 
 Build entrypoints remain in `tools/` so existing npm, Android and CI commands keep their paths. Older one-off art generators remain in their existing locations; this directory owns the current store/community material workflow.
+
+The gallery quality pass regenerates thumbnail framing for the current and
+legacy catalogs and repairs damaged frames and the blue-smoke sprite sheet.
+Build the staged output with Pillow installed:
+
+```sh
+python3 tools/assets/refine-gallery.py --output build/art-quality/staged \
+  --stop-sign-png build/art-quality/stop-sign.png
+```
+
+The PNG argument is a rasterization of `public/assets/background/stop-sign.svg`.
+The optional `--masters` path defaults to `local-only/gallery-quality/masters/`.
+It contains the two restored Luoye frames and the generated blue-smoke sheet
+listed in `manifests/gallery-quality-provenance.json`. The other replacement
+frames are drawn by `gallery-frame-art.py`. Reapply the gallery pass after
+republishing the original store batch to reproduce the latest runtime art.
