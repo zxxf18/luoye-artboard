@@ -17,8 +17,8 @@ async function checkLandscapeCanvas(page) {
   await canvas.waitFor();
   const bounds = await canvas.boundingBox();
   const { width, height } = ipad.viewport;
-  assert.ok(bounds && bounds.width >= 768 && bounds.height >= 416,
-    `1024×768 iPad needs at least 768×416 of visible canvas, got ${JSON.stringify(bounds)}`);
+  assert.ok(bounds && bounds.width >= 835 && bounds.height >= 465,
+    `1024×768 iPad needs at least 835×465 of visible canvas, got ${JSON.stringify(bounds)}`);
   assert.ok(bounds.x >= 0 && bounds.y >= 0 && bounds.x + bounds.width <= width && bounds.y + bounds.height <= height,
     `landscape canvas stays within the screen, got ${JSON.stringify(bounds)}`);
   return bounds;
@@ -67,8 +67,23 @@ for (const name of names.length ? names : Object.keys(browsers)) {
     await page.locator('#more-open').tap();
     await page.locator('#more-dialog[open]').waitFor();
     await page.locator('#more-done').tap();
+    const pencil = page.locator('#classic-left .brush-card[data-brush="pencil"]');
+    const pencilBounds = await pencil.boundingBox();
+    assert.ok(pencilBounds && pencilBounds.width >= 44 && pencilBounds.height >= 44,
+      'the compact brush card keeps a 44×44 touch target');
+    await pencil.tap();
+    await page.locator('#foreground-palette').tap();
+    await page.locator('#palette-dialog[open]').waitFor();
+    await page.locator('#palette-cancel').tap();
+    const parameters = await page.locator('.classic-parameters').boundingBox();
+    const size = await page.locator('#size').boundingBox();
+    const paintColor = await page.locator('#paint-color-open').boundingBox();
+    assert.ok(parameters && size && paintColor && size.y >= parameters.y &&
+      paintColor.y + paintColor.height <= parameters.y + parameters.height,
+    'both parameter rows remain visible beside the drawing area');
     await page.locator('#mode-library').tap();
     await page.locator('#asset-grid img').first().waitFor();
+    await page.locator('#library-groups .subtool-card').nth(1).tap();
     await page.locator('#mode-board').tap();
     const toolPage = page.locator('#tool-page-label');
     const initialToolPage = await toolPage.textContent();

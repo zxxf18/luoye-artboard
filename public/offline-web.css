@@ -34,8 +34,8 @@
    shrinking the entire interface, including its touch targets. */
 @media (orientation: landscape) and (min-width: 861px) and (min-height: 601px) and (any-pointer: coarse) {
   html[data-offline-web] .playroom {
-    --left: clamp(110px, 10.75vw, 146px);
-    --right: clamp(80px, 7.8vw, 108px);
+    --left: clamp(98px, 9.57vw, 146px);
+    --right: clamp(70px, 6.84vw, 108px);
     --header: 54px;
   }
 
@@ -61,8 +61,8 @@
   }
 
   html[data-offline-web] .playroom .workspace {
-    gap: 5px;
-    padding: 5px;
+    gap: 3px;
+    padding: 2px;
   }
 
   html[data-offline-web] .playroom .studio {
@@ -70,13 +70,15 @@
   }
 
   html[data-offline-web] .playroom .viewport {
-    padding: 3px;
+    padding: 0;
+    border-width: 2px;
     border-radius: 12px;
   }
 
   html[data-offline-web] .playroom .classic-left,
   html[data-offline-web] .playroom .tool-rail {
-    padding: 4px;
+    padding: 4px 2px;
+    border-width: 1px;
     gap: 4px;
     border-radius: 14px;
   }
@@ -90,7 +92,8 @@
   }
 
   html[data-offline-web] .playroom .classic-left .brush-box {
-    gap: 4px;
+    gap: 2px;
+    padding-inline: 1px;
   }
 
   html[data-offline-web] .playroom .classic-left .brush-card {
@@ -118,7 +121,8 @@
   }
 
   html[data-offline-web] .playroom .classic-colors {
-    padding: 1px;
+    padding: 1px 0;
+    border-width: 1px;
     border-radius: 12px;
   }
 
@@ -182,7 +186,7 @@
     flex-direction: column;
     justify-content: center;
     gap: 2px;
-    padding: 2px;
+    padding: 2px 1px;
     font-size: 10px;
     white-space: nowrap;
   }
