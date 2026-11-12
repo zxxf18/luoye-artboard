@@ -6,7 +6,7 @@ import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './cla
 import { mountMobileShelf } from './classic-mobile.js';
 import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, fractalState, fractalPercentToSize, fractalSizeToPercent, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
-import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSegment, prepareGradientStops } from '../core/brushes.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSeedFromEntropy, brushSegment, prepareGradientStops } from '../core/brushes.js';
 import { createToolRegistry } from '../core/tool-registry.js';
 import { makeCanvas } from '../core/engine.js';
 
@@ -14,7 +14,7 @@ import { makeCanvas } from '../core/engine.js';
 export const CLASSIC_TOOLS = createToolRegistry().list().filter(tool => tool.label && !tool.variantOf).map(tool => [tool.id, tool.label]);
 export function brushPreview(id,color,width=140,height=42,size=28,secondary='#ffffff'){
   const canvas=makeCanvas(width*2,height*2),ctx=canvas.getContext('2d');ctx.scale(2,2);canvas.setAttribute('aria-hidden','true');
-  const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:913},gradientDistance:0};
+  const g={layer:{scale:1},options:{tool:'pen',brush:id,size,color,secondaryColor:secondary,opacity:1,seed:brushSeedFromEntropy(0)},gradientDistance:0};
   let a={x:18,y:height/2};brushSegment(ctx,g,a,a);for(let x=22;x<width-14;x+=4){const b={x,y:height/2+Math.sin((x-18)/(width-32)*Math.PI*2)*height*.13};
     // 预览不走绘画引擎的 segment()，渐变停靠点必须按段刷新，
     // 否则彩虹笔示例会停在起笔点的单一颜色上。距离沿整条示例笔迹推进，
@@ -137,18 +137,25 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   }
   renderTools();
   document.addEventListener('close',event=>{if(event.target.id==='animation-editor-dialog'||event.target.id==='pixel-art-dialog')shelfPressed(el('painting').dataset.tool);},true);
+  const brushSamples=new Map();
   let sampleTone,showEraserShapes=false;
   function syncBrushSamples(){
     // The samples follow the theme's contrast, independent of paint colors and brush size.
     const dark=['mechanical','space'].includes(document.body.dataset.theme);
     const tone=dark?'#ffffff':'#141414';
     if(tone===sampleTone)return;
-    sampleTone=tone;
-    for(const button of pens.children){
-      const brush=button.dataset.brush;
-      const secondary=brush==='duotone'&&dark?'#39404e':'#ffffff';
-      button.querySelector('.brush-sample').replaceChildren(brushPreview(brush,tone,140,34,DEFAULT_BRUSH_SIZE,secondary));
+    const buttons=Array.from(pens.children);
+    let samples=brushSamples.get(tone);
+    if(!samples){
+      samples=buttons.map(button=>{
+        const brush=button.dataset.brush;
+        const secondary=brush==='duotone'&&dark?'#39404e':'#ffffff';
+        return brushPreview(brush,tone,140,34,DEFAULT_BRUSH_SIZE,secondary);
+      });
+      brushSamples.set(tone,samples);
     }
+    buttons.forEach((button,index)=>button.querySelector('.brush-sample').replaceChildren(samples[index]));
+    sampleTone=tone;
   }
   function sync(){const tool=el('painting').dataset.tool,brush=BRUSHES.find(b=>b.id===el('brush').value);document.body.dataset.classicTool=tool;title.textContent=document.body.classList.contains('library-open')&&libraryGroups.children.length?'找一找图案':tool==='pen'?'我的画笔盒':tool==='scratch'?'我的刮刮画':(tools.find(t=>t[0]===groupTool())?.[1]||'工具')+'怎么玩';pens.hidden=tool!=='pen';subtools.replaceChildren();
     for(const b of pens.children)b.setAttribute('aria-pressed',b.dataset.brush===brush.id);

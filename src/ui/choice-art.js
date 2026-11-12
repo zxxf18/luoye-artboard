@@ -1,5 +1,6 @@
 import { applyEffect } from '../core/pixels.js';
 import { makeCanvas } from '../core/engine.js';
+import { brushSeedNamespace } from '../core/brushes.js';
 import { playfulIcon } from './playful-icons.js';
 
 let choiceArtSequence=0;
@@ -41,7 +42,7 @@ export function choiceArt(select, option) {
   if(key==='eraser-mode') drawing=value==='shape'?'<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/><path d="m32 13 5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1z" fill="#fffaf0" stroke="#8d6c55" stroke-width="2"/>':`<rect x="5" y="7" width="54" height="50" rx="10" fill="#b8d9c8"/>${value==='rect'?'<rect x="14" y="20" width="35" height="26" rx="2" fill="#fffaf0" stroke="#8d6c55" stroke-dasharray="4 3"/>':`<path d="M15 44 44 19" stroke="#fffaf0" stroke-width="${value==='soft'?22:13}" stroke-linecap="round" opacity="${value==='soft'?.55:1}"/>`}<path d="m30 35 15-17 12 10-15 17Z" fill="#f1a396" stroke="#875944" stroke-width="2"/><path d="m30 35 6-7 12 10-6 7Z" fill="#ffe7bf"/>`;
   if(key==='fill-mode'){
     const gradient=value==='gradient'||value==='region-gradient';
-    const fillId='choice-fill-'+(++choiceArtSequence);
+    const fillId=gradient ? `choice-fill-${brushSeedNamespace}-${++choiceArtSequence}` : '';
     const paint=gradient?`url(#${fillId})`:'#f7be69';
     const region='M10 40c3-7 10-9 15-5 5-8 14-7 18-2 5 0 9 5 9 9v7H10Z';
     const swatches={
@@ -54,7 +55,8 @@ export function choiceArt(select, option) {
       rect:`<rect x="12" y="17" width="40" height="30" rx="3" fill="${paint}"/><path d="M17 28v-6h8" stroke="#fff6e2" fill="none"/>`
     };
     const direction='<path d="M17 40 46 26m-7-3 7 3-3 7" stroke="#714e51" fill="none"/>';
-    drawing=`<defs><linearGradient id="${fillId}" x2="1" y2="0"><stop stop-color="#ffdb83"/><stop offset="1" stop-color="#dc8caa"/></linearGradient></defs><rect x="4" y="5" width="56" height="54" rx="11" fill="#fff9eb" stroke="#d9bb8d"/><g stroke="#805640" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">${swatches[value]||''}${gradient?direction:''}</g>`;
+    const defs=gradient ? `<defs><linearGradient id="${fillId}" x2="1" y2="0"><stop stop-color="#ffdb83"/><stop offset="1" stop-color="#dc8caa"/></linearGradient></defs>` : '';
+    drawing=`${defs}<rect x="4" y="5" width="56" height="54" rx="11" fill="#fff9eb" stroke="#d9bb8d"/><g stroke="#805640" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">${swatches[value]||''}${gradient?direction:''}</g>`;
   }
   if(key==='warp-kind')drawing=value==='push'?'<path d="M12 8v48M26 8C6 22 51 34 26 56M40 8v48M54 8v48" fill="none" stroke="#84b5a1" stroke-width="4"/><path d="M13 32h32m-8-9 9 9-9 9" stroke="#aa6347" fill="none" stroke-width="4"/>':'<circle cx="32" cy="32" r="22" fill="#b6daca"/><circle cx="32" cy="32" r="12" fill="#f7d69b"/><path d="m15 15-7-7m0 10V8h10m31 41 7 7m-10 0h10V46" stroke="#92563c" fill="none" stroke-width="4"/>';
   if(key==='board-filter-kind')drawing={ripple:'<ellipse cx="32" cy="32" rx="26" ry="20"/><ellipse cx="32" cy="32" rx="17" ry="12"/><ellipse cx="32" cy="32" rx="7" ry="5"/>',twist:'<path d="M32 31c-18-20-36 16-11 24 37 12 52-41 20-48C16 0 6 13 7 24"/>',waterfall:'<path d="M12 6c-10 18 20 25 0 49M26 6c-10 18 20 25 0 49M40 6c-10 18 20 25 0 49M54 6c-10 18 20 25 0 49"/>','point-light':'<circle cx="32" cy="32" r="10" fill="#f5c570"/><path d="M32 3v10m0 38v10M3 32h10m38 0h10M12 12l7 7m26 26 7 7M12 52l7-7m26-26 7-7"/>','direction-light':'<path d="m9 12 43 5-30 34Z" fill="#ffe5a1"/><path d="m9 12 35 26m-13-1 13 1-4-13"/>'}[value]||'';

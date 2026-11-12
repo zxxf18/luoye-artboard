@@ -1,5 +1,13 @@
 import { seededRandom } from './pixels.js';
 
+export const brushSeedNamespace = 'b34c1ad3e29cce87129537a0b86d25e6';
+const brushSeedSalt = brushSeedNamespace.match(/.{8}/g)
+  .reduce((seed, word) => seed ^ Number.parseInt(word, 16), 0);
+
+export function brushSeedFromEntropy(entropy) {
+  return (entropy ^ brushSeedSalt) >>> 0;
+}
+
 export const DEFAULT_BRUSH_SIZE=16;
 export const BRUSHES=[
   {id:'pencil',name:'铅笔',hint:'细细的线，勾轮廓',size:14,color:'#eca73b'},

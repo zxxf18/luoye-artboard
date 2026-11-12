@@ -1,6 +1,7 @@
 import { validateProject, MAX_LAYERS } from '../core/core.js';
 import { documentHeader } from '../core/document.js';
 import { makeCanvas, loadImage } from '../core/engine.js';
+import { brushSeedFromEntropy } from '../core/brushes.js';
 
 const COMMANDS=new Set(['stroke','selectShape','clearSelection','selectAll','invertSelection','magicSelect','copySelection','deleteSelection','paste','duplicateLayer','flipLayer','mergeToBottom','freezeAnimation','clearPixels','clearLayer','applyDarkroom','applyBoardFilter','fillAt','setCloneSource','setPaintTexture','setPaperTexture','setStampImages','resetStampProgress','setFairyGroups','useLayerAsStamp','addLayer','replaceBackground','removeActive','clearAnimated','reorder','resizeActiveObject','setProperty','addVertex','finishPath']);
 const PROPERTY_KEYS=new Set(['name','x','y','scale','rotation','opacity','visible','flipX','flipY']);
@@ -75,7 +76,7 @@ export class Recorder {
   attach(){
     const engine=this.engine,rec=this;
     const begin=engine.begin.bind(engine),update=engine.update.bind(engine),end=engine.end.bind(engine);
-    engine.begin=function(point,options){const o={...options,seed:options.seed??crypto.getRandomValues(new Uint32Array(1))[0]};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
+    engine.begin=function(point,options){const o={...options,seed:options.seed??brushSeedFromEntropy(crypto.getRandomValues(new Uint32Array(1))[0])};if(rec.recording){rec.pending=rec.event('stroke',[[{...point}],o]);rec.beforeIds=new Set(engine.layers.map(layer=>layer.id));}rec.depth++;try{const result=begin(point,o);if(!engine.gesture&&rec.pending){rec.pending.resultIds=engine.layers.filter(layer=>!rec.beforeIds.has(layer.id)).map(layer=>layer.id);rec.add(rec.pending);rec.pending=null;}return result;}catch(e){rec.pending=null;throw e;}finally{rec.depth--;}};
     engine.update=function(point){if(rec.pending){if(rec.pending.args[0].length>=20000){rec.pending=null;rec.recording=false;rec.onState('单笔超过采样上限，本段录制已结束。');}else rec.pending.args[0].push({...point});}rec.depth++;try{return update(point);}finally{rec.depth--;}};
     const repeat=engine.repeatStamp.bind(engine);
     engine.repeatStamp=function(force=false){rec.depth++;let result;try{result=repeat(force);}finally{rec.depth--;}if(result&&rec.pending){const point=rec.pending.args[0].at(-1);if(rec.pending.args[0].length<20000)rec.pending.args[0].push({...point,repeat:true});else rec.stop('单笔超过采样上限，本段录制已结束。');}return result;};
