@@ -32,3 +32,17 @@ listed in `manifests/gallery-quality-provenance.json`. The numbered frames are d
 `python3 tools/assets/refine-gallery.py --frames-only --output build/frame-art`.
 Reapply the gallery pass after
 republishing the original store batch to reproduce the latest runtime art.
+
+`compact-still-art.py` stages smaller WebP originals for colored backgrounds and
+static stickers. It requires Pillow, NumPy and a `cwebp` build that accepts WebP
+input. Use freshly published originals as the source to avoid another lossy pass
+over files that have already been compressed.
+
+```sh
+python3 tools/assets/compact-still-art.py --source public --output build/still-art
+```
+
+The staging directory contains only candidates that pass the size, alpha and
+pixel-similarity checks, plus `report.json`. Review the report and copy the
+accepted `assets/` files into `public/assets/`. The regular application build
+uses the checked-in files directly.
