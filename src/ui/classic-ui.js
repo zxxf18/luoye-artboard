@@ -220,6 +220,31 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';
   actions.addEventListener('click',event=>{if(event.target.closest('button.more-action'))more.close();},true);
   el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p>${supportLinks({project:document.documentElement.dataset.projectLink!=='false',donation:document.documentElement.dataset.donationLink!=='false'})}<p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>about.showModal();about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
+  const policy = document.getElementById('bundled-privacy-policy');
+  if (policy) {
+    const entry = document.createElement('button');
+    entry.type = 'button';
+    entry.id = 'privacy-open';
+    entry.textContent = '隐私政策';
+    entry.setAttribute('aria-haspopup', 'dialog');
+    entry.setAttribute('aria-controls', 'privacy-dialog');
+    about.querySelector('.dialog-actions').prepend(entry);
+
+    const dialog = document.createElement('dialog');
+    dialog.id = 'privacy-dialog';
+    dialog.setAttribute('aria-labelledby', 'privacy-heading');
+    dialog.innerHTML = '<h2 id="privacy-heading">隐私政策</h2><div data-i18n-ignore></div><div class="dialog-actions"><button type="button" class="primary" autofocus>关闭</button></div>';
+    const content = dialog.querySelector('[data-i18n-ignore]');
+    content.append(policy.content.cloneNode(true));
+    document.body.append(dialog);
+    entry.onclick = () => {
+      const language = document.documentElement.lang === 'zh-CN' ? 'zh-CN' : 'en';
+      content.prepend(content.querySelector(`section[lang="${language}"]`));
+      dialog.showModal();
+      dialog.scrollTop = 0;
+    };
+    dialog.querySelector('button').onclick = () => dialog.close();
+  }
   more.setAttribute('aria-labelledby', 'more-heading');
   more.querySelector('h2').id = 'more-heading';
   const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.id='rename-open';rename.onclick=()=>titleDialog.showModal();settingButton(rename,'pencil','给画起名字');

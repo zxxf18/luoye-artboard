@@ -1,50 +1,41 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile,access} from 'node:fs/promises';
-import {runInNewContext} from 'node:vm';
-import {renderRuntimeAssetCatalog,selectAssetCatalog} from '../tools/assets/asset-distribution.mjs';
-import {runtimeAssetPaths,includeAsset} from '../tools/assets/runtime-assets.mjs';
-const current=JSON.parse(await readFile(new URL('../public/assets/catalog.json',import.meta.url)));
-const legacy=JSON.parse(await readFile(new URL('../resources/assets/legacy-catalog.json',import.meta.url)));
-test('community retains all current entries and exposes the previous replacements separately',async()=>{
- const merged=selectAssetCatalog(current,legacy,'community');
- assert.equal(merged.length,current.length+111);assert.equal(new Set(merged.map(x=>x.id)).size,merged.length);
- for(const original of legacy){const saved=merged.find(x=>x.id===original.id+'-legacy');assert.ok(saved,original.id);assert.equal(saved.category,original.category);assert.equal(saved.collection,original.collection);assert.equal(saved.src,original.src);assert.equal(saved.legacyOf,original.id);}
- for(const p of runtimeAssetPaths(merged))await access(new URL('../public/'+p,import.meta.url));
-});
-test('community gives fairy variants distinct names and starts combinations with the archived candy car',()=>{
- const merged=selectAssetCatalog(current,legacy,'community');
- for(const mode of ['static','dynamic']){
-  const entries=merged.filter(item=>item.category==='fairy'&&item.fairyMode===mode);
-  assert.equal(new Set(entries.map(item=>item.name)).size,entries.length);
-  assert.ok(entries.every(item=>!item.name.includes('旧版')));
- }
- assert.equal(merged.find(item=>item.category==='fairy'&&item.fairyMode==='static').id,'girl-1-9-legacy');
- for(const item of legacy.filter(item=>item.category!=='fairy')){
-  assert.equal(merged.find(entry=>entry.legacyOf===item.id).name,item.name+'（旧版）');
- }
-});
-test('store excludes legacy entries, their bitmaps and the archive index',()=>{
- const selected=selectAssetCatalog(current,legacy,'store'),paths=runtimeAssetPaths(selected);
- assert.deepEqual(selected,current);
- for(const old of legacy){assert.equal(includeAsset(old.src,paths),false,old.id);assert.equal(includeAsset(old.thumbnail,paths),false,old.id);}
- assert.equal(includeAsset('assets/legacy-catalog.json',paths),false);
- assert.throws(()=>selectAssetCatalog(current,legacy,'unknown'));
+import { access, readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
+import { readAssetCatalog, renderRuntimeAssetCatalog } from '../tools/assets/asset-distribution.mjs';
+import { runtimeAssetPaths, includeAsset } from '../tools/assets/runtime-assets.mjs';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+const catalog = await readAssetCatalog(root);
+
+test('the shared release catalog excludes retired artwork and keeps the new candy car first', async () => {
+  assert.equal(catalog.find(item => item.fairyMode === 'static').id, 'girl-1-9');
+  for (const item of catalog) {
+    assert.doesNotMatch(item.id, /-legacy$/);
+    assert.doesNotMatch([item.name, item.themeName].join(' '), /特斯拉|Tesla|超级充电/i);
+    assert.ok(item.quality !== 'preschool-natural-v16' || item.category === 'frame' || !item.sources?.length,
+      item.id + ' still uses an earlier reference redraw');
+  }
+  const paths = runtimeAssetPaths(catalog);
+  for (const file of paths) await access(new URL('../public/' + file, import.meta.url));
+  for (const file of ['assets/background/sprites/bg178-parking-comic.webp', 'assets/animation/sprites/animation-0-f0.webp',
+    'assets/misc/sprites/role6-53.webp', 'assets/sticker/sprites/car-v179-electric-white.webp', 'assets/legacy-catalog.json']) {
+    assert.equal(includeAsset(file, paths), false, file);
+  }
 });
 
-test('startup catalog retains the gallery, placement and animation fields for both editions',()=>{
- for(const distribution of ['community','store']){
-  const selected=selectAssetCatalog(current,legacy,distribution);
-  const script=renderRuntimeAssetCatalog(selected);
-  const serialized=runInNewContext(script+'JSON.stringify(window.LUOYE_ASSETS)',{window:{}});
-  const runtime=JSON.parse(serialized);
-  assert.deepEqual(runtime.map(asset=>asset.id),selected.map(asset=>asset.id));
-  assert.deepEqual(runtimeAssetPaths(runtime),runtimeAssetPaths(selected));
-  const fields=['name','category','collection','src','thumbnail','width','height','coloring','frames','frameDuration','fairyMode','fairyGroups','fairyBehavior','legacyOf'];
-  for(const [index,asset] of runtime.entries()){
-   for(const field of fields)assert.deepEqual(asset[field],selected[index][field],asset.id+' '+field);
-   for(const provenance of ['sources','masterSource','artDirection','originalFairyGroups'])assert.ok(!Object.hasOwn(asset,provenance));
+test('startup catalog retains the gallery, placement and animation fields', async () => {
+  const script = renderRuntimeAssetCatalog(catalog);
+  assert.equal(await readFile(new URL('../public/assets/catalog.js', import.meta.url), 'utf8'), script);
+  const runtime = JSON.parse(runInNewContext(script + 'JSON.stringify(window.LUOYE_ASSETS)', { window: {} }));
+  assert.deepEqual(runtime.map(asset => asset.id), catalog.map(asset => asset.id));
+  assert.deepEqual(runtimeAssetPaths(runtime), runtimeAssetPaths(catalog));
+  const fields = ['name', 'category', 'collection', 'src', 'thumbnail', 'width', 'height', 'coloring', 'frames',
+    'frameDuration', 'fairyMode', 'fairyGroups', 'fairyBehavior'];
+  for (const [index, asset] of runtime.entries()) {
+    for (const field of fields) assert.deepEqual(asset[field], catalog[index][field], asset.id + ' ' + field);
+    for (const field of ['sources', 'masterSource', 'artDirection', 'originalFairyGroups']) assert.ok(!Object.hasOwn(asset, field));
   }
-  assert.ok(script.length<JSON.stringify(selected).length);
- }
+  assert.ok(script.length < JSON.stringify(catalog).length);
 });

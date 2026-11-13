@@ -7,7 +7,7 @@ const { chromium, webkit } = createRequire(import.meta.url)(process.env.LUOYE_PL
 const url = process.argv[2] || 'http://127.0.0.1:4173/offline/';
 const browsers = { chromium, webkit };
 const names = process.argv.slice(3);
-const expectedAssetCount = Number(process.env.LUOYE_OFFLINE_ASSET_COUNT || (await readAssetCatalog(root, 'store')).length);
+const expectedAssetCount = Number(process.env.LUOYE_OFFLINE_ASSET_COUNT || (await readAssetCatalog(root)).length);
 const ipad = {
   viewport: { width: 1024, height: 768 },
   locale: 'zh-CN',

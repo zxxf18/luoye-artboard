@@ -27,8 +27,7 @@ test('automatic language selection respects the order of supported preferences',
 test('all locales cover the same UI keys and the shipped asset names', async () => {
   const keys = Object.keys(messagesEN);
   const assets = JSON.parse(await readFile(new URL('../public/assets/catalog.json', import.meta.url), 'utf8'));
-  const legacy = JSON.parse(await readFile(new URL('../resources/assets/legacy-catalog.json', import.meta.url), 'utf8'));
-  const names = new Set([...assets, ...legacy.filter(asset => asset.category === 'fairy')].map(asset => asset.name).filter(name => /\p{Script=Han}/u.test(name)));
+  const names = new Set(assets.map(asset => asset.name).filter(name => /\p{Script=Han}/u.test(name)));
   for (const [locale, messages] of Object.entries({ en: messagesEN, ja: messagesJA, de: messagesDE, ko: messagesKO, fr: messagesFR })) {
     assert.deepEqual(Object.keys(messages), keys, locale);
     for (const name of names) {

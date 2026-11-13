@@ -1,0 +1,188 @@
+[
+  {
+    "group": "role0",
+    "ids": [
+      "luoye-role0-01",
+      "role0-1",
+      "luoye-role0-03",
+      "luoye-role0-04",
+      "luoye-role0-05",
+      "luoye-role0-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-47dd8258-108d-4707-b793-0f5be058fed8.png",
+    "masterSha256": "5ca468fcf1e6ec63972f448cc7653b96d98b0a70d9ebc9f157589180b4fca175",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a crouching orange fox with full tail curved in front; a baby elephant taking one careful step; a cream rabbit sniffing clover; a cream and black panda eating one bamboo leaf; an orange tabby kitten stretching; a tan hedgehog walking with its nose pointed down."
+  },
+  {
+    "group": "role1",
+    "ids": [
+      "role1-0",
+      "luoye-role1-02",
+      "luoye-role1-03",
+      "role1-1",
+      "luoye-role1-05",
+      "luoye-role1-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-8b7e2b75-a8a4-4036-9502-ca61b6173e82.png",
+    "masterSha256": "00474d4435045e8fd1af654f09f5fc7e1c8658d6b1599370392582608a0b044b",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a copper goldfish with flowing tail; a green sea turtle swimming diagonally upward; a tiny scarlet crab with two rounded claws; a mauve octopus; a blue-and-cream humpback whale; a striped seahorse facing to the right."
+  },
+  {
+    "group": "role2",
+    "ids": [
+      "role2-0",
+      "role2-1",
+      "luoye-role2-03",
+      "luoye-role2-04",
+      "luoye-role2-05",
+      "luoye-role2-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-c165eab6-5e15-44b2-8c23-187e9cd781dd.png",
+    "masterSha256": "c35c505c0a14f982698c134fd491dc9d24f6615e8fc96dd85d50f39b36a68fa2",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a yellow baby chick standing; a small honey bee in flight; a monarch butterfly with open wings; a blue kingfisher facing right; a snowy owl perched on a twig; a scarlet macaw with deep blue wing tips."
+  },
+  {
+    "group": "role3",
+    "ids": [
+      "role3-60",
+      "role3-0",
+      "luoye-role3-03",
+      "luoye-role3-04",
+      "luoye-role3-05",
+      "luoye-role3-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-8ec928dc-e7d8-4c3b-ae22-b96f72576651.png",
+    "masterSha256": "157d325469134603fd8c80bcf6296a32e3db6290babce157193753251c2a7bb9",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a whole yellow mango with one green leaf and neat cubed slices next to it; a golden yellow pineapple with green crown; three ripe strawberries; a sunflower bloom with two green leaves; a purple bunch of grapes; a little red maple sapling."
+  },
+  {
+    "group": "role4",
+    "ids": [
+      "luoye-role4-01",
+      "luoye-role4-02",
+      "luoye-role4-03",
+      "luoye-role4-04",
+      "luoye-role4-05",
+      "luoye-role4-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-0a086266-b93b-45b8-8a96-f43b466de35c.png",
+    "masterSha256": "0dc6df1ca0ab2fd439df7828cbba1322e758c22aafb2d4459cf3adad06f3c14b",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a small child reading a plain open book while seated cross-legged; a small girl in overalls watering a little seedling; a child crouching to tie a shoelace; a child running after a ball; a child in a raincoat holding an umbrella; a child playing a small drum. Simple everyday outfits, culturally diverse, nobody resembling an existing character. Natural action, full figures."
+  },
+  {
+    "group": "role5",
+    "ids": [
+      "role5-0",
+      "luoye-role5-02",
+      "luoye-role5-03",
+      "luoye-role5-04",
+      "luoye-role5-05",
+      "luoye-role5-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-984f6d90-bcd4-4ab0-8212-2983ccbdab0a.png",
+    "masterSha256": "91ad9a8cbf54eed1dac217e5acda60aaaaf2e1035af400cef5d1d1623701fab0",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a green sharpened drawing pencil placed diagonally; a honey-yellow teapot with teal lid; a small wooden artist palette and one brush; a cornflower blue lamp with a simple cylinder shade; a turquoise alarm clock with plain tick marks; an orange classical guitar, simple natural construction."
+  },
+  {
+    "group": "role6",
+    "ids": [
+      "luoye-role6-01",
+      "luoye-role6-02",
+      "luoye-role6-03",
+      "luoye-role6-04",
+      "luoye-role6-05",
+      "luoye-role6-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-b4ab5a66-8595-41c2-b805-45b5928754a2.png",
+    "masterSha256": "a3b0124b6ced7d174bd37c8373f1d9a472f5c4969e6adb675011ca21ef13b4f1",
+    "prompt": "One ORIGINAL preschool watercolor gouache cutout sprite sheet, drawn from this text alone, without any reference images. Exactly 3 columns by 2 rows, six distinct complete separate sticker illustrations in reading order, one centered per equal-size invisible cell. Landscape 3:2. True transparent background throughout, no fake checkerboard, no shadows outside subjects, no panel, no framing, no label or text, no watermark. Tiny textured brushwork, clear silhouettes, friendly preschool proportions but believable anatomy and objects. Consistent density and strong restrained colors. Every subject occupies only the middle 65 percent of its cell with very generous fully empty space on all sides. No intersecting subjects, no cropped parts. No famous characters, logos or recognizable product designs. In reading order: a small friendly high wing propeller plane white with orange tail; a plain green garden tractor; a little yellow and blue striped sailboat; a red crane truck with an ochre boom and simple generic block cab; a violet pedal bicycle with basket; a teal train engine with rounded rectangular windows. No badges, letters, trademark colors or recognizable models."
+  },
+  {
+    "group": "vehicles",
+    "ids": [
+      "luoye-vehicles-01",
+      "luoye-vehicles-02",
+      "luoye-vehicles-03",
+      "luoye-vehicles-04",
+      "luoye-vehicles-05",
+      "luoye-vehicles-06"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-6946a21e-c64b-4360-96ae-45715f6ac9a7.png",
+    "masterSha256": "3b65cd0e97ab997dc2f0ea279dc04928379c9e1c9b04f67c4642abdcecbc3b3f",
+    "prompt": "Draw a sticker sprite sheet of six distinct invented vehicle designs, 3 columns x 2 rows with equal cells, 1536x1024 landscape, true transparent alpha all around, one whole vehicle per cell, generous empty gutters, NO ground or border or shadows. Original preschool watercolor and colored-pencil gouache, clean readable broad shapes. Make new silhouettes from simple playful forms, no reproducing real-world models or using familiar brand styling cues, words, numbers or logo-like designs. Reading order: an orange family city bubble car with an upright white roof and circular side windows; a navy mini electric hatchback with mint door panels, flat upright windshield and a closed face with two square headlights; a lavender boxy utility wagon with simple white stripe and high windows; a salmon open-top imaginary toy racer with two short pale fins and pill-shaped headlights; a mustard camper van with a turquoise roof and an asymmetrical window; a cheerful red rescue van with two cobalt lights and a plain blue diagonal stripe, no cross or other medical symbol."
+  },
+  {
+    "group": "paper",
+    "ids": [
+      "paper-0",
+      "paper-1",
+      "paper-10",
+      "paper-6",
+      "paper-12",
+      "paper-14",
+      "luoye-paper-07",
+      "paper-9",
+      "paper-2"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-83cc422a-c4e5-4853-803d-e4711488c891.png",
+    "masterSha256": "5aea8c72b348c64196c5cc6fa58a9f1fd94f8dbe3b659c725fcf113a364f82f5",
+    "prompt": "Single original sprite sheet of nine clean cut-out drawing papers for a preschool painting app. Equal 3×3 invisible grid, true transparent alpha around all objects, no shadows and no decorations or text. One complete shape centered per cell with generous space. Warm very pale ivory card stock with fine fibrous paper texture, full flat opaque writable area inside every silhouette. In strict row-major order: circle, butterfly silhouette with broad wings, wide horizontal rectangle with corners just slightly rounded; five-point star, heart, house silhouette with roof; autumn maple leaf silhouette, simple flower with five petals, horizontal oval. Simple large silhouettes, no holes, no recognizable brands. Square sheet."
+  },
+  {
+    "group": "texture",
+    "ids": [
+      "texture-0",
+      "texture-1",
+      "luoye-texture-03",
+      "luoye-texture-04",
+      "luoye-texture-05",
+      "luoye-texture-06",
+      "luoye-texture-07",
+      "luoye-texture-08",
+      "luoye-texture-09"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-9e611add-f9b7-4dee-b9ed-a3dc79bb2af4.png",
+    "masterSha256": "fa58b3134f9f1b04f084cb92d6a3536c099c61d44081b6854c796dd79a53de7f",
+    "prompt": "Single square original production texture atlas for preschool painting. Exactly 3x3 square equal cells, tile straight edge-to-edge with no seams between the nine images, no gutter, no borders, no objects outside their cells, no labels and no text. Top row: scattered tiny red and magenta blossoms on leaf green; tiny gold yellow speckles on soft green pigment; pale blue watercolor ripples. Middle row: close-up honey-colored wood grain; lavender and ivory woven gingham; peach watercolor paper with fine fibers. Bottom row: gently irregular rounded gray cobblestones; sage green and cream tiny repeating polka dots; light golden beige handmade paper with subtle fibers. Original patterns designed from this text, abstract and non-branded; no fabric brand motifs, no photographs or other sources. Texture extends edge-to-edge in each square and is even with no center lighting."
+  },
+  {
+    "group": "parking",
+    "ids": [
+      "bg178-parking-realistic"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-794b4a89-cb7e-405a-8e0c-f47ddd4a6e1c.png",
+    "masterSha256": "14aeff7fda8464e0e15adb5670e2b76f8e74d861030ddcbd0d33d80265917388",
+    "prompt": "Original fictional photorealistic landscape background for a preschool drawing app, landscape 16:9. Tree-lined parking courtyard at the edge of a little lakeside park, empty pale-gray marked parking spaces and warm dappled sunlight. Broad open foreground for drawing. Generic unlettered stone and glass shelter, planted grasses, outdoor bench, calm bright daylight. NO cars, vehicles, charging hardware, persons, signs, letters or marks. Bright photo-real rendering, soft natural lighting and sharp realistic detail, clean fictional scene. Full bleed."
+  },
+  {
+    "group": "delivery",
+    "ids": [
+      "bg178-delivery-realistic"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-42d76ea8-ba0c-4a33-9257-0052b3393713.png",
+    "masterSha256": "2418eb9e154ed5eee39e8c163241298144b037fd83c88ed3304ace2cbcb49e4b",
+    "prompt": "Original photorealistic landscape 16:9 background for a preschool drawing app. Empty vehicle charging area in an invented neighborhood, generic wide low building with honey-colored stone and glass, modern simple eaves, lush grasses and young trees, muted copper and sage. Two generic tiny neutral slate rectangular posts placed far apart near far side, seamless nonbranded design. Large empty stone paved foreground for drawing, parking markings, morning sun. No vehicles at all, no lettering or brand marks, no identifiable architecture, no logos or actual locations. Bright photorealistic but uncluttered, full bleed."
+  },
+  {
+    "group": "space",
+    "ids": [
+      "bg170-space-watercolor-04"
+    ],
+    "method": "built-in-imagegen-text-only",
+    "generationFile": "exec-2b0198b2-1be4-47a9-acca-fcc78a3b53cc.png",
+    "masterSha256": "1fb0d5d0bbd7dd4078fb63dd7e4ab98294d619dd3ef02cd0a7527a88470477c3",
+    "prompt": "Original watercolor 16:9 landscape for a preschool drawing app. A small invented airship like a round mint-colored hot-air balloon with a rattan basket, floating above an open lake on a lightly imaginative distant planet. In the far background rounded lavender hills and a tiny moon, on one side flat pebbles and low ferns. Gentle translucent watercolor, distinct open foreground and broad areas for children's drawing. No resembling media franchises, no mechanical portals, no spacecraft from popular media, no text, no logo, full bleed."
+  }
+]

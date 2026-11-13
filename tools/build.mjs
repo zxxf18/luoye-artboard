@@ -17,13 +17,14 @@ export function stripRemoteTracker(html) {
   return html.replace(TRACKER_SCRIPT, '').replaceAll(` ${TRACKER_ORIGIN}`, '');
 }
 
-export function buildIndex(html, { client = false, distribution = 'community', showProjectLink = distribution !== 'store', showDonationLink = distribution !== 'store' } = {}) {
+export function buildIndex(html, { client = false, distribution = 'community', showProjectLink = distribution !== 'store', showDonationLink = distribution !== 'store', privacyPolicy = '' } = {}) {
   const output = client ? stripRemoteTracker(html) : html;
   if (!['community', 'store'].includes(distribution)) throw new Error('Unknown distribution: '+distribution);
-  return output.replace('<html', `<html data-project-link="${showProjectLink}" data-donation-link="${showDonationLink}"`);
+  const index = output.replace('<html', `<html data-project-link="${showProjectLink}" data-donation-link="${showDonationLink}"`);
+  return privacyPolicy ? index.replace(/<body\b[^>]*>/, body => `${body}\n<template id="bundled-privacy-policy">${privacyPolicy}</template>`) : index;
 }
 
-export async function build({ client = false, distribution = 'community', showProjectLink, showDonationLink, offlineWeb = false } = {}) {
+export async function build({ client = false, distribution = 'community', showProjectLink, showDonationLink, offlineWeb = false, privacyPolicy = '' } = {}) {
   const lock = path.join(root, 'build/desktop-build.lock');
   mkdirSync(path.dirname(lock), { recursive: true });
   try {
@@ -40,7 +41,7 @@ export async function build({ client = false, distribution = 'community', showPr
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
     const publicRoot = path.join(root, 'public');
-    const catalog = await readAssetCatalog(root, distribution);
+    const catalog = await readAssetCatalog(root);
     const assetPaths = runtimeAssetPaths(catalog);
     await cp(publicRoot, output, { recursive: true, filter: source => {
       const relative = path.relative(publicRoot, source).split(path.sep).join('/');
@@ -52,7 +53,7 @@ export async function build({ client = false, distribution = 'community', showPr
     await writeFile(path.join(output,'assets/catalog.js'),renderRuntimeAssetCatalog(catalog));
     const indexPath = path.join(output, 'index.html');
     const index = await readFile(indexPath, 'utf8');
-    const outputIndex = buildIndex(index, { client: client || offlineWeb, distribution, showProjectLink, showDonationLink });
+    const outputIndex = buildIndex(index, { client: client || offlineWeb, distribution, showProjectLink, showDonationLink, privacyPolicy });
     await writeFile(indexPath, offlineWeb ? addOfflineWebShell(outputIndex) : outputIndex, 'utf8');
     await cp(path.join(root,'LICENSE'),path.join(output,'LICENSE.txt'));
     await writeFile(path.join(output,'SOURCE.txt'),'Corresponding source: https://github.com/zxxf18/luoye-artboard\nLicense: GNU AGPL version 3.\n');

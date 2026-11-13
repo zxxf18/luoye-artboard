@@ -1,0 +1,21 @@
+落叶画板 iPad 版 · Luoye Artboard for iPad
+版权和第三方许可 · Copyright and third-party notices
+
+程序 · Software
+本发行包保留项目现有的 GNU AGPL v3 声明。许可证正文和源码位置见
+同目录 LICENSE.txt、SOURCE.txt。
+This distribution retains the project's GNU AGPL v3 notice. See LICENSE.txt
+and SOURCE.txt alongside this file for the license and source location.
+
+插图与图标 · Artwork and icons
+素材的来源记录随包保留，见 assets/catalog.json 和 branding/PROVENANCE.md。
+Artwork and icon provenance is included in assets/catalog.json and
+branding/PROVENANCE.md.
+
+背景音乐与音色库 · Music and SoundFont
+内置 MIDI 的作品、数字版本及来源见 music/SOURCES.md。
+钢琴音色来自 Meta Creative Audio 的 Meta Piano（CC0 1.0），
+来源及许可见应用包内 audio/SOURCES.md 和 audio/LICENSE.txt。
+See music/SOURCES.md for the compositions, digital editions and MIDI sources.
+The piano bank uses Meta Piano samples from Meta Creative Audio (CC0 1.0).
+See audio/SOURCES.md and audio/LICENSE.txt in the app bundle.

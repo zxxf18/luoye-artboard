@@ -11,6 +11,15 @@ test('website build keeps the optional remote tracker', () => {
   assert.match(output, /https:\/\/yebuluo\.com\.cn\/stats\/tracker\.js/);
 });
 
+test('the offline privacy template is parsed before the editor starts', () => {
+  const policy = '<section lang="en">Privacy Policy</section>';
+  const html = buildIndex(index, { client: true, distribution: 'store', privacyPolicy: policy });
+  const template = html.indexOf('<template id="bundled-privacy-policy">');
+  assert.ok(template >= 0 && template < html.indexOf('<script src="app.js'));
+  assert.ok(html.includes(policy));
+  assert.doesNotMatch(buildIndex(index, { client: true }), /bundled-privacy-policy/);
+});
+
 test('client build removes the remote tracker and keeps local scripts', () => {
   const output = buildIndex(index, { client: true });
   assert.doesNotMatch(output, /https:\/\/yebuluo\.com\.cn/);
@@ -49,6 +58,6 @@ test('native build entrypoints use the client resource variant', async () => {
     read('tools/build-ios.mjs'),
     read('android/app/build.gradle'),
   ]);
-  for (const source of [mac, windows, ios]) assert.match(source, /build\(\{ client: true \}\)/);
+  for (const source of [mac, windows, ios]) assert.match(source, /build\(\{ client: true\b/);
   assert.match(android, /tools\/build-client\.mjs/);
 });

@@ -6,8 +6,11 @@ import path from 'node:path';
 import { renderTabletShell } from './tablet-shell.mjs';
 import { bundle, root } from './bundle.mjs';
 import { readAssetCatalog, renderRuntimeAssetCatalog } from './assets/asset-distribution.mjs';
+import { runtimeAssetPaths, includeAsset } from './assets/runtime-assets.mjs';
 const publicRoot = path.join(root, 'public');
-const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.svg':'image/svg+xml' };
+const catalog = await readAssetCatalog(root);
+const assetPaths = runtimeAssetPaths(catalog);
+const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.svg':'image/svg+xml', '.webp':'image/webp' };
 const gzipAsync = promisify(gzip);
 const compressible = /^(?:text\/|application\/(?:javascript|json|wasm)|image\/svg\+xml)/;
 async function send(request, response, body, headers = {}) {
@@ -24,7 +27,6 @@ const server = http.createServer(async (request, response) => {
     if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405); response.end(); return; }
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
     if (pathname === '/assets/catalog.js' || pathname === '/assets/catalog.json') {
-      const catalog = await readAssetCatalog(root,'community');
       const javascript = pathname.endsWith('.js');
       await send(request,response,javascript?renderRuntimeAssetCatalog(catalog):JSON.stringify(catalog),{'Content-Type':mime[javascript?'.js':'.json'],'Cache-Control':'no-store'});
       return;
@@ -43,6 +45,9 @@ const server = http.createServer(async (request, response) => {
     const relative = allowedRoot === publicRoot ? (pathname === '/' ? 'index.html' : pathname) : pathname.split('/').slice(2).join('/');
     const target = await realpath(path.join(allowedRoot, relative));
     if (!target.startsWith(allowedRoot + path.sep)) { response.writeHead(403); response.end(); return; }
+    if (allowedRoot === publicRoot && !includeAsset(path.relative(publicRoot, target).split(path.sep).join('/'), assetPaths)) {
+      response.writeHead(404); response.end('Not found'); return;
+    }
     const content = await readFile(target);
     await send(request, response, content, { 'Content-Type':mime[path.extname(target)] || 'application/octet-stream', 'Cache-Control':'no-cache', 'X-Content-Type-Options':'nosniff' });
   } catch { response.writeHead(404); response.end('Not found'); }

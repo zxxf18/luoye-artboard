@@ -98,8 +98,8 @@ test('iOS build helper refuses to claim a build without Xcode and copies the cur
   assert.match(source, /xcodebuild/);
   assert.match(source, /iphoneos|iphonesimulator/);
   assert.match(source, /dist/);
-  assert.match(source, /GeneralUser-GS\.sf2/);
-  assert.match(source, /GeneralUser-GS-LICENSE\.txt/);
+  assert.match(source, /'native', 'audio'/);
+  assert.match(music, /"Luoye-Piano"/);
   assert.match(source, /Assets\.xcassets/);
   assert.match(source, /resources, 'audio'/);
   assert.match(project, /path = Resources\/audio;/);

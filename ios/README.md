@@ -20,7 +20,7 @@ SDK=iphoneos CONFIGURATION=Release npm run build:ios
 
 为运行 iPadOS 15.8 或更新版本的 iPad 构建时，使用 `IOS_DEVICE=ipad SDK=iphoneos CONFIGURATION=Release npm run build:ios`。输出为 `落叶画板-ipad-iphoneos.app`，真机安装需要为目标设备签名。
 
-构建脚本会先生成不含网站统计脚本的客户端 `dist/`，复制到应用资源，再复制已授权的 `GeneralUser-GS.sf2` 音色库及其许可证，最后调用 `xcodebuild`。资源目录是临时生成的并被 Git 忽略，不应手工提交。
+构建脚本会先生成不含网站统计脚本的客户端 `dist/`，再将网页资源及 `native/audio/` 中的共享钢琴音色库与 CC0 许可复制到临时资源目录，最后调用 `xcodebuild`。
 
 Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arguments 在模拟器中运行现有原生烟测。结果会写到应用沙盒的 `Documents/<输出前缀>.checks.json` 和 `Documents/<输出前缀>.png`；使用 `LUOYE_SMOKE_FILES=1` 时，工程、PNG 和 JPEG 会写到同一前缀下，便于 `simctl` 拉取。示例：
 
@@ -54,7 +54,7 @@ Debug 构建会自动把 `tests/native-ipad-journey.js` 复制到应用的 `smok
 | 打开工程、导入图片、导入 MIDI | 系统 `UIDocumentPickerViewController`，iCloud Drive 和“文件”中的文件会先复制到应用临时目录 |
 | 保存工程、导出 PNG/JPEG | 系统文件导出面板，可保存到“文件”、iCloud 或其他文档提供方 |
 | 画夹、自动草稿、主题偏好 | WKWebView 持久化 IndexedDB / localStorage |
-| 音乐 20 首、播放、停止、音量、MIDI 导入 | `AVAudioSequencer + AVAudioUnitSampler + GeneralUser-GS.sf2`，电话/音频中断时暂停 |
+| 音乐 20 首、播放、停止、音量、MIDI 导入 | `AVAudioSequencer + AVAudioUnitSampler + Luoye-Piano.sf2`，电话/音频中断时暂停 |
 | 界面大小 | 不改变 iOS 窗口尺寸；“全屏／返回”只切换状态栏和 Home indicator，其他尺寸按钮按当前可用空间适配 |
 
 ## 验收
@@ -70,3 +70,7 @@ xcodebuild -project ios/LuoyeArtboard.xcodeproj -scheme LuoyeArtboard -sdk iphon
 iPad 专项烟测已在 iPad Air（820×1128）、iPad mini（744×1081）和 iPad Pro 11 英寸（834×1158）的模拟器竖向窗口中通过，每台 10 项。iPhone 的独立烟测覆盖竖屏（375×647）和横屏（667×375）。
 
 iPad 横屏和分屏仍需补测；横屏声明和启动方向请求的静态检查不能替代实际运行验证。烟测笔触使用合成 PointerEvent，并临时替换 `setPointerCapture`，不能证明真实触控或 Apple Pencil 的行为。真机还必须检查压力、音频中断、后台恢复、文件提供方和 VoiceOver。
+
+## App Store iPad 版
+
+上架素材、离线隐私政策、双语商品页和归档命令见 [iPad App Store 首发](../docs/release/app-store-ipad/README.md)。

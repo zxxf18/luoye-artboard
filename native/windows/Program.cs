@@ -79,7 +79,7 @@ sealed class StudioWindow : Form
                 case "files": await SaveFile(body,id);break;
                 case "display": SetDisplay(body.GetProperty("action").GetString());break;
                 case "music":
-                    music??=new StudioMusic(Path.Combine(AppContext.BaseDirectory,"audio","GeneralUser-GS.sf2"));
+                    music??=new StudioMusic(Path.Combine(AppContext.BaseDirectory,"audio","Luoye-Piano.sf2"));
                     switch(body.GetProperty("action").GetString()) {
                         case "track":
                             using(var tracks=JsonDocument.Parse(File.ReadAllText(Path.Combine(site,"music","tracks.json")))) {

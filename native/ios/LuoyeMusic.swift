@@ -18,7 +18,7 @@ final class LuoyeMusic {
         try session.setActive(true)
         engine.attach(sampler)
         engine.connect(sampler, to: engine.mainMixerNode, format: nil)
-        guard let bank = Bundle.main.url(forResource: "GeneralUser-GS", withExtension: "sf2", subdirectory: "audio") else {
+        guard let bank = Bundle.main.url(forResource: "Luoye-Piano", withExtension: "sf2", subdirectory: "audio") else {
             throw NSError(domain: "LuoyeMusic", code: 1, userInfo: [NSLocalizedDescriptionKey: "音乐音色库没有打包。"])
         }
         try sampler.loadSoundBankInstrument(at: bank, program: 0,

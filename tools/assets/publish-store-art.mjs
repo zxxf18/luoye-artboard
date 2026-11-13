@@ -2,15 +2,18 @@ import {readFile,writeFile,mkdir,access} from 'node:fs/promises';
 import path from 'node:path';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
+import { renderRuntimeAssetCatalog } from './asset-distribution.mjs';
 const sharp=createRequire(import.meta.url)(process.env.LUOYE_SHARP||'/Users/zhaoxin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp');
 const root=path.resolve(import.meta.dirname,'../..');
 const plan=JSON.parse(await readFile(path.join(root,'tools/assets/manifests/store-refresh.json'),'utf8'));
 const source=path.join(root,'local-only/store-art/masters');
 const catalog=JSON.parse(await readFile(path.join(root,'public/assets/catalog.json'),'utf8'));
+const superseded = new Set(catalog.filter(item => item.quality === 'original-imagegen-text-only').map(item => item.id));
+const jobs = plan.filter(job => !superseded.has(job.id));
 // Fail before touching the catalog if the batch is incomplete.
-for(const job of plan)await access(path.join(source,job.id+'.png'));
+for(const job of jobs)await access(path.join(source,job.id+'.png'));
 const records=[];
-for(const job of plan){
+for(const job of jobs){
  const item=catalog.find(x=>x.id===job.id);if(!item)throw Error('Unknown asset '+job.id);
  const bytes=await readFile(path.join(source,job.id+'.png')),meta=await sharp(bytes).metadata();
  const prefix=`assets/${item.category}/store/`;
@@ -51,6 +54,6 @@ for(const job of plan){
  records.push({id:job.id,name:job.name,mode:job.mode,sha256:createHash('sha256').update(bytes).digest('hex'),prompt:job.prompt,edits:job.edits||[],method:'built-in-imagegen',sourceWidth:meta.width,sourceHeight:meta.height});
 }
 await writeFile(path.join(root,'public/assets/catalog.json'),JSON.stringify(catalog,null,2)+'\n');
-await writeFile(path.join(root,'public/assets/catalog.js'),'window.LUOYE_ASSETS = '+JSON.stringify(catalog)+';\n');
+await writeFile(path.join(root,'public/assets/catalog.js'),renderRuntimeAssetCatalog(catalog));
 await writeFile(path.join(root,'tools/assets/manifests/store-refresh-provenance.json'),JSON.stringify(records,null,2)+'\n');
 console.log(`Published ${records.length} original replacements; catalog IDs, categories and groups preserved.`);

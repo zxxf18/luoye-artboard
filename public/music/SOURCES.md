@@ -33,6 +33,8 @@ K.265 的主题源自法国民歌，莫扎特创作变奏；BWV Anh.114 的实�
 
 原始 MIDI 保存在 tools/music-sources/；该目录 SOURCES.json 记录下载地址、许可页面、排谱者及 SHA256。通过 node tools/prepare-music.mjs 离线重建全部运行音乐，build/music-preparation.json 保存乐段范围和输出校验值。
 
-[Mutopia 许可说明](https://www.mutopiaproject.org/legal.html)。所选公版数字版本允许复制、修改、演奏和分发。Windows 沿用 GeneralUser GS 音色库，保留其 native/windows/audio/LICENSE.txt；macOS 使用系统合成器。程序许可证与第三方音色库许可分别保留。
+所选公版数字版本允许复制、修改、演奏和分发。 [Mutopia 许可说明](https://www.mutopiaproject.org/legal.html)
+
+iPad 和 Windows 用同一份钢琴音色库，由 Meta Creative Audio 发布的 CC0 钢琴采样转换而来。来源和许可随包存于 `audio/SOURCES.md` 和 `audio/LICENSE.txt`。macOS 和 Android 使用平台提供的 MIDI 播放能力。 [Meta Piano 上游说明](https://github.com/facebookincubator/Meta-open-sound/tree/514c926efecdb3c7812bf00eedf8e5c8d61dd681/systems/instruments/meta-piano)
 
 旧版 20 首仅备份在 local-only/music-backup/original-v1.7.1/，附逐文件 SHA256；该目录被 Git 忽略，不随客户端打包。

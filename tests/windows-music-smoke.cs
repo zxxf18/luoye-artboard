@@ -1,6 +1,6 @@
 using MeltySynth;
 using System.Text.Json;
-var root=args[0];var synth=new Synthesizer(Path.Combine(root,"native/windows/audio/GeneralUser-GS.sf2"),44100);var seq=new MidiFileSequencer(synth);
+var root=args[0];var synth=new Synthesizer(Path.Combine(root,"native/audio/Luoye-Piano.sf2"),44100);var seq=new MidiFileSequencer(synth);
 if(args.Length>1&&args[1]=="--levels") {
  var levels=new List<object>();
  foreach(var folder in new[]{"local-only/music-backup/original-v1.7.1","public/music"})foreach(var file in Directory.GetFiles(Path.Combine(root,folder),"*.mid")){

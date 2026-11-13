@@ -7,7 +7,6 @@ COPY package.json ./
 COPY public ./public
 COPY src ./src
 COPY tools ./tools
-COPY resources ./resources
 COPY LICENSE ./LICENSE
 
 RUN npm run build -- --store && npm run build:web:offline -- --store

@@ -3,6 +3,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {root} from './bundle.mjs';
+import {readAssetCatalog} from './assets/asset-distribution.mjs';
 const {chromium}=createRequire(import.meta.url)(process.env.LUOYE_PLAYWRIGHT||'playwright');
 const output=path.join(root,'build/interface-acceptance');await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'chrome'}),context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
@@ -111,23 +112,31 @@ try{
    }
   }assert.equal(count,32);
  });
- await check('图库全部分类、子分类、翻页和 1582 张素材按钮',async()=>{
+ await check('图库全部分类、子分类、翻页和素材按钮',async()=>{
   const result=await page.evaluate(async()=>{
    const pause=ms=>new Promise(r=>setTimeout(r,ms)),idle=async()=>{while(document.body.hasAttribute('aria-busy'))await pause(5);},click=async b=>{if(!b)throw Error('缺少按钮');b.click();await idle();},seen=new Set(),categories=[];
    document.getElementById('mode-library').click();await idle();
    for(const cat of [...document.querySelectorAll('#categories button')].map(b=>b.dataset.category)){
     await click(document.querySelector(`[data-category="${cat}"]`));categories.push(cat);
-    if(cat!=='fairy'){const names=[...document.querySelectorAll('#library-groups button')].map(b=>b.textContent);for(const name of names)await click([...document.querySelectorAll('#library-groups button')].find(b=>b.textContent===name));if(names.length)await click(document.querySelector('#library-groups button'));}
-    const modes=cat==='fairy'?['single','static','dynamic']:[null];
-    for(const mode of modes){if(mode)await click(document.querySelector(`[data-fairy-mode="${mode}"]`));
-     for(;;){const cards=[...document.querySelectorAll('#asset-grid button')];for(const card of cards){const id=card.dataset.assetId;await click(card);if(card.getAttribute('aria-pressed')!=='true')throw Error('素材没有加载：'+id+' '+document.getElementById('tool-hint').textContent);seen.add(id);if(cat!=='fairy')await click(document.getElementById('undo'));if(seen.size%100===0)console.log('AUDIT 已检查素材 '+seen.size);}
+    const names=[...document.querySelectorAll('#library-groups button')].map(b=>b.textContent);for(const name of names)await click([...document.querySelectorAll('#library-groups button')].find(b=>b.textContent===name));if(names.length)await click(document.querySelector('#library-groups button'));
+    for(;;){const cards=[...document.querySelectorAll('#asset-grid button')];for(const card of cards){const id=card.dataset.assetId;await click(card);if(card.getAttribute('aria-pressed')!=='true')throw Error('素材没有加载：'+id+' '+document.getElementById('tool-hint').textContent);seen.add(id);await click(document.getElementById('undo'));if(seen.size%100===0)console.log('AUDIT 已检查素材 '+seen.size);}
       const next=document.querySelector('#library-pagination button:last-child');if(next.disabled)break;await click(next);
+    }
+    const prev=document.querySelector('#library-pagination button:first-child');if(!prev.disabled)await click(prev);
+   }
+   document.dispatchEvent(new Event('openfairy'));
+   for(const mode of ['single','static','dynamic']){
+    await click(document.querySelector(`[data-fairy-mode="${mode}"]`));
+    for(;;){
+     for(const card of document.querySelectorAll('#asset-grid [data-asset-id]')){
+      await click(card);if(card.getAttribute('aria-pressed')!=='true')throw Error('魔法袋素材没有加载：'+card.dataset.assetId);
+      seen.add(card.dataset.assetId);
      }
-     const prev=document.querySelector('#library-pagination button:first-child');if(!prev.disabled)await click(prev);
+     const next=document.querySelector('#library-pagination button:last-child');if(next.disabled)break;await click(next);
     }
    }
-   const missing=window.LUOYE_ASSETS.filter(a=>!seen.has(a.id)).map(a=>a.id);return {assets:seen.size,categories,missing};
-  });assert.deepEqual(result.missing,[]);assert.equal(result.assets,1582);checks.push({name:'图库素材明细',passed:true,...result});await click('#mode-board');
+   const missing=window.LUOYE_ASSETS.filter(a=>a.category!=='texture'&&!seen.has(a.id)).map(a=>a.id);return {assets:seen.size,categories,missing};
+  });assert.deepEqual(result.missing,[]);assert.equal(result.assets,(await readAssetCatalog(root)).filter(asset=>asset.category!=='texture').length);checks.push({name:'图库素材明细',passed:true,...result});await click('#mode-board');
  });
  await page.screenshot({path:path.join(output,'interface.png')});
  const clicked=await page.evaluate(()=>[...window.auditClicks]);await writeFile(path.join(output,'buttons.json'),JSON.stringify(clicked,null,2));

@@ -39,7 +39,7 @@ Serve `build/offline/` at a stable HTTPS URL. The Docker build serves the store 
 
 On iPadOS 15.8 or later, open the HTTPS URL in Safari and use Share → Add to Home Screen. Launch from the new icon and stay online until the download completes. The board and local drafts work offline after that. Drafts are separate from the online site and the native app. To move a work in progress, export the project file and open it in the other edition.
 
-The first store download is about 472 MiB and includes all 1,582 store assets. Omit `--store` to build the complete community library. Updates reuse unchanged files and activate after the updated files finish downloading and the drawing session closes.
+Store and community downloads use the same asset catalog. Omit `--store` to use the community defaults for the project and donation links. Updates reuse unchanged files and activate after the updated files finish downloading and the drawing session closes.
 
 ## iPhone / iPad app
 

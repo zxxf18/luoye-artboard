@@ -14,23 +14,21 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOGS = ('public/assets/catalog.json', 'resources/assets/legacy-catalog.json')
 LUMA = np.array([.299, .587, .114], dtype=np.float32)
 
 
 def still_art_paths():
     selected, protected = set(), set()
-    for catalog in CATALOGS:
-        for asset in json.loads((ROOT / catalog).read_text(encoding='utf-8')):
-            frames = set(asset.get('frames', []))
-            for group in asset.get('fairyGroups', []):
-                frames.update(group['frames'])
-            protected.update(frames)
-            protected.add(asset.get('thumbnail'))
-            if asset['category'] in ('background', 'sticker') and not (asset.get('coloring') or frames):
-                selected.add(asset['src'])
-            else:
-                protected.add(asset['src'])
+    for asset in json.loads((ROOT / 'public/assets/catalog.json').read_text(encoding='utf-8')):
+        frames = set(asset.get('frames', []))
+        for group in asset.get('fairyGroups', []):
+            frames.update(group['frames'])
+        protected.update(frames)
+        protected.add(asset.get('thumbnail'))
+        if asset['category'] in ('background', 'sticker') and not (asset.get('coloring') or frames):
+            selected.add(asset['src'])
+        else:
+            protected.add(asset['src'])
     return sorted(path for path in selected - protected if path.endswith('.webp'))
 
 

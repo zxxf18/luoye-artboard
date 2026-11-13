@@ -4,13 +4,13 @@
 
 ## 构建与入口开关
 
-普通客户端保留项目地址和支持作者入口，并同时提供新版素材及标为“旧版”的上一版素材：
+普通客户端默认显示项目地址和支持作者入口。两个渠道共用当前素材索引。
 
 ```sh
 node tools/build-client.mjs
 ```
 
-上架版只使用新版素材，不打包旧版图片或旧版索引，默认关闭两个入口；“关于”仍保留应用名、版本、图标和返回按钮。关闭全部入口不会产生空白链接行；单独打开一个入口不会遗留分隔点。
+上架版默认关闭两个入口。“关于”保留应用名、版本、图标和返回按钮。
 
 ```sh
 node tools/build-client.mjs --store
@@ -49,8 +49,7 @@ Gradle 默认读取上述配置；其他构建机通过 `LUOYE_SIGNING_PROPERTIE
 - 生成方式：内置 ImageGen；原始帧表在 `local-only/store-art/masters/`，不随 APK 分发。
 - 发布工具：`node tools/assets/publish-store-art.mjs`。检查全批次齐全、透明图含 alpha 后，切帧并更新两个目录索引。
 - 新版分类、ID、分组数及帧间隔保持不变；动态分组由原创动作帧生成不同配色。
-- `resources/assets/legacy-catalog.json` 保存重绘前的 111 个条目。非上线版追加 `-legacy` ID 和“（旧版）”名称，与新版并存；旧版原始图片路径保留。
-- `tools/assets/asset-distribution.mjs` 统一选取渠道索引：community 共 1693 条，store 共 1582 条。开发服务器使用 community；构建时生成对应渠道的 catalog.json/catalog.js，不修改源索引。
+- `tools/assets/asset-distribution.mjs` 为各渠道及开发服务器读取同一份素材索引。版权核查后，111 个旧版条目及对应文件已移出公开素材目录。详细记录见 [发行素材核查](app-store-ipad/rights-review.md)。
 - 新增替换背景中，充电停车场、交付中心充电区采用原创无品牌写实摄影风格；其他绘本背景及原有其余风格继续保留。
 - 原创无品牌设计可降低侵权风险，不代表法律上的绝对无争议保证。
 - 商店开关只控制推广入口。客户端包保留 `LICENSE.txt` 和 `SOURCE.txt`，不取消 AGPL 的声明及对应源码义务。正式分发前，应将对应版本完整源码以满足许可证的方式提供，并核对所有其他素材的权利链。
@@ -94,8 +93,8 @@ Android 也可单独覆盖入口（会参与构建缓存判定）：
 ./gradlew -Pdistribution=store assembleRelease
 ```
 
-Web 资源同样支持 `npm run build -- --store`；不加 `--store` 是包含旧版条目的 community 构建。上线部署必须明确选择 store。
+Web 资源同样支持 `npm run build -- --store`。不加 `--store` 时采用 community 的入口默认值，两种配置使用同一套素材。
 
 两种 APK 分别保存于 `build/releases/android-community/app-release.apk` 和 `build/releases/android-store/app-release.apk`，均使用已创建的同一正式签名。应用包名相同，用于不同发行场景，不是可并行安装的两个应用。
 
-本次增补验证：222 项 Node 测试通过；社区版浏览器 frames、stamps、tablet-shell 回归通过；上线版三种平板尺寸布局检查通过。两种签名 APK 已逐包核对索引和图片：community 包含 111 个旧版条目及其全部运行图，store 不包含旧版条目、对应主图/缩略图或存档索引。签名沿用原发布密钥。
+历史增补包的验证和旧素材范围见 [v1.12.0 社区补包记录](v1.12.0-community-refresh.md)。已下载的历史包保留当时的素材。

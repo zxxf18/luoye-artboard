@@ -15,7 +15,6 @@ from PIL import Image, ImageOps
 ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = ROOT / "public"
 CURRENT = ROOT / "public/assets/catalog.json"
-LEGACY = ROOT / "resources/assets/legacy-catalog.json"
 MASTERS = ROOT / "local-only/gallery-quality/masters"
 DRAWINGS = runpy.run_path(str(Path(__file__).with_name("gallery-frame-art.py")))
 RESAMPLE = Image.Resampling.LANCZOS
@@ -161,14 +160,13 @@ def main():
     parser.add_argument("--frames-only",action="store_true",help="Redraw numbered frames and their thumbnails only")
     args=parser.parse_args()
     current=json.loads(CURRENT.read_text())
-    legacy=[] if args.frames_only else json.loads(LEGACY.read_text())
     output=args.output
     records=repair_sprites(current,output,args.masters,frames_only=args.frames_only)
     by_id={a["id"]:a for a in current}
     for record in records:
         record_source(by_id[record["id"]],record)
     paths=set()
-    entries=[by_id[record["id"]] for record in records] if args.frames_only else current+legacy
+    entries=[by_id[record["id"]] for record in records] if args.frames_only else current
     for asset in entries:
         path=asset["thumbnail"]
         if path in paths:
@@ -187,8 +185,6 @@ def main():
         provenance=ROOT/"tools/assets/manifests/gallery-quality-provenance.json"
         updated_ids={record["id"] for record in records}
         records=[record for record in json.loads(provenance.read_text()) if record["id"] not in updated_ids]+records
-    else:
-        (output/"legacy-catalog.json").write_text(json.dumps(legacy,ensure_ascii=False,indent=2)+"\n")
     (output/"gallery-quality-provenance.json").write_text(json.dumps(records,ensure_ascii=False,indent=2)+"\n")
     print(f"Built {len(entries)} previews and wrote provenance for {len(records)} entries")
 

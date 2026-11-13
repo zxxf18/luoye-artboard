@@ -12,7 +12,7 @@
     <PackageReference Include="MeltySynth" Version="2.4.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <Content Include="../../dist/**/*" Link="site/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="audio/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../audio/**/*" Link="audio/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <!-- This app uses WinForms; the SDK also injects WPF, whose WindowsBase reference conflicts. -->
   <Target Name="RemoveUnusedWpfReference" BeforeTargets="ResolveAssemblyReferences">
