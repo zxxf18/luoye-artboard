@@ -68,17 +68,21 @@ const warpFrameQueue=createLatestFrameQueue(point=>{if(pointerId!==undefined&&['
 const fairyCache = new Map();
 const DEFAULT_TITLE = '我的奇妙世界';
 let displayedDefaultTitle = DEFAULT_TITLE;
+let usesDefaultDrawingTitle = true;
+function isDefaultDrawingTitle() {
+  return usesDefaultDrawingTitle && $('title').value === displayedDefaultTitle;
+}
 function currentTitle() {
-  const title = $('title').value.trim();
-  return title === displayedDefaultTitle ? DEFAULT_TITLE : title || '我的画';
+  return isDefaultDrawingTitle() ? DEFAULT_TITLE : $('title').value.trim() || '我的画';
 }
 function setDrawingTitle(title) {
-  $('title').value = title === DEFAULT_TITLE ? displayedDefaultTitle : title;
+  usesDefaultDrawingTitle = title === DEFAULT_TITLE;
+  $('title').value = usesDefaultDrawingTitle ? displayedDefaultTitle : title;
 }
 document.addEventListener('uilanguagechange', () => {
-  const wasDefault = $('title').value === displayedDefaultTitle;
+  usesDefaultDrawingTitle = isDefaultDrawingTitle();
   displayedDefaultTitle = localizedUICopy(DEFAULT_TITLE);
-  if (wasDefault) setDrawingTitle(DEFAULT_TITLE);
+  if (usesDefaultDrawingTitle) setDrawingTitle(DEFAULT_TITLE);
 });
 const defaultSettings = { brush:'pencil', size:DEFAULT_BRUSH_SIZE, opacity:100, color:'#000000', background:'#ffffff', eraserMode:'hard', eraserShape:'star', fillMode:'region', selectionShape:'rect', selectionMode:'replace', geometry:'line', strokeMode:'free', brushRatio:1, tolerance:20, paperGrain:'none', paperStrength:70 };
 function timestampName(ext){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${localizedUICopy('落叶画板')}_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;}
@@ -458,6 +462,7 @@ let canvasLayoutFrame;new ResizeObserver(()=>{cancelAnimationFrame(canvasLayoutF
 $('color').oninput = event => setColor(event.target.value);
 $('size').oninput = () => { $('size-value').textContent = $('size').value; };
 $('opacity').oninput = () => { $('opacity-value').textContent = `${$('opacity').value}%`; };
+$('title').addEventListener('input', () => { usesDefaultDrawingTitle = false; });
 $('title').onchange = changed;
 bind('undo', () => engine.undo()); bind('redo', () => engine.redo());
 bind('add-layer', () => engine.addLayer(`画笔图层 ${engine.layers.length + 1}`));

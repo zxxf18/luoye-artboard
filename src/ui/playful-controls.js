@@ -9,20 +9,62 @@ export function mountPlayfulControls(){
   const grid=chooser.querySelector('#choice-grid'),search=chooser.querySelector('#choice-search');
   function labelFor(control){const aria=sourceUIAttribute(control,'aria-label');if(aria)return aria;const label=control.labels?.[0];if(!label)return '选一个';return sourceUICopy(label, 'input,select,button,output,.number-stepper').trim()||'选一个';}
   const names={'stroke-mode':'画法','brush-ratio':'笔头宽窄','paint-source':'纹理','paper-grain':'笔触纸感','text-size':'字有多大','preset':'选一张画纸','effect-kind':'试试这个效果','fractal-kind':'神奇分形','music-track':'选一首音乐'};
-  function renderChoices(){grid.replaceChildren();if(!source)return;[...source.options].forEach((option,i)=>{if(option.hidden||!option.textContent.toLocaleLowerCase().includes(search.value.toLocaleLowerCase()))return;const b=document.createElement('button');b.type='button';b.className='choice-card';b.dataset.value=option.value;b.disabled=option.disabled;b.setAttribute('aria-pressed',option.selected);b.append(choiceArt(source,option));const name=document.createElement('span');name.textContent=sourceUICopy(option);b.append(name);b.onclick=()=>{const control=source;control.value=option.value;chooser.close();control.dispatchEvent(new Event('input',{bubbles:true}));control.dispatchEvent(new Event('change',{bubbles:true}));sync(control);};grid.append(b);});if(!grid.children.length){const p=document.createElement('p');p.textContent='没找到，换个名字试试。';grid.append(p);}}
+  function choiceLabel(option, value=sourceUICopy(option)){
+    const label=document.createElement('span');
+    label.textContent=value;
+    if(option?.lang)label.lang=option.lang;
+    if(option?.hasAttribute('data-i18n-ignore'))label.dataset.i18nIgnore='';
+    return label;
+  }
+
+  function renderChoices(){
+    grid.replaceChildren();
+    if(!source)return;
+    const language=document.documentElement.lang;
+    const query=search.value.trim().toLocaleLowerCase(language);
+    for(const option of source.options){
+      if(option.hidden||!option.textContent.toLocaleLowerCase(language).includes(query))continue;
+      const button=document.createElement('button');
+      button.type='button';button.className='choice-card';button.dataset.value=option.value;
+      button.disabled=option.disabled;
+      button.setAttribute('aria-pressed',option.selected);
+      button.append(choiceArt(source,option),choiceLabel(option));
+      button.onclick=()=>{
+        const control=source;
+        control.value=option.value;
+        chooser.close();
+        control.dispatchEvent(new Event('input',{bubbles:true}));
+        control.dispatchEvent(new Event('change',{bubbles:true}));
+        sync(control);
+      };
+      grid.append(button);
+    }
+    if(!grid.children.length){
+      const message=document.createElement('p');
+      message.textContent='没找到，换个名字试试。';
+      grid.append(message);
+    }
+  }
+
   function sync(control){
     const button=control._choice;
     if(!button)return;
-    const label=names[control.id]||labelFor(control),value=sourceUICopy(control.selectedOptions[0])||'请选择';
+    const option=control.selectedOptions[0];
+    const label=names[control.id]||labelFor(control),value=sourceUICopy(option)||'请选择';
     const key=label+'|'+value;
     if(button.disabled!==control.disabled)button.disabled=control.disabled;
     if(button.dataset.state===key)return;
     button.dataset.state=key;
-    button.setAttribute('aria-label',label+'：'+value);
     button.replaceChildren();
-    const valueNode=document.createElement('span');
-    valueNode.textContent=value;
-    if(control.selectedOptions[0])button.append(choiceArt(control,control.selectedOptions[0]));
+    const valueNode=choiceLabel(option,value);
+    const labelledBy=control.getAttribute('aria-labelledby');
+    if(labelledBy){
+      valueNode.id=button.id+'-value';
+      button.setAttribute('aria-labelledby',labelledBy+' '+valueNode.id);
+    }else{
+      button.setAttribute('aria-label',label+'：'+value);
+    }
+    if(option)button.append(choiceArt(control,option));
     button.append(valueNode);
     button.insertAdjacentHTML('beforeend',choiceChevron());
   }

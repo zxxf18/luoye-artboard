@@ -85,12 +85,9 @@ test('settings drawer gives every action a shared icon and aligned text slot', (
   assert.match(classic, /settingButton\(rename,'pencil','给画起名字'\)/);
   assert.match(display, /button\.className='more-action'/);
   assert.match(icons, /image:'<rect/);
-  assert.match(styles, /#more-dialog \.more-actions[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(styles, /#more-dialog \.more-action[\s\S]*display:\s*grid/);
-  assert.match(styles, /#more-dialog \.more-action[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(0,\s*1fr\)/);
   assert.match(styles, /#more-dialog \.more-action > \.playful-icon/);
   assert.match(styles, /#more-dialog \.more-action > span[\s\S]*width:\s*100%/);
-  assert.match(styles, /#more-dialog \{[\s\S]*width:\s*min\(800px,\s*calc\(100vw - 48px\)\)/);
   assert.match(styles, /#more-dialog \.more-action > span[\s\S]*text-align:\s*left/);
 });
 

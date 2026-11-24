@@ -93,11 +93,14 @@
 .playroom .scratch-style-group[data-scratch-kind="cover"] { grid-row: 1; }
 .playroom .scratch-style-group[data-scratch-kind="base"] { grid-row: 2; }
 .playroom .scratch-style-label {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
   font: inherit;
   font-weight: 700;
   line-height: 1.25;
   color: var(--ink, #603f32);
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .playroom .scratch-size-row #brush-options > label {
   flex: none;
@@ -184,7 +187,7 @@
   }
   .playroom[data-mobile-panel="options"] .tool-dock .more-colors .playful-icon { width: 18px; height: 18px; }
   .playroom[data-mobile-panel="options"] .tool-dock .classic-parameters { gap: 2px !important; padding: 2px !important; }
-  .playroom[data-mobile-panel="options"] .classic-parameters .scratch-style-panel,
+  .playroom[data-mobile-panel="options"] .classic-parameters .scratch-style-panel:not([hidden]),
   .playroom[data-classic-tool="scratch"][data-mobile-panel="options"] .tool-dock .classic-parameters .scratch-style-panel {
     position: static !important;
     inset: auto !important;
@@ -222,7 +225,7 @@
   }
   .playroom[data-mobile-panel="options"] .scratch-style-group[data-scratch-kind="cover"] { grid-column: 1; grid-row: 1; }
   .playroom[data-mobile-panel="options"] .scratch-style-group[data-scratch-kind="base"] { grid-column: 1; grid-row: 2; }
-  .playroom[data-mobile-panel="options"] .scratch-style-label { font-size: 9px; text-align: center; }
+  .playroom[data-mobile-panel="options"] .scratch-style-label { font-size: 13px; text-align: center; }
   .playroom[data-mobile-panel="options"] .scratch-style-choices { gap: 3px; overflow: visible; padding: 2px; justify-content: center; }
   .playroom[data-mobile-panel="options"] .scratch-style-chip,
   .playroom[data-mobile-panel="options"] .scratch-style-custom {
@@ -234,6 +237,12 @@
   }
   .playroom[data-mobile-panel="options"] .scratch-size-row #brush-options input[type="range"] {
     min-height: 18px; height: 18px;
+  }
+}
+@media (max-height: 320px) {
+  .playroom[data-mobile-panel="options"] .scratch-style-group {
+    flex-direction: row;
+    align-items: center;
   }
 }
 .playroom .brush-inspector, .playroom .sidebar-choice-source, .playroom .deprecated-stroke-control,
@@ -574,6 +583,200 @@
 .playroom :is(#selection-combination, #selection-actions) button { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; font-size: 14px; white-space: nowrap; }
 .playroom #selection-combination button[aria-pressed=true] { background: #ffdf9e; border-color: #a4633c; box-shadow: inset 0 0 0 1px #a4633c; font-weight: 700; }
 
+/* Keep command labels readable as the language changes. The header already
+   scrolls horizontally, so each command can make room for its own label. */
+.playroom[data-theme] .header-actions :is(button, .theme-entry) {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 44px;
+  max-width: none;
+  gap: 1px;
+  padding-inline: 8px;
+}
+.playroom[data-theme] .header-actions button > span:not(.playful-icon) {
+  font-size: max(14px, calc(14px * var(--u)));
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Put choices on another row when the action names outgrow the shelf. */
+.playroom :is(#selection-combination, #selection-actions, .selection-choices) {
+  flex-wrap: wrap;
+}
+.playroom .selection-choices {
+  flex-basis: 15rem;
+}
+.playroom #selection-combination strong {
+  font-size: 14px;
+}
+.playroom :is(#selection-combination, #selection-actions) button {
+  flex: 1 1 7rem;
+  min-height: 36px;
+  padding: 5px 8px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom .classic-parameters:has(#selection-combination:not([hidden])) {
+  grid-template-rows: none;
+  grid-auto-rows: max-content;
+}
+
+.playroom .classic-parameters :is(.parameter-slider, #brush-options, .primary-brush-options label) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom .classic-parameters .parameter-slider > label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom .classic-parameters :is(.primary-brush-options .choice-button, #paint-color-open) {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 36px;
+  line-height: 1.25;
+}
+.playroom .classic-parameters :is(.choice-button > span:not(.choice-picture, .choice-arrow), #paint-color-open > span) {
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.playroom .classic-parameters #paint-color-open {
+  min-height: 40px;
+  max-width: none;
+  white-space: normal;
+}
+@container (max-width: 760px) {
+  .playroom .classic-parameters #paper-grain-choose .choice-picture {
+    display: none;
+  }
+}
+.playroom #paint-color-open > i {
+  flex: none;
+}
+
+.playroom .classic-colors::after {
+  content: none;
+}
+.playroom .classic-left .color-slot > span {
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] {
+  flex-wrap: wrap;
+  align-content: center;
+  row-gap: 4px;
+}
+.playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] .number-stepper {
+  margin-left: 0;
+}
+
+@media (min-width: 861px) and (min-height: 601px) {
+  .playroom .classic-left .color-pair {
+    height: auto;
+    align-items: start;
+  }
+  .playroom .classic-left .brush-box {
+    grid-auto-rows: max-content;
+  }
+  .playroom .classic-left .brush-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    justify-items: center;
+    gap: 4px;
+    padding: 6px 2px;
+    min-height: max-content;
+  }
+  .playroom .classic-left .brush-card > .playful-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .playroom .classic-left .brush-card > span:not(.brush-sample) {
+    text-align: center;
+    word-break: normal;
+    line-height: 1.25;
+  }
+  .playroom .classic-left .brush-card .brush-sample {
+    width: 100%;
+  }
+  .playroom .classic-left .subtool-card > :is(.choice-picture, .playful-icon) {
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
+}
+
+@media (max-width: 860px), (max-height: 600px) {
+  .playroom .canvas-topbar > .mobile-commands {
+    position: static;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .playroom .mobile-commands .mobile-command {
+    flex: 0 0 auto;
+    min-width: 44px;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail #tools {
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)) !important;
+    grid-auto-rows: minmax(64px, auto);
+  }
+  .playroom[data-mobile-panel="tools"] .tool-rail .tool-button {
+    min-height: 64px !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 4px !important;
+    font-size: 14px !important;
+  }
+  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card > span:not(.brush-sample) {
+    font-size: 14px !important;
+  }
+  .playroom[data-mobile-panel="options"] .classic-parameters .options-bar[hidden] {
+    display: none !important;
+  }
+}
+@media (max-width: 640px), (max-height: 500px) {
+  .playroom .canvas-topbar {
+    padding-right: 0;
+  }
+  .playroom .canvas-topbar > .assist-open {
+    position: static;
+    min-height: 36px;
+    font-size: 14px;
+  }
+}
+@media (max-width: 640px) and (min-resolution: 2dppx) {
+  .playroom {
+    --header: 52px;
+  }
+  .playroom .app-header {
+    height: var(--header);
+  }
+  .playroom[data-theme] .header-actions button {
+    height: 44px;
+  }
+}
+.playroom .tool-dock .asset > span:not(.asset-add) {
+  min-width: 0;
+  max-height: 2.4em;
+  overflow-wrap: anywhere;
+}
+.playroom[data-mobile-panel="library"] .tool-dock .asset img {
+  flex: 1 1 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}
+.playroom[data-mobile-panel="library"] .tool-dock .asset > span:not(.asset-add) {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
 /* Theme surfaces for the complete tool shelf.  This file is loaded after
    playroom.css, so these rules are the final chrome layer and cover the
    older compact-shelf declarations above.  Canvas pixels, brush samples,
@@ -859,17 +1062,16 @@
 .playroom .fractal-preset-icon { width: 40px; height: 40px; min-width: 40px; display: grid; place-items: center; border-radius: 11px; background: var(--theme-control, #fff3de); overflow: hidden; }
 .playroom .fractal-preset-icon svg { width: 38px; height: 38px; display: block; }
 .playroom .fractal-preset-card > span:last-child { font-size: calc(14px * var(--u)); text-align: left; word-break: keep-all; }
-.playroom .fractal-coach { padding: 8px 10px; font-size: 13px; line-height: 1.4; white-space: nowrap; text-align: center; border-radius: 14px; }
+.playroom .fractal-coach { padding: 8px 10px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; text-align: center; border-radius: 14px; }
 .playroom .fractal-params { display: grid; grid-template-rows: minmax(0, 1fr); }
-.playroom .fractal-fields { display: grid; grid-template-columns: 3fr 2fr; gap: 6px; align-items: stretch; padding: 3px 2px; }
-.playroom .fractal-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 3px 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
-.playroom .fractal-field > span { font-size: clamp(13px, calc(15px * var(--u)), 16px); font-weight: 650; white-space: nowrap; }
+.playroom .fractal-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 6px; align-items: stretch; padding: 3px 2px; }
+.playroom .fractal-field { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 3px 10px; border: 2px solid var(--theme-border, #e1bc87); border-radius: 12px; background: var(--theme-control, #fff8e9); }
+.playroom .fractal-field > span { font-size: clamp(14px, calc(15px * var(--u)), 16px); font-weight: 650; overflow-wrap: anywhere; }
 .playroom .fractal-size-field input[type="range"] { flex: 1; min-width: 40px; margin: 0; }
 .playroom .fractal-size-field output { min-width: 2.2em; text-align: right; font-weight: 650; }
-.playroom .fractal-depth-field { position: relative; }
-.playroom .fractal-stepper { display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%); }
+.playroom .fractal-stepper { display: flex; align-items: center; gap: 10px; }
 .playroom .fractal-stepper button { min-width: 34px; width: 34px; min-height: 34px; height: 34px; padding: 0; font-size: 19px; line-height: 1; border: 2px solid var(--theme-border, #e1bc87); border-radius: 50%; background: var(--theme-control, #fff2db); }
 .playroom .fractal-stepper button:disabled { opacity: .4; }
 .playroom .fractal-stepper output { min-width: 2.4em; text-align: center; font-size: clamp(15px, calc(17px * var(--u)), 18px); font-weight: 700; padding: 2px 8px; border: 2px solid var(--theme-border, #e8d4af); border-radius: 11px; background: var(--theme-surface, #fffdf5); }
-.playroom .classic-parameters:has(.fractal-params:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
+.playroom .classic-parameters:has(.fractal-params:not([hidden])) { grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; }
 

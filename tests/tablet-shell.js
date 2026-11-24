@@ -60,6 +60,23 @@ try{
  dialog.close();
  results.push({name:'缩放后的内页弹窗完整可达',passed:true});
 
+ doc.getElementById('more-open').click();
+ doc.getElementById('ui-language-choose').click();
+ await pause(60);
+ const chooser=doc.getElementById('choice-dialog');
+ const shellScale=shellWindow.LUOYETabletMetrics().scale;
+ const languageCard=chooser.querySelector('[data-value="de"]');
+ const choiceFont=parseFloat(app.getComputedStyle(languageCard.lastElementChild).fontSize);
+ const effectiveFont=choiceFont*parseFloat(app.getComputedStyle(chooser).zoom)*shellScale;
+ assert(chooser.open&&effectiveFont>=14,'外壳缩放后的语言选择文字过小');
+ const choiceBox=chooser.getBoundingClientRect();
+ assert(choiceBox.left>=0&&choiceBox.right<=app.innerWidth+1&&choiceBox.bottom<=app.innerHeight+1,'语言选择超出平板窗口');
+ languageCard.click();
+ await pause(40);
+ assert(doc.documentElement.lang==='de'&&shell.contentDocument.documentElement.lang==='de','平板外壳语言未同步');
+ doc.getElementById('more-done').click();
+ results.push({name:'平板缩放下语言选择文字可读且切换即时生效',passed:true});
+
  const snapshot=await shellWindow.LUOYEFlushBeforeClose();
  assert(snapshot?.project?.format==='luoye-studio'&&snapshot.project.version===3,'关闭前草稿代理没有返回内页工程');
  results.push({name:'关闭前草稿代理连接内页工程',passed:true});

@@ -194,14 +194,45 @@
 .playroom #palette-open{min-height:44px;margin:0;padding:3px;font-size:13px;background:#ffebc7;border:1px solid #dbb58b}
 .playroom #palette-open:before{content:none}
 .playroom .classic-palette-dialog{width:min(780px,calc(100vw - 36px))}
-.playroom .palette-presets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
-.playroom .preset-color{padding:5px;min-width:0;min-height:64px;display:flex;align-items:center;gap:6px;font-size:12px}
+.playroom .palette-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.playroom #palette-dialog .preset-color {
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.25;
+  text-align: start;
+}
 .playroom .preset-color i{width:30px;height:34px;background:var(--preset);border-radius:12px;border:2px solid var(--theme-border,#c9a983);flex:none}
-.playroom .palette-editor{grid-template-columns:minmax(220px,1.1fr) minmax(160px,1fr);gap:22px}
+.playroom .palette-editor{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px}
 .playroom #color-plane{width:100%;height:auto;aspect-ratio:4/3}
 .playroom #color-preview{height:76px;margin-bottom:14px;border-radius:16px}
-.playroom .color-numbers summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:13px}
-.playroom .color-numbers label{margin:4px 0}
+.playroom .color-numbers summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:14px}
+.playroom #palette-dialog .palette-editor label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.playroom #palette-dialog .palette-editor input[type="range"] {
+  flex: 1 1 100px;
+  width: auto;
+}
+.playroom #palette-dialog .color-numbers .number-stepper {
+  margin: 0 0 0 auto;
+}
+.playroom #palette-dialog .color-numbers .number-stepper input {
+  width: 64px;
+  min-width: 0;
+  font-size: 16px;
+}
 @media(max-height:740px){.playroom .classic-palette-dialog{padding:16px}.playroom .palette-presets{gap:5px;margin-bottom:12px}.playroom .preset-color{min-height:48px}.playroom .classic-palette-dialog h2{margin-bottom:12px}.playroom .classic-palette-dialog .dialog-actions{bottom:-16px}.playroom #color-plane{max-height:170px;object-fit:fill}}
 
 .playroom .fairy-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
@@ -541,7 +572,7 @@
 .playroom[data-theme] .theme-card[data-theme="ocean"] .theme-card-preview { background: linear-gradient(#a9e2e4, #2d8e9a); --theme-preview-a: #d2f4e9; --theme-preview-b: #4ab19a; }
 .playroom[data-theme] .theme-card[data-theme="candy"] .theme-card-preview { background: linear-gradient(150deg, #ffd1df, #bfead8); --theme-preview-a: #ffd98b; --theme-preview-b: #d86a8e; }
 .playroom[data-theme] .theme-card-copy { min-width: 0; display: flex; flex-direction: column; }
-.playroom[data-theme] .theme-card-copy strong { font-size: 16px; }
+.playroom[data-theme] .theme-card-copy strong { font-size: 16px; line-height: 1.25; }
 .playroom[data-theme] .theme-card-copy small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .playroom[data-theme] .theme-card > .playful-icon { position: absolute; width: 22px; height: 22px; right: 5px; bottom: 4px; opacity: .75; }
 .playroom[data-theme] .theme-dialog .dialog-actions { margin-top: 14px; padding-top: 10px; }
@@ -571,7 +602,7 @@
   .playroom[data-theme] .theme-card-preview { width: 30px; height: 30px; border-radius: 6px; }
   .playroom[data-theme] .theme-card-preview i { width: 14px; height: 14px; right: 3px; top: 3px; }
   .playroom[data-theme] .theme-card-preview b { width: 22px; height: 6px; left: 3px; bottom: 4px; border-width: 2px; }
-  .playroom[data-theme] .theme-card-copy strong { font-size: 12px; }
+  .playroom[data-theme] .theme-card-copy strong { font-size: 14px; }
   .playroom[data-theme] .theme-card-copy small { font-size: 8px; }
   .playroom[data-theme] .theme-card > .playful-icon { width: 14px; height: 14px; right: 2px; bottom: 2px; }
   .playroom[data-theme] .theme-dialog .dialog-actions { position: static; bottom: auto; margin: 0; padding: 0; }
@@ -587,7 +618,7 @@
   .playroom[data-theme] .theme-card-preview { width: 28px; height: 28px; border-radius: 5px; }
   .playroom[data-theme] .theme-card-preview i { width: 12px; height: 12px; right: 2px; top: 2px; }
   .playroom[data-theme] .theme-card-preview b { width: 19px; height: 5px; left: 3px; bottom: 3px; border-width: 1px; }
-  .playroom[data-theme] .theme-card-copy strong { font-size: 10px; }
+  .playroom[data-theme] .theme-card-copy strong { font-size: 14px; }
   .playroom[data-theme] .theme-card-copy small { display: none; }
   .playroom[data-theme] .theme-card > .playful-icon { width: 12px; height: 12px; right: 1px; bottom: 1px; }
   .playroom[data-theme] .theme-dialog .dialog-actions { position: static; bottom: auto; margin: 4px 0 0; padding: 2px 0 0; }
@@ -601,18 +632,25 @@
 #close-dialog .playful-icon{width:38px;height:38px}
 .playroom .about-dialog{width:min(420px,calc(100vw - 36px));text-align:center;padding:28px 28px 20px}.playroom .about-dialog h2{margin:8px 0 4px;font-size:30px}.playroom .about-mark{width:82px;height:82px;margin:0 auto 6px;display:grid;place-items:center;border:3px solid #d29a64;border-radius:28px;background:#ffe2a8;box-shadow:0 5px 0 #b9764d33;overflow:hidden}.playroom .about-mark img{width:100%;height:100%;object-fit:cover;filter:none}.playroom .about-mark .about-theme-icon{display:block}.playroom .about-version{margin:0 0 8px;color:#936b4b}.playroom .about-links{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:2px;margin:0 0 12px}.playroom .about-links-sep{color:#c89a6d;font-weight:700;margin:0 8px;pointer-events:none}.playroom .about-links a{color:#8b4d31;font-weight:650;text-decoration:underline;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:32px;padding:0 6px;border-radius:8px;cursor:pointer;transition:color 160ms ease,background 160ms ease,transform 160ms ease}.playroom .about-links a:active{transform:scale(.97)}.playroom .about-links a:focus-visible{outline:3px solid #a55339;outline-offset:2px}.playroom .about-credit{margin:0;color:#9a6d52;font-size:13px;font-weight:600;letter-spacing:.05em;line-height:1.55}.playroom .about-dialog .dialog-actions{justify-content:center;margin-top:16px}
 
-/* Settings entries share one visual contract: two equal internal tracks with
-   the icon on the left and the label on the right. This keeps every entry
-   centered and prevents text-only legacy controls from appearing smaller. */
+.playroom :is(#more-dialog, #choice-dialog) {
+  zoom: var(--tablet-dialog-zoom, 1);
+}
+.playroom #choice-dialog {
+  max-width: calc(var(--tablet-dialog-width, 100vw) - 28px);
+  max-height: calc(var(--tablet-dialog-height, 100dvh) - 28px);
+}
+.playroom #choice-dialog .choice-grid {
+  max-height: min(60vh, calc(var(--tablet-dialog-height, 100dvh) * .6));
+}
+
+/* Reserve a flexible text column next to each settings icon. */
 .playroom #more-dialog {
-  width: min(800px, calc(100vw - 48px));
-  max-height: calc(100dvh - 48px);
+  width: min(800px, calc(var(--tablet-dialog-width, 100vw) - 48px));
+  max-height: calc(var(--tablet-dialog-height, 100dvh) - 48px);
   padding: 14px;
 }
 .playroom #more-dialog .more-actions {
-  /* Keep the original two-column settings sheet. Each entry is a compact
-     horizontal pair so the icon and label get equal, predictable space. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   align-items: stretch;
 }
 .playroom #more-dialog .more-action {
@@ -620,7 +658,7 @@
   min-width: 0;
   min-height: 60px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   justify-items: center;
   gap: 6px;
@@ -1505,9 +1543,6 @@
     font-size: 12px;
   }
 
-  /* Every dialog gets a mobile sheet geometry. The palette editor keeps the
-     hue plane and action buttons in the first view instead of pushing them
-     below a tall preset grid. */
   .playroom dialog {
     width: min(560px, calc(100vw - 16px));
     max-width: calc(100vw - 16px);
@@ -1526,79 +1561,20 @@
     padding: 9px 14px 14px;
     background: linear-gradient(transparent, #fff1d4 28%);
   }
-  .playroom #palette-dialog:not([open]) { display: none; }
-  .playroom #palette-dialog[open] {
-    display: flex;
-    flex-direction: column;
-    width: calc(100vw - 16px);
-    height: calc(100dvh - var(--header) - 16px);
-    min-height: 0;
-    max-height: none;
-    overflow: hidden;
-  }
-  .playroom #palette-dialog h2 {
-    flex: 0 0 24px;
-    min-height: 24px;
-    margin: 0 0 5px;
-    font-size: 18px;
-  }
   .playroom #palette-dialog .palette-presets {
-    display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(74px, 1fr);
+    grid-auto-columns: minmax(112px, max-content);
     grid-template-columns: none;
-    flex: 0 0 46px;
-    height: 46px;
-    max-height: 46px;
     overflow-x: auto;
-    overflow-y: hidden;
-    gap: 5px;
-    margin-bottom: 6px;
+    padding-bottom: 6px;
   }
-  .playroom #palette-dialog .preset-color { min-height: 40px; padding: 3px; gap: 3px; font-size: 10px; }
-  .playroom #palette-dialog .preset-color i { width: 24px; height: 24px; border-radius: 8px; }
   .playroom #palette-dialog .palette-editor {
-    display: flex;
-    flex: 0 0 92px;
-    flex-direction: row;
-    min-height: 0;
-    gap: 8px;
-    overflow: hidden;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
-  .playroom #palette-dialog .palette-editor > div:first-child {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) 24px;
-    gap: 3px;
+  .playroom #palette-dialog #color-plane {
+    height: clamp(96px, 32vw, 178px);
   }
-  .playroom #palette-dialog #color-plane { width: 100%; height: 64px; min-height: 0; max-height: none; }
-  .playroom #palette-dialog .palette-editor > div:first-child label { min-height: 24px; }
-  .playroom #palette-dialog #color-preview { height: 28px; margin: 0 0 2px; }
-  .playroom #palette-dialog .palette-editor > div:last-child {
-    flex: 0 0 176px;
-    min-width: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-content: start;
-    gap: 4px;
-    overflow-y: auto;
-  }
-  .playroom #palette-dialog .palette-editor > div:last-child #color-preview,
-  .playroom #palette-dialog .palette-editor > div:last-child label:last-child { grid-column: 1 / -1; }
-  .playroom #palette-dialog .palette-editor label { min-height: 30px; margin: 0; font-size: 11px; }
-  .playroom #palette-dialog .paint-texture-option {
-    flex: 0 0 38px;
-    min-height: 38px;
-    margin: 5px 0 0;
-    gap: 7px;
-    align-items: center;
-    overflow: hidden;
-  }
-  .playroom #palette-dialog .paint-texture-option select,
-  .playroom #palette-dialog .paint-texture-option .choice-button { min-height: 34px; padding: 4px 7px; }
-  .playroom #palette-dialog .dialog-actions { flex: 0 0 42px; position: static; margin: 5px 0 0; padding: 0; background: none; }
-  .playroom #palette-dialog .dialog-actions button { min-height: 42px; }
 }
 
 @media (max-width: 640px) and (min-resolution: 2dppx) {
@@ -2118,24 +2094,13 @@
   }
 }
 
-@media (max-width: 640px) and (min-resolution: 2dppx) {
-  /* The palette editor has a denser fixed layout than the other dialogs.
-     At very high density its action row can exceed the CSS viewport, so the
-     dialog itself becomes the scroll container. */
-  .playroom #palette-dialog[open] {
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    scrollbar-width: thin;
-  }
-}
-
 /* Compact assist sheet: keep the canvas visible while the settings remain
    understandable at a glance. The original single-column sheet was too tall
    for short landscape WebViews, so related controls now share two cards. */
 .playroom .assist-dialog {
   width: min(720px, calc(100vw - 16px));
-  max-height: min(470px, calc(100dvh - 12px));
-  overflow: hidden;
+  max-height: calc(100dvh - 12px);
+  overflow: auto;
   padding: 0;
   border-width: 2px;
   border-radius: 18px;
@@ -2146,16 +2111,16 @@
   gap: 11px;
   min-height: 0;
   padding: 14px;
-  overflow: hidden;
 }
 .playroom .assist-header {
   min-height: 42px;
   align-items: center;
   gap: 8px;
 }
+.playroom .assist-title { min-width: 0; overflow-wrap: anywhere; }
 .playroom .assist-title strong { font-size: 17px; }
-.playroom .assist-title span { margin-top: 1px; font-size: 10px; }
-.playroom .assist-header-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.playroom .assist-title span { margin-top: 3px; font-size: 13px; }
+.playroom .assist-header-actions { display: flex; flex: none; align-items: center; gap: 6px; margin-left: auto; }
 .playroom .assist-header-actions .assist-switch {
   position: relative;
   min-height: 34px;
@@ -2180,18 +2145,16 @@
 .playroom .assist-switch-track { width: 30px; height: 18px; flex: none; }
 .playroom .assist-switch-track::after { width: 12px; height: 12px; top: 3px; left: 3px; }
 .playroom .assist-switch input:checked + .assist-switch-track::after { transform: translateX(12px); }
-.playroom .assist-switch-copy b { font-size: 11px; }
+.playroom .assist-switch-copy b { font-size: 14px; }
 .playroom .assist-switch-copy small { display: none; }
 .playroom .assist-close { width: 34px; height: 34px; min-width: 34px; min-height: 34px; padding: 0; font-size: 20px; }
 .playroom .assist-status {
   min-height: 27px;
   padding: 5px 9px;
   border-radius: 8px;
-  font-size: 11px;
-  line-height: 1.45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .playroom .assist-layout {
   display: grid;
@@ -2217,14 +2180,14 @@
   margin-bottom: 6px;
 }
 .playroom .assist-card-heading strong { font-size: 14px; }
-.playroom .assist-card-heading small { color: #9a7154; font-size: 11px; white-space: nowrap; }
+.playroom .assist-card-heading small { color: #9a7154; font-size: 13px; white-space: normal; }
 .playroom .assist-section,
 .playroom .assist-form .assist-check,
 .playroom .assist-form label.assist-switch { margin: 0; }
 .playroom .assist-section { display: grid; gap: 3px; min-width: 0; }
-.playroom .assist-section > label { min-height: 18px; margin: 0; font-size: 12px; line-height: 1.25; }
+.playroom .assist-section > label { min-height: 18px; margin: 0; font-size: 14px; line-height: 1.25; }
 .playroom .assist-mode-row { gap: 7px; }
-.playroom .assist-mode-button { min-height: 44px; padding: 6px 7px; font-size: 12px; }
+.playroom .assist-mode-button { min-height: 44px; padding: 6px 7px; font-size: 14px; }
 .playroom .assist-section select {
   width: 100%;
   min-height: 32px;
@@ -2241,7 +2204,7 @@
 }
 .playroom .assist-axes-row { margin-top: 6px; }
 .playroom .assist-center-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 7px; }
-.playroom .assist-section output { font-size: 11px; }
+.playroom .assist-section output { font-size: 13px; }
 .playroom .assist-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(32px, 1fr); flex: 1; align-content: stretch; gap: 5px; }
 .playroom .assist-form label.assist-check {
   min-width: 0;
@@ -2250,18 +2213,18 @@
   border: 1px solid #e3bd8a;
   border-radius: 8px;
   background: #fff9e9;
-  gap: 5px;
-  font-size: 10px;
-  line-height: 1.2;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.3;
 }
 .playroom .assist-form label.assist-check input { width: 20px; height: 20px; min-width: 20px; min-height: 20px; margin: 0; flex: none; }
 .playroom .assist-form label.assist-check span { min-width: 0; overflow-wrap: anywhere; }
 .playroom .assist-options .assist-check { height: 100%; }
-.playroom .assist-note { margin: 7px 0 0; font-size: 10px; line-height: 1.35; }
+.playroom .assist-note { margin: 7px 0 0; font-size: 13px; line-height: 1.35; }
 @media (max-width: 499px) {
   .playroom .assist-dialog { width: min(390px, calc(100vw - 12px)); }
   .playroom .assist-layout { grid-template-columns: 1fr; }
-  .playroom .assist-options .assist-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .playroom .assist-options .assist-checks { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
   .playroom .assist-mode-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2287,7 +2250,7 @@
   .playroom .assist-center-grid { gap: 5px; margin-top: 4px; }
   .playroom .assist-axes-row { margin-top: 4px; }
   .playroom .assist-mode-buttons { gap: 5px; }
-  .playroom .assist-mode-button { min-height: 28px; padding: 3px 5px; font-size: 10px; }
+  .playroom .assist-mode-button { min-height: 36px; padding: 4px 6px; }
   .playroom .assist-form label.assist-check { min-height: 32px; }
   .playroom .assist-note { margin-top: 4px; }
 }
@@ -2550,7 +2513,7 @@
 .playroom .pixel-art-field { display: flex; flex-direction: column; gap: 4px; font-weight: 650; }
 .playroom .pixel-art-field select { width: 100%; min-height: 38px; }
 .playroom .pixel-art-tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.playroom .pixel-art-tool-row button { min-height: 42px; padding: 5px; font-size: 13px; }
+.playroom .pixel-art-tool-row button { min-height: 42px; padding: 5px; font-size: 14px; }
 .playroom .pixel-art-tool-row button[aria-pressed="true"] { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
 .playroom .pixel-art-palette { display: grid; grid-template-columns: repeat(6, minmax(24px, 1fr)); gap: 7px; padding: 4px 0; }
 .playroom .pixel-swatch { min-width: 0; min-height: 34px; height: 34px; padding: 0; border: 3px solid var(--theme-surface, #fff8e9); border-radius: 9px; box-shadow: 0 0 0 1px var(--theme-border, #e1bc87); }
@@ -2570,11 +2533,11 @@
   .playroom .pixel-art-stage { max-height: 48vh; min-height: 180px; border-radius: 12px; }
   .playroom .pixel-art-controls { gap: 6px; padding: 7px; border-radius: 12px; }
   .playroom .pixel-art-tool-row { gap: 4px; }
-  .playroom .pixel-art-tool-row button { min-height: 34px; font-size: 11px; }
+  .playroom .pixel-art-tool-row button { min-height: 36px; }
   .playroom .pixel-art-palette { gap: 4px; }
   .playroom .pixel-swatch { min-height: 28px; height: 28px; border-radius: 7px; }
   .playroom .pixel-art-tip { font-size: 11px; }
-  .playroom .pixel-art-actions button { min-height: 36px; font-size: 12px; }
+  .playroom .pixel-art-actions button { min-height: 40px; }
 }
 
 @media (max-width: 430px) {
@@ -2598,14 +2561,14 @@
   .playroom .pixel-art-field, .playroom .pixel-art-tool-row, .playroom .pixel-art-palette, .playroom .pixel-art-tip, .playroom .pixel-art-actions { grid-column: 1 / -1; }
   .playroom .pixel-art-field select { min-height: 30px; }
   .playroom .pixel-art-tool-row { gap: 3px; }
-  .playroom .pixel-art-tool-row button { min-height: 29px; padding: 2px 4px; font-size: 11px; }
+  .playroom .pixel-art-tool-row button { min-height: 36px; padding: 4px; }
   .playroom .pixel-art-palette { grid-template-columns: repeat(6, minmax(20px, 1fr)); gap: 3px; }
   .playroom .pixel-swatch { min-height: 23px; height: 23px; }
   .playroom .pixel-art-custom-color { min-height: 30px; padding: 2px 6px; }
   .playroom .pixel-art-custom-color input { width: 38px; height: 24px; }
   .playroom .pixel-art-tip { display: none; }
   .playroom .pixel-art-actions { gap: 5px; margin-top: 0; }
-  .playroom .pixel-art-actions button { min-height: 31px; padding: 2px 5px; font-size: 11px; }
+  .playroom .pixel-art-actions button { min-height: 40px; padding: 4px 6px; }
 }
 
 /* Creative tool controls use the same readable card treatment as the brush
@@ -2711,7 +2674,7 @@
 .playroom .animation-control-heading { display: flex; flex-direction: column; gap: 3px; }
 .playroom .animation-control-heading span { color: var(--muted, #8d6b50); font-size: 13px; }
 .playroom .animation-tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.playroom .animation-tool-row button { min-height: 38px; padding: 5px; font-size: 13px; }
+.playroom .animation-tool-row button { min-height: 38px; padding: 5px; font-size: 14px; }
 .playroom .animation-tool-row button[aria-pressed="true"], .playroom .animation-tool-row button.is-active { background: var(--theme-selected, #ffd990); border-color: var(--theme-accent, #b86835); }
 .playroom .animation-select-label, .playroom .animation-speed { display: flex; flex-direction: column; gap: 4px; font-weight: 650; }
 .playroom .animation-select-label select, .playroom .animation-speed select { width: 100%; min-height: 38px; }
@@ -2745,7 +2708,7 @@
 .playroom .animation-thumb-canvas { width: 96px; height: 72px; object-fit: contain; background: repeating-conic-gradient(var(--theme-control, #f2e3c8) 0 25%, var(--theme-surface, #fffaf0) 0 50%) 50% / 10px 10px; border-radius: 7px; }
 .playroom .animation-actions { display: flex; justify-content: space-between; gap: 10px; align-items: stretch; }
 .playroom .animation-actions-group { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
-.playroom .animation-actions button { min-height: 40px; padding: 6px 10px; font-size: 13px; }
+.playroom .animation-actions button { min-height: 40px; padding: 6px 10px; font-size: 14px; }
 .playroom .animation-actions button:disabled { opacity: .45; cursor: default; }
 .playroom .animation-actions .primary { display: inline-flex; align-items: center; gap: 5px; }
 .playroom .animation-actions .primary .playful-icon { width: 24px; height: 24px; }
@@ -2762,9 +2725,8 @@
   .playroom .animation-workspace { grid-template-columns: minmax(0, 1fr); gap: 8px; justify-content: stretch; }
   .playroom .animation-stage { justify-self: center; width: min(calc(100vw - 76px), 52dvh, 380px); height: auto; border-radius: 12px; }
   .playroom .animation-controls { gap: 6px; padding: 7px; border-radius: 12px; }
-  .playroom .animation-control-heading span, .playroom .animation-onion-toggle, .playroom .animation-select-label, .playroom .animation-speed { font-size: 11px; }
+  .playroom .animation-control-heading span, .playroom .animation-onion-toggle, .playroom .animation-select-label, .playroom .animation-speed { font-size: 14px; }
   .playroom .animation-tool-row { gap: 4px; }
-  .playroom .animation-tool-row button { min-height: 32px; font-size: 11px; }
   .playroom .animation-sliders { grid-template-columns: minmax(52px, auto) minmax(0, 1fr); gap: 4px 7px; }
   .playroom .animation-slider-caption { min-height: 16px; }
   .playroom .animation-color-control { height: 32px; min-width: 46px; }
@@ -2776,7 +2738,7 @@
   .playroom .animation-actions { flex-direction: column; gap: 5px; }
   .playroom .animation-actions-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
   .playroom .animation-actions-group:last-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .playroom .animation-actions button { min-height: 34px; padding: 4px 5px; font-size: 11px; }
+  .playroom .animation-actions button { padding: 6px; }
 }
 
 @media (max-width: 430px) {
@@ -2784,8 +2746,6 @@
   /* 画布由正方形舞台框架铺满（inset:0），不要再单独设宽度，否则会被拉成长方形。 */
   .playroom .animation-controls { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
   .playroom .animation-control-heading, .playroom .animation-tool-row, .playroom .animation-onion-toggle { grid-column: 1 / -1; }
-  .playroom .animation-tool-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .playroom .animation-tool-row button { min-height: 30px; padding: 2px; }
 }
 
 
@@ -2866,9 +2826,6 @@
     gap: 4px;
   }
 }
-.playroom #more-dialog .more-action {
-  grid-template-columns: auto minmax(0, 1fr);
-}
 .playroom .header-actions button > span:not(.playful-icon),
 .playroom .tool-button > span:not(.playful-icon),
 .playroom .brush-card > span:not(.playful-icon, .brush-sample),
@@ -2887,9 +2844,6 @@
 .playroom .tool-button > .playful-icon,
 .playroom .header-actions button > .playful-icon {
   flex-shrink: 0;
-}
-:root:not(:lang(zh)) .playroom .assist-card-heading small {
-  white-space: normal;
 }
 @media (max-width: 860px), (max-height: 600px) {
   .playroom[data-mobile-panel="tools"] .tool-rail .tool-button > .playful-icon {
@@ -2917,15 +2871,6 @@
   text-overflow: ellipsis;
 }
 
-@media (min-width: 861px) and (min-height: 601px) {
-  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
-    font-size: calc(11px * var(--u));
-    line-height: 1.1;
-  }
-  :root:not(:lang(zh)) .playroom .header-actions :is(#new-quick, #reset-settings) > .playful-icon {
-    max-height: calc(23px * var(--u));
-  }
-}
 
 /* Let dialog content choose its height and wrap inside its controls. */
 .playroom dialog button,
@@ -2988,8 +2933,8 @@
 .playroom[data-theme] .theme-card-copy small {
   white-space: normal;
   overflow: visible;
-  font-size: 11px;
-  line-height: 1.25;
+  font-size: 13px;
+  line-height: 1.3;
 }
 .playroom #darkroom-dialog .darkroom-categories button {
   min-height: 44px;
@@ -3014,14 +2959,22 @@
 .playroom .music-transport button {
   min-inline-size: 0;
 }
-:root:not(:lang(zh)) .playroom .header-actions button {
-  gap: 1px;
-}
-:root:not(:lang(zh)) .playroom .header-actions button > .playful-icon {
-  max-height: calc(22px * var(--u));
-}
 
 @media (max-width: 600px) {
+  .playroom .music-dialog label:has(> input[type="range"]) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 8px;
+  }
+  .playroom .music-dialog label:has(> input[type="range"]) input {
+    grid-row: 2;
+    width: 100%;
+  }
+  .playroom .music-dialog label:has(> input[type="range"]) output {
+    grid-row: 2;
+    min-width: 4ch;
+  }
+
   .playroom #text-dialog .text-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
@@ -3062,7 +3015,7 @@
   }
   .playroom #function-modes label {
     gap: 4px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .playroom #function-modes output {
     min-width: 2.5ch;
@@ -3096,19 +3049,6 @@
   }
 }
 
-@media (min-width: 641px) and (min-height: 501px) {
-  :root:not(:lang(zh)) .playroom .header-actions button {
-    flex: 0 0 auto;
-    width: max-content;
-    min-width: calc(60px * var(--u));
-    max-width: calc(118px * var(--u));
-    padding-inline: 8px;
-  }
-  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
-    font-size: calc(11px * var(--u));
-    line-height: 1.2;
-  }
-}
 
 .playroom #text-dialog .text-style {
   align-items: center;
@@ -3122,22 +3062,6 @@
 @media (max-width: 600px) {
   .playroom #text-dialog .text-style-icon {
     display: none;
-  }
-}
-@media (max-width: 640px), (max-height: 500px) {
-  :root:not(:lang(zh)) .playroom .header-actions button {
-    flex: 0 0 auto;
-    width: max-content;
-    min-width: 44px;
-    max-width: 92px;
-    padding-inline: 6px;
-  }
-  :root:not(:lang(zh)) .playroom .header-actions button > span:not(.playful-icon) {
-    font-size: 10px;
-    line-height: 1.15;
-  }
-  :root:not(:lang(zh)) .playroom .header-actions button > .playful-icon {
-    max-height: 19px;
   }
 }
 

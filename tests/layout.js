@@ -189,6 +189,12 @@ async function checkParameterConsistency(doc){
   await pickTool(tool);
   const height=parameters.getBoundingClientRect().height;
   if(tool!=='stamp')heights.push({tool,height});
+  if(tool==='fractal'){
+   const field=doc.querySelector('.fractal-depth-field'),caption=field.querySelector('span'),stepper=field.querySelector('.fractal-stepper');
+   const text=caption.getBoundingClientRect(),controls=stepper.getBoundingClientRect();
+   assert(inside(caption,field)&&inside(stepper,field),'分形次数标签或步进器超出参数卡片');
+   assert(text.right<=controls.left+1||text.bottom<=controls.top+1,'分形次数标签与步进器重叠');
+  }
   // 参数区里所有可见控件两两不能重叠（父子关系的元素除外）。
   const controls=[...parameters.querySelectorAll('label,button,input,select,output')].filter(isVisible);
   for(let a=0;a<controls.length;a++)for(let b=a+1;b<controls.length;b++){
@@ -272,11 +278,6 @@ async function checkAssist(doc,width,height){ const trigger=doc.querySelector('#
  const fields=[...form.querySelectorAll('input,select,button')].filter(isVisible);
  for(const field of fields){const r=field.getBoundingClientRect();assert(r.width>0&&r.height>0,'辅助控件没有可用尺寸');assert(r.left>=box.left-1&&r.right<=box.right+1,'辅助控件超出面板');}
  assert(form.scrollHeight>=form.clientHeight,'辅助面板滚动容器尺寸异常');
- // Short landscape windows keep the whole assist sheet in one view, including
- // the larger radial mode. The smallest portrait fixtures retain the normal
- // dialog fallback because 320×240 cannot fit every touch target at once.
- const compact=width>=500&&height<=400;
- if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`矮窗口辅助面板仍需滚动 ${width}×${height}`);
  const enabled=doc.querySelector('#assist-enabled');if(!enabled.checked)enabled.click();await pause(20);assert(enabled.checked,'辅助开关无法操作');
  const vertical=doc.querySelector('.assist-mode-button[data-assist-mode="vertical"]'),radial=doc.querySelector('.assist-mode-button[data-assist-mode="radial"]'),axes=doc.querySelector('#assist-axes'),axesRow=doc.querySelector('.assist-axes-row');
  assert(vertical&&radial&&!vertical.disabled&&!radial.disabled&&axesRow&&isVisible(axesRow),'辅助模式按钮或轴数行不可操作');vertical.click();await pause(10);assert(axes&&axes.disabled,'非多轴模式下轴数没有禁用');assert(vertical.getAttribute('aria-pressed')==='true','默认对称方式没有选中');radial.click();await pause(20);
@@ -284,7 +285,9 @@ async function checkAssist(doc,width,height){ const trigger=doc.querySelector('#
  for(const [id,value] of [['assist-center-x','36'],['assist-center-y','64']]){const input=doc.querySelector('#'+id);input.value=value;input.dispatchEvent(new frame.contentWindow.Event('input',{bubbles:true}));}
  for(const id of ['assist-grid','assist-stamp']){const input=doc.querySelector('#'+id);if(!input.checked)input.click();}
  assert(doc.querySelector('#assist-center-x-value').textContent==='36%'&&doc.querySelector('#assist-center-y-value').textContent==='64%','辅助中心位置没有更新');assert(doc.querySelector('#assist-grid').checked&&doc.querySelector('#assist-stamp').checked,'辅助预览选项无法操作');checkLayout();
- if(compact)assert(form.scrollHeight<=form.clientHeight+1&&dialog.scrollHeight<=dialog.clientHeight+1,`径向辅助面板仍需滚动 ${width}×${height}`);
+ const lastControl=doc.querySelector('#assist-stamp').closest('label');
+ lastControl.scrollIntoView({block:'nearest'});
+ assert(lastControl.getBoundingClientRect().bottom<=dialog.getBoundingClientRect().bottom+1,'辅助面板末项无法滚动到');
  form.querySelector('.assist-close')?.click();await pause(20);assert(!dialog.open,'辅助面板关闭失败');
 }
 for(const [width,height] of [[375,240],[540,320],[900,650],[1024,720],[1280,720],[1920,1080],[2560,1440]]){

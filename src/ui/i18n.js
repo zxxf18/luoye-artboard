@@ -8,11 +8,11 @@ import { messagesFR } from './locales/fr.js';
 const languageKey = 'luoye-language';
 const localeOptions = [
   { id: 'zh-CN', label: '简体中文' },
-  { id: 'en', label: '英语', messages: messagesEN, format: 0 },
-  { id: 'ja', label: '日语', messages: messagesJA, format: 1 },
-  { id: 'de', label: '德语', messages: messagesDE, format: 2 },
-  { id: 'ko', label: '韩语', messages: messagesKO, format: 3 },
-  { id: 'fr', label: '法语', messages: messagesFR, format: 4 },
+  { id: 'en', label: 'English', messages: messagesEN, format: 0 },
+  { id: 'ja', label: '日本語', messages: messagesJA, format: 1 },
+  { id: 'de', label: 'Deutsch', messages: messagesDE, format: 2 },
+  { id: 'ko', label: '한국어', messages: messagesKO, format: 3 },
+  { id: 'fr', label: 'Français', messages: messagesFR, format: 4 },
 ];
 let activeLocale = localeOptions[0];
 
@@ -79,14 +79,19 @@ export function mountLanguageSettings(actions) {
   const row = document.createElement('label');
   row.className = 'language-setting';
   const label = document.createElement('span');
+  label.id = 'ui-language-label';
   label.textContent = '语言';
   const select = document.createElement('select');
   select.id = 'ui-language';
-  select.setAttribute('aria-label', '语言');
+  select.setAttribute('aria-labelledby', label.id);
   for (const { id, label: name } of [{ id: 'auto', label: '跟随系统' }, ...localeOptions]) {
     const option = document.createElement('option');
     option.value = id;
     option.textContent = name;
+    if (id !== 'auto') {
+      option.lang = id;
+      option.dataset.i18nIgnore = '';
+    }
     select.append(option);
   }
   select.value = preference;

@@ -82,22 +82,28 @@ function assertScrollReachable(scrollbox, first, last, label) {
 function checkCompactHeader(doc, width, height) {
   const narrow = width <= 860 || height <= 600;
   if (!narrow) return;
-  const view = frame.contentWindow;
   const newQuick = doc.querySelector('#new-quick');
   const reset = doc.querySelector('#reset-settings');
   const themeIcon = doc.querySelector('#theme-open > .playful-icon');
   assert(newQuick && reset && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
-  assert(parseFloat(view.getComputedStyle(newQuick).fontSize) <= 9.1, '小屏新画纸文案仍然过大');
-  assert(parseFloat(view.getComputedStyle(reset).fontSize) <= 9.1, '小屏重置文案仍然过大');
   assert(rect(themeIcon).width <= 24.5 && rect(themeIcon).height <= 24.5, '小屏主题图标仍然过大');
 }
-function checkHeaderCommandWidths(doc, width, height) {
+function checkHeaderCommands(doc, width, height) {
+  const header = doc.querySelector('.header-actions');
   const buttons = [...doc.querySelectorAll('.header-actions > button')].filter(visible);
   assert(buttons.length >= 3, `${width}×${height} 顶部工具栏按钮数量不足`);
-  const expected = rect(buttons[0]).width;
   for (const button of buttons) {
-    assert(Math.abs(rect(button).width - expected) <= 1, `${width}×${height} 顶部按钮宽度不一致: ${button.id || button.textContent.trim()}`);
+    const label = button.querySelector('span:not(.playful-icon)');
+    assert(label && parseFloat(doc.defaultView.getComputedStyle(label).fontSize) >= 14, `${button.id} 顶部命令文字过小`);
+    const range = doc.createRange();
+    range.selectNodeContents(label);
+    const text = range.getBoundingClientRect(), box = rect(button);
+    assert(text.left >= box.left && text.right <= box.right && text.top >= box.top && text.bottom <= box.bottom, `${button.id} 顶部命令文字超出按钮`);
   }
+  const previousScroll = header.scrollLeft;
+  header.scrollLeft = header.scrollWidth;
+  assert(rect(buttons.at(-1)).right <= rect(header).right + 2, '顶部末项无法横向滚动到');
+  header.scrollLeft = previousScroll;
 }
 function checkBrushDrawer(doc) {
   const drawer = assertDrawerFrame(doc, 'brushes');
@@ -210,7 +216,7 @@ async function runCase(width, height) {
   const doc = frame.contentDocument;
   await waitReady(doc);
   checkCompactHeader(doc, width, height);
-  checkHeaderCommandWidths(doc, width, height);
+  checkHeaderCommands(doc, width, height);
   const viewport = doc.querySelector('#viewport');
   assert(viewport && rect(viewport).width >= 200 && rect(viewport).height >= 100, `${width}×${height} 画布被挤压`);
   for (const panel of ['brushes', 'tools', 'options', 'library']) {

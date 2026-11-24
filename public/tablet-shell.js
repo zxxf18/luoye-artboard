@@ -17,6 +17,13 @@
     frame.style.height = `${logicalHeight}px`;
     frame.style.transform = `scale(${scale})`;
     document.body.dataset.tabletScale = String(scale);
+    const appRoot = frame.contentDocument?.documentElement;
+    if (appRoot) {
+      // Settings and the shared chooser use the space in the actual tablet window.
+      appRoot.style.setProperty('--tablet-dialog-zoom', String(Math.max(1, 1 / scale)));
+      appRoot.style.setProperty('--tablet-dialog-width', `${Math.min(width, logicalWidth)}px`);
+      appRoot.style.setProperty('--tablet-dialog-height', `${Math.min(height, logicalHeight)}px`);
+    }
   }
 
   function scheduleLayout() {
@@ -38,6 +45,7 @@
   }
 
   window.addEventListener('resize', scheduleLayout);
+  frame.addEventListener('load', scheduleLayout);
   window.visualViewport?.addEventListener('resize', scheduleLayout);
   new ResizeObserver(scheduleLayout).observe(document.documentElement);
   layout();
