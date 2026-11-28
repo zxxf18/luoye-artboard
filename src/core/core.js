@@ -138,14 +138,33 @@ export function closedFloodFill(data, width, height, x, y, color, tolerance = 12
 }
 
 export class History {
+  #pastBytes = 0;
+
   constructor(budget = 96 * 1024 * 1024) { this.budget = budget; this.clear(); }
-  clear() { this.past = []; this.future = []; }
+  clear() { this.past = []; this.future = []; this.#pastBytes = 0; }
   push(entry) {
     this.future = []; this.past.push(entry);
-    while (this.past.length > 1 && this.past.reduce((n, e) => n + (e.bytes || 0), 0) > this.budget) this.past.shift();
+    this.#pastBytes += entry.bytes || 0;
+    while (this.past.length > 1 && this.#pastBytes > this.budget) {
+      this.#pastBytes -= this.past.shift().bytes || 0;
+    }
   }
-  undo() { const entry = this.past.pop(); if (entry) { entry.undo(); this.future.push(entry); return true; } return false; }
-  redo() { const entry = this.future.pop(); if (entry) { entry.redo(); this.past.push(entry); return true; } return false; }
+  undo() {
+    const entry = this.past.pop();
+    if (!entry) return false;
+    this.#pastBytes -= entry.bytes || 0;
+    entry.undo();
+    this.future.push(entry);
+    return true;
+  }
+  redo() {
+    const entry = this.future.pop();
+    if (!entry) return false;
+    entry.redo();
+    this.past.push(entry);
+    this.#pastBytes += entry.bytes || 0;
+    return true;
+  }
 }
 
 export function validateProject(value) {

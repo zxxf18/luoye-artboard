@@ -4,7 +4,7 @@ import { DrawingEngine } from '../src/core/drawing.js';
 import { EditorEngine } from '../src/core/editor.js';
 import { PaintEngine } from '../src/core/engine.js';
 import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updatePaperWarp } from '../src/core/paper-tools.js';
-import { History } from '../src/core/core.js';
+import { History, MAX_PROJECT_SPRITES, MAX_SPRITES_PER_LAYER } from '../src/core/core.js';
 import { shapePath } from '../src/core/geometry.js';
 
 // Drawing algorithms use the same layer/gesture/history code as the app. Only
@@ -64,6 +64,29 @@ test('mixed bag undo redo and cancellation restore sprites and frame groups toge
  e.history.redo();assert.equal(layer.sprites.length,5);assert.equal(layer.spriteGroups,after);
  e.fairyGroups=groups(1);e.begin({x:200,y:200},{tool:'stamp',size:160,opacity:1});e.end(true);
  assert.equal(layer.sprites.length,5);assert.equal(layer.spriteGroups,after);
+});
+
+test('duplicating an animation layer retains its timeline position', () => {
+ const e = engine(), frame = canvas(10,10);
+ const original = e.addLayer('动画', frame, true, { frames:[frame], frameDuration:160 });
+ Object.defineProperty(original, '_birth', { value:550, writable:true });
+ const copy = e.duplicateLayer();
+ assert.equal(copy._birth, original._birth);
+ assert.equal(copy.frames, original.frames);
+ assert.notEqual(copy.canvas, original.canvas);
+});
+
+test('duplicating a sprite layer cannot exceed the project save limit', () => {
+ const e = engine();
+ const resource = groups(1);
+ for (let count = 0; count < MAX_PROJECT_SPRITES; count += MAX_SPRITES_PER_LAYER) {
+  e.addLayer('动态印章', canvas(4,4), false, { sprites: new Array(MAX_SPRITES_PER_LAYER), spriteGroups:resource });
+ }
+ const original = e.active;
+ assert.throws(() => e.duplicateLayer(), /500,000/);
+ assert.equal(e.sceneSpriteCount(), MAX_PROJECT_SPRITES);
+ assert.equal(e.active, original);
+ assert.equal(e.history.past.length, 0);
 });
 
 test('a moved bag is not reused and painter order is preserved',()=>{

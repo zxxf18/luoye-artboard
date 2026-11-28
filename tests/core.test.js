@@ -70,6 +70,26 @@ test('history clears redo after a new edit and retains a bounded history', () =>
   history.undo(); history.redo(); assert.equal(n, 3);
 });
 
+test('history counts only current edits when trimming after undo, redo, or clear', () => {
+  const history = new History(20);
+  const entry = bytes => ({ bytes, undo() {}, redo() {} });
+  const first = entry(5), second = entry(10), third = entry(10);
+  history.push(first);
+  history.push(second);
+  history.undo();
+  history.redo();
+  history.push(third);
+  assert.deepEqual(history.past, [second, third]);
+  history.undo();
+  const replacement = entry(1);
+  history.push(replacement);
+  assert.deepEqual(history.past, [second, replacement]);
+  history.clear();
+  history.push(second);
+  history.push(third);
+  assert.deepEqual(history.past, [second, third]);
+});
+
 test('project validation rejects oversized, remote, duplicate and nonfinite layers', () => {
   const layer = { id: 'a', name: 'Layer', width: 1, height: 1, x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, visible: true, image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS5kAAAAASUVORK5CYII=' };
   const project = { ...documentHeader(1920, 1080), title: '画画', width: 1920, height: 1080, layers: [layer] };

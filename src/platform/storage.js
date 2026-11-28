@@ -23,38 +23,72 @@ function finishTransaction(transaction, resolve, reject, operation, value) {
   transaction.onabort = () => reject(failStorage(transaction.error || new Error('事务中断'), operation));
 }
 
-async function openDraftDatabase() {
-  if (draftDatabase) return draftDatabase;
+function reconcileGalleryMetadata(database) {
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(['gallery', 'galleryMeta'], 'readwrite');
+    const gallery = transaction.objectStore('gallery');
+    const metadata = transaction.objectStore('galleryMeta');
+    const galleryCount = gallery.count();
+    const metadataCount = metadata.count();
+    metadataCount.onsuccess = () => {
+      // Version 3 databases created by older builds may have an empty index
+      // even though their original gallery records are present.
+      if (metadataCount.result === galleryCount.result) return;
+      metadata.clear();
+      const cursor = gallery.openCursor();
+      cursor.onsuccess = () => {
+        const entry = cursor.result;
+        if (!entry) return;
+        metadata.put(galleryMetadata(entry.value), entry.key);
+        entry.continue();
+      };
+    };
+    finishTransaction(transaction, resolve, reject, '画夹读取');
+  });
+}
+
+export async function openStudioDatabase(name, onInvalidate = () => {}) {
   const database = await new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+    const request = indexedDB.open(name, DATABASE_VERSION);
+    let blocked = false;
     request.onupgradeneeded = () => {
-      const transaction = request.transaction;
-      for (const name of ['drafts', 'gallery']) {
-        if (!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name);
-      }
-      const meta = request.result.objectStoreNames.contains('galleryMeta')
-        ? transaction.objectStore('galleryMeta')
-        : request.result.createObjectStore('galleryMeta');
-      const gallery = transaction.objectStore('gallery');
-      if (request.oldVersion < DATABASE_VERSION) {
-        const cursor = gallery.openCursor();
-        cursor.onsuccess = () => {
-          const current = cursor.result;
-          if (!current) return;
-          meta.put(galleryMetadata(current.value), current.key);
-          current.continue();
-        };
+      if (blocked) { request.transaction.abort(); return; }
+      for (const store of ['drafts', 'gallery', 'galleryMeta']) {
+        if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store);
       }
     };
     request.onsuccess = () => {
-      request.result.onversionchange = () => { request.result.close(); draftDatabase = undefined; };
-      resolve(request.result);
+      const connection = request.result;
+      if (blocked) { connection.close(); return; }
+      connection.onversionchange = () => { connection.close(); onInvalidate(); };
+      connection.onclose = onInvalidate;
+      resolve(connection);
     };
-    request.onblocked = () => reject(new Error('请先关闭旧版本创作室，再打开画夹。'));
+    request.onblocked = () => {
+      blocked = true;
+      reject(new Error('请先关闭旧版本创作室，再打开画夹。'));
+    };
     request.onerror = () => reject(request.error);
   });
-  draftDatabase = database;
-  return database;
+  try {
+    await reconcileGalleryMetadata(database);
+    return database;
+  } catch (error) {
+    database.close();
+    throw error;
+  }
+}
+
+function openDraftDatabase() {
+  if (!draftDatabase) {
+    const invalidate = () => { if (draftDatabase === opening) draftDatabase = undefined; };
+    const opening = openStudioDatabase(DATABASE_NAME, invalidate).catch(error => {
+      invalidate();
+      throw error;
+    });
+    draftDatabase = opening;
+  }
+  return draftDatabase;
 }
 
 async function writeDraftNow(project, revision) {
@@ -130,17 +164,18 @@ export async function deliverFile(name, mime, textOrDataURL) {
 
 export async function galleryList() {
   const database = await openDraftDatabase();
-  const storeName = database.objectStoreNames.contains('galleryMeta') ? 'galleryMeta' : 'gallery';
   return new Promise((resolve, reject) => {
     const items = [];
-    const request = database.transaction(storeName).objectStore(storeName).openCursor();
+    const transaction = database.transaction('galleryMeta');
+    const request = transaction.objectStore('galleryMeta').openCursor();
     request.onsuccess = () => {
       const current = request.result;
-      if (!current) { resolve(items.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))); return; }
-      items.push(storeName === 'galleryMeta' ? current.value : galleryMetadata(current.value));
+      if (!current) return;
+      items.push(current.value);
       current.continue();
     };
-    request.onerror = () => reject(failStorage(request.error, '画夹读取'));
+    finishTransaction(transaction, resolve, reject, '画夹读取',
+      () => items.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)));
   });
 }
 

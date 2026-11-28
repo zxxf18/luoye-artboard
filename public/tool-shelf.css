@@ -112,9 +112,9 @@
 }
 .playroom .scratch-style-choices {
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   justify-content: flex-end;
-  gap: 5px;
+  gap: clamp(3px, 0.4vw, 5px);
   overflow: visible;
   padding-inline: 1px;
 }

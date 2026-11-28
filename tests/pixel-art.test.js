@@ -83,11 +83,15 @@ test('放回画板的画布保留透明格，不把预览棋盘格烘焙进作�
   }
   globalThis.document = { createElement: () => new Canvas() };
   try {
-    const model = new PixelArtModel({ width: 8, height: 8 });
-    model.setCell(3, 4, '#ff0000');
-    const output = model.toCanvas(64);
-    assert.equal(output.width, 64);
-    assert.deepEqual(output.context.fills.map(fill => fill.style), ['#ff0000']);
+    const model = new PixelArtModel({ width: 24, height: 24 });
+    model.setCell(0, 0, '#ff0000');
+    model.setCell(1, 0, '#0000ff');
+    const output = model.toCanvas(512);
+    assert.equal(output.width, 512);
+    assert.deepEqual(output.context.fills, [
+      { style: '#ff0000', x: 0, y: 0, width: 21, height: 21 },
+      { style: '#0000ff', x: 21, y: 0, width: 22, height: 21 },
+    ]);
   } finally {
     if (previousDocument === undefined) delete globalThis.document;
     else globalThis.document = previousDocument;

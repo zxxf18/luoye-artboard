@@ -406,8 +406,7 @@ studio = mountStudio({ engine, run, toast, setTool, getTool:()=>tool, getColor:(
 const recorder=mountRecorder({engine,run,toast,getColor:()=>color,getTitle:currentTitle,storage:{deliverFile,writeRecordingDraft,readRecordingDraft}});
 const gallery=mountGallery({engine,run,toast,getTitle:currentTitle,setTitle:title=>{setDrawingTitle(title);changed();savedRevision=revision;savedTitle=currentTitle();},storage:{
   galleryList,galleryPut,galleryGet,galleryTrash,
-  // The offline edition uses one revision sequence for automatic and gallery writes.
-  writeDraft: offlineWeb ? project => writeDraft(project, { revision }) : writeDraft,
+  writeDraft: project => writeDraft(project, { revision }),
 }});
 applyStoredTheme();
 let animationEditor, pixelEditor;

@@ -133,13 +133,15 @@ export class PixelArtModel {
     context.save();
     context.imageSmoothingEnabled = false;
     context.clearRect(0, 0, target.width, target.height);
-    for (let y = 0; y < this.height; y++) for (let x = 0; x < this.width; x++) {
-      if (showGrid) {
-        context.fillStyle = (x + y) % 2 ? '#f0e3c8' : '#fff8e7';
-        context.fillRect(x * cellWidth, y * cellHeight, cellWidth + .5, cellHeight + .5);
+    for (let y = 0; y < this.height; y++) {
+      const top = Math.round(y * cellHeight), bottom = Math.round((y + 1) * cellHeight);
+      for (let x = 0; x < this.width; x++) {
+        const color = this.getCell(x, y) || (showGrid ? ((x + y) % 2 ? '#f0e3c8' : '#fff8e7') : null);
+        if (!color) continue;
+        const left = Math.round(x * cellWidth), right = Math.round((x + 1) * cellWidth);
+        context.fillStyle = color;
+        context.fillRect(left, top, right - left, bottom - top);
       }
-      const color = this.getCell(x, y);
-      if (color) { context.fillStyle = color; context.fillRect(x * cellWidth, y * cellHeight, cellWidth + .5, cellHeight + .5); }
     }
     if (showGrid) {
       context.strokeStyle = '#c69b6a66'; context.lineWidth = Math.max(1, Math.min(cellWidth, cellHeight) / 24); context.beginPath();
@@ -181,19 +183,29 @@ export function mountPixelEditor({ engine, run, toast, getColor, pickColor, setT
 
   const $ = id => dialog.querySelector(id.startsWith('#') ? id : `#${id}`);
   const canvas = $('pixel-art-canvas'), sizeSelect = $('pixel-art-size'), colorInput = $('pixel-art-color');
-  let model = new PixelArtModel({ width: 16 }), tool = 'pen', color = getColor?.() || '#285b49', drawing = false, lastCell = null;
+  const model = new PixelArtModel({ width: 16 });
+  let tool = 'pen', color = getColor?.() || '#285b49', pointerId, lastCell = null;
 
   function render() { model.render(canvas, { showGrid: true }); $('pixel-art-cell').textContent = `${model.width} × ${model.height}`; }
   function selectedColor() { return tool === 'eraser' ? null : color; }
   function cell(event) { return cellAtPoint(event.clientX, event.clientY, canvas.getBoundingClientRect(), model.width, model.height); }
   function paint(event) {
-    const current = cell(event); if (!current) return;
-    if (tool === 'fill') { if (event.type === 'pointerdown') model.fill(current.x, current.y, selectedColor()); }
+    if (tool === 'fill' && event.type !== 'pointerdown') return;
+    const current = cell(event);
+    if (!current || (current.x === lastCell?.x && current.y === lastCell?.y)) return;
+    if (tool === 'fill') model.fill(current.x, current.y, selectedColor());
     else if (lastCell) model.stroke(lastCell, current, selectedColor());
     else model.setCell(current.x, current.y, selectedColor());
     lastCell = current; render();
   }
-  function stopDrawing() { drawing = false; lastCell = null; }
+  function stopDrawing() {
+    const previousPointer = pointerId;
+    pointerId = undefined;
+    lastCell = null;
+    if (previousPointer !== undefined && canvas.hasPointerCapture?.(previousPointer)) {
+      canvas.releasePointerCapture(previousPointer);
+    }
+  }
   function open() { render(); openDialog(dialog); }
   function place() {
     if (model.isEmpty()) { toast?.('先涂一格颜色，再放回画板。'); return; }
@@ -213,9 +225,22 @@ export function mountPixelEditor({ engine, run, toast, getColor, pickColor, setT
   sizeSelect.onchange = () => { model.resize(Number(sizeSelect.value)); render(); toast?.('网格已经调整，原来的图案也保留下来了。'); };
   $('pixel-art-clear').onclick = () => { model.clear(); render(); };
   $('pixel-art-place').onclick = () => run ? run(place) : place();
-  canvas.addEventListener('pointerdown', event => { if (event.button !== 0) return; event.preventDefault(); drawing = true; lastCell = null; canvas.setPointerCapture?.(event.pointerId); paint(event); });
-  canvas.addEventListener('pointermove', event => { if (drawing) paint(event); });
-  canvas.addEventListener('pointerup', stopDrawing); canvas.addEventListener('pointercancel', stopDrawing); canvas.addEventListener('lostpointercapture', stopDrawing);
+  canvas.addEventListener('pointerdown', event => {
+    if (pointerId !== undefined || event.button !== 0) return;
+    event.preventDefault();
+    canvas.setPointerCapture?.(event.pointerId);
+    pointerId = event.pointerId;
+    paint(event);
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (event.pointerId === pointerId) paint(event);
+  });
+  const finishPointer = event => {
+    if (event.pointerId !== pointerId) return;
+    if (event.type === 'pointerup') paint(event);
+    stopDrawing();
+  };
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(type, finishPointer);
   dialog.addEventListener('close', stopDrawing); dialog.addEventListener('cancel', stopDrawing);
   updateTools(); render();
 

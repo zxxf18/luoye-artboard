@@ -146,7 +146,19 @@ export class EditorEngine extends PaintEngine {
     this.update({x:bounds.x+bounds.width,y:bounds.y+bounds.height});this.end();
   }
   paste(){if(!this.clipboard)throw new Error('请先复制或剪切一块画面。');const {canvas,bounds}=this.clipboard,c=makeCanvas(canvas.width,canvas.height);c.getContext('2d').drawImage(canvas,0,0);const layer=this.addLayer('粘贴的画',c,true,{x:bounds.x+bounds.width/2,y:bounds.y+bounds.height/2});this.clearSelection();return layer;}
-  duplicateLayer(){const layer=this.active,c=makeCanvas(layer.width,layer.height);c.getContext('2d').drawImage(layer.canvas,0,0);const {id,canvas,role,...props}=layer;if(role==='background')delete props.sourceId;return this.addLayer(layer.name.slice(0,116)+' 副本',c,true,{...props,name:layer.name.slice(0,116)+' 副本'});}
+  duplicateLayer() {
+    const layer = this.active;
+    const copyCanvas = makeCanvas(layer.width, layer.height);
+    copyCanvas.getContext('2d').drawImage(layer.canvas, 0, 0);
+    const { id, canvas, role, name, ...properties } = layer;
+    if (role === 'background') delete properties.sourceId;
+    // Appending a stamp mutates the list, while its placed sprites and frame
+    // resources can stay shared. A copied layer must own its own list.
+    if (layer.sprites) properties.sprites = layer.sprites.slice();
+    const copy = this.addLayer(name.slice(0,116) + ' 副本', copyCanvas, true, properties);
+    if (layer._birth !== undefined) Object.defineProperty(copy, '_birth', { value: layer._birth, writable: true });
+    return copy;
+  }
   flipLayer(axis){
     this.assertRaster();if(this.selection)throw new Error('请先剪切并粘贴选区为独立层，再翻转。');
     const layer=this.active,before={canvas:layer.canvas,eraseMask:layer.eraseMask},c=makeCanvas(layer.width,layer.height),ctx=c.getContext('2d');

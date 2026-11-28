@@ -34,6 +34,33 @@ try{
  }
  e.reset(160,100);const rec=new Recorder(e);await rec.start(0,'整张画纸录像');e.addLayer('录像小块',square('#223344'));e.begin({x:10,y:10},{tool:'fill',fillMode:'region',color:'#dd5500',opacity:1});e.begin({x:8,y:8},{tool:'eraser',eraserMode:'hard',size:15,opacity:1});e.end();e.begin({x:10,y:10},pen);e.update({x:30,y:10});e.end();rec.stop();const output=makeCanvas(160,100);await rec.replay(0,rec.slots[0].events.length,output);check(output.toDataURL()===e.exportPNG(),'跨层填色、橡皮、再画的录像逐像素回放一致');
  e.setCloneSource({x:10,y:10});await rec.start(1,'仿制源录制');e.begin({x:20,y:80},{tool:'clone',size:15,opacity:1});e.end();rec.stop();await rec.replay(1,rec.slots[1].events.length,output);check(output.toDataURL()===e.exportPNG(),'整图仿制源在录像起点可恢复');
+ e.reset(160,100);
+ e.setFairyGroups([{frames:[square('#226688')],frameDuration:160}], 'dynamic');
+ const stampAt = (x,y) => {
+  e.begin({x,y},{tool:'stamp',size:20,opacity:1});
+  e.end();
+ };
+ stampAt(30,30);
+ const originalBag=e.active, copiedBag=e.duplicateLayer();
+ stampAt(90,30);
+ check(originalBag.sprites.length===1&&copiedBag.sprites.length===2,'继续在副本上盖动态印章只修改副本');
+ e.undo();
+ check(originalBag.sprites.length===1&&copiedBag.sprites.length===1,'撤销副本中的印章保留原图层');
+ await rec.start(2,'动态图案录像');
+ stampAt(130,70);
+ rec.stop();
+ const recording=rec.slots[2];
+ const originalRecording=JSON.stringify(recording.base);
+ const expectedAnimation=e.exportPNG();
+ await rec.replay(2,recording.events.length,output);
+ check(JSON.stringify(recording.base)===originalRecording&&output.toDataURL()===expectedAnimation,'动态印章回放逐像素一致且保留录像起点');
+ await rec.replay(2,recording.events.length,output);
+ check(JSON.stringify(recording.base)===originalRecording&&output.toDataURL()===expectedAnimation,'重复回放动态印章仍使用同一份起点');
+ e.operations.record({id:'before-save',type:'stroke'});
+ const pendingSnapshot=e.serialize('存档前的操作');
+ e.operations.record({id:'after-save',type:'stroke'});
+ const savedSnapshot=await pendingSnapshot;
+ check(savedSnapshot.operations.some(item=>item.id==='before-save')&&!savedSnapshot.operations.some(item=>item.id==='after-save'),'保存的像素和操作记录来自同一编辑时点');
  e.reset(160,100);for(const brush of ['pencil','spray','watercolor','brush','marker','crayon','chalk','tube','effect']){
   e.begin({x:20,y:30},{...pen,brush,strokeMode:'line',size:28});e.update({x:130,y:65});const preview=makeCanvas(160,100);e.paint(preview.getContext('2d'),true);const before=e.active.canvas.toDataURL();e.paint(makeCanvas(160,100).getContext('2d'),true);check(e.active.canvas.toDataURL()===before,brush+' 直线预览不改变作品');e.end();const actual=makeCanvas(160,100);e.paint(actual.getContext('2d'));check(preview.toDataURL()===actual.toDataURL(),brush+' 预览与实际笔迹逐像素一致');e.reset(160,100);
  }

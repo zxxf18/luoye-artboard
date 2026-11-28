@@ -1,5 +1,5 @@
 import { bundledImageSource } from './bundled-images.js';
-import { History, fitInside, floodFill, toLayerPoint, validateProject, MAX_LAYERS } from './core.js';
+import { History, fitInside, floodFill, toLayerPoint, validateProject, MAX_LAYERS, MAX_PROJECT_SPRITES } from './core.js';
 import { documentHeader } from './document.js';
 import { OperationLog, nextOperationId, operationTypeForTool } from './operations.js';
 
@@ -154,7 +154,11 @@ export class PaintEngine {
     for(const l of layers){pixels+=l.width*l.height*(1+(l.spriteClip?1:0)+(l.eraseMask?1:0));for(const f of [...(l.frames||[]),...(l.spriteGroups||[]).flatMap(g=>g.frames)])if(!frames.has(f)){frames.add(f);pixels+=f.width*f.height;}}
     return pixels;
   }
+  sceneSpriteCount(layers = this.layers) {
+    return layers.reduce((count, layer) => count + (layer.sprites?.length || 0), 0);
+  }
   assertSceneCapacity(planned){
+    if (this.sceneSpriteCount(planned) > MAX_PROJECT_SPRITES) throw new Error('一幅画最多支持 500,000 个动态图案。');
     const eraseReserve=planned.reduce((n,l)=>n+(!l.eraseMask?l.width*l.height:0),0);
     if(this.scenePixels(planned)+eraseReserve>90000000)throw new Error('图层和动画已接近内存预算，请先擦除或移走一些内容。已为橡皮保留空间。');
   }
@@ -664,14 +668,19 @@ export class PaintEngine {
         redo: () => { this.layers = after.slice(); this.activeId = active; } });
       this.changed(); return background;
   }
+  isReusableDrawingLayer(layer) {
+    return layer?.visible && layer.opacity > 0 && !layer.frames?.length && !layer.sprites &&
+      !layer.eraseMask && !layer.sourceId && layer.role !== 'background' &&
+      layer.width === this.width && layer.height === this.height &&
+      layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
+  }
   ensureDrawingLayer(name = '我的画笔') {
-    const layer = this.active;
-    const fullPaper = layer?.visible && layer.opacity>0 && !layer.frames?.length && !layer.sprites && !layer.eraseMask && !layer.sourceId && layer.role !== 'background' && layer.width === this.width && layer.height === this.height && layer.scale === 1 && layer.rotation === 0 && layer.x === this.width / 2 && layer.y === this.height / 2;
-    if (!fullPaper || layer !== this.layers.at(-1)) this.addLayer(name);
+    if (!this.isReusableDrawingLayer(this.active) || this.active !== this.layers.at(-1)) this.addLayer(name);
     return this.active;
   }
   async serialize(title) {
     const widthAtStart=this.width,heightAtStart=this.height;
+    const operations = this.operations.snapshot();
     const jobs = this.layers.map(layer => {
       const { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX, flipY, sourceId, role, scratchStyle: coverStyle } = layer;
       const item = { id, name, width, height, x, y, scale, rotation, opacity, visible, flipX: !!flipX, flipY: !!flipY, sourceId, role };
@@ -692,7 +701,7 @@ export class PaintEngine {
     });
     const layers=await Promise.all(jobs);
     // Never write a document that our own importer would refuse to reopen.
-    return validateProject({ ...documentHeader(widthAtStart, heightAtStart), title, width: widthAtStart, height: heightAtStart, layers, operations: this.operations.snapshot() });
+    return validateProject({ ...documentHeader(widthAtStart, heightAtStart), title, width: widthAtStart, height: heightAtStart, layers, operations });
   }
   async restore(raw) {
     const value = validateProject(raw), layers = [];
@@ -711,7 +720,14 @@ export class PaintEngine {
         for (const data of info.frames) { const frame = await resource(data); if (frame.width !== info.width || frame.height !== info.height) throw new Error('动画帧尺寸不一致。'); layer.frames.push(frame); }
       }
       if(info.sprites){
-        for(const sprite of layer.sprites)Object.defineProperty(sprite,'_birth',{value:this.playing?performance.now()-this.animationStart:this.animationTime||0,writable:true});
+        const birth = this.playing ? performance.now() - this.animationStart : this.animationTime || 0;
+        // A restored document can be a reusable recording snapshot. Own its
+        // sprite list and descriptors before attaching animation state.
+        layer.sprites = info.sprites.map(sprite => {
+          const restored = { ...sprite };
+          Object.defineProperty(restored, '_birth', { value: birth, writable: true });
+          return restored;
+        });
         layer.spriteGroups=[];
         for(const group of info.spriteGroups){const frames=[];for(const data of group.frames){const frame=await resource(data.image);if(frame.width!==data.width||frame.height!==data.height)throw new Error('魔法袋帧尺寸不一致。');frames.push(frame);}layer.spriteGroups.push({frameDuration:group.frameDuration,frames});}
         if(info.spriteMask)layer.spriteClip=await loadImage(info.spriteMask);

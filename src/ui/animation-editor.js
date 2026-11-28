@@ -164,11 +164,17 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
 
   const $ = id => dialog.querySelector(/^[.#[]/.test(id) ? id : `#${id}`);
   const frameCanvas = $('animation-frame-canvas'), onionCanvas = $('animation-onion-canvas');
+  const frameStrip = $('animation-frame-strip');
+  const thumbnailSources = new WeakMap();
   const timeline = new AnimationTimeline({ width: DEFAULT_ANIMATION_SIZE.width, height: DEFAULT_ANIMATION_SIZE.height, frames: [createBlankFrame()] });
-  let drawing = false, pointerId, tool = 'pen', playing = false, playTimer, syncing = false;
+  let pointerId, tool = 'pen', playing = false, playTimer, syncing = false;
   let color = getColor?.() || '#285b49';
   let editor;
-  editor = new DrawingEngine(frameCanvas, () => { if (!editor?.active?.canvas?.width || !editor.active.canvas.height) return; if (!syncing && !playing) snapshotCurrent(); renderFrameStrip(); drawOnion(); });
+  editor = new DrawingEngine(frameCanvas, () => {
+    if (syncing || playing || !editor?.active?.canvas?.width || !editor.active.canvas.height) return;
+    snapshotCurrent();
+    renderFrameStrip();
+  });
   editor.reset(timeline.width, timeline.height); editor.playing = false; clearInterval(editor.animationTimer); editor.paperMode = false;
   const brushButton = $('animation-brush-button'), brushList = $('animation-brush-list');
   const sizeInput = $('animation-size'), pixelLevel = $('animation-pixel-pen-level');
@@ -224,23 +230,38 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
     syncing = false; editor.render(); updateUi();
   }
   function drawOnion() {
-    onionCanvas.width = timeline.width; onionCanvas.height = timeline.height;
-    onionCanvas.getContext('2d').clearRect(0, 0, onionCanvas.width, onionCanvas.height);
-    if (!$('animation-onion').checked || timeline.currentIndex === 0) return;
-    fitCanvas(timeline.frames[timeline.currentIndex - 1], onionCanvas, .22);
+    if (onionCanvas.width !== timeline.width) onionCanvas.width = timeline.width;
+    if (onionCanvas.height !== timeline.height) onionCanvas.height = timeline.height;
+    const previousFrame = timeline.frames[timeline.currentIndex - 1];
+    if ($('animation-onion').checked && previousFrame) fitCanvas(previousFrame, onionCanvas, .22);
+    else onionCanvas.getContext('2d').clearRect(0, 0, onionCanvas.width, onionCanvas.height);
   }
   function renderFrameStrip() {
-    const strip = $('animation-frame-strip'); strip.replaceChildren();
-    let activeThumb;
+    while (frameStrip.childElementCount > timeline.frameCount) frameStrip.lastElementChild.remove();
     timeline.frames.forEach((frame, index) => {
-      const item = document.createElement('button'); item.type = 'button'; item.className = 'animation-frame-thumb'; item.setAttribute('aria-label', `第 ${index + 1} 张`); item.setAttribute('aria-pressed', String(index === timeline.currentIndex));
-      const thumb = makeCanvas(96, 72, false); thumb.className = 'animation-thumb-canvas';
-      if (frame) fitCanvas(frame, thumb);
-      item.append(thumb, Object.assign(document.createElement('span'), { textContent: `第 ${index + 1} 张` })); item.onclick = () => selectFrame(index); strip.append(item);
-      if (index === timeline.currentIndex) activeThumb = item;
+      let item = frameStrip.children[index];
+      if (!item) {
+        item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'animation-frame-thumb';
+        item.setAttribute('aria-label', `第 ${index + 1} 张`);
+        const thumb = makeCanvas(96, 72, false);
+        thumb.className = 'animation-thumb-canvas';
+        item.append(thumb, Object.assign(document.createElement('span'), { textContent: `第 ${index + 1} 张` }));
+        item.onclick = () => selectFrame(index);
+        frameStrip.append(item);
+      }
+      const thumb = item.firstElementChild;
+      if (thumbnailSources.get(thumb) !== frame) {
+        fitCanvas(frame, thumb);
+        thumbnailSources.set(thumb, frame);
+      }
+      const selected = index === timeline.currentIndex;
+      if (item.getAttribute('aria-pressed') !== String(selected)) {
+        item.setAttribute('aria-pressed', String(selected));
+        if (selected) item.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
     });
-    // Long strips scroll sideways; keep the frame being edited in view.
-    activeThumb?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
   function updateUi() {
     $('animation-frame-count').textContent = `${timeline.frameCount} / ${MAX_ANIMATION_FRAMES}`;
@@ -267,10 +288,36 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   function drawPoint(event) {
     const rect = frameCanvas.getBoundingClientRect(); return editor.point(event, rect);
   }
-  frameCanvas.addEventListener('pointerdown', event => { if (playing || event.button !== 0) return; event.preventDefault(); try { editor.begin(drawPoint(event), { tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff', size: usesPixelSize() ? pixelSize() : Number(sizeInput.value), opacity: 1, brush: brushId, ratio: 1, fillMode: 'region', tolerance: 20 }); if (editor.gesture) { drawing = true; pointerId = event.pointerId; frameCanvas.setPointerCapture(pointerId); } } catch (error) { toast(error.message); } });
-  frameCanvas.addEventListener('pointermove', event => { if (!drawing || event.pointerId !== pointerId) return; editor.update(drawPoint(event)); });
-  const finish = event => { if (!drawing || event.pointerId !== pointerId) return; drawing = false; editor.end(event.type === 'pointercancel'); pointerId = undefined; snapshotCurrent(); updateUi(); };
-  frameCanvas.addEventListener('pointerup', finish); frameCanvas.addEventListener('pointercancel', finish); frameCanvas.addEventListener('lostpointercapture', finish);
+  frameCanvas.addEventListener('pointerdown', event => {
+    if (playing || pointerId !== undefined || event.button !== 0) return;
+    event.preventDefault();
+    try {
+      editor.begin(drawPoint(event), {
+        tool, color, secondaryColor: getSecondaryColor?.() || '#ffffff',
+        size: usesPixelSize() ? pixelSize() : Number(sizeInput.value),
+        opacity: 1, brush: brushId, ratio: 1, fillMode: 'region', tolerance: 20,
+      });
+      if (editor.gesture) {
+        frameCanvas.setPointerCapture(event.pointerId);
+        pointerId = event.pointerId;
+      }
+    } catch (error) {
+      editor.end(true);
+      toast(error.message);
+    }
+  });
+  frameCanvas.addEventListener('pointermove', event => {
+    if (event.pointerId === pointerId) editor.update(drawPoint(event));
+  });
+  function finishDrawing(event) {
+    if (pointerId === undefined || (event && event.pointerId !== pointerId)) return;
+    const previousPointer = pointerId;
+    pointerId = undefined;
+    if (event?.type === 'pointerup') editor.update(drawPoint(event));
+    editor.end(!event || event.type === 'pointercancel');
+    if (frameCanvas.hasPointerCapture(previousPointer)) frameCanvas.releasePointerCapture(previousPointer);
+  }
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) frameCanvas.addEventListener(type, finishDrawing);
   $('animation-onion').addEventListener('change', drawOnion);
   sizeInput.addEventListener('input', () => $('animation-size-value').textContent = sizeInput.value);
   pixelLevel.addEventListener('input', syncBrushSize);
@@ -282,7 +329,8 @@ export function mountAnimationEditor({ engine, run, toast, getColor, getSecondar
   $('animation-clear').onclick = () => { stopPlayback(); timeline.clearCurrent(blankFrame); loadCurrent(); };
   $('animation-delete').onclick = () => { stopPlayback(); snapshotCurrent(); timeline.removeFrame(); loadCurrent(); };
   $('animation-play').onclick = () => playing ? stopPlayback() : startPlayback(); $('animation-place').onclick = () => run(place);
-  dialog.addEventListener('close', stopPlayback); dialog.addEventListener('cancel', stopPlayback);
+  dialog.addEventListener('close', () => { finishDrawing(); stopPlayback(); });
+  dialog.addEventListener('cancel', stopPlayback);
   // The colour chip reuses the brush palette from the top-left shelf: tapping
   // it opens the very same picker, and this editor follows the shared brush
   // colour instead of keeping a second, divergent colour state.

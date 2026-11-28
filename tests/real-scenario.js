@@ -1,6 +1,8 @@
 // A real child's session, end to end: draw, color, erase, stickers, fractal,
 // scratch, editors, then close and reopen the app — the drawing must come
 // back pixel-identical. Any page error fails the journey.
+import { readDraftsForRecovery } from '../src/platform/storage.js';
+
 const frame = document.querySelector('iframe'), results = [];
 const pause = ms => new Promise(r => setTimeout(r, ms));
 function check(ok, name) { results.push({ name, passed: !!ok }); if (!ok) throw new Error(name); }
@@ -159,16 +161,48 @@ try {
   remove.click(); await pause(60);
   check(doc.querySelector('#painting').dataset.tool === 'scratch', '去掉覆盖层后仍在刮刮画工具');
 
+  // Reproduce sparse hardware samples and a second touch while a pen
+  // owns the stroke. The synthetic events have no native capture.
+  function drawWithAnotherContact(surface) {
+    surface.setPointerCapture = () => {};
+    const bounds = surface.getBoundingClientRect();
+    const send = (type, pointerId, x, y) => surface.dispatchEvent(new view.PointerEvent(type, {
+      pointerId, pointerType: pointerId === 31 ? 'pen' : 'touch',
+      bubbles: true, cancelable: true, buttons: type === 'pointerup' ? 0 : 1,
+      clientX: bounds.left + x * bounds.width, clientY: bounds.top + y * bounds.height,
+    }));
+    send('pointerdown', 31, .22, .22);
+    send('pointerdown', 32, .78, .72);
+    send('pointermove', 32, .85, .72);
+    send('pointerup', 32, .85, .72);
+    send('pointerup', 31, .66, .22);
+  }
+  function editorInk(surface, x, y) {
+    const [red, green, blue] = surface.getContext('2d').getImageData(surface.width * x, surface.height * y, 1, 1).data;
+    return red + green + blue < 630;
+  }
+
   // 8. animation editor round trip
   await selectTool('animation'); await pause(80);
   const animDialog = $('animation-editor-dialog');
   check(animDialog?.open, '小动画编辑器打开');
+  const animCanvas = $('animation-frame-canvas');
+  drawWithAnotherContact(animCanvas); await settle();
+  check(editorInk(animCanvas, .5, .22) && !editorInk(animCanvas, .8, .72), '小动画笔迹忽略第二触点，并补齐抬笔位置');
+  const firstFrame = $('animation-frame-strip').firstElementChild;
+  firstFrame.focus();
+  firstFrame.click();
+  check(doc.activeElement === firstFrame && firstFrame.isConnected, '小动画刷新缩略图后保留键盘焦点');
   animDialog.close(); await pause(40);
 
   // 9. pixel editor round trip
   await selectTool('pixel'); await pause(80);
   const pixelDialog = $('pixel-art-dialog');
   check(pixelDialog?.open, '像素画编辑器打开');
+  pixelDialog.querySelector('[data-color="#000000"]').click();
+  const pixelCanvas = $('pixel-art-canvas');
+  drawWithAnotherContact(pixelCanvas); await settle();
+  check(editorInk(pixelCanvas, .5, .22) && !editorInk(pixelCanvas, .8, .72), '像素画笔迹忽略第二触点，并补齐抬笔位置');
   pixelDialog.close(); await pause(40);
 
   // 10. text layer
@@ -221,6 +255,16 @@ try {
   const open = [...galleryDialog.querySelectorAll('.gallery-card button')].find(x => x.textContent === '打开');
   open.click(); await pause(400);
   check(!galleryDialog.open, '从画夹再次打开作品后画夹关闭');
+  const draftTitle = '画夹恢复后的新改动';
+  const titleInput = doc3.getElementById('title');
+  titleInput.value = draftTitle;
+  titleInput.dispatchEvent(new view3.Event('input', { bubbles: true }));
+  let recoveredDraftTitle;
+  for (let attempt = 0; attempt < 30 && recoveredDraftTitle !== draftTitle; attempt++) {
+    await pause(100);
+    recoveredDraftTitle = (await readDraftsForRecovery())[0]?.title;
+  }
+  check(recoveredDraftTitle === draftTitle, '画夹自动备份后继续编辑仍可自动保存草稿');
 
   // 12.5 recording: start, draw, stop, replay — no errors, slot has events
   doc3.getElementById('recordings').click(); await pause(120);

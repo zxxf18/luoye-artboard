@@ -70,9 +70,8 @@ export class DrawingEngine extends EditorEngine {
   ensureDrawingLayer(name = '我的画笔') {
     const scratchIndex = this.layers.findIndex(layer => layer.role === 'scratch');
     if (scratchIndex < 0) return super.ensureDrawingLayer(name);
-    const active = this.active, index = this.layers.indexOf(active);
-    const reusable = active && index >= 0 && index < scratchIndex && active.visible && active.opacity > 0 && !active.frames?.length && !active.sprites && !active.eraseMask && !active.sourceId && !active.role && active.width === this.width && active.height === this.height && active.scale === 1 && active.rotation === 0 && active.x === this.width / 2 && active.y === this.height / 2;
-    if (reusable) return active;
+    const active = this.active;
+    if (this.isReusableDrawingLayer(active) && !active.role && this.layers.indexOf(active) < scratchIndex) return active;
     return this.addLayer(name, makeCanvas(this.width, this.height), true, { insertAt: scratchIndex });
   }
   prepareScratchCard() {
@@ -261,7 +260,7 @@ export class DrawingEngine extends EditorEngine {
   dynamicDab(point){
     const g=this.gesture,index=g.stampIndex%this.fairyGroups.length;
     if(g.limitNotice)return;
-    if(this.layers.reduce((n,l)=>n+(l.sprites?.length||0),0)>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 500,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
+    if(this.sceneSpriteCount()>=MAX_PROJECT_SPRITES){this.notice?.('这幅画已有 500,000 个动态图案，擦除一些后可以继续画。');g.limitNotice=true;return;}
     g.lastStampTime=performance.now();
     try {
       const group=stampGroup(this.fairyGroups[index],g.options.size);

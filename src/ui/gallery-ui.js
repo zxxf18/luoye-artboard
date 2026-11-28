@@ -115,8 +115,7 @@ export function mountGallery({ engine, run, toast, getTitle, setTitle, storage }
     empty.textContent = visible.length ? '' : trash ? '回收站是空的。' : '还没有作品，先把当前画作保存到画夹吧。';
   }
 
-  async function save(folder) {
-    const project = await engine.serialize(getTitle());
+  async function save(folder, project) {
     const preview = makeCanvas(240, Math.round(240 * engine.height / engine.width));
     const composite = makeCanvas(engine.width, engine.height);
     engine.paint(composite.getContext('2d'));
@@ -126,8 +125,9 @@ export function mountGallery({ engine, run, toast, getTitle, setTitle, storage }
 
   async function backup() {
     engine.end();
-    await writeDraft(await engine.serialize(getTitle()), { revision: Date.now() });
-    await save('自动保留');
+    const project = await engine.serialize(getTitle());
+    await writeDraft(project);
+    await save('自动保留', project);
   }
 
   button.onclick = () => run(async () => {
@@ -140,7 +140,8 @@ export function mountGallery({ engine, run, toast, getTitle, setTitle, storage }
     event.preventDefault();
     run(async () => {
       engine.end();
-      await save(folderInput.value.trim() || '我的作品');
+      const folder = folderInput.value.trim() || '我的作品';
+      await save(folder, await engine.serialize(getTitle()));
       await refresh();
       toast('作品已保存在画夹');
     });

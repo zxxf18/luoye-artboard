@@ -10,8 +10,20 @@ try {
   const view = frame.contentWindow, doc = frame.contentDocument;
   view.addEventListener('error', e => { throw new Error('页面错误: ' + e.message); });
   const canvas = doc.getElementById('painting');
-  const rect = () => canvas.getBoundingClientRect();
-  const pointer = (type, x, y) => canvas.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 7, pointerType: 'mouse', isPrimary: true, buttons: 1, clientX: x, clientY: y }));
+  function draw(surface) {
+    // A synthetic pointer has no active native pointer ID to capture.
+    surface.setPointerCapture = () => {};
+    const box = surface.getBoundingClientRect();
+    const x = box.left + box.width * .5, y = box.top + box.height * .5;
+    const pointer = (type, clientX, clientY) => surface.dispatchEvent(new view.PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 7, pointerType: 'mouse', isPrimary: true,
+      buttons: type === 'pointerup' ? 0 : 1, clientX, clientY,
+    }));
+    pointer('pointerdown', x, y);
+    pointer('pointermove', x + 30, y + 20);
+    pointer('pointermove', x + 60, y - 10);
+    pointer('pointerup', x + 60, y - 10);
+  }
   const selectTool = async id => {
     for (let flips = 0; !doc.querySelector(`.tool-button[data-tool="${id}"]`) && flips < 4; flips++) { doc.getElementById('tool-page').click(); await pause(30); }
     const button = doc.querySelector(`.tool-button[data-tool="${id}"]`);
@@ -21,14 +33,13 @@ try {
   check(doc.getElementById('tool-pager'), '翻页器已渲染');
   // 小动画和像素画按钮直接打开各自的编辑器，不切换当前绘画工具。
   const EDITOR_TOOLS = { animation: 'animation-editor-dialog', pixel: 'pixel-art-dialog' };
+  const EDITOR_CANVASES = { animation: 'animation-frame-canvas', pixel: 'pixel-art-canvas' };
   for (const [id] of TOOLS) {
     await selectTool(id);
     if (EDITOR_TOOLS[id]) check(doc.querySelector(`dialog#${EDITOR_TOOLS[id]}[open]`), `选中 ${id} 后编辑器已打开`);
     else check(doc.getElementById('painting').dataset.tool === id, `选中 ${id} 后工具状态正确 (实际 ${doc.getElementById('painting').dataset.tool})`);
     // A short press-drag-release like a child scribbling.
-    const box = rect();
-    const x = box.left + box.width * .5, y = box.top + box.height * .5;
-    pointer('pointerdown', x, y); pointer('pointermove', x + 30, y + 20); pointer('pointermove', x + 60, y - 10); pointer('pointerup', x + 60, y - 10);
+    draw(EDITOR_TOOLS[id] ? doc.getElementById(EDITOR_CANVASES[id]) : canvas);
     await pause(40);
     // Editors open dialogs by design; close them so the next tool can act.
     const open = doc.querySelector('dialog[open]');
