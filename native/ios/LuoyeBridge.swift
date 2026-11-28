@@ -8,7 +8,7 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
     weak var webView: WKWebView?
     weak var presenter: UIViewController?
     private weak var host: LuoyeWebViewController?
-    private var pendingExport: (id: String, url: URL)?
+    private var pendingExport: (id: String, directory: URL)?
     private var pendingOpen: (([URL]?) -> Void)?
     private var music: LuoyeMusic?
     private let smokeFileOutputURL: URL?
@@ -95,12 +95,12 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
         guard let pendingExport else { return }
         self.pendingExport = nil
         sendFileResult(id: pendingExport.id, saved: true)
-        try? FileManager.default.removeItem(at: pendingExport.url)
+        try? FileManager.default.removeItem(at: pendingExport.directory)
     }
 
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         if let pendingOpen { self.pendingOpen = nil; pendingOpen(nil); return }
-        if let pendingExport { self.pendingExport = nil; sendFileResult(id: pendingExport.id, saved: false); try? FileManager.default.removeItem(at: pendingExport.url) }
+        if let pendingExport { self.pendingExport = nil; sendFileResult(id: pendingExport.id, saved: false); try? FileManager.default.removeItem(at: pendingExport.directory) }
     }
 
     private func isTrustedMessageFrame(_ frame: WKFrameInfo) -> Bool {
@@ -125,24 +125,28 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
             let data = try decodeFile(mime: mime, content: content)
             guard data.count <= 180 * 1024 * 1024 else { throw BridgeError.invalidFile("文件超过 180 MiB 上限") }
             guard pendingExport == nil else { throw BridgeError.invalidFile("已有文件保存窗口打开") }
-            let extensionName = mime == "image/png" ? "png" : mime == "image/jpeg" ? "jpg" : "luoyex"
-            let safeName = sanitize(name, fallback: "落叶画板文件")
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + "-" + (safeName as NSString).deletingPathExtension + "." + extensionName)
-            try data.write(to: url, options: .atomic)
+            let fileName = exportFileName(name, mime: mime)
             #if DEBUG
             if let smokeFileOutputURL {
-                let outputName = ["", ".", ".."].contains(safeName) ? "落叶画板文件" : safeName
-                let destination = URL(fileURLWithPath: smokeFileOutputURL.path + "." + outputName)
+                let destination = URL(fileURLWithPath: smokeFileOutputURL.path + "." + fileName)
                 try data.write(to: destination, options: .atomic)
                 sendFileResult(id: id, saved: true)
-                try? FileManager.default.removeItem(at: url)
                 return
             }
             #endif
-            guard let presenter else { throw BridgeError.invalidFile("当前页面没有可用的保存窗口") }
+            guard let presenter, presenter.presentedViewController == nil else { throw BridgeError.invalidFile("当前页面没有可用的保存窗口") }
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
+            let url = directory.appendingPathComponent(fileName)
+            do {
+                try data.write(to: url, options: .atomic)
+            } catch {
+                try? FileManager.default.removeItem(at: directory)
+                throw error
+            }
             let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true)
             picker.delegate = self
-            pendingExport = (id, url)
+            pendingExport = (id, directory)
             presenter.present(picker, animated: true)
         } catch { sendFileResult(id: id, error: error.localizedDescription) }
     }
@@ -209,9 +213,17 @@ final class LuoyeBridge: NSObject, WKScriptMessageHandler, WKUIDelegate, WKNavig
         return data
     }
 
-    private func sanitize(_ value: String, fallback: String) -> String {
-        let name = value.split(whereSeparator: { $0 == "/" || $0 == "\\" }).last.map(String.init) ?? fallback
-        return String(name.prefix(120)).isEmpty ? fallback : String(name.prefix(120))
+    private func exportFileName(_ value: String, mime: String) -> String {
+        let name = value.split(whereSeparator: { $0 == "/" || $0 == "\\" }).last.map(String.init) ?? ""
+        let stem = String((name as NSString).deletingPathExtension.prefix(120))
+        let baseName = ["", ".", ".."].contains(stem) ? "落叶画板文件" : stem
+        let extensionName: String
+        switch mime {
+        case "image/png": extensionName = "png"
+        case "image/jpeg": extensionName = "jpg"
+        default: extensionName = (name as NSString).pathExtension.lowercased() == "luoyer" ? "luoyer" : "luoyex"
+        }
+        return baseName + "." + extensionName
     }
 
     private func sendFileResult(id: String, saved: Bool = false, error: String? = nil) {
