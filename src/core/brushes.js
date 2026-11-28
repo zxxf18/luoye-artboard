@@ -9,6 +9,21 @@ export function brushSeedFromEntropy(entropy) {
 }
 
 export const DEFAULT_BRUSH_SIZE=16;
+export const PIXEL_PEN_SIZES=[1, 4, 8, 12, 16, 24, 32, 48, 64, 96];
+
+export function snapPixelPenSize(size) {
+  const value = Number(size);
+  if (!Number.isFinite(value)) return DEFAULT_BRUSH_SIZE;
+  // Old recordings store the actual cell size, including retired presets.
+  if (value === 2 || value === 6) return value;
+  return PIXEL_PEN_SIZES.reduce((nearest, step) =>
+    Math.abs(step - value) < Math.abs(nearest - value) ? step : nearest);
+}
+
+export function usesPixelPen(options) {
+  return options.tool === 'pen' && options.brush === 'pixel-pen';
+}
+
 export const BRUSHES=[
   {id:'pencil',name:'铅笔',hint:'细细的线，勾轮廓',size:14,color:'#eca73b'},
   {id:'spray',name:'喷笔',hint:'点点雾气，轻轻喷',size:34,color:'#69abc1'},
@@ -21,6 +36,7 @@ export const BRUSHES=[
   {id:'effect',name:'星光笔',hint:'拖一拖，撒下星星',size:28,color:'#df91b7'},
   {id:'rainbow',name:'彩虹笔',hint:'一笔画出彩虹',size:24,color:'#ef5350'},
   {id:'duotone',name:'渐变色',hint:'两种颜色慢慢变',size:24,color:'#ef5350'},
+  {id:'pixel-pen',name:'像素笔',hint:'一格一格画出像素笔迹',size:DEFAULT_BRUSH_SIZE,color:'#71a78c'},
 ];
 const brushTau=Math.PI*2;
 function tint(hex,amount){return '#'+hex.slice(1).match(/../g).map(n=>{const c=parseInt(n,16);return Math.round(amount>0?c+(255-c)*amount:c*(1+amount)).toString(16).padStart(2,'0');}).join('');}
@@ -220,11 +236,86 @@ export function prepareGradientStops(gesture, a, b) {
   return stops;
 }
 
+function clipPixelPenSegment(start, end, width, height) {
+  if (![start.x, start.y, end.x, end.y].every(Number.isFinite)) return null;
+  const dx = end.x - start.x, dy = end.y - start.y;
+  if (!Number.isFinite(dx) || !Number.isFinite(dy)) return null;
+  let enter = 0, exit = 1;
+  for (const [origin, delta, limit] of [[start.x, dx, width], [start.y, dy, height]]) {
+    if (!delta) {
+      if (origin < 0 || origin >= limit) return null;
+      continue;
+    }
+    const first = -origin / delta, last = (limit - origin) / delta;
+    enter = Math.max(enter, Math.min(first, last));
+    exit = Math.min(exit, Math.max(first, last));
+    if (enter > exit) return null;
+  }
+  if (enter === exit && (start.x + dx * enter >= width || start.y + dy * enter >= height)) return null;
+  // The right and bottom edges are exclusive even when the pointer crosses them.
+  const point = t => ({
+    x: Math.max(0, Math.min(width - 1e-7, start.x + dx * t)),
+    y: Math.max(0, Math.min(height - 1e-7, start.y + dy * t)),
+  });
+  return [point(enter), point(exit)];
+}
+
+function pixelPenCell(coordinate, size, toward) {
+  const cells = coordinate / size;
+  // At a segment endpoint on a grid boundary, use the cell the segment
+  // actually occupies. Splitting a line at a corner then adds no extra cells.
+  return Math.floor(cells) - (toward < 0 && Number.isInteger(cells) ? 1 : 0);
+}
+
+export function drawPixelPenSegment(ctx, gesture, start, end, beforeCell) {
+  const { options, layer } = gesture;
+  const width = layer.width ?? ctx.canvas.width, height = layer.height ?? ctx.canvas.height;
+  const size = Math.max(1, Math.round(snapPixelPenSize(options.size) / (layer.scale || 1)));
+  const anchor = point => ({ x: layer.flipX ? width - point.x : point.x, y: layer.flipY ? height - point.y : point.y });
+  const clipped = clipPixelPenSegment(anchor(start), anchor(end), width, height);
+  if (!clipped || !(options.opacity > 0)) return;
+  const [a, b] = clipped, dx = b.x - a.x, dy = b.y - a.y;
+  const stepX = Math.sign(dx), stepY = Math.sign(dy);
+  const columns = Math.ceil(width / size);
+  const endX = pixelPenCell(b.x, size, -stepX), endY = pixelPenCell(b.y, size, -stepY);
+  let x = pixelPenCell(a.x, size, stepX), y = pixelPenCell(a.y, size, stepY);
+  // Allocate visited cells in chunks. Repeated samples and overlapping
+  // symmetry copies deposit opacity only once in each cell per stroke.
+  const visited = gesture.pixelPenVisited ??= new Map();
+  ctx.save();
+  ctx.fillStyle = options.color;
+  ctx.globalAlpha = options.opacity;
+  while (true) {
+    const index = y * columns + x, chunkIndex = index >>> 10;
+    let chunk = visited.get(chunkIndex);
+    if (!chunk) { chunk = new Uint32Array(32); visited.set(chunkIndex, chunk); }
+    const word = (index >>> 5) & 31, bit = 1 << (index & 31);
+    if (!(chunk[word] & bit)) {
+      const left = x * size, top = y * size;
+      const cellWidth = Math.min(size, width - left), cellHeight = Math.min(size, height - top);
+      const localX = layer.flipX ? width - left - cellWidth : left;
+      const localY = layer.flipY ? height - top - cellHeight : top;
+      beforeCell?.({ x: localX, y: localY, width: cellWidth, height: cellHeight });
+      ctx.fillRect(localX, localY, cellWidth, cellHeight);
+      chunk[word] |= bit;
+    }
+    if (x === endX && y === endY) break;
+    // Walk each grid crossing along the real segment. At a corner both
+    // indices advance, preserving a one-cell-wide pixel diagonal.
+    const nextX = x === endX ? Infinity : ((x + (stepX > 0 ? 1 : 0)) * size - a.x) / dx;
+    const nextY = y === endY ? Infinity : ((y + (stepY > 0 ? 1 : 0)) * size - a.y) / dy;
+    if (nextX <= nextY + 1e-12) x += stepX;
+    if (nextY <= nextX + 1e-12) y += stepY;
+  }
+  ctx.restore();
+}
+
 export function brushSegment(ctx,g,a,b,gradientStops=null,dabTransform=null){
   const o=g.options;
   // One pipeline: pen brushes always use the current segmenter; eraser and
   // scratch share the destination-out ribbon below.
   if(o.tool==='eraser'||o.tool==='scratch')return eraserRibbonSegment(ctx,g,a,b);
+  if(usesPixelPen(o))return drawPixelPenSegment(ctx,g,a,b);
   const key=o.brush||'pencil',w=o.size/g.layer.scale,ratio=Math.max(.15,Math.min(2,o.ratio??1)),alpha=o.opacity,random=g.random||(g.random=seededRandom(o.seed??1));
   ctx.save();ctx.fillStyle=o.color;ctx.strokeStyle=o.color;ctx.globalAlpha=alpha;
   if(key==='rainbow'||key==='duotone'){

@@ -14,7 +14,7 @@ const brushSounds = [
   ['triangle',[760,510],.09], ['sawtooth',[290,420,330],.19], ['sine',[520,740,620],.24],
   ['triangle',[220,290],.16], ['square',[360,480],.11], ['sawtooth',[185,260],.14],
   ['triangle',[930,690,460],.17], ['sine',[170,310,240],.2], ['sine',[880,1175,1568],.27],
-  ['sawtooth',[430,650,860],.2], ['triangle',[610,780,520],.18],
+  ['sawtooth',[430,650,860],.2], ['triangle',[610,780,520],.18], ['square',[520,690],.12],
 ];
 TOOL_FEEDBACK.forEach((entry,i)=>{const [wave,frequencies,duration]=brushSounds[i];entry.sound={wave,frequencies,duration};});
 feedbackGroup('eraser',{hard:'硬橡皮',soft:'软橡皮',rect:'矩形清除',shape:'形状橡皮'},'eraser','eraser-mode','triangle',240,.12);

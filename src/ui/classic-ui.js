@@ -7,7 +7,7 @@ import { buildScratchPanel, applyScratchShelf, releaseScratchShelf } from './cla
 import { mountMobileShelf } from './classic-mobile.js';
 import { FRACTAL_PRESETS, FRACTAL_PRESET_ICONS, FRACTAL_MAX_DEPTH, fractalState, fractalPercentToSize, fractalSizeToPercent, renderFractalCanvas } from './fractal-studio.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
-import { BRUSHES, DEFAULT_BRUSH_SIZE, brushSeedFromEntropy, brushSegment, prepareGradientStops } from '../core/brushes.js';
+import { BRUSHES, DEFAULT_BRUSH_SIZE, PIXEL_PEN_SIZES, brushSeedFromEntropy, brushSegment, prepareGradientStops } from '../core/brushes.js';
 import { createToolRegistry } from '../core/tool-registry.js';
 import { makeCanvas } from '../core/engine.js';
 
@@ -51,6 +51,24 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const ratioValue=document.createElement('output');ratioValue.id='ratio-value';el('brush-ratio').after(ratioValue);
   const showRatio=()=>{ratioValue.textContent=Number(el('brush-ratio').value).toFixed(2);};el('brush-ratio').addEventListener('input',showRatio);showRatio();parameter.append(primary);
   const brushOptions=el('brush-options'),brushOptionsParent=brushOptions.parentElement;
+  const brushRatio = el('brush-ratio').closest('label');
+  const sizeControls = brushOptions.querySelectorAll('label[for="size"], #size, #size-value');
+  brushOptions.insertAdjacentHTML('beforeend', `
+    <label for="pixel-pen-level" hidden>像素大小</label>
+    <input id="pixel-pen-level" type="range" min="0" max="${PIXEL_PEN_SIZES.length - 1}" step="1"
+      value="${PIXEL_PEN_SIZES.indexOf(DEFAULT_BRUSH_SIZE)}" hidden>
+    <output for="pixel-pen-level" id="pixel-pen-size" hidden></output>
+  `);
+  const pixelPenLevel = el('pixel-pen-level');
+  const pixelPenControls = brushOptions.querySelectorAll('label[for="pixel-pen-level"], #pixel-pen-level, #pixel-pen-size');
+  const pixelPenSize = () => PIXEL_PEN_SIZES[Number(pixelPenLevel.value)];
+  const showPixelPenSize = () => {
+    const label = `${pixelPenSize()} px`;
+    el('pixel-pen-size').value = label;
+    pixelPenLevel.setAttribute('aria-valuetext', label);
+  };
+  pixelPenLevel.addEventListener('input', showPixelPenSize);
+  showPixelPenSize();
   const moreColor=document.createElement('button');moreColor.className='more-colors';moreColor.innerHTML=playfulIcon('palette')+'<span>更多颜色</span>';moreColor.onclick=()=>el('palette-open').click();palette.append(moreColor);
   const {panel:scratchPanel,sizeRow:scratchSizeRow}=buildScratchPanel({palette:paletteApi});
   scratchPanel.hidden=true;parameter.append(scratchPanel);
@@ -69,7 +87,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const status=document.querySelector('.canvas-footer');studio.append(status);const zoom=document.querySelector('.zoom-controls');heading.append(zoom);
   document.querySelector('.canvas-heading').hidden=true;
   const footer=document.createElement('div');footer.className='left-actions';
-  const pens=document.createElement('div');pens.className='brush-box';pens.setAttribute('aria-label','十一种画笔');const title=document.createElement('h2');title.textContent='我的画笔盒';left.append(title,pens);const libraryGroups=document.createElement('div');libraryGroups.id='library-groups';libraryGroups.setAttribute('aria-label','素材分类');left.append(libraryGroups);
+  const pens=document.createElement('div');pens.className='brush-box';pens.setAttribute('aria-label','画笔');const title=document.createElement('h2');title.textContent='我的画笔盒';left.append(title,pens);const libraryGroups=document.createElement('div');libraryGroups.id='library-groups';libraryGroups.setAttribute('aria-label','素材分类');left.append(libraryGroups);
   let currentBrush=el('brush').value;const sizes={};
   function chooseBrush(value){el('painting').dataset.brush=value;document.dispatchEvent(new Event('brushchange'));if(el('painting').dataset.tool==='pen')sizes[currentBrush]=Number(el('size').value);openLibrary(false);currentBrush=value;el('brush').value=value;el('size').value=sizes[value]||DEFAULT_BRUSH_SIZE;el('size').dispatchEvent(new Event('input',{bubbles:true}));setTool('pen');sync();document.dispatchEvent(new Event('controlschange'));}
   for(const brush of BRUSHES){const b=document.createElement('button');b.type='button';b.className='brush-card';b.dataset.brush=brush.id;b.style.setProperty('--brush-color',brush.color);b.setAttribute('aria-label',brush.name);b.title=brush.name+'：'+brush.hint;b.innerHTML=playfulIcon(brush.id)+`<span class="brush-label" data-i18n-compact>${brush.name}</span><span class="brush-sample"></span>`;b.onclick=()=>{if(!document.body.hasAttribute('aria-busy'))chooseBrush(brush.id);};pens.append(b);const option=[...el('brush').options].find(o=>o.value===brush.id);option.textContent=brush.name;}
@@ -164,6 +182,12 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     shelfPressed(groupTool());
     syncBrushSamples();
     primary.hidden=false;modes.hidden=tool!=='pen';
+    const pixelPen = tool === 'pen' && brush.id === 'pixel-pen';
+    document.body.toggleAttribute('data-pixel-pen', pixelPen);
+    for (const control of sizeControls) control.hidden = pixelPen;
+    for (const control of pixelPenControls) control.hidden = !pixelPen;
+    brushRatio.hidden = tool !== 'pen' || pixelPen;
+    if (pixelPen) el('tool-hint').textContent = brush.hint;
     el('brush-options').hidden=!['pen','eraser','stamp','clone','scratch',...geometries].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');document.querySelector('.opacity-control').hidden=['select','magic','move','warp','board-filter','picker','fractal','scratch'].includes(tool)||(tool==='eraser'&&el('eraser-mode').value==='rect');
     options.hidden=![...options.querySelectorAll('.parameter-slider')].some(item=>!item.hidden);
     document.querySelector('label[for="size"]').textContent=tool==='stamp'?'图案大小':tool==='scratch'?'粗细':'笔尖粗细';
@@ -303,5 +327,6 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const moveSelected=document.createElement('button');moveSelected.id='move-selected-layer';moveSelected.innerHTML=playfulIcon('move')+'<span>移动</span>';moveSelected.onclick=()=>{setTool('move');layerDialog.close();};layerActions.prepend(moveSelected);
   el('add-layer').innerHTML=playfulIcon('paper')+'<span>加一张透明画纸</span>';el('add-layer').setAttribute('aria-label','加一张透明画纸');
   layerDialog.querySelector('[data-close]').textContent='选好了，返回画纸';
-  sync();return {groups:tools,sync,pickCustom:paletteApi.openCustom};
+  const strokeSize = () => document.body.hasAttribute('data-pixel-pen') ? pixelPenSize() : Number(el('size').value);
+  sync();return {groups:tools,sync,pickCustom:paletteApi.openCustom,strokeSize};
 }

@@ -57,7 +57,72 @@ try {
   const hues = new Set(); const d2 = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
   for (let i = 0; i < d2.length; i += 40) if (d2[i + 3] > 100) hues.add(`${d2[i] >> 5},${d2[i + 1] >> 5},${d2[i + 2] >> 5}`);
   check(hues.size >= 3, `彩虹笔画出多种颜色（${hues.size} 种）`);
+
+  // Pixel pen goes through the regular brush shelf and uses canvas pixels
+  // for its grid, independent of the fitted screen size.
+  doc.querySelector('.brush-card[data-brush="pixel-pen"]').click();
+  const level = $('pixel-pen-level');
+  check(level?.getClientRects().length && +level.max - +level.min === 9 && +level.step === 1,
+    '像素笔使用十档独立粗细滑块');
+  function changeRange(input, value) {
+    input.value = value;
+    input.dispatchEvent(new view.Event('input', { bubbles: true }));
+  }
+  async function pixelStroke(points, end = points.at(-1)) {
+    const bounds = box();
+    const send = (type, [x, y]) => canvas.dispatchEvent(new view.PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 13, pointerType: 'mouse', isPrimary: true,
+      buttons: type === 'pointerup' ? 0 : 1,
+      clientX: bounds.left + x * bounds.width / canvas.width,
+      clientY: bounds.top + y * bounds.height / canvas.height,
+    }));
+    send('pointerdown', points[0]);
+    for (const point of points.slice(1)) send('pointermove', point);
+    send('pointerup', end);
+    await settle();
+  }
+  const ctx = canvas.getContext('2d');
+  const pixel = (x, y) => Array.from(ctx.getImageData(x, y, 1, 1).data).slice(0, 3);
+  const color = $('color').value.slice(1).match(/../g).map(channel => parseInt(channel, 16));
+  const background = pixel(31, 800);
+  const matches = (actual, expected, tolerance = 0) =>
+    actual.every((channel, index) => Math.abs(channel - expected[index]) <= tolerance);
+
+  changeRange(level, +level.max - 1);
+  const newCoarseSize = $('pixel-pen-size').value;
+  changeRange(level, +level.max);
+  check(newCoarseSize === '64 px' && $('pixel-pen-size').value === '96 px',
+    '像素笔提供 64 px 和 96 px 两档粗方格');
+  changeRange(level, +level.min + 2); // 8 px cells.
+  await pixelStroke([[35, 803], [137, 803]], [229, 803]);
+  const row = ctx.getImageData(32, 800, 200, 1).data;
+  check(row.every((channel, index) => channel === (index % 4 === 3 ? 255 : color[index % 4])) &&
+    matches(pixel(231, 807), color) && matches(pixel(232, 800), background) && matches(pixel(32, 808), background),
+    '像素笔快速拖动填满相连方格，边缘保持整齐');
+
+  const fineDrawing = canvas.toDataURL();
+  changeRange(level, +level.min + 5); // 24 px cells.
+  check(canvas.toDataURL() === fineDrawing, '像素笔换档不改变原有笔迹');
+  changeRange($('opacity'), 50);
+  await pixelStroke([[345, 803], [379, 803], [345, 803]]);
+  const halfColor = color.map((channel, i) => Math.round((channel + background[i]) / 2));
+  check(matches(pixel(336, 792), halfColor, 1) && matches(pixel(383, 815), halfColor, 1) &&
+    matches(pixel(335, 792), background) && matches(pixel(336, 816), background),
+    '像素笔粗档方格更大，同一笔经过同格不叠加透明度');
+  const coarseDrawing = canvas.toDataURL();
+  $('undo').click(); await settle();
+  check(canvas.toDataURL() === fineDrawing, '像素笔可整笔撤销');
+  $('redo').click(); await settle();
+  check(canvas.toDataURL() === coarseDrawing, '像素笔可精确重做');
+  changeRange($('opacity'), 100);
+  await pixelStroke([[501, 828]]);
+  await pixelStroke([[564, 876], [636, 948]]);
+  check(matches(pixel(480, 816), color) && matches(pixel(503, 839), color) &&
+    matches(pixel(504, 839), background) &&
+    [0, 1, 2, 3].every(index => matches(pixel(564 + index * 24, 876 + index * 24), color)) &&
+    matches(pixel(576, 875), background), '像素笔点按只填一格，斜线保留单格阶梯边缘');
   doc.querySelector('[data-brush="pencil"]').click(); await pause(20);
+  check(!level.getClientRects().length && $('size').getClientRects().length, '普通画笔恢复原来的粗细滑块');
 
   // 4. eraser removes ink
   await selectTool('eraser');

@@ -2,7 +2,7 @@ import { beginPaperErase, updatePaperErase, endPaperErase, beginPaperWarp, updat
 import { EditorEngine } from './editor.js';
 import { makeCanvas, paintScratchBase, paintScratchCover, scratchStyle } from './engine.js';
 import { toLayerPoint, MAX_SPRITES_PER_LAYER, MAX_PROJECT_SPRITES } from './core.js';
-import { brushSegment, prepareGradientStops } from './brushes.js';
+import { brushSegment, drawPixelPenSegment, prepareGradientStops, snapPixelPenSize, usesPixelPen } from './brushes.js';
 import { shapeEraserSegment } from './shape-eraser.js';
 import { applyWarpRegion, warpPixels } from './warps.js';
 import { textureData, materialSegment } from './materials.js';
@@ -129,7 +129,7 @@ export class DrawingEngine extends EditorEngine {
       x: Number.isFinite(config.centerX) ? config.centerX : this.width / 2,
       y: Number.isFinite(config.centerY) ? config.centerY : this.height / 2,
     };
-    const center = this.paperMode ? world : toLayerPoint(world, layer);
+    const center = this.paperMode && !usesPixelPen(options) ? world : toLayerPoint(world, layer);
     const geometry={ config, center, transforms: assistTransformDescriptors(config, center) };
     cache.set(options,{assist,layer,width:this.width,height:this.height,paperMode:!!this.paperMode,geometry});
     return geometry;
@@ -311,8 +311,9 @@ export class DrawingEngine extends EditorEngine {
       const texture=line.options.fillSource==='texture'?this.paintTexture:null,paper=line.options.paperGrain?this.paperTexture:null;
       strokeContext.save();strokeContext.translate(-bounds.x,-bounds.y);
       const previewGradientStops=prepareGradientStops(preview,line.start,line.end);
-      for (const { transformIndex } of copies) {
-        this.drawAssistSegment(strokeContext, preview, line.start, line.end, texture, paper, sourceBounds, transformIndex, previewGradientStops);
+      for (const { transformIndex, start, end } of copies) {
+        if (usesPixelPen(line.options)) drawPixelPenSegment(strokeContext, preview, start, end);
+        else this.drawAssistSegment(strokeContext, preview, line.start, line.end, texture, paper, sourceBounds, transformIndex, previewGradientStops);
       }
       strokeContext.restore();
       if(this.selectionCanvas){const mask=line.previewMask??=this.selectionInLayer(line.layer);strokeContext.globalCompositeOperation='destination-in';strokeContext.drawImage(mask,-bounds.x,-bounds.y);strokeContext.globalCompositeOperation='source-over';}
@@ -381,6 +382,7 @@ export class DrawingEngine extends EditorEngine {
   }
   begin(point,options){
     options={...options,seed:options.seed??(Date.now()>>>0)};
+    if(usesPixelPen(options))options.size=snapPixelPenSize(options.size);
     if(this.paperMode&&options.tool==='eraser'){beginPaperErase(this,point,options);return;}
     if(this.paperMode&&(['pen','line','rect','ellipse','triangle','pentagon','hexagon','roundrect','star','clone','fill'].includes(options.tool)||(options.tool==='stamp'&&this.fairyMode!=='dynamic')))this.ensureDrawingLayer();
     if(this.paperMode&&options.tool==='warp'){beginPaperWarp(this,point,options);return;}
@@ -412,7 +414,21 @@ export class DrawingEngine extends EditorEngine {
     super.begin(point,options);
   }
   segment(a,b){
-    const g=this.gesture,width=g.options.size/g.layer.scale,pad=width*2+4,ctx=g.layer.canvas.getContext('2d');
+    const g=this.gesture,ctx=g.layer.canvas.getContext('2d');
+    if(usesPixelPen(g.options)){
+      const touched = new Set();
+      const capture = ({ x, y, width, height }) =>
+        this.captureTiles(g.layer, { x, y, width: width - 1, height: height - 1 }, g.tiles, touched);
+      for (const { start, end } of this.assistPairs(a, b, g.options, g.layer))
+        drawPixelPenSegment(ctx, g, start, end, capture);
+      if (touched.size) {
+        if (g.selectionMask === undefined) g.selectionMask = this.layerMask(g.layer);
+        this.maskTiles(g.layer, touched, g.selectionMask, null, g.pixelPenCoverage ??= new Map());
+        this.render();
+      }
+      return;
+    }
+    const width=g.options.size/g.layer.scale,pad=width*2+4;
     const texture=g.options.fillSource==='texture'?this.paintTexture:null,paper=g.options.paperGrain?this.paperTexture:null;
     let maskBounds=null,gradientDistance=Math.max(0,Number(g.gradientDistance)||0);
     const material = g.options.tool==='pen' && (texture || paper);

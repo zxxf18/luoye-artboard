@@ -2,18 +2,18 @@ import { makeCanvas } from '../src/core/engine.js';
 import { BRUSHES, DEFAULT_BRUSH_SIZE } from '../src/core/brushes.js';
 import { DrawingEngine } from '../src/core/drawing.js';
 import { Recorder } from '../src/ui/recording.js';
-const entries=[['pencil','铅笔'],['spray','喷笔'],['watercolor','水彩'],['brush','刷子'],['marker','麦克笔'],['crayon','蜡笔'],['chalk','粉笔'],['tube','颜料管'],['effect','星光笔'],['rainbow','彩虹笔'],['duotone','双色渐变']];
+const entries=BRUSHES.map(({id,name})=>[id,name]);
 const stats={},results=[];const assert=(v,m)=>{if(!v)throw new Error(m);};
 const make=()=>{const e=new DrawingEngine(makeCanvas(280,120),()=>{});e.reset(280,120);clearInterval(e.animationTimer);return e;};
 function draw(e,brush){const o={tool:'pen',brush,size:32,color:'#2877c9',opacity:1,seed:719};e.begin({x:25,y:65},o);for(let x=29;x<=250;x+=4)e.update({x,y:60+Math.sin((x-25)/225*Math.PI*2)*22});e.end();cancelAnimationFrame(e.renderFrame);}
 for(const [key,name] of entries){const e=make();draw(e,key);const c=e.active.canvas;const data=c.getContext('2d').getImageData(0,0,280,120).data;let area=0,sum=0,peak=0,highlights=0;for(let i=0;i<data.length;i+=4){if(data[i+3]){area++;sum+=data[i+3];peak=Math.max(peak,data[i+3]);if(data[i]>140&&data[i+1]>140&&data[i+2]>180)highlights++;}}stats[key]={area,mean:sum/area,peak,highlights,png:c.toDataURL()};const f=document.createElement('figure'),caption=document.createElement('figcaption');caption.textContent=name;f.append(caption,c);document.querySelector('#samples').append(f);}
 async function check(name,fn){try{await fn();results.push({name,ok:true});}catch(e){results.push({name,ok:false,error:e.message});}const li=document.createElement('li'),r=results.at(-1);li.textContent=(r.ok?'PASS ':'FAIL ')+name+(r.error?' — '+r.error:'');document.querySelector('#results').append(li);}
-await check('笔触有可量化差异：细铅笔、透明水彩、浓墨麦克笔、颜料高光',()=>{assert(stats.pencil.area<stats.marker.area*.7,'铅笔和麦克笔粗细缺少区别');assert(stats.watercolor.mean<stats.marker.mean*.7,'水彩没有明显透明感');assert(stats.tube.highlights>100,'颜料管缺少立体高光');assert(new Set(Object.values(stats).map(v=>v.png)).size===11,'有重复笔触');});
+await check('笔触有可量化差异：细铅笔、透明水彩、浓墨麦克笔、颜料高光',()=>{assert(stats.pencil.area<stats.marker.area*.7,'铅笔和麦克笔粗细缺少区别');assert(stats.watercolor.mean<stats.marker.mean*.7,'水彩没有明显透明感');assert(stats.tube.highlights>100,'颜料管缺少立体高光');assert(new Set(Object.values(stats).map(v=>v.png)).size===entries.length,'有重复笔触');});
 await check('新笔触可复现，整笔撤销／取消不留痕',()=>{for(const [key] of entries){const e=make();draw(e,key);assert(e.active.canvas.toDataURL()===stats[key].png,key+' 随机笔触无法复现');e.undo();const blank=e.active.canvas.toDataURL();e.begin({x:20,y:60},{tool:'pen',brush:key,brushVersion:2,size:32,color:'#2877c9',opacity:1,seed:719});e.update({x:240,y:60});e.end(true);assert(e.active.canvas.toDataURL()===blank,key+' 取消残留');cancelAnimationFrame(e.renderFrame);}});
 await check('录像重放与原笔触逐通道一致',async()=>{const e=make(),rec=new Recorder(e);await rec.start(0,'笔触回放');draw(e,'watercolor');rec.stop();const canvas=makeCanvas(280,120);await rec.replay(0,1,canvas);const expected=makeCanvas(e.width,e.height);e.paint(expected.getContext('2d'));const a=expected.getContext('2d').getImageData(0,0,e.width,e.height).data,b=canvas.getContext('2d').getImageData(0,0,e.width,e.height).data;let different=0,max=0;for(let i=0;i<a.length;i++){if(a[i]!==b[i])different++;max=Math.max(max,Math.abs(a[i]-b[i]));}assert(!different,'回放改变 '+different+' 通道，最大差 '+max);});
 
 // —— 连续性专项：稀疏快速采样下，笔迹必须连接成线而不是离散的点 ——
-await check('十一种画笔快速拖动不断线',()=>{
+await check('全部画笔快速拖动不断线',()=>{
   for(const [key] of entries){
     const e=make();const o={tool:'pen',brush:key,brushVersion:2,size:36,color:'#2877c9',opacity:1,seed:991,ratio:1};
     e.begin({x:20,y:60},o);for(let x=56;x<=252;x+=36)e.update({x,y:60});e.end();cancelAnimationFrame(e.renderFrame);
@@ -46,7 +46,7 @@ await check('刮刮画粗笔快速拖动保持连续',()=>{
   for(let x=42;x<254;x+=43)for(const dy of [-10,0,10]){const i=((60+dy)*280+Math.round(x))*4;assert(data[i+3]<40,'刮刮画快速拖动在采样点之间留下未刮开区域（x='+x+'）');}
 });
 
-await check('十一种画笔的最细、默认、中等和最粗笔尖都能绘制并撤销、重做', () => {
+await check('全部画笔的最细、默认、中等和最粗笔尖都能绘制并撤销、重做', () => {
   const e = make();
   e.reset(400, 320);
   e.render = () => {};

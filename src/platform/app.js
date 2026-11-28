@@ -20,7 +20,7 @@ import { mountPlayfulControls } from '../ui/playful-controls.js';
 import { mountMaterials } from '../ui/materials-ui.js';
 import { mountAssist } from '../ui/assist-ui.js';
 import { applyStoredTheme, mountTheme } from '../ui/theme-ui.js';
-import { DEFAULT_BRUSH_SIZE } from '../core/brushes.js';
+import { DEFAULT_BRUSH_SIZE, usesPixelPen } from '../core/brushes.js';
 import { mountAnimationEditor } from '../ui/animation-editor.js';
 import { mountPixelEditor } from '../ui/pixel-art.js';
 import { collectPointerSamples, createLatestFrameQueue, isHighFrequencyEraser } from '../core/input-sampling.js';
@@ -485,6 +485,8 @@ async function newBlank(width=engine.width,height=engine.height){
 }
 function resetSettings(){
   $('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('opacity').value=defaultSettings.opacity;$('color').value=defaultSettings.color;$('background-color').value=defaultSettings.background;
+  $('pixel-pen-level').value=$('pixel-pen-level').defaultValue;
+  $('pixel-pen-level').dispatchEvent(new Event('input',{bubbles:true}));
   for(const [id,value] of Object.entries({ 'eraser-mode':'hard','eraser-shape':'star','fill-mode':'region','selection-shape':'rect','selection-mode':'replace','geometry':'line','stroke-mode':'free','tolerance':20,'paper-grain':'none','paper-grain-strength':70,'brush-ratio':1,'fill-gradient':false,'shape-filled':false,'shape-dashed':false }))if($(id)){$(id).value=value;$(id).dispatchEvent(new Event('change',{bubbles:true}));$(id).dispatchEvent(new Event('input',{bubbles:true}));}
   for(const id of ['fill-gradient','shape-filled','shape-dashed'])if($(id))$(id).checked=false;setTool('pen');$('brush').value=defaultSettings.brush;$('size').value=defaultSettings.size;$('size').dispatchEvent(new Event('input',{bubbles:true}));$('opacity').value=defaultSettings.opacity;$('opacity').dispatchEvent(new Event('input',{bubbles:true}));setColor(defaultSettings.color);assist?.reset?.();theme?.reset?.();zoom=1;layoutCanvas();try{localStorage.removeItem('luoye-ui-size');}catch{};document.body.style.removeProperty('--u');document.dispatchEvent(new Event('uisizechange'));document.dispatchEvent(new Event('controlschange'));toast('设置已恢复初始状态');
 }
@@ -544,7 +546,7 @@ $('painting').addEventListener('pointerdown', event => {
       engine.activeId=hit.id;renderLayers();
     }
     if ((tool === 'pen') || (tool === 'stamp' && engine.fairyMode !== 'dynamic') || ['line','triangle','rect','pentagon','hexagon','roundrect','ellipse','star'].includes(tool)) engine.ensureDrawingLayer(tool==='stamp'?'魔法袋笔迹':'我的画笔');
-    engine.begin(point, { tool, color, size: Number($('size').value), opacity: Number($('opacity').value) / 100, brush: $('brush').value, pointerType: pointer.pointerType, pressure: pointer.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
+    engine.begin(point, { tool, color, size: classic.strokeSize(), opacity: Number($('opacity').value) / 100, brush: $('brush').value, pointerType: pointer.pointerType, pressure: pointer.pressure, ...studio.options(),...creative.options(),...materials.options(),...assist.options() });
     if (engine.gesture) { pointerId = event.pointerId; $('painting').setPointerCapture(pointerId); if(tool==='stamp') stampTimer=setInterval(()=>engine.repeatStamp(),160); }
   } catch (error) { toast(error.message); }
 });
@@ -604,6 +606,8 @@ function finishPointer(event) {
   try{
     if(cancelled)warpFrameQueue.cancel();
     else warpFrameQueue.flush();
+    if(event.type==='pointerup'&&engine.gesture&&usesPixelPen(engine.gesture.options))
+      updatePaintingPointer(event,{preview:false});
     engine.end(cancelled);
   }finally{releasePaintingPointer();}
 }

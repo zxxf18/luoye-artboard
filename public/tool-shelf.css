@@ -266,6 +266,14 @@
   border: 1px solid #e8c69c; border-radius: 10px; background: #fff2db;
   font: inherit; white-space: nowrap;
 }
+.playroom[data-pixel-pen] :is(.paint-texture-option, .primary-brush-options label:has(#paper-grain, #paper-grain-strength)) {
+  display: none !important;
+}
+.playroom #pixel-pen-size {
+  min-width: 4ch;
+  text-align: end;
+  white-space: nowrap;
+}
 /* Geometry toggles use the same readable label scale as filter parameters. */
 .playroom .primary-brush-options label:has(#shape-filled),
 .playroom .primary-brush-options label:has(#shape-dashed) {
