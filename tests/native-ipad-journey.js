@@ -177,11 +177,13 @@ await check('贴图保存后恢复仍保留图层位置和缩放', async () => {
   const layer = before.layers.at(-1);
   assert(layer && layer.role !== 'background', '没有可验证的贴图层');
   const folder = `iPad-${Date.now()}`;
+  await click('more-open');
   await click('gallery');
   el('gallery-folder').value = folder;
   await click('gallery-save');
   await click('gallery-close');
   await click('new');
+  await click('more-open');
   await click('gallery');
   const card = [...el('gallery-items').children].find(node => node.textContent.includes(folder));
   assert(card, '画夹中没有找到 iPad 测试作品');

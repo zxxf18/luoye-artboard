@@ -67,14 +67,14 @@ test('theme and settings entries stay in their intended containers', () => {
   assert.doesNotMatch(theme, /more-dialog \\.more-actions/);
   assert.match(display, /id='display-open'/);
   assert.match(classic, /id='about-open'/);
-  assert.match(classic, /header\.append\(moreButton,aboutButton\)/);
-  assert.match(classic, /mountLanguageSettings\(actions\)/);
-  assert.match(i18n, /actions\.append\(row\)/);
+  assert.match(classic, /header\.append\(aboutButton\)/);
+  assert.match(classic, /mountLanguageSettings\(header\)/);
+  assert.match(i18n, /header\.append\(select\)/);
   assert.match(app, /mountDisplay\(\)/);
 });
 
 test('settings drawer gives every action a shared icon and aligned text slot', () => {
-  for (const [id, icon] of [['copy', 'copy'], ['cut', 'cut'], ['paste', 'paste'], ['selection-menu', 'select'], ['recordings', 'play'], ['import-image', 'image']]) {
+  for (const [id, icon] of [['gallery', 'folder'], ['export', 'download'], ['copy', 'copy'], ['cut', 'cut'], ['paste', 'paste'], ['selection-menu', 'select'], ['recordings', 'play'], ['import-image', 'image']]) {
     assert.match(classic, new RegExp(`'${id}','${icon}'`), `设置缺少 ${id} 或图标 ${icon}`);
   }
   assert.match(classic, /paperSize\.id='paper-size-open'/);
@@ -83,6 +83,7 @@ test('settings drawer gives every action a shared icon and aligned text slot', (
   assert.match(classic, /settingButton\(paperSize,'paper','画纸尺寸'\)/);
   assert.match(classic, /settingButton\(button,icon,label\)/);
   assert.match(classic, /settingButton\(rename,'pencil','给画起名字'\)/);
+  assert.match(classic, /settingButton\(el\('reset-settings'\),'reset-settings','重置设置'\)/);
   assert.match(display, /button\.className='more-action'/);
   assert.match(icons, /image:'<rect/);
   assert.match(styles, /#more-dialog \.more-action[\s\S]*display:\s*grid/);

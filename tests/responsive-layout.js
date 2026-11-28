@@ -83,9 +83,9 @@ function checkCompactHeader(doc, width, height) {
   const narrow = width <= 860 || height <= 600;
   if (!narrow) return;
   const newQuick = doc.querySelector('#new-quick');
-  const reset = doc.querySelector('#reset-settings');
+  const language = doc.querySelector('.header-actions > #ui-language-choose');
   const themeIcon = doc.querySelector('#theme-open > .playful-icon');
-  assert(newQuick && reset && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
+  assert(newQuick && language && themeIcon, '小屏顶栏缺少快捷操作或主题图标');
   assert(rect(themeIcon).width <= 24.5 && rect(themeIcon).height <= 24.5, '小屏主题图标仍然过大');
 }
 function checkHeaderCommands(doc, width, height) {

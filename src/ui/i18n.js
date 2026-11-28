@@ -8,11 +8,20 @@ import { messagesFR } from './locales/fr.js';
 const languageKey = 'luoye-language';
 const localeOptions = [
   { id: 'zh-CN', label: '简体中文' },
-  { id: 'en', label: 'English', messages: messagesEN, format: 0 },
-  { id: 'ja', label: '日本語', messages: messagesJA, format: 1 },
-  { id: 'de', label: 'Deutsch', messages: messagesDE, format: 2 },
+  { id: 'en', label: 'English', messages: messagesEN, format: 0, compact: { '语言': 'Lang.' } },
+  {
+    id: 'ja', label: '日本語', messages: messagesJA, format: 1,
+    compact: { '关于': '情報', '撤销': '戻す', '颜料管': 'チューブ', '渐变色': 'グラデ' },
+  },
+  {
+    id: 'de', label: 'Deutsch', messages: messagesDE, format: 2,
+    compact: { '关于': 'Über', '保存': 'Sichern', '撤销': 'Rückg.', '重做': 'Wiederh.', '设置': 'Optionen' },
+  },
   { id: 'ko', label: '한국어', messages: messagesKO, format: 3 },
-  { id: 'fr', label: 'Français', messages: messagesFR, format: 4 },
+  {
+    id: 'fr', label: 'Français', messages: messagesFR, format: 4,
+    compact: { '保存': 'Enreg.', '设置': 'Réglages', '颜料管': 'Tube' },
+  },
 ];
 let activeLocale = localeOptions[0];
 
@@ -72,18 +81,13 @@ export function sourceUICopy(node, omit) {
   }).join('');
 }
 
-export function mountLanguageSettings(actions) {
+export function mountLanguageSettings(header) {
   const root = document.documentElement;
   let preference = 'auto';
   try { preference = localStorage.getItem(languageKey) || 'auto'; } catch {}
-  const row = document.createElement('label');
-  row.className = 'language-setting';
-  const label = document.createElement('span');
-  label.id = 'ui-language-label';
-  label.textContent = '语言';
   const select = document.createElement('select');
   select.id = 'ui-language';
-  select.setAttribute('aria-labelledby', label.id);
+  select.setAttribute('aria-label', '语言');
   for (const { id, label: name } of [{ id: 'auto', label: '跟随系统' }, ...localeOptions]) {
     const option = document.createElement('option');
     option.value = id;
@@ -96,8 +100,7 @@ export function mountLanguageSettings(actions) {
   }
   select.value = preference;
   if (!select.value) select.value = preference = 'auto';
-  row.append(label, select);
-  actions.append(row);
+  header.append(select);
 
   // Track the source separately so a language switch can update existing UI
   // without rebuilding controls or reloading the current drawing.
@@ -111,7 +114,9 @@ export function mountLanguageSettings(actions) {
     }
     const source = prior?.rendered === current ? prior.source : current;
     const key = source?.trim();
-    const translated = /[\u3400-\u9fff]/.test(key ?? '') && lookupCopy(key, activeLocale);
+    const compact = node.nodeType === Node.TEXT_NODE && node.parentElement?.hasAttribute('data-i18n-compact');
+    const translated = /[\u3400-\u9fff]/.test(key ?? '') &&
+      ((compact ? activeLocale.compact?.[key] : undefined) ?? lookupCopy(key, activeLocale));
     if (!translated) {
       properties?.delete(property);
       return;
@@ -165,6 +170,10 @@ export function mountLanguageSettings(actions) {
         '创作室将保持打开。请先将作品保存为工程文件，再重试退出。', '继续画画',
         '无法打开浏览器，请稍后重试', '创作室暂时没有打开', '操作没有完成，请重试。',
         '系统没有可用的文件选择器', '画板暂时没有打开', '画板资源没有打开。', '好'];
+      if (window.webkit.messageHandlers.menuState) {
+        labels.push('关于落叶画板', '设置', '语言', '文件', '新画纸', '打开作品', '保存作品', '我的画夹', '导出图片',
+          '撤销', '重做', '视图', '放大画布', '缩小画布', '适合窗口', '进入全屏', '退出全屏');
+      }
       host.postMessage(Object.fromEntries(labels.map(label => [label, localizedUICopy(label)])));
     }
     // The Android/iPad tablet shell uses a same-origin iframe.

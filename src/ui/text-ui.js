@@ -1,4 +1,5 @@
 import { localizedUICopy } from './i18n.js';
+import { openDialog } from './dialog-focus.js';
 import { renderStyledText } from '../core/text.js';
 import { loadImage } from '../core/engine.js';
 
@@ -22,6 +23,6 @@ export function mountText({engine,run,toast,getColor,setTool,getTool}) {
   el('text-import-texture').onclick=()=>el('text-texture-file').click();el('text-clear-texture').onclick=()=>{texture=null;el('text-fill').value='color';preview();document.dispatchEvent(new Event('controlschange'));};
   el('text-texture-file').onchange=()=>run(async()=>{const file=el('text-texture-file').files[0];el('text-texture-file').value='';if(!file)return;if(file.size>10*1024*1024)throw new Error('底纹图片需在 10 MiB 以内。');const url=URL.createObjectURL(file);try{const image=await loadImage(url);if(image.width*image.height>8388608)throw new Error('底纹超过 8 百万像素。');texture=image;el('text-fill').value='texture';preview();}finally{URL.revokeObjectURL(url);document.dispatchEvent(new Event('controlschange'));}});
   const options=document.createElement('button');options.id='text-options-open';options.dataset.option='text';options.textContent='字体与样式';options.onclick=()=>open({x:engine.width*.2,y:engine.height*.2});document.querySelector('.detail-bar').append(options);options.hidden=true;
-  function open(p){point=p;returnTool=getTool?.()||'pen';preview();dialog.showModal();el('text-content').focus();}
+  function open(p){point=p;returnTool=getTool?.()||'pen';preview();openDialog(dialog);}
   return {open};
 }

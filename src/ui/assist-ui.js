@@ -1,3 +1,5 @@
+import { openDialog } from './dialog-focus.js';
+
 export function mountAssist({ engine, toast }) {
   const button = document.createElement('button');
   button.id = 'assist-open';
@@ -11,7 +13,7 @@ export function mountAssist({ engine, toast }) {
   dialog.id = 'assist-dialog';
   dialog.className = 'assist-dialog';
   dialog.innerHTML = `<form method="dialog" class="assist-form">
-    <header class="assist-header"><div class="assist-title"><strong>辅助绘画</strong><span>对称画笔、图形和印章</span></div><div class="assist-header-actions"><label class="assist-switch"><input id="assist-enabled" type="checkbox"><span class="assist-switch-track"></span><span class="assist-switch-copy"><b>启用</b><small>新笔触生效</small></span></label><button class="assist-close" value="cancel" aria-label="关闭辅助设置">×</button></div></header>
+    <header class="assist-header"><div class="assist-title"><strong role="heading" aria-level="2">辅助绘画</strong><span>对称画笔、图形和印章</span></div><div class="assist-header-actions"><label class="assist-switch"><input id="assist-enabled" type="checkbox"><span class="assist-switch-track"></span><span class="assist-switch-copy"><b>启用</b><small>新笔触生效</small></span></label><button class="assist-close" value="cancel" aria-label="关闭辅助设置">×</button></div></header>
     <div class="assist-status" id="assist-status" role="status"></div>
     <div class="assist-layout">
       <section class="assist-card assist-core"><div class="assist-card-heading"><strong>对称设置</strong><small>选择复制方向和中心</small></div><div class="assist-section assist-mode-row"><span class="assist-field-label">对称方式</span><div id="assist-mode-buttons" class="assist-mode-buttons" role="group" aria-label="对称方式"><button type="button" class="assist-mode-button" data-assist-mode="vertical" aria-pressed="true">左右对称</button><button type="button" class="assist-mode-button" data-assist-mode="horizontal" aria-pressed="false">上下对称</button><button type="button" class="assist-mode-button" data-assist-mode="four" aria-pressed="false">四向对称</button><button type="button" class="assist-mode-button" data-assist-mode="radial" aria-pressed="false">多轴对称</button></div></div><div class="assist-section assist-axes-row"><label for="assist-axes">对称轴数 <output id="assist-axes-value">8</output></label><input id="assist-axes" aria-label="对称轴数" type="range" min="2" max="16" step="1" value="8"></div><div class="assist-center-grid"><div class="assist-section"><label for="assist-center-x">中心横向 <output id="assist-center-x-value">50%</output></label><input id="assist-center-x" type="range" min="0" max="100" step="1" value="50"></div><div class="assist-section"><label for="assist-center-y">中心纵向 <output id="assist-center-y-value">50%</output></label><input id="assist-center-y" type="range" min="0" max="100" step="1" value="50"></div></div></section>
@@ -51,13 +53,13 @@ export function mountAssist({ engine, toast }) {
   el('assist-guides').onchange = event => { state.showGuides = event.target.checked; sync(); };
   el('assist-grid').onchange = event => { state.showGrid = event.target.checked; sync(); };
   el('assist-stamp').onchange = event => { state.stamp = event.target.checked; sync(); };
-  button.onclick = () => { sync(); dialog.showModal(); };
+  button.onclick = () => { sync(); openDialog(dialog); };
   dialog.addEventListener('close', () => button.focus({ preventScroll: true }));
   sync();
   return {
     options: () => { engine.assistConfig = currentConfig(); return { assist: { ...engine.assistConfig } }; },
     sync,
     reset: () => { Object.assign(state, { enabled: false, mode: 'vertical', axes: 8, centerX: 50, centerY: 50, showGuides: true, showGrid: false, stamp: false }); el('assist-enabled').checked = false; el('assist-axes').value = state.axes; el('assist-center-x').value = state.centerX; el('assist-center-y').value = state.centerY; el('assist-guides').checked = true; el('assist-grid').checked = false; el('assist-stamp').checked = false; sync(); },
-    open: () => { sync(); dialog.showModal(); },
+    open: () => { sync(); openDialog(dialog); },
   };
 }

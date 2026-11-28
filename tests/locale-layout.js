@@ -40,12 +40,33 @@ function checkDialog(dialog) {
   assert(dialog.scrollWidth <= dialog.clientWidth + 2, `${dialog.id} has horizontal overflow`);
 }
 
+async function checkProductName(doc, language) {
+  const name = {
+    'zh-CN': '落叶画板', en: 'Fallen Leaf Studio', ja: '落ち葉のお絵かき',
+    de: 'Laubatelier', ko: '낙엽 그림판', fr: 'Atelier des feuilles',
+  }[language];
+  assert(doc.title === name, `Page title did not switch to “${name}”`);
+  const brand = doc.querySelector('.brand');
+  assert(brand.querySelector('strong').textContent === name && brand.getAttribute('aria-label') === name,
+    `Brand did not switch to “${name}”`);
+  doc.querySelector('#about-open').click();
+  await render();
+  const about = doc.querySelector('#about-dialog');
+  checkDialog(about);
+  assert(about.querySelector('h2').textContent === name, `About did not switch to “${name}”`);
+  doc.querySelector('#about-close').click();
+}
+
 async function switchLanguage(doc, language) {
-  doc.querySelector('#more-open').click();
-  const settings = doc.querySelector('#more-dialog');
-  checkDialog(settings);
-  checkControls(settings, '.more-action, #ui-language-choose', 14);
-  doc.querySelector('#ui-language-choose').click();
+  const geometry = () => [
+    doc.defaultView.innerWidth, doc.defaultView.innerHeight,
+    ...['.brand', '.header-actions', '#viewport'].flatMap(selector => {
+      const { width, height } = doc.querySelector(selector).getBoundingClientRect();
+      return [width, height];
+    }),
+  ];
+  const sizeBefore = geometry();
+  doc.querySelector('.header-actions > #ui-language-choose').click();
   await render();
   const chooser = doc.querySelector('#choice-dialog');
   checkDialog(chooser);
@@ -53,9 +74,31 @@ async function switchLanguage(doc, language) {
   chooser.querySelector(`[data-value="${language}"]`).click();
   await render();
   assert(doc.documentElement.lang === language, `Language did not switch to ${language}`);
-  checkControls(settings, '.more-action, #ui-language-choose', 14);
+  assert(geometry().every((size, index) => Math.abs(size - sizeBefore[index]) < 0.5),
+    'Language switch resized the window, toolbar, or canvas viewport');
+  doc.querySelector('#more-open').click();
+  const settings = doc.querySelector('#more-dialog');
+  await render();
+  checkDialog(settings);
+  checkControls(settings, '.more-action', 14);
   doc.querySelector('#more-done').click();
-  checkControls(doc.body, '.header-actions > button', 14);
+}
+
+function checkHeader(doc, previousWidths) {
+  const header = doc.querySelector('.header-actions');
+  checkControls(header, ':scope > button', 14);
+  const widths = Array.from(header.querySelectorAll(':scope > button'), button => {
+    const label = button.querySelector('span:not(.playful-icon)');
+    const range = doc.createRange();
+    range.selectNodeContents(label);
+    assert(range.getClientRects().length === 1 && label.scrollWidth <= label.clientWidth + 1,
+      `Toolbar label wraps or truncates: “${label.textContent}”`);
+    return button.getBoundingClientRect().width;
+  });
+  assert(widths.every(width => Math.abs(width - widths[0]) < 0.1), 'Toolbar buttons have different widths');
+  assert(!previousWidths || widths.every((width, index) => Math.abs(width - previousWidths[index]) < 0.1),
+    'Toolbar buttons changed width after switching languages');
+  return widths;
 }
 
 async function checkPalette(doc) {
@@ -96,6 +139,47 @@ async function checkDrawingDialogs(doc) {
   }
 }
 
+async function checkCanvasControls(doc) {
+  await checkProductName(doc, doc.documentElement.lang);
+  const narrow = doc.defaultView.matchMedia('(max-width: 860px), (max-height: 600px)').matches;
+  const visible = node => node.getClientRects().length > 0;
+  const checkLines = selector => {
+    for (const label of Array.from(doc.querySelectorAll(selector)).filter(visible)) {
+      const range = doc.createRange();
+      range.selectNodeContents(label);
+      const lines = range.getClientRects();
+      assert(lines.length === 1, `Canvas control label wraps: “${label.textContent}”`);
+    }
+  };
+
+  const topbar = doc.querySelector('.canvas-topbar');
+  checkControls(topbar, '.workspace-tabs button, #fit, #assist-open', 13);
+  checkLines('.workspace-tabs button > span:not(.playful-icon), #fit, #assist-open > span:not([aria-hidden])');
+  const groups = Array.from(topbar.querySelectorAll(':scope > :is(.workspace-tabs, .zoom-controls, .assist-open)')).filter(visible);
+  for (let i = 1; i < groups.length; i++) {
+    assert(groups[i - 1].getBoundingClientRect().right <= groups[i].getBoundingClientRect().left + 1,
+      'Canvas toolbar controls overlap');
+  }
+
+  doc.querySelector('.tool-button[data-tool="pen"]').click();
+  if (narrow && doc.body.dataset.mobilePanel !== 'brushes') {
+    doc.querySelector('.mobile-command[data-mobile-panel="brushes"]').click();
+  }
+  await render();
+  checkControls(doc.body, '.color-slot, #stroke-buttons button', 13);
+  checkLines('.color-slot > span, #stroke-buttons button > span:not(.choice-picture)');
+
+  if (narrow) doc.querySelector('.mobile-command[data-mobile-panel="tools"]').click();
+  await render();
+  for (let page = 0; page < (narrow ? 1 : 3); page++) {
+    const tools = doc.getElementById('tools');
+    checkControls(tools, '.tool-button', 13);
+    checkLines('#tools .tool-button > span:not(.playful-icon)');
+    if (!narrow) doc.getElementById('tool-page').click();
+  }
+  if (narrow) doc.querySelector('.mobile-focus-command').click();
+}
+
 async function checkWorkspace(doc) {
   const narrow = doc.defaultView.matchMedia('(max-width: 860px), (max-height: 600px)').matches;
   doc.querySelector('.tool-button[data-tool="pen"]').click();
@@ -104,6 +188,12 @@ async function checkWorkspace(doc) {
   }
   await render();
   checkControls(doc.body, '.brush-card', 14);
+  for (const label of doc.querySelectorAll('.brush-card .brush-label')) {
+    const range = doc.createRange();
+    range.selectNodeContents(label);
+    assert(range.getClientRects().length === 1 && label.scrollWidth <= label.clientWidth,
+      `Brush name wraps or is truncated: “${label.textContent}”`);
+  }
   doc.querySelector('.tool-button[data-tool="select"]').click();
   if (narrow && doc.body.dataset.mobilePanel !== 'options') {
     doc.querySelector('.mobile-command[data-mobile-panel="options"]').click();
@@ -123,11 +213,14 @@ try {
     frame.style.width = `${width}px`;
     frame.style.height = `${height}px`;
     await render();
+    let headerWidths;
     for (const language of locales) {
       const name = `${language} · ${width} × ${height}`;
       try {
         await switchLanguage(doc, language);
+        headerWidths = checkHeader(doc, headerWidths);
         await checkWorkspace(doc);
+        await checkCanvasControls(doc);
         await checkPalette(doc);
         await checkAssist(doc);
         await checkDrawingDialogs(doc);

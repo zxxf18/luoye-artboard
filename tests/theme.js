@@ -135,16 +135,19 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     assert(doc.querySelector('#display-open')?.closest('#more-dialog .more-actions'), '界面大小入口未放入设置');
     assert(doc.querySelector('#about-open')?.closest('.header-actions'), '关于入口未放入主工具栏');
     const settings = doc.querySelector('#more-dialog .more-actions');
-    assert(settings?.lastElementChild?.matches('.language-setting'), '语言必须是设置最后一项');
+    for (const id of ['gallery', 'export', 'reset-settings']) {
+      assert(settings?.contains(doc.getElementById(id)), `${id} 未放入设置`);
+    }
+    assert(doc.querySelector('.header-actions > #ui-language-choose'), '语言入口未放入主工具栏');
     doc.querySelector('#more-open')?.click();
     const settingsDialog = settings.closest('dialog');
     assert(settingsDialog.open && settingsDialog.scrollWidth <= settingsDialog.clientWidth, '设置弹窗出现横向滚动');
+    doc.querySelector('#more-done')?.click();
     doc.querySelector('#ui-language-choose')?.click();
     const chooser = doc.querySelector('#choice-dialog');
-    assert(settingsDialog.open && chooser?.open, '语言应使用画板选项弹窗并保留设置');
+    assert(!settingsDialog.open && chooser?.open, '语言应独立打开画板选项弹窗');
     chooser.querySelector('#choice-cancel')?.click();
-    assert(settingsDialog.open && !chooser.open, '取消语言选择应返回设置');
-    doc.querySelector('#more-done')?.click();
+    assert(!settingsDialog.open && !chooser.open, '取消语言选择应返回画板');
     assert(inside(brandIcon, doc.querySelector('.app-header')), '左上应用图标超出顶部栏边界');
     for (const id of ['spring', 'summer', 'autumn', 'winter', 'mechanical', 'space', 'ocean', 'candy']) {
       const dialog = await pick(doc, id);
@@ -205,6 +208,7 @@ for (const [width, height] of [[1280, 720], [568, 320], [375, 240], [2560, 1440]
     for (let i = 0; i < 240 && reloaded.body.dataset.appReady !== 'true'; i++) await pause(25);
     assert(reloaded.body.dataset.theme === 'candy', `重新打开没有保持主题：${width}×${height}`);
     assert(reloaded.querySelectorAll('.theme-scene').length <= 1, '主题场景重复挂载');
+    reloaded.querySelector('#more-open').click();
     reloaded.querySelector('#reset-settings').click();
     await pause(80);
     assert(reloaded.body.dataset.theme === 'autumn', '重置设置没有恢复秋季主题');

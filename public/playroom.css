@@ -14,7 +14,7 @@
 .playroom .tool-page-label{font-size:calc(12px*var(--u));font-weight:700;color:var(--muted,#896443);text-align:center;white-space:nowrap}
 /* 固定 7 格高度的工具列：列内顶部对齐，列本身在栏内居中。 */
 .playroom .tool-column{display:flex;flex-direction:column;gap:8px;width:100%;height:min(100%,calc(108px*var(--u)*7 + 48px));min-height:0;justify-content:flex-start}.playroom .tool-page small{font-size:12px;color:#896443}
-.playroom .studio{grid-column:2;grid-row:1;min-height:0;min-width:0;display:flex;flex-direction:column;gap:8px;background:transparent}.playroom .canvas-topbar{display:flex;align-items:center;gap:10px;flex:none;min-height:48px}.playroom .workspace-tabs{display:flex;gap:6px;flex:none}.playroom .workspace-tabs button{font-size:calc(14px*var(--u));padding:8px 14px;border-color:#d6b185;background:#fff4df}.playroom .canvas-welcome{flex:1;text-align:center;font-size:14px;color:#966944;white-space:nowrap}.playroom .zoom-controls{margin-left:auto;gap:3px}.playroom .zoom-controls button{width:44px;height:44px;font-size:18px;padding:0;border:1px solid #d7b790;background:#fff2d9}.playroom .zoom-controls #fit{font-size:14px;width:52px}.playroom #zoom-value{font-size:12px;min-width:36px}.playroom .viewport{flex:1;min-height:100px!important;min-width:0;max-height:none;height:auto;margin:0;padding:14px;background:#ead1ab;background-image:none;border:3px solid #fff9ed;border-radius:20px;box-shadow:0 0 0 2px #d1a36e,inset 0 2px 8px #9e704626;overflow:auto}.playroom .canvas-sheet{box-shadow:0 4px 12px #86573226}.playroom .canvas-footer{height:24px;flex:none;margin:0;padding:0 4px;font-size:12px;color:#78573e;gap:12px;overflow:hidden}.playroom #tool-hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.playroom .muted{color:#8d6e50}.playroom .status-dot{background:#b1763b}
+.playroom .studio{grid-column:2;grid-row:1;min-height:0;min-width:0;display:flex;flex-direction:column;gap:8px;background:transparent}.playroom .canvas-topbar{display:flex;align-items:center;gap:10px;flex:none;min-height:48px}.playroom .workspace-tabs{display:flex;gap:6px;flex:none}.playroom .workspace-tabs button{font-size:calc(14px*var(--u));padding:8px 14px;border-color:#d6b185;background:#fff4df}.playroom .canvas-welcome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:14px;color:#966944;white-space:nowrap}.playroom .zoom-controls{flex:none;margin-left:auto;gap:3px}.playroom .zoom-controls button{width:44px;height:44px;font-size:18px;padding:0;border:1px solid #d7b790;background:#fff2d9}.playroom .zoom-controls #fit{min-inline-size:76px;font-size:14px;white-space:nowrap}.playroom #zoom-value{font-size:13px;min-width:36px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}.playroom .viewport{flex:1;min-height:100px!important;min-width:0;max-height:none;height:auto;margin:0;padding:14px;background:#ead1ab;background-image:none;border:3px solid #fff9ed;border-radius:20px;box-shadow:0 0 0 2px #d1a36e,inset 0 2px 8px #9e704626;overflow:auto}.playroom .canvas-sheet{box-shadow:0 4px 12px #86573226}.playroom .canvas-footer{height:24px;flex:none;margin:0;padding:0 4px;font-size:12px;color:#78573e;gap:12px;overflow:hidden}.playroom #tool-hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.playroom .muted{color:#8d6e50}.playroom .status-dot{background:#b1763b}
 .playroom .quick-palette{display:flex;gap:8px;align-items:center;flex:none;min-width:0;height:64px;padding:2px 4px;background:#fff0d5;border:2px solid #dfbd8e;border-radius:20px}.playroom .swatches{display:flex;flex-wrap:nowrap;justify-content:flex-start;min-width:0;overflow-x:auto;gap:4px;padding:5px 3px;scrollbar-width:thin;scrollbar-color:#c5976d transparent}.playroom .swatch{width:44px;height:44px;min-width:44px;min-height:44px;flex:none;border:5px solid #fff7e8;border-radius:50%;padding:0;box-shadow:0 1px 3px #6a483933}.playroom .swatch[aria-pressed=true]{box-shadow:0 0 0 2px #874b30;outline:2px solid #fff8e7;outline-offset:-6px;transform:none}.playroom .swatch:hover{transform:none;filter:brightness(1.07)}.playroom .more-colors{border:0;background:#fff0d5;box-shadow:none;gap:4px;min-width:76px;font-size:12px;padding:2px;display:flex;flex-direction:column;flex:none}.playroom .more-colors .playful-icon{width:28px;height:28px}
 .playroom .brush-inspector{display:flex;align-items:center;gap:8px;min-width:0;flex:1}.playroom #active-brush-preview{width:90px;flex:none}.playroom #active-brush-preview canvas{width:100%;height:48px;object-fit:contain}.playroom #active-brush-preview .playful-icon{width:48px;height:48px}.playroom .brush-inspector strong{display:block;font-size:calc(17px*var(--u))}.playroom .brush-inspector span{display:block;font-size:12px;color:#8f674c}.playroom #brush-choose,.playroom .divider{display:none}
 .playroom input[type=range]{appearance:none;-webkit-appearance:none;background:transparent;border:0;min-width:80px;min-height:44px;height:44px;cursor:pointer;margin:0;accent-color:#c47143}.playroom input[type=range]::-webkit-slider-runnable-track{height:12px;background:var(--range-track,#efd4a6);border:2px solid var(--range-border,#d2a775);border-radius:12px}.playroom input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:28px;height:28px;margin-top:-10px;border:3px solid var(--range-thumb-border,#9f5835);border-radius:50%;background:var(--range-thumb,#f6bb65);box-shadow:inset 0 0 0 3px var(--range-inset,#ffe9ae),0 2px 1px var(--range-shadow,#98623544)}.playroom input[type=range]::-moz-range-track{height:10px;background:var(--range-track,#efd4a6);border:2px solid var(--range-border,#d2a775);border-radius:12px}.playroom input[type=range]::-moz-range-thumb{width:24px;height:24px;border:3px solid var(--range-thumb-border,#9f5835);border-radius:50%;background:var(--range-thumb,#f6bb65)}
@@ -66,7 +66,7 @@
 @media(max-height:740px){.playroom{--header:80px}.playroom .app-header{height:80px}.playroom .header-actions button{height:64px}.playroom .brush-box{gap:6px}.playroom .brush-card{grid-template-columns:auto 1fr;grid-template-rows:auto auto;min-height:60px;padding:3px;gap:0}.playroom .brush-card>.playful-icon{width:32px;height:32px}.playroom .brush-card>span:not(.brush-sample){font-size:14px;word-break:normal}.playroom .brush-card .brush-sample{height:16px}.playroom #palette-open{display:none}.playroom .classic-colors{padding:6px}.playroom .classic-colors:after{content:'点颜色，调一调';display:block;text-align:center;font-size:12px;color:#865b3c;margin-top:4px}.playroom .left-actions{gap:6px}}
 
 .playroom .choice-card{position:relative}.playroom .choice-card[aria-pressed=true]:after{content:"✓";position:absolute;right:12px;top:8px;color:#8a4e2d;font-size:22px}.playroom .text-result{min-width:0}.playroom .text-result .effect-preview{min-height:220px}.playroom .text-result .text-texture-actions{margin-top:12px}.playroom .detail-bar>label:has(#paint-on-layer){flex-direction:row;align-items:center}
-.playroom{--left:calc(clamp(216px,16vw,248px)*var(--u))}
+.playroom{--left:calc(clamp(226px,16vw,248px)*var(--u))}
 .playroom canvas:focus-visible{outline:3px solid #b87b48;outline-offset:1px}
 /* The library is a shelf in the layout: it never overlaps the drawing surface. */
 .playroom .workspace-tabs button{display:flex;align-items:center;gap:5px;padding:5px 9px}.playroom .workspace-tabs .playful-icon{width:30px;height:30px}
@@ -484,12 +484,6 @@
   --theme-border: #e5a9c0; --theme-accent: #d86a8e; --theme-strong: #a84467; --theme-classic-colors: #f3cad9; --brand-logo-ring: #e887a5;
 }
 
-.playroom[data-theme] .header-actions .theme-entry {
-  flex: 0 0 calc(60px * var(--u));
-  width: calc(60px * var(--u));
-  min-width: calc(60px * var(--u));
-  max-width: calc(60px * var(--u));
-}
 .playroom[data-theme] .brand > .brand-icon {
   display: block;
   width: calc(56px * var(--u));
@@ -698,15 +692,12 @@
 .playroom, .playroom * { user-select: none; -webkit-user-select: none; }
 .playroom input, .playroom textarea, .playroom select, .playroom [contenteditable="true"] { user-select: text; -webkit-user-select: text; }
 .playroom #painting { cursor: var(--drawing-cursor, crosshair); }
-.playroom .header-command#new-quick, .playroom .header-command#reset-settings { font-size: 14px; }
 .playroom .sound-toggle { display:flex; align-items:center; gap:8px; margin:12px 0; }
 .playroom .palette-presets { user-select:none; }
 
 /* Keep document actions identifiable and reachable at compact window widths. */
 .playroom .header-actions{overflow-x:auto;justify-content:safe flex-end;padding-bottom:3px}
-.playroom .header-actions button{flex:0 0 calc(60px*var(--u));width:calc(60px*var(--u));min-width:calc(60px*var(--u));max-width:calc(60px*var(--u));white-space:nowrap}
-.playroom .header-actions #display-open{flex-shrink:0;min-width:max(70px,calc(64px*var(--u)))}
-.playroom .header-actions #new-quick{background:#e2eed5;border-color:#98b484;font-size:13px;white-space:nowrap}
+.playroom .header-actions #new-quick{background:#e2eed5;border-color:#98b484}
 
 @media (hover:hover) and (pointer:fine){.playroom .about-links a:hover{color:#60301d;background:#ffe3b2}}
 
@@ -737,13 +728,7 @@
   }
   .playroom .header-actions::-webkit-scrollbar { display: none; }
   .playroom .header-actions button {
-    flex: 0 0 calc(60px * var(--u));
-    min-width: calc(60px * var(--u));
-    width: calc(60px * var(--u));
-    max-width: calc(60px * var(--u));
     height: 52px;
-    padding: 2px 6px;
-    font-size: 12px;
   }
   .playroom .header-actions button .playful-icon { width: 24px; height: 24px; }
 
@@ -1018,15 +1003,9 @@
   .playroom .brand small,
   .playroom .brand > .playful-icon { display: none; }
   .playroom .header-actions { gap: 2px; overflow-x: auto; justify-content: flex-start; }
-  .playroom .header-actions button,
-  .playroom[data-theme] .header-actions .theme-entry {
-    flex: 0 0 44px;
-    min-width: 44px;
-    width: 44px;
-    max-width: 44px;
+  .playroom .header-actions button {
     height: 44px;
     padding: 2px;
-    font-size: 9px;
   }
   .playroom .header-actions button .playful-icon,
   .playroom .header-actions button svg { width: 22px; height: 22px; }
@@ -1056,7 +1035,7 @@
   .playroom .brand { min-width: 40px; }
   .playroom .brand strong { font-size: 11px; }
   .playroom .header-actions { gap: 1px; }
-  .playroom .header-actions button { flex: 0 0 30px; min-width: 30px; width: 30px; max-width: 30px; height: 30px; padding: 1px; font-size: 7px; }
+  .playroom .header-actions button { height: 30px; padding: 1px; }
   .playroom .header-actions button .playful-icon,
   .playroom .header-actions button svg { width: 16px; height: 16px; }
   .playroom .canvas-topbar { height: 32px; min-height: 32px; }
@@ -1936,18 +1915,16 @@
   .playroom[data-mobile-panel="brushes"] .classic-left .color-slot {
     height: 40px !important;
     min-height: 40px !important;
-    gap: 0 !important;
+    flex-direction: row;
+    gap: 5px !important;
     justify-content: center !important;
-    font-size: 10px !important;
-    line-height: 10px !important;
-    overflow: hidden !important;
   }
   .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #foreground-palette,
   .playroom[data-mobile-panel="brushes"] .classic-left .color-slot #background-palette {
-    width: 100% !important;
-    max-width: 64px !important;
-    height: 29px !important;
-    min-height: 29px !important;
+    flex: 0 0 44px;
+    width: 44px !important;
+    height: 40px !important;
+    min-height: 40px !important;
     padding: 0 !important;
   }
   .playroom[data-mobile-panel="brushes"] .classic-left #swap-colors {
@@ -1976,14 +1953,14 @@
     grid-template-columns: none !important;
     grid-template-rows: 70px !important;
     grid-auto-flow: column !important;
-    grid-auto-columns: 132px !important;
+    grid-auto-columns: 138px !important;
     align-content: start !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
   }
   .playroom[data-mobile-panel="brushes"] .classic-left .brush-card {
-    width: 132px !important;
-    min-width: 132px !important;
+    width: 138px !important;
+    min-width: 138px !important;
     height: 70px !important;
     min-height: 70px !important;
     max-height: 70px !important;
@@ -2035,7 +2012,7 @@
     max-height: 42px !important;
     padding: 3px 6px !important;
     gap: 4px !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
   }
   .playroom[data-mobile-panel="brushes"] .classic-left #stroke-buttons .choice-picture {
     width: 24px !important;
@@ -2407,19 +2384,8 @@
   .playroom .about-mark { width: 56px; height: 56px; }
 }
 
-/* Final compact contract. These rules come last so the themed command and
-   mascot selectors cannot re-expand after the responsive layout has chosen
-   its touch targets. The button box stays tappable while its label and icon
-   follow the same scale as the neighboring commands. */
+/* Compact icon sizes leave room for readable labels beneath them. */
 @media (max-width: 860px), (max-height: 600px) {
-  .playroom .header-actions button {
-    line-height: 1.1;
-  }
-  .playroom .header-actions #new-quick,
-  .playroom .header-actions #reset-settings {
-    font-size: 12px !important;
-    line-height: 1.1;
-  }
   .playroom .header-actions button .playful-icon,
   .playroom .header-actions button svg,
   .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
@@ -2433,24 +2399,14 @@
     gap: 2px;
   }
   .playroom .header-actions button {
-    flex: 0 0 44px;
-    width: 44px;
-    min-width: 44px;
-    max-width: 44px;
     height: 44px;
     padding: 2px;
-    font-size: 9px;
-  }
-  .playroom .header-actions #new-quick,
-  .playroom .header-actions #reset-settings {
-    font-size: 9px !important;
-    line-height: 1.1;
   }
   .playroom .header-actions button .playful-icon,
   .playroom .header-actions button svg,
   .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
-    width: 22px !important;
-    height: 22px !important;
+    width: 19px !important;
+    height: 19px !important;
   }
   .playroom[data-theme] .theme-card-preview .theme-card-logo {
     width: auto !important;
@@ -2462,10 +2418,6 @@
 }
 
 @media (max-width: 380px), (max-height: 420px) {
-  .playroom .header-actions #new-quick,
-  .playroom .header-actions #reset-settings {
-    font-size: 8px !important;
-  }
   .playroom[data-theme] .theme-card-preview .theme-card-logo {
     max-width: 24px !important;
     max-height: 24px !important;
@@ -2473,13 +2425,6 @@
 }
 
 @media (max-width: 640px) and (min-resolution: 2dppx) {
-  .playroom .header-actions button,
-  .playroom[data-theme] .header-actions .theme-entry {
-    flex: 0 0 30px;
-    width: 30px;
-    min-width: 30px;
-    max-width: 30px;
-  }
   .playroom .header-actions button .playful-icon,
   .playroom .header-actions button svg,
   .playroom[data-theme] .header-actions .theme-entry > .playful-icon {
@@ -2806,29 +2751,7 @@
   }
 }
 
-.playroom #more-dialog .language-setting {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.playroom #more-dialog .language-setting > :is(select, .choice-button) {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-}
-@media (max-width: 520px) {
-  .playroom #more-dialog .language-setting {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-  }
-}
-.playroom .header-actions button > span:not(.playful-icon),
 .playroom .tool-button > span:not(.playful-icon),
-.playroom .brush-card > span:not(.playful-icon, .brush-sample),
 .playroom .subtool-card > span:not(.playful-icon),
 .playroom .mobile-command,
 .playroom dialog .dialog-actions button {
@@ -2837,6 +2760,13 @@
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.15;
+}
+.playroom .brush-card > .brush-label {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .playroom dialog .dialog-actions {
   flex-wrap: wrap;
@@ -2848,10 +2778,6 @@
 @media (max-width: 860px), (max-height: 600px) {
   .playroom[data-mobile-panel="tools"] .tool-rail .tool-button > .playful-icon {
     max-height: 23px;
-  }
-  .playroom[data-mobile-panel="brushes"] .classic-left .brush-card > span:not(.brush-sample) {
-    white-space: normal !important;
-    line-height: 1.15 !important;
   }
 }
 
@@ -2911,6 +2837,119 @@
 }
 .playroom #layer-dialog .dialog-grid button {
   padding-inline: 8px;
+}
+.playroom #gallery-dialog {
+  width: min(610px, calc(100vw - 24px));
+  padding: clamp(14px, 3vw, 22px);
+}
+.playroom .gallery-heading,
+.playroom .gallery-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+}
+.playroom .gallery-heading h2,
+.playroom .gallery-list-heading h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.playroom #gallery-close {
+  flex: none;
+  inline-size: 44px;
+  padding: 0;
+  font-size: 24px;
+  line-height: 1;
+}
+.playroom #gallery-dialog .gallery-note {
+  margin: 4px 0 12px;
+  overflow-wrap: anywhere;
+}
+.playroom .gallery-save-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.playroom .gallery-save-controls label {
+  display: grid;
+  flex: 1 1 168px;
+  gap: 4px;
+  margin: 0;
+}
+.playroom #gallery-save {
+  min-height: 44px;
+  padding: 6px 12px;
+  font-size: inherit;
+  text-align: start;
+}
+.playroom .gallery-collection {
+  margin-top: 14px;
+  padding-top: 6px;
+  border-top: 1px solid var(--theme-border, var(--line));
+}
+.playroom .gallery-list-heading {
+  flex-wrap: wrap;
+}
+.playroom .gallery-list-heading h3 {
+  font-size: 1em;
+}
+.playroom .gallery-list-heading label {
+  gap: 6px;
+  margin: 0;
+}
+.playroom #gallery-trash {
+  flex: none;
+  margin: 0;
+}
+.playroom #gallery-dialog .gallery-empty,
+.playroom .gallery-card {
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border, var(--line));
+  border-radius: 12px;
+  background: var(--theme-panel, var(--paper));
+}
+.playroom #gallery-dialog .gallery-empty {
+  margin: 4px 0 0;
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+.playroom .gallery-items {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.playroom .gallery-card {
+  display: grid;
+  grid-template-columns: clamp(64px, 18vw, 126px) minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+.playroom .gallery-card img {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--theme-surface, var(--white));
+}
+.playroom .gallery-card small,
+.playroom .gallery-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+.playroom .gallery-card small {
+  color: var(--muted);
+}
+.playroom .gallery-card-actions {
+  margin-top: 6px;
+}
+.playroom .gallery-card-actions button {
+  padding-inline: 10px;
 }
 .playroom[data-theme] .theme-dialog {
   overflow-y: auto;
@@ -3042,6 +3081,27 @@
   .playroom[data-theme] .theme-card-copy {
     padding-inline-end: 0;
   }
+}
+/* Keep previews alongside their labels when vertical space is limited. */
+@media (max-height: 420px) {
+  .playroom[data-theme] .theme-grid { gap: 5px; }
+  .playroom[data-theme] .theme-card {
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    min-height: 44px;
+    padding: 4px;
+    gap: 5px;
+  }
+  .playroom[data-theme] .theme-card-preview { grid-row: auto; width: 28px; height: 28px; }
+  .playroom[data-theme] .theme-card-copy { padding-inline-end: 8px; }
+}
+@media (min-width: 500px) and (max-height: 420px),
+       (min-width: 340px) and (max-height: 280px) {
+  .playroom[data-theme] .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-height: 280px) {
+  .playroom[data-theme] .theme-dialog { max-height: calc(100dvh - 12px); }
 }
 @media (max-width: 360px) {
   .playroom #more-dialog .more-actions {

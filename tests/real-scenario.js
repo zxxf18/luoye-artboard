@@ -124,7 +124,8 @@ try {
   await new Promise(resolve => { if (frame.contentDocument.body.dataset.appReady) resolve(); else new MutationObserver(() => frame.contentDocument.body.dataset.appReady && resolve()).observe(frame.contentDocument.body, { attributes: true }); });
   const doc2 = frame.contentDocument;
   check(doc2.getElementById('painting').width > 0, '重开画板后应用就绪');
-  doc2.getElementById('gallery')?.click(); await pause(150);
+  doc2.getElementById('more-open').click();
+  doc2.getElementById('gallery').click(); await pause(150);
   const galleryDialog2 = doc2.getElementById('gallery-dialog');
   check(galleryDialog2?.open, '重开后我的画夹可打开');
   const cards2 = galleryDialog2.querySelectorAll('.gallery-card');
@@ -145,7 +146,8 @@ try {
 
   // 12. gallery: save another copy and reopen it
   const doc3 = frame.contentDocument, view3 = frame.contentWindow;
-  doc3.getElementById('gallery')?.click(); await pause(150);
+  doc3.getElementById('more-open').click();
+  doc3.getElementById('gallery').click(); await pause(150);
   const galleryDialog = doc3.getElementById('gallery-dialog');
   check(galleryDialog?.open, '我的画夹再次打开');
   const saveCopy = [...galleryDialog.querySelectorAll('button')].find(x => x.textContent.includes('保存一份到画夹'));

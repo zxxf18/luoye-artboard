@@ -27,12 +27,12 @@ try{
   const sizes=await page.locator('#preset option').evaluateAll(es=>es.map(e=>e.value));
   for(const size of sizes){await settings('paper-size-open');await choose('preset',size);await click('#new-dialog [value=create]');await page.waitForFunction(size=>[document.getElementById('painting').width,document.getElementById('painting').height].join(',')===size,size);assert.equal(await page.locator('#painting').evaluate(c=>[c.width,c.height].join(',')),size);}
   await settings('paper-size-open');await click('#new-dialog [value=cancel]');await click('#new');await click('#new-quick');
-  const before=await picture();await draw();assert.notEqual(await picture(),before);await click('#undo');assert.equal(await picture(),before);await click('#redo');assert.notEqual(await picture(),before);await click('#reset-settings');assert.equal(await page.locator('#size').inputValue(),'14');
+  const before=await picture();await draw();assert.notEqual(await picture(),before);await click('#undo');assert.equal(await picture(),before);await click('#redo');assert.notEqual(await picture(),before);await settings('reset-settings');assert.equal(await page.locator('#size').inputValue(),'14');
  });
  await check('顶部设置、命名、关于、显示、缩放按钮',async()=>{
   await click('#more-open');await page.getByRole('button',{name:'给画起名字',exact:true}).click();await page.locator('#title').fill('界面验收作品');await click('#title-done');assert.equal((await project()).title,'界面验收作品');
-  await settings('about-open');assert.match(await page.locator('#about-version').innerText(),/^1\./);assert.equal(await page.locator('#about-dialog a').count(),2);await click('#about-close');await click('#more-open');await click('#more-done');
-  await click('#display-open');for(const size of ['large','largest','auto']){await click(`[data-ui-size=${size}]`);assert.equal(await page.locator('body').getAttribute('data-ui-size'),size);}assert.equal(await page.locator('#window-sizes button:disabled').count(),4);await click('#display-close');
+  await click('#about-open');assert.match(await page.locator('#about-version').innerText(),/^1\./);assert.equal(await page.locator('#about-dialog a').count(),2);await click('#about-close');await click('#more-open');await click('#more-done');
+  await settings('display-open');for(const size of ['large','largest','auto']){await click(`[data-ui-size=${size}]`);assert.equal(await page.locator('body').getAttribute('data-ui-size'),size);}assert.equal(await page.locator('#window-sizes button:disabled').count(),4);await click('#display-close');
   for(const id of ['zoom-in','zoom-out','fit'])await click('#'+id);
  });
  await check('全部调色按钮、RGB 步进、纹理与纸纹选择',async()=>{
@@ -70,11 +70,11 @@ try{
  await check('工程保存重开及 PNG、JPEG 导出与取消',async()=>{
   await draw();const before=await project();const download=page.waitForEvent('download');await click('#save');const d=await download;saved=await readFile(await d.path());assert.equal(JSON.parse(saved).title,before.title);
   const chooser=page.waitForEvent('filechooser');await click('#open');await (await chooser).setFiles({name:'test.luoyex',mimeType:'application/json',buffer:saved});await idle();assert.deepEqual(await project(),before);
-  for(const value of ['png','jpeg']){await click('#export');await choose('export-format',value);const dl=page.waitForEvent('download');await click('#export-dialog [value=export]');const f=await dl;assert.match(f.suggestedFilename(),value==='png'?/\.png$/:/\.jpg$/);assert((await readFile(await f.path())).length>100);}
-  await click('#export');await click('#export-dialog [value=cancel]');
+  for(const value of ['png','jpeg']){await settings('export');await choose('export-format',value);const dl=page.waitForEvent('download');await click('#export-dialog [value=export]');const f=await dl;assert.match(f.suggestedFilename(),value==='png'?/\.png$/:/\.jpg$/);assert((await readFile(await f.path())).length>100);}
+  await settings('export');await click('#export-dialog [value=cancel]');
  });
  await check('画夹保存、打开、回收站与恢复',async()=>{
-  await click('#gallery');await page.locator('#gallery-folder').fill('界面验收');await click('#gallery-save');const card=page.locator('.gallery-card').filter({hasText:'界面验收'}).first();await card.getByRole('button',{name:'移到回收站',exact:true}).click();await idle();await page.locator('#gallery-trash').check();await idle();await page.locator('.gallery-card').filter({hasText:'界面验收'}).first().getByRole('button',{name:'恢复',exact:true}).click();await idle();await page.locator('#gallery-trash').uncheck();await idle();await page.locator('.gallery-card').filter({hasText:'界面验收'}).first().getByRole('button',{name:'打开',exact:true}).click();await idle();await click('#gallery');await click('#gallery-close');
+  await settings('gallery');await page.locator('#gallery-folder').fill('界面验收');await click('#gallery-save');const card=page.locator('.gallery-card').filter({hasText:'界面验收'}).first();await card.getByRole('button',{name:'移到回收站',exact:true}).click();await idle();await page.locator('#gallery-trash').check();await idle();await page.locator('.gallery-card').filter({hasText:'界面验收'}).first().getByRole('button',{name:'恢复',exact:true}).click();await idle();await page.locator('#gallery-trash').uncheck();await idle();await page.locator('.gallery-card').filter({hasText:'界面验收'}).first().getByRole('button',{name:'打开',exact:true}).click();await idle();await settings('gallery');await click('#gallery-close');
  });
  await check('录像五段选择、镜像录制、逐步播放、截断、导入导出',async()=>{
   await settings('recordings');for(const value of ['1','2','3','4','0'])await choose('record-slot',value);await click('#record-start');await draw();await click('#layer-menu');await click('#mirror-x');await click('#mirror-y');await click('#layer-dialog [data-close]');await settings('recordings');await click('#record-stop');

@@ -1,4 +1,5 @@
 import { warpPixels } from '../core/warps.js';
+import { openDialog } from './dialog-focus.js';
 
 export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
   const el=id=>document.getElementById(id),detail=document.querySelector('.detail-bar');
@@ -18,14 +19,14 @@ export function mountCreative({engine,run,toast,getColor,setTool,getTool}) {
   function options(){return {warpKind:el('warp-kind').value,speed:Number(el('warp-speed').value),radius:Number(el('creative-radius').value),filterKind:el('board-filter-kind').value,curvature:Number(el('filter-curvature').value),density:Number(el('filter-density').value),spread:Number(el('filter-spread').value),height:Number(el('filter-height').value),direction:el('filter-direction').value,angle:Number(el('filter-angle').value)};}
   function showOptions(){const tool=el('painting').dataset.tool;for(const item of extra.querySelectorAll('[data-option]'))item.hidden=!item.dataset.option.split(' ').includes(tool)||(item.dataset.filter&&!item.dataset.filter.split(' ').includes(el('board-filter-kind').value));}
   document.addEventListener('toolchange',showOptions);el('board-filter-kind').onchange=showOptions;showOptions();
-  const filterDialog=document.createElement('dialog');filterDialog.className='wide-dialog';filterDialog.innerHTML='<h2>画板滤镜</h2><div class="effect-preview" id="board-preview"></div><p>预览以画纸中心为作用点；也可关闭后点击画纸指定位置。小伙伴会继续播放动画。</p><div class="dialog-actions"><button id="board-cancel">取消</button><button id="board-apply" class="primary">确定</button></div>';document.body.append(filterDialog);
+  const filterDialog=document.createElement('dialog');filterDialog.id='board-filter-dialog';filterDialog.className='wide-dialog';filterDialog.innerHTML='<h2>画板滤镜</h2><div class="effect-preview" id="board-preview"></div><p>预览以画纸中心为作用点；也可关闭后点击画纸指定位置。小伙伴会继续播放动画。</p><div class="dialog-actions"><button id="board-cancel">取消</button><button id="board-apply" class="primary">确定</button></div>';document.body.append(filterDialog);
   el('filter-preview-button').onclick=()=>run(()=>{
     const width=engine.paperMode?engine.width:engine.active.width;
     const {canvas,ctx,source}=engine.capturePreview(400),o=options();
     const result=warpPixels(source,canvas.width,canvas.height,{...o,kind:o.filterKind,radius:o.radius/(engine.paperMode?1:engine.active.scale)*canvas.width/width});
     ctx.putImageData(new ImageData(result,canvas.width,canvas.height),0,0);
     el('board-preview').replaceChildren(canvas);
-    filterDialog.showModal();
+    openDialog(filterDialog);
   });
   el('board-cancel').onclick=()=>filterDialog.close();el('board-apply').onclick=()=>run(async()=>{filterDialog.close();el('tool-settings')?.close();await engine.applyBoardFilter(options().filterKind,{...options(),radius:options().radius/(engine.paperMode?1:engine.active.scale)});});
   return {options,open};

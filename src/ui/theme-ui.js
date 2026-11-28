@@ -1,3 +1,4 @@
+import { openDialog } from './dialog-focus.js';
 import { brandIcon, playfulIcon } from './playful-icons.js';
 import { themeScene } from './theme-scenes.js';
 
@@ -79,8 +80,7 @@ export function mountTheme() {
 
   const header = document.querySelector('.header-actions');
   if (header) {
-    const gallery = header.querySelector('#gallery');
-    header.insertBefore(entry, gallery || header.firstElementChild || null);
+    header.insertBefore(entry, header.querySelector('#open'));
   }
 
   const grid = dialog.querySelector('.theme-grid');
@@ -126,7 +126,7 @@ export function mountTheme() {
     grid.append(card);
   }
 
-  entry.addEventListener('click', () => { sync(); dialog.showModal(); });
+  entry.addEventListener('click', () => { sync(); openDialog(dialog); });
   dialog.querySelector('.theme-close').addEventListener('click', () => dialog.close());
   dialog.querySelector('#theme-done').addEventListener('click', () => dialog.close());
   sync();

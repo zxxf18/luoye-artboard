@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 import os
 
 @MainActor
-final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, NSWindowDelegate {
+final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, NSWindowDelegate, NSMenuItemValidation {
     private var window: NSWindow?
     private var webView: WKWebView?
     private var terminationPending = false
@@ -15,25 +15,136 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
     private lazy var music = StudioMusic(observeOutput: true)
 
     private var uiCopy: [String: String] = [:]
+    private var menuState = MenuState()
+
+    private struct MenuState {
+        var blocked = true
+        var editingText = false
+        var canUndo = false
+        var canRedo = false
+    }
+
+    private enum MenuCommand: String {
+        case about = "about-open", settings = "more-open", language = "ui-language-choose"
+        case new = "new-quick", open, save, gallery, export
+        case undo, redo, cut, copy, paste, selectAll = "select-all"
+        case zoomIn = "zoom-in", zoomOut = "zoom-out", fit
+
+        var textAction: Selector? {
+            switch self {
+            case .cut: #selector(NSText.cut(_:))
+            case .copy: #selector(NSText.copy(_:))
+            case .paste: #selector(NSText.paste(_:))
+            case .selectAll: #selector(NSText.selectAll(_:))
+            default: nil
+            }
+        }
+
+        var editsText: Bool { self == .undo || self == .redo || textAction != nil }
+    }
 
     private func label(_ source: String) -> String { uiCopy[source] ?? source }
 
     private func configureMenu() {
         let menu = NSMenu()
-        let appItem = NSMenuItem()
-        let appMenu = NSMenu()
+        func submenu(_ source: String) -> NSMenu {
+            let title = label(source)
+            let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+            let submenu = NSMenu(title: title)
+            item.submenu = submenu
+            menu.addItem(item)
+            return submenu
+        }
+        func add(_ command: MenuCommand, _ source: String, to menu: NSMenu, key: String = "",
+                 modifiers: NSEvent.ModifierFlags = .command, opensDialog: Bool = false) {
+            let title = label(source) + (opensDialog ? "…" : "")
+            let item = menu.addItem(withTitle: title, action: #selector(performMenuCommand(_:)), keyEquivalent: key)
+            item.target = self
+            item.representedObject = command.rawValue
+            item.keyEquivalentModifierMask = modifiers
+        }
+
+        let appMenu = submenu("落叶画板")
+        add(.about, "关于落叶画板", to: appMenu)
+        add(.settings, "设置", to: appMenu, key: ",", opensDialog: true)
+        add(.language, "语言", to: appMenu)
+        appMenu.addItem(.separator())
         appMenu.addItem(withTitle: label("退出落叶画板"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        appItem.submenu = appMenu
-        menu.addItem(appItem)
-        let editItem = NSMenuItem(title: label("编辑"), action: nil, keyEquivalent: "")
-        let editMenu = NSMenu(title: label("编辑"))
-        editMenu.addItem(withTitle: label("复制"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editMenu.addItem(withTitle: label("剪切"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        editMenu.addItem(withTitle: label("粘贴"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        editMenu.addItem(withTitle: label("全选"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
-        editItem.submenu = editMenu
-        menu.addItem(editItem)
+
+        let fileMenu = submenu("文件")
+        add(.new, "新画纸", to: fileMenu, key: "n")
+        add(.open, "打开作品", to: fileMenu, key: "o", opensDialog: true)
+        add(.save, "保存作品", to: fileMenu, key: "s", opensDialog: true)
+        fileMenu.addItem(.separator())
+        add(.gallery, "我的画夹", to: fileMenu)
+        add(.export, "导出图片", to: fileMenu, opensDialog: true)
+
+        let editMenu = submenu("编辑")
+        add(.undo, "撤销", to: editMenu, key: "z")
+        add(.redo, "重做", to: editMenu, key: "z", modifiers: [.command, .shift])
+        editMenu.addItem(.separator())
+        add(.cut, "剪切", to: editMenu, key: "x")
+        add(.copy, "复制", to: editMenu, key: "c")
+        add(.paste, "粘贴", to: editMenu, key: "v")
+        add(.selectAll, "全选", to: editMenu, key: "a")
+
+        let viewMenu = submenu("视图")
+        add(.zoomIn, "放大画布", to: viewMenu, key: "+")
+        add(.zoomOut, "缩小画布", to: viewMenu, key: "-")
+        add(.fit, "适合窗口", to: viewMenu, key: "0")
+        viewMenu.addItem(.separator())
+        let fullscreen = viewMenu.addItem(withTitle: label("进入全屏"), action: #selector(toggleMenuFullscreen(_:)), keyEquivalent: "f")
+        fullscreen.target = self
+        fullscreen.keyEquivalentModifierMask = [.control, .command]
         NSApp.mainMenu = menu
+    }
+
+    func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        guard let window, window.isKeyWindow, window.attachedSheet == nil, !terminationPending else { return false }
+        if item.action == #selector(toggleMenuFullscreen(_:)) {
+            item.title = label(window.styleMask.contains(.fullScreen) ? "退出全屏" : "进入全屏")
+            return true
+        }
+        guard interfaceReady,
+              let name = item.representedObject as? String,
+              let command = MenuCommand(rawValue: name) else { return false }
+        if menuState.editingText && command.editsText {
+            switch command {
+            case .undo: return webView?.undoManager?.canUndo == true
+            case .redo: return webView?.undoManager?.canRedo == true
+            default: return true
+            }
+        }
+        guard !menuState.blocked else { return false }
+        switch command {
+        case .undo: return menuState.canUndo
+        case .redo: return menuState.canRedo
+        default: return true
+        }
+    }
+
+    @objc private func performMenuCommand(_ sender: NSMenuItem) {
+        guard validateMenuItem(sender),
+              let name = sender.representedObject as? String,
+              let command = MenuCommand(rawValue: name) else { return }
+        webView?.callAsyncJavaScript("return window.LUOYEPerformMenuCommand(command);",
+                                    arguments: ["command": name], in: nil, in: .page) { result in
+            // The focused field may have changed since the menu was validated.
+            // Let the page check focus before using the current AppKit responder.
+            guard case .success(let editingText) = result, editingText as? Bool == true,
+                  self.window?.isKeyWindow == true else { return }
+            switch command {
+            case .undo: self.webView?.undoManager?.undo()
+            case .redo: self.webView?.undoManager?.redo()
+            default:
+                if let action = command.textAction { NSApp.sendAction(action, to: nil, from: sender) }
+            }
+        }
+    }
+
+    @objc private func toggleMenuFullscreen(_ sender: NSMenuItem) {
+        guard validateMenuItem(sender) else { return }
+        handleDisplay(["action": "fullscreen"])
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -43,6 +154,7 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
         configuration.userContentController.add(self, name: "files")
         configuration.userContentController.add(self, name: "ready")
         configuration.userContentController.add(self, name: "locale")
+        configuration.userContentController.add(self, name: "menuState")
         configuration.userContentController.add(self, name: "music")
         configuration.userContentController.add(self, name: "display")
         configuration.userContentController.add(self, name: "assets")
@@ -211,10 +323,15 @@ final class StudioDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNav
             }
             return
         }
-        if message.name == "locale", let labels = message.body as? [String: String], labels.count <= 24 {
+        if message.name == "locale", let labels = message.body as? [String: String], labels.count <= 48 {
             uiCopy = labels.filter { $0.key.count <= 120 && $0.value.count <= 280 }
             window?.title = label("落叶画板")
             configureMenu()
+            return
+        }
+        if message.name == "menuState", let state = message.body as? [String: Bool] {
+            menuState = MenuState(blocked: state["blocked"] ?? true, editingText: state["editingText"] ?? false,
+                                  canUndo: state["canUndo"] ?? false, canRedo: state["canRedo"] ?? false)
             return
         }
         if message.name == "assets" { handleAsset(message.body); return }

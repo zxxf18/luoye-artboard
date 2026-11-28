@@ -1,4 +1,5 @@
 import { sourceUICopy, sourceUIAttribute } from './i18n.js';
+import { openDialog } from './dialog-focus.js';
 import { choiceChevron, playfulIcon } from './playful-icons.js';
 import { choiceArt } from './choice-art.js';
 
@@ -55,6 +56,16 @@ export function mountPlayfulControls(){
     if(button.disabled!==control.disabled)button.disabled=control.disabled;
     if(button.dataset.state===key)return;
     button.dataset.state=key;
+    if(control.id==='ui-language'){
+      button.innerHTML=playfulIcon('language');
+      const text=document.createElement('span');
+      text.textContent=label;
+      text.dataset.i18nCompact='';
+      button.append(text);
+      button.title=label;
+      button.setAttribute('aria-label',label+'：'+value);
+      return;
+    }
     button.replaceChildren();
     const valueNode=choiceLabel(option,value);
     const labelledBy=control.getAttribute('aria-labelledby');
@@ -81,7 +92,7 @@ export function mountPlayfulControls(){
     if(select._choice||select.dataset.directChoice)return;
     if(!select.id)select.id='play-choice-'+(++serial);
     const button=document.createElement('button');
-    button.id=select.id+'-choose';button.type='button';button.className='choice-button';
+    button.id=select.id+'-choose';button.type='button';button.className=select.id==='ui-language'?'header-command':'choice-button';
     button.setAttribute('aria-haspopup','dialog');
     button.setAttribute('aria-controls',chooser.id);
     button.setAttribute('aria-expanded','false');
@@ -89,9 +100,8 @@ export function mountPlayfulControls(){
     button.onclick=()=>{
       if(document.body.hasAttribute('aria-busy'))return;
       source=select;returnFocus=button;chooser.querySelector('h2').textContent=names[select.id]||labelFor(select);
-      search.hidden=select.options.length<15;search.value='';renderChoices();chooser.showModal();
+      search.hidden=select.options.length<15;search.value='';renderChoices();openDialog(chooser);
       button.setAttribute('aria-expanded','true');
-      (grid.querySelector('[aria-pressed=true]')||grid.querySelector('button'))?.focus();
     };
     sync(select);
   }

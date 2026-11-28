@@ -1,3 +1,4 @@
+import { openDialog } from './dialog-focus.js';
 import { localizedUICopy } from './i18n.js';
 import { Recorder } from './recording.js';
 
@@ -14,7 +15,7 @@ export function mountRecorder({engine,run,toast,getColor,getTitle,storage}){
     finally{previewBusy=false;for(const e of dialog.querySelectorAll('button,input,select'))e.disabled=false;recorder.onState();}
   }
   function action(id,fn){el(id).onclick=()=>run(fn);}
-  action('recordings',()=>{engine.end();el('record-position').value=0;recorder.onState();dialog.showModal();});
+  action('recordings',()=>{engine.end();el('record-position').value=0;recorder.onState();openDialog(dialog);});
   action('record-start',async()=>{await recorder.start(slot(),getTitle());dialog.close();toast('开始记录每一步；点击「正在录制」结束或查看');});
   action('record-stop',()=>recorder.stop());
   action('record-export',async()=>toast(await deliverFile(localizedUICopy('我的绘画录像.luoyer'),'application/json',JSON.stringify(recorder.export()))));

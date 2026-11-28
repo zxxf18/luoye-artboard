@@ -1,3 +1,4 @@
+import { openDialog } from './dialog-focus.js';
 import { mountLanguageSettings, sourceUICopy } from './i18n.js';
 import { supportLinks } from './support-links.js';
 import { choiceArt } from './choice-art.js';
@@ -71,7 +72,7 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const pens=document.createElement('div');pens.className='brush-box';pens.setAttribute('aria-label','十一种画笔');const title=document.createElement('h2');title.textContent='我的画笔盒';left.append(title,pens);const libraryGroups=document.createElement('div');libraryGroups.id='library-groups';libraryGroups.setAttribute('aria-label','素材分类');left.append(libraryGroups);
   let currentBrush=el('brush').value;const sizes={};
   function chooseBrush(value){el('painting').dataset.brush=value;document.dispatchEvent(new Event('brushchange'));if(el('painting').dataset.tool==='pen')sizes[currentBrush]=Number(el('size').value);openLibrary(false);currentBrush=value;el('brush').value=value;el('size').value=sizes[value]||DEFAULT_BRUSH_SIZE;el('size').dispatchEvent(new Event('input',{bubbles:true}));setTool('pen');sync();document.dispatchEvent(new Event('controlschange'));}
-  for(const brush of BRUSHES){const b=document.createElement('button');b.type='button';b.className='brush-card';b.dataset.brush=brush.id;b.style.setProperty('--brush-color',brush.color);b.setAttribute('aria-label',brush.name);b.title=brush.name+'：'+brush.hint;b.innerHTML=playfulIcon(brush.id)+`<span>${brush.name}</span><span class="brush-sample"></span>`;b.onclick=()=>{if(!document.body.hasAttribute('aria-busy'))chooseBrush(brush.id);};pens.append(b);const option=[...el('brush').options].find(o=>o.value===brush.id);option.textContent=brush.name;}
+  for(const brush of BRUSHES){const b=document.createElement('button');b.type='button';b.className='brush-card';b.dataset.brush=brush.id;b.style.setProperty('--brush-color',brush.color);b.setAttribute('aria-label',brush.name);b.title=brush.name+'：'+brush.hint;b.innerHTML=playfulIcon(brush.id)+`<span class="brush-label" data-i18n-compact>${brush.name}</span><span class="brush-sample"></span>`;b.onclick=()=>{if(!document.body.hasAttribute('aria-busy'))chooseBrush(brush.id);};pens.append(b);const option=[...el('brush').options].find(o=>o.value===brush.id);option.textContent=brush.name;}
   pens.tabIndex=0;
   el('size').value=DEFAULT_BRUSH_SIZE;el('size-value').textContent=DEFAULT_BRUSH_SIZE;
   const subtools=document.createElement('div');subtools.className='subtool-box';left.append(subtools,modes,footer);
@@ -209,7 +210,16 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   // Every entry in the settings drawer uses the same icon/text contract. The
   // original controls stay in place by id so their behaviour and keyboard
   // shortcuts continue to work after moving them into this grid.
-  const settingItems=[['copy','copy','复制'],['cut','cut','剪切'],['paste','paste','粘贴'],['selection-menu','select','选区操作'],['recordings','play','绘画录像'],['import-image','image','放入自己的图片']];
+  const settingItems = [
+    ['gallery','folder','我的画夹'],
+    ['export','download','导出图片'],
+    ['copy','copy','复制'],
+    ['cut','cut','剪切'],
+    ['paste','paste','粘贴'],
+    ['selection-menu','select','选区操作'],
+    ['recordings','play','绘画录像'],
+    ['import-image','image','放入自己的图片'],
+  ];
   const paperSize=document.createElement('button');paperSize.id='paper-size-open';paperSize.type='button';
   const settingButton=(button,icon,label)=>{button.type='button';button.className='more-action';button.innerHTML=playfulIcon(icon)+`<span>${label}</span>`;button.setAttribute('aria-label',label);actions.append(button);};
   settingButton(paperSize,'paper','画纸尺寸');
@@ -217,9 +227,11 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
   const aboutButton=document.createElement('button');
   aboutButton.id='about-open';aboutButton.type='button';aboutButton.className='header-command';
   aboutButton.setAttribute('aria-haspopup','dialog');aboutButton.setAttribute('aria-controls','about-dialog');
-  aboutButton.innerHTML=playfulIcon('palette')+'<span>关于</span>';
-  actions.addEventListener('click',event=>{if(event.target.closest('button.more-action'))more.close();},true);
-  el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p>${supportLinks({project:document.documentElement.dataset.projectLink!=='false',donation:document.documentElement.dataset.donationLink!=='false'})}<p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary" autofocus>返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>about.showModal();about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
+  aboutButton.setAttribute('aria-label','关于');
+  aboutButton.title='关于';
+  aboutButton.innerHTML=playfulIcon('palette')+'<span data-i18n-compact>关于</span>';
+  actions.addEventListener('click',event=>{if(more.open&&event.target.closest('button.more-action'))more.close();},true);
+  el('more-done').onclick=()=>more.close();const about=document.createElement('dialog');about.id='about-dialog';about.className='about-dialog';about.innerHTML=`<div class="about-mark" aria-hidden="true">${brandIcon(document.body.dataset.theme||'autumn',{slot:'about'})}</div><h2>落叶画板</h2><p class="about-version">版本 <strong id="about-version">开发版</strong></p>${supportLinks({project:document.documentElement.dataset.projectLink!=='false',donation:document.documentElement.dataset.donationLink!=='false'})}<p class="about-credit">Powered by ZX</p><p class="about-credit">For WenHe</p><div class="dialog-actions"><button id="about-close" class="primary">返回画纸</button></div>`;document.body.append(about);about.querySelector('#about-version').textContent=window.LUOYE_VERSION||'开发版';aboutButton.onclick=()=>openDialog(about);about.querySelector('#about-close').onclick=()=>about.close();document.addEventListener('themechange',event=>{const icon=about.querySelector('.about-mark');const current=icon?.querySelector('.about-theme-icon');if(icon&&current)current.outerHTML=brandIcon(event.detail?.theme||document.body.dataset.theme||'autumn',{slot:'about'});});
   const policy = document.getElementById('bundled-privacy-policy');
   if (policy) {
     const entry = document.createElement('button');
@@ -233,30 +245,54 @@ export function mountClassic({setTool,getColor,setColor,clearAnimations,features
     const dialog = document.createElement('dialog');
     dialog.id = 'privacy-dialog';
     dialog.setAttribute('aria-labelledby', 'privacy-heading');
-    dialog.innerHTML = '<h2 id="privacy-heading">隐私政策</h2><div data-i18n-ignore></div><div class="dialog-actions"><button type="button" class="primary" autofocus>关闭</button></div>';
+    dialog.innerHTML = '<h2 id="privacy-heading">隐私政策</h2><div data-i18n-ignore></div><div class="dialog-actions"><button type="button" class="primary">关闭</button></div>';
     const content = dialog.querySelector('[data-i18n-ignore]');
     content.append(policy.content.cloneNode(true));
     document.body.append(dialog);
     entry.onclick = () => {
       const language = document.documentElement.lang === 'zh-CN' ? 'zh-CN' : 'en';
       content.prepend(content.querySelector(`section[lang="${language}"]`));
-      dialog.showModal();
+      openDialog(dialog);
       dialog.scrollTop = 0;
     };
     dialog.querySelector('button').onclick = () => dialog.close();
   }
   more.setAttribute('aria-labelledby', 'more-heading');
   more.querySelector('h2').id = 'more-heading';
-  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.id='rename-open';rename.onclick=()=>titleDialog.showModal();settingButton(rename,'pencil','给画起名字');
-  mountLanguageSettings(actions);
-  const header=document.querySelector('.header-actions');header.prepend(el('new-quick'),el('undo'),el('redo'));for(const [id,icon,name] of [['undo','undo','撤销'],['redo','redo','重做'],['new-quick','new-paper','新画纸'],['reset-settings','reset-settings','重置'],['open','folder','打开'],['save','save','保存'],['export','download','导出'],['gallery','folder','画夹']]){el(id).innerHTML=playfulIcon(icon)+`<span>${name}</span>`;el(id).className='header-command';}
-  const moreButton=document.createElement('button');moreButton.id='more-open';moreButton.className='header-command';moreButton.innerHTML=playfulIcon('more')+'<span>设置</span>';moreButton.onclick=()=>more.showModal();header.append(moreButton,aboutButton);
+  const titleDialog=document.createElement('dialog');titleDialog.id='title-dialog';titleDialog.innerHTML='<h2>给画起个名字</h2><div class="dialog-actions"><button id="title-done" class="primary">就叫这个</button></div>';titleDialog.querySelector('h2').after(document.querySelector('.document-name'));document.body.append(titleDialog);const rename=document.createElement('button');rename.id='rename-open';rename.onclick=()=>openDialog(titleDialog);settingButton(rename,'pencil','给画起名字');
+  settingButton(el('reset-settings'),'reset-settings','重置设置');
+  const header=document.querySelector('.header-actions');
+  header.prepend(el('new-quick'),el('undo'),el('redo'));
+  for (const [id, icon, label, fullLabel = label] of [
+    ['undo', 'undo', '撤销'],
+    ['redo', 'redo', '重做'],
+    ['new-quick', 'new-paper', '新画纸'],
+    ['open', 'folder', '打开', '打开作品'],
+    ['save', 'save', '保存', '保存作品'],
+  ]) {
+    const button = el(id);
+    button.innerHTML = playfulIcon(icon) + `<span data-i18n-compact>${label}</span>`;
+    button.className = 'header-command';
+    button.title = fullLabel;
+    button.setAttribute('aria-label', fullLabel);
+  }
+  const moreButton=document.createElement('button');
+  moreButton.id='more-open';moreButton.className='header-command';
+  moreButton.title='设置';
+  moreButton.setAttribute('aria-label','设置');
+  moreButton.innerHTML=playfulIcon('more')+'<span data-i18n-compact>设置</span>';
+  moreButton.onclick=()=>openDialog(more);
+  header.append(moreButton);
+  mountLanguageSettings(header);
+  header.append(aboutButton);
   // On short or narrow windows the canvas is the primary surface. Keep the
   // full tool groups available as drawers instead of shrinking the paper into
   // a thumbnail. The same controls remain in their original DOM containers,
   // so existing keyboard focus and event wiring continue to work.
   const {setMobilePanel,syncMobileLayout,isNarrow}=mountMobileShelf({left,subtools,parameter,dock,onNarrowChanged:()=>{page=0;renderTools();}});
-  document.querySelector('.brand').innerHTML=brandIcon(document.body.dataset.theme||'autumn')+'<span><strong>落叶画板</strong><small>我的暖暖画室</small></span>';
+  const brand = document.querySelector('.brand');
+  brand.title = '落叶画板';
+  brand.innerHTML=brandIcon(document.body.dataset.theme||'autumn')+'<span class="brand-copy"><strong>落叶画板</strong><small>我的暖暖画室</small></span>';
   const layerDialog=el('layer-dialog');layerDialog.querySelector('h2').textContent='我的图层';
   const help=document.createElement('p');help.className='layer-guide';help.textContent='每张小卡片都是画里的一部分。先点卡片，再移动或调整它。上面的会挡住下面的，背景一直在最下面。';
   layerDialog.querySelector('h2').after(help,document.querySelector('.layers-panel'));

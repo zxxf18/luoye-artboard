@@ -4,22 +4,19 @@ import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
 const styles = readFileSync(new URL('public/playroom.css', root), 'utf8');
+const shelf = readFileSync(new URL('public/tool-shelf.css', root), 'utf8');
 const macMain = readFileSync(new URL('native/macos/Main.swift', root), 'utf8');
 
-test('小屏幕统一收敛新画纸和重置文案字号', () => {
-  assert.match(styles, /\.playroom\s+\.header-actions #new-quick,\s*\.playroom\s+\.header-actions #reset-settings\s*\{[^}]*font-size:\s*9px\s*!important/);
-  assert.match(styles, /\.playroom\s+\.header-actions #new-quick,\s*\.playroom\s+\.header-actions #reset-settings\s*\{[^}]*line-height:\s*1\.1/);
+test('顶部工具栏保持单行和可读字号', () => {
+  assert.match(shelf, /\.header-actions > button > span[^}]*font-size:\s*max\(14px,[^}]*white-space:\s*nowrap/);
 });
 
 test('小屏幕限制主题入口图标尺寸，避免被界面缩放放大', () => {
-  assert.match(styles, /\.playroom \.header-actions button \.playful-icon,[\s\S]*?\.playroom\[data-theme\] \.header-actions \.theme-entry > \.playful-icon\s*\{[^}]*width:\s*22px\s*!important[^}]*height:\s*22px\s*!important/);
+  assert.match(styles, /\.playroom \.header-actions button \.playful-icon,[\s\S]*?\.playroom\[data-theme\] \.header-actions \.theme-entry > \.playful-icon\s*\{[^}]*width:\s*19px\s*!important[^}]*height:\s*19px\s*!important/);
 });
 
-test('顶部工具栏所有命令保持统一盒宽，主题入口不按内容收缩', () => {
-  const width = 'calc\\(60px\\s*\\*\\s*var\\(--u\\)\\)';
-  assert.match(styles, new RegExp(`\\.playroom \\.header-actions button\\s*\\{[^}]*flex:\\s*0 0 ${width}[^}]*width:\\s*${width}[^}]*min-width:\\s*${width}[^}]*max-width:\\s*${width}`));
-  assert.match(styles, new RegExp(`\\.playroom\\[data-theme\\] \\.header-actions \\.theme-entry\\s*\\{[^}]*flex:\\s*0 0 ${width}[^}]*width:\\s*${width}[^}]*min-width:\\s*${width}[^}]*max-width:\\s*${width}`));
-  assert.doesNotMatch(styles, /\.playroom\[data-theme\] \.theme-entry\s*\{\s*flex:\s*0 1 auto;\s*min-width:\s*0;\s*\}/);
+test('顶部工具栏所有命令使用同一盒宽', () => {
+  assert.match(shelf, /\.header-actions > button\s*\{[^}]*flex:\s*0 0 var\(--header-command-width\)/);
 });
 
 test('桌面画板在原生窗口最小尺寸内保持布局，不挤压控件', () => {

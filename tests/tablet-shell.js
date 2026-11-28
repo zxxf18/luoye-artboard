@@ -60,8 +60,7 @@ try{
  dialog.close();
  results.push({name:'缩放后的内页弹窗完整可达',passed:true});
 
- doc.getElementById('more-open').click();
- doc.getElementById('ui-language-choose').click();
+ doc.querySelector('.header-actions > #ui-language-choose').click();
  await pause(60);
  const chooser=doc.getElementById('choice-dialog');
  const shellScale=shellWindow.LUOYETabletMetrics().scale;
@@ -74,7 +73,6 @@ try{
  languageCard.click();
  await pause(40);
  assert(doc.documentElement.lang==='de'&&shell.contentDocument.documentElement.lang==='de','平板外壳语言未同步');
- doc.getElementById('more-done').click();
  results.push({name:'平板缩放下语言选择文字可读且切换即时生效',passed:true});
 
  const snapshot=await shellWindow.LUOYEFlushBeforeClose();

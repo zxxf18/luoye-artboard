@@ -375,8 +375,8 @@
 .playroom #text-options-open { font-size: 18px; font-weight: 650; }
 .playroom #paint-color-open i { width: 22px; height: 22px; border: 2px solid #fff; border-radius: 50%; background: var(--paint-color); box-shadow: 0 0 0 1px #c79e77; }
 .playroom #stroke-buttons { display: flex; flex: none; gap: 6px; padding: 4px 2px; }
-.playroom #stroke-buttons button { flex: 1; min-width: 0; min-height: 48px; gap: 4px; padding: 4px; font-size: 12px; }
-.playroom #stroke-buttons .choice-picture { width: 26px; height: 26px; flex: none; }
+.playroom #stroke-buttons button { flex: 1; min-width: 0; min-height: 48px; gap: 3px; padding: 4px; font-size: 13px; white-space: nowrap; }
+.playroom #stroke-buttons .choice-picture { width: 20px; height: 20px; flex: none; }
 .playroom #stroke-buttons .choice-picture svg { width: 100%; height: 100%; }
 .playroom.library-open #stroke-buttons { display: none; }
 .playroom .tool-dock .quick-palette { height: 48px; min-height: 0; padding: 2px 6px; align-items: center; }
@@ -583,20 +583,57 @@
 .playroom :is(#selection-combination, #selection-actions) button { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; font-size: 14px; white-space: nowrap; }
 .playroom #selection-combination button[aria-pressed=true] { background: #ffdf9e; border-color: #a4633c; box-shadow: inset 0 0 0 1px #a4633c; font-weight: 700; }
 
-/* Keep command labels readable as the language changes. The header already
-   scrolls horizontally, so each command can make room for its own label. */
-.playroom[data-theme] .header-actions :is(button, .theme-entry) {
-  flex: 0 0 auto;
-  width: max-content;
-  min-width: 44px;
-  max-width: none;
-  gap: 1px;
-  padding-inline: 8px;
+/* Keep the name and commands in fixed slots as localized copy changes. */
+.playroom .app-header .brand {
+  flex: 0 0 calc(clamp(150px, 22.5vw, 260px) * var(--u));
+  min-width: 0;
+  height: 48px;
+  gap: 6px;
 }
-.playroom[data-theme] .header-actions button > span:not(.playful-icon) {
-  font-size: max(14px, calc(14px * var(--u)));
-  line-height: 1.2;
+.playroom .brand > .brand-icon {
+  flex: none;
+}
+.playroom .brand-copy {
+  min-width: 0;
+}
+.playroom .brand strong {
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+.playroom .brand small {
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.playroom .header-actions {
+  --header-command-width: calc(74px * var(--u));
+}
+.playroom[data-theme] .header-actions > button {
+  flex: 0 0 var(--header-command-width);
+  width: var(--header-command-width);
+  min-width: var(--header-command-width);
+  max-width: var(--header-command-width);
+  gap: 1px;
+  padding: 0 2px;
+}
+.playroom[data-theme] .header-actions > button > span:not(.playful-icon) {
+  max-width: 100%;
+  flex-shrink: 0;
+  font-size: max(14px, calc(14px * var(--u)));
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 1100px) {
+  .playroom .app-header .brand { height: 44px; }
+  .playroom[data-theme] .brand > .brand-icon { width: 38px; height: 38px; }
+  .playroom .header-actions { gap: 2px; }
+}
+@media (max-width: 640px) {
+  .playroom .app-header .brand { flex-basis: 36px; height: 36px; }
+  .playroom[data-theme] .brand > .brand-icon { width: 32px; height: 32px; }
+  .playroom .brand-copy { display: none; }
 }
 
 /* Put choices on another row when the action names outgrow the shelf. */
@@ -663,7 +700,7 @@
   font-size: 13px;
   line-height: 1.2;
   text-align: center;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .playroom[data-classic-tool="magic"] .classic-parameters label[data-option="fill magic"] {
   flex-wrap: wrap;
@@ -681,6 +718,8 @@
   }
   .playroom .classic-left .brush-box {
     grid-auto-rows: max-content;
+    column-gap: 6px;
+    padding-inline: 2px;
   }
   .playroom .classic-left .brush-card {
     grid-template-columns: minmax(0, 1fr);
@@ -688,16 +727,15 @@
     align-content: center;
     justify-items: center;
     gap: 4px;
-    padding: 6px 2px;
+    padding: 6px 1px;
     min-height: max-content;
   }
   .playroom .classic-left .brush-card > .playful-icon {
     width: 30px;
     height: 30px;
   }
-  .playroom .classic-left .brush-card > span:not(.brush-sample) {
+  .playroom .classic-left .brush-label {
     text-align: center;
-    word-break: normal;
     line-height: 1.25;
   }
   .playroom .classic-left .brush-card .brush-sample {
@@ -742,6 +780,16 @@
   }
 }
 @media (max-width: 640px), (max-height: 500px) {
+  .playroom {
+    --header-command-height: calc(24px + 20px * var(--u));
+    --header: max(56px, calc(var(--header-command-height) + 6px));
+  }
+  .playroom .app-header {
+    height: var(--header);
+  }
+  .playroom[data-theme] .header-actions > button {
+    height: var(--header-command-height);
+  }
   .playroom .canvas-topbar {
     padding-right: 0;
   }
@@ -753,13 +801,7 @@
 }
 @media (max-width: 640px) and (min-resolution: 2dppx) {
   .playroom {
-    --header: 52px;
-  }
-  .playroom .app-header {
-    height: var(--header);
-  }
-  .playroom[data-theme] .header-actions button {
-    height: 44px;
+    --header: max(52px, calc(var(--header-command-height) + 6px));
   }
 }
 .playroom .tool-dock .asset > span:not(.asset-add) {

@@ -1,3 +1,4 @@
+import { openDialog } from './dialog-focus.js';
 import { playfulIcon } from './playful-icons.js';
 export function mountMusic({run,toast,preferences}) {
   const tracks=window.LUOYE_MUSIC_TRACKS;
@@ -42,7 +43,7 @@ export function mountMusic({run,toast,preferences}) {
   const started=bridge?(async()=>{await request('volume',{volume:saved.volume});await track(saved.index,saved.playing);})().catch(e=>toast('音乐暂时没响起来：'+e.message)):Promise.resolve();
   // Wait for restoration before accepting playback commands, without blocking drawing.
   const action=fn=>()=>run(async()=>{await started;return fn();});
-  button.onclick=()=>{dialog.showModal();if(bridge){started.then(()=>request('state')).catch(e=>toast(e.message));poll=setInterval(()=>request('state').catch(()=>{}),1000);}else el('music-state').textContent='背景音乐需在桌面客户端播放；画笔与工具音效可在这里开关。';};
+  button.onclick=()=>{openDialog(dialog);if(bridge){started.then(()=>request('state')).catch(e=>toast(e.message));poll=setInterval(()=>request('state').catch(()=>{}),1000);}else el('music-state').textContent='背景音乐需在桌面客户端播放；画笔与工具音效可在这里开关。';};
   el('music-close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{clearInterval(poll);poll=null;});
   el('music-play').onclick=action(async()=>loaded?remember(await request('play')):track());
   el('music-stop').onclick=action(async()=>remember(await request('stop')));

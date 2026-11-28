@@ -1,3 +1,4 @@
+import { openDialog } from '../ui/dialog-focus.js';
 import { hasUICopy, localizedUICopy, sourceUICopy } from '../ui/i18n.js';
 import { makeCanvas, loadImage } from '../core/engine.js';
 import { DrawingEngine } from '../core/drawing.js';
@@ -129,7 +130,7 @@ function layoutCanvas() {
   $('sheet').style.height = `${Math.max(10, engine.height * fit * zoom)}px`;
   $('sheet').style.aspectRatio = `${engine.width}/${engine.height}`;
   viewport.style.justifyContent = zoom > 1 ? 'flex-start' : 'center'; viewport.style.alignItems = zoom > 1 ? 'flex-start' : 'center';
-  $('zoom-value').textContent = zoom === 1 ? '适合窗口' : `${Math.round(zoom * 100)}%`;
+  $('zoom-value').textContent = zoom === 1 ? '已适配' : `${Math.round(zoom * 100)}%`;
 }
 function renderLayerList() {
   if (!$('layer-dialog')?.open) return;
@@ -382,7 +383,7 @@ document.addEventListener('uisizechange', queueLibraryResize);
 document.addEventListener('fairymodechange',()=>chooseCategory('fairy'));
 document.addEventListener('openfairy',()=>chooseCategory('fairy'));
 document.addEventListener('opengallery',()=>chooseCategory(galleryLocation.category,galleryLocation.collection,galleryLocation.page));
-function showDialog(id) { const dialog = $(id); dialog.returnValue = ''; dialog.showModal(); }
+function showDialog(id) { const dialog = $(id); dialog.returnValue = ''; openDialog(dialog); }
 
 for (const element of document.querySelectorAll('[data-icon]')) element.insertAdjacentHTML('afterbegin', icon(element.dataset.icon));
 for (const [name, label] of Object.entries(toolNames)) {
@@ -648,11 +649,11 @@ window.LUOYEFlushBeforeClose=async()=>{
 };
 const closeDialog=document.createElement('dialog');closeDialog.id='close-dialog';
 window.LUOYEPerformance=()=>({...engine.metrics,layers:engine.layers.length,sprites:engine.layers.reduce((n,l)=>n+(l.sprites?.length||0),0),decodedPixels:engine.scenePixels()});
-closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel" autofocus>'+playfulIcon('pencil')+'继续画画</button></div></form>';
+closeDialog.innerHTML='<form method="dialog"><h2>把这幅画留下来吗？</h2><p>这幅画还有没保存的修改。保存后会放在「图片／落叶画板作品」。</p><div class="dialog-actions"><button value="save">'+playfulIcon('save')+'保存并退出</button><button value="discard">'+playfulIcon('eraser')+'不保存退出</button><button value="cancel">'+playfulIcon('pencil')+'继续画画</button></div></form>';
 document.body.append(closeDialog);
 window.LUOYERequestClose=createCloseFlow({
  hasChanges:()=>revision!==savedRevision||currentTitle()!==savedTitle,
- ask:()=>new Promise(resolve=>{closeDialog.returnValue='cancel';closeDialog.addEventListener('close',()=>resolve(closeDialog.returnValue),{once:true});closeDialog.showModal();}),
+ ask:()=>new Promise(resolve=>{closeDialog.returnValue='cancel';closeDialog.addEventListener('close',()=>resolve(closeDialog.returnValue),{once:true});openDialog(closeDialog);}),
  save:()=>window.LUOYEFlushBeforeClose(),
  discard:async()=>{cancelScheduledDraftSave();await draftInFlight.catch(()=>{});await recorder.flush();await discardCurrentDraft();savedRevision=revision;savedTitle=currentTitle();}
 });
@@ -708,6 +709,39 @@ async function initialize() {
   document.body.dataset.appReady='true';
   savedRevision=revision;savedTitle=currentTitle();
   if (window.webkit?.messageHandlers?.ready) window.webkit.messageHandlers.ready.postMessage({ width: engine.width, height: engine.height, assets: catalog.length, brushes:$('brush').options.length, effects:studio.effectCount, tools:Object.keys(toolNames), version:window.LUOYE_VERSION||'开发版',classicUnits:14,toolPages:3,textStyles:10,musicTracks:20,darkroomGroups:7,proceduralFractals:3,nortonThumbnailPresets:20,fairyFrames:catalog.reduce((n,asset)=>n+(asset.fairyGroups?.reduce((sum,group)=>sum+group.frames.length,0)||0),0) });
+}
+const macMenu = window.webkit?.messageHandlers?.menuState;
+if (macMenu) {
+  const commands = new Set([
+    'about-open', 'more-open', 'ui-language-choose', 'new-quick', 'open', 'save', 'gallery', 'export',
+    'undo', 'redo', 'cut', 'copy', 'paste', 'select-all', 'zoom-in', 'zoom-out', 'fit',
+  ]);
+  const textCommands = new Set(['undo', 'redo', 'cut', 'copy', 'paste', 'select-all']);
+  const textInput = 'textarea, input:not([type]), input:is([type="text"], [type="number"], [type="search"], [type="email"], [type="url"], [type="tel"], [type="password"])';
+  const editingText = () => Boolean(document.activeElement?.matches(textInput) || document.activeElement?.isContentEditable);
+  const blocked = () => busy || Boolean(document.querySelector('dialog[open]'));
+
+  window.LUOYEPerformMenuCommand = command => {
+    // Return true to let AppKit edit text using its normal responder chain.
+    if (textCommands.has(command) && editingText()) return true;
+    if (ready && !blocked() && commands.has(command)) $(command)?.click();
+    return false;
+  };
+
+  let previous;
+  function publishMenuState() {
+    const state = { blocked: blocked(), editingText: editingText(), canUndo: !$('undo').disabled, canRedo: !$('redo').disabled };
+    if (previous && Object.keys(state).every(key => state[key] === previous[key])) return;
+    previous = state;
+    macMenu.postMessage(state);
+  }
+  for (const type of ['focusin', 'focusout']) document.addEventListener(type, () => queueMicrotask(publishMenuState));
+  new MutationObserver(publishMenuState).observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['open', 'disabled', 'aria-busy'],
+  });
+  publishMenuState();
 }
 initialize();
 
