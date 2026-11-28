@@ -1,6 +1,6 @@
 # iPhone / iPad 版本
 
-iOS 版本沿用 `dist/` 中的绘画页面，由 UIKit + WKWebView 提供原生容器。这样画笔、素材、图层、辅助、主题、动画、草稿和画夹只维护一套实现，iPhone 和 iPad 通过同一份 Pointer Events 代码支持手指与 Apple Pencil。
+iOS 版本复用绘画页面，由 UIKit + WKWebView 提供原生容器。画笔、素材、图层、辅助、主题、动画、草稿和画夹共用同一套实现，iPhone 和 iPad 通过同一份 Pointer Events 代码支持手指与 Apple Pencil
 
 默认构建支持 iOS/iPadOS 16 及以上的通用应用。iPad 专用构建的最低系统版本为 iPadOS 15.8。iPhone 保留系统方向切换；iPad 使用全屏横屏和独立弹性视口，提供更大的中央画板。WKWebView 使用持久化 `WKWebsiteDataStore`，因此 IndexedDB 草稿、画夹以及主题/音乐/界面大小偏好会跨次启动保留。
 
@@ -20,7 +20,7 @@ SDK=iphoneos CONFIGURATION=Release npm run build:ios
 
 为运行 iPadOS 15.8 或更新版本的 iPad 构建时，使用 `IOS_DEVICE=ipad SDK=iphoneos CONFIGURATION=Release npm run build:ios`。输出为 `落叶画板-ipad-iphoneos.app`，真机安装需要为目标设备签名。
 
-构建脚本会先生成不含网站统计脚本的客户端 `dist/`，再将网页资源及 `native/audio/` 中的共享钢琴音色库与 CC0 许可复制到临时资源目录，最后调用 `xcodebuild`。
+构建脚本先在 `build/client/ios/` 生成客户端网页资源，再将网页资源及 `native/audio/` 中的共享钢琴音色库与 CC0 许可复制到临时资源目录，最后调用 `xcodebuild`
 
 Debug 构建还会把 `tests/native-*.js` 放进应用资源，可用 launch arguments 在模拟器中运行现有原生烟测。结果会写到应用沙盒的 `Documents/<输出前缀>.checks.json` 和 `Documents/<输出前缀>.png`；使用 `LUOYE_SMOKE_FILES=1` 时，工程、PNG 和 JPEG 会写到同一前缀下，便于 `simctl` 拉取。示例：
 

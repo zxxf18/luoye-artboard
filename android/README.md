@@ -1,6 +1,6 @@
 # Android 构建
 
-这是一个 Kotlin + AndroidX WebView 宿主，包名为 `cn.com.yebuluo`。它在构建时执行仓库根目录的客户端资源构建，把生成的 `dist/` 同步到 `app/src/main/assets/www/`，然后通过 `WebViewAssetLoader` 使用同源 HTTPS URL 加载页面。客户端资源不包含网站统计脚本。
+这是一个 Kotlin + AndroidX WebView 宿主，包名为 `cn.com.yebuluo`。Gradle 将客户端网页资源生成到 `app/build/generated/luoyeWebAssets/www/`，打包后通过 `WebViewAssetLoader` 使用同源 HTTPS URL 加载。客户端资源省略网站统计脚本
 
 Activity 默认锁定横屏，并保持可调整窗口尺寸。手机横屏、平板横屏和分屏窄窗口由 Web 端响应式布局处理：画布优先保持可绘制宽度，小尺寸下左侧画笔盒、右侧工具栏和底部参数/素材栏自动收起，通过顶部抽屉入口打开，按钮和滑块保留至少 44dp 的触控目标。Android 真机仍需覆盖低分辨率手机、10 英寸平板和分屏模式做最终验收。
 
@@ -12,7 +12,6 @@ Activity 默认锁定横屏，并保持可调整窗口尺寸。手机横屏、�
 
 ```sh
 npm test
-npm run build:client
 cd android
 gradle assembleDebug
 ```
@@ -35,4 +34,4 @@ APK 输出在 `android/app/build/outputs/apk/debug/app-debug.apk`。若使用 An
 
 ## 资源体积
 
-完整 `dist/` 当前约 425MB。技术验证可以生成包含完整素材的 debug APK；正式发布应把素材拆成核心资源与 Play Asset Delivery/受控 CDN，避免全部进入 base APK。
+客户端构建按素材清单筛选资源，调试 APK 会打包全部通过筛选的素材

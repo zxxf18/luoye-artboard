@@ -4,17 +4,17 @@ import path from 'node:path';
 import { root } from './bundle.mjs';
 import { build } from './build.mjs';
 import { version, releaseRoot } from './release-paths.mjs';
-await build({ client: true });
 if (process.platform !== 'darwin') throw new Error('Mac application must be built on macOS.');
+const site = await build({ client: true, output: 'build/client/macos' });
 const app = path.join(releaseRoot, '落叶画板.app');
 await mkdir(path.join(app, 'Contents/MacOS'), { recursive:true });
 await mkdir(path.join(app, 'Contents/Resources'), { recursive:true });
 await mkdir(path.join(root, 'build/swift-cache'), { recursive:true });
 await rm(path.join(app, 'Contents/Resources/site'), { recursive:true, force:true });
-await cp(path.join(root, 'dist'), path.join(app, 'Contents/Resources/site'), { recursive:true });
+await cp(site, path.join(app, 'Contents/Resources/site'), { recursive:true });
 for(const name of ['index.html','app.js','playroom.css','tool-shelf.css','assets/catalog.json']){
  const actual=await readFile(path.join(app,'Contents/Resources/site',name));
- const expected=await readFile(path.join(root,'dist',name));
+ const expected=await readFile(path.join(site,name));
  if(!actual.equals(expected))throw new Error('Mac 资源复制不完整：'+name);
 }
 await writeFile(path.join(app, 'Contents/Info.plist'), `<?xml version="1.0" encoding="UTF-8"?>

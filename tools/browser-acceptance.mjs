@@ -3,22 +3,30 @@ import {createRequire} from 'node:module';
 import {writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {root} from './bundle.mjs';
-const {chromium}=createRequire(import.meta.url)(process.env.LUOYE_PLAYWRIGHT||'playwright');
+const {chromium,webkit}=createRequire(import.meta.url)(process.env.LUOYE_PLAYWRIGHT||'playwright');
+const engines={chromium,webkit};
+const engine=process.env.LUOYE_BROWSER_ENGINE||'chromium';
+if(!Object.hasOwn(engines,engine))throw Error(`Unknown browser engine: ${engine}`);
+const defaultSuites=[
+ 'browser','brushes','editor','creative','frames','interactions','layout','locale-layout',
+ 'responsive-layout','tablet-shell','theme','storage','paper-scope','animated-filters',
+ 'stamps','tools-journey','real-scenario','ui-regressions',
+];
 const server=spawn(process.execPath,['tools/server.mjs'],{cwd:root,env:{...process.env,PORT:'0'},stdio:['ignore','pipe','pipe']});
 let browser;
 try{
  const url=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Server startup timeout')),10000);server.on('error',reject);server.stdout.on('data',data=>{const match=String(data).match(/http:\/\/127.0.0.1:\d+/);if(match){clearTimeout(timer);resolve(match[0]);}});});
- browser=await chromium.launch({headless:true,...(process.env.LUOYE_BROWSER_EXECUTABLE?{executablePath:process.env.LUOYE_BROWSER_EXECUTABLE}:{})});
+ browser=await engines[engine].launch({headless:true,...(process.env.LUOYE_BROWSER_EXECUTABLE?{executablePath:process.env.LUOYE_BROWSER_EXECUTABLE}:{})});
  const results=[];
- for(const name of (process.argv.slice(2).length?process.argv.slice(2):['browser','brushes','editor','creative','frames','interactions','layout','locale-layout','layout@1024x720','layout@1280x820','layout@1920x1080','responsive-layout','tablet-shell','paper-scope','animated-filters','stamps','tools-journey','real-scenario','ui-regressions'])){
+ for(const name of (process.argv.slice(2).length?process.argv.slice(2):defaultSuites)){
   if(!/^[a-z-]+(@\d{2,5}x\d{2,5})?$/.test(name))throw Error('Invalid test name');
-  // Desktop layout contract: the classic shelf and parameter rail must hold
-  // from the native shells' 1024x720 minimum up to 1920x1080; "name@WxH"
-  // pins the viewport.
+  // A suffix sets the runner viewport. The layout suite also sizes its own
+  // application iframe and covers the complete window matrix in one run.
   const suite=name.split('@')[0],viewport=name.includes('@')?name.split('@')[1]:'1440x900';
   const [viewportWidth,viewportHeight]=viewport.split('x').map(Number);
   const page=await browser.newPage({locale:'zh-CN',viewport:{width:viewportWidth,height:viewportHeight}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
+   await page.route('https://yebuluo.com.cn/stats/tracker.js',route=>route.fulfill({contentType:'application/javascript',body:''}));
    await page.goto(url+'/tests/'+suite+'.html');
    await page.waitForFunction(()=>{
     if(document.body.dataset.results||/\d+\/\d+ passed/.test(document.title))return true;

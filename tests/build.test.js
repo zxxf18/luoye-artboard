@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { buildIndex } from '../tools/build.mjs';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { build, buildIndex } from '../tools/build.mjs';
 import { addOfflineWebShell } from '../tools/offline-web.mjs';
 
 const index = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
@@ -50,7 +52,7 @@ test('both web entrances advertise correctly sized home screen icons', async () 
   }
 });
 
-test('native build entrypoints use the client resource variant', async () => {
+test('native build entrypoints use separate client resource directories', async () => {
   const read = name => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
   const [mac, windows, ios, android] = await Promise.all([
     read('tools/build-mac.mjs'),
@@ -59,5 +61,18 @@ test('native build entrypoints use the client resource variant', async () => {
     read('android/app/build.gradle'),
   ]);
   for (const source of [mac, windows, ios]) assert.match(source, /build\(\{ client: true\b/);
-  assert.match(android, /tools\/build-client\.mjs/);
+  for (const [source, platform] of [[mac, 'macos'], [windows, 'windows'], [ios, 'ios']]) {
+    assert.ok(source.includes(`output: 'build/client/${platform}'`));
+  }
+  assert.match(android, /tools\/build-client\.mjs', "--output=/);
+  assert.match(android, /sourceSets\.main\.assets\.srcDirs = \[webAssetsRoot\]/);
+});
+
+test('resource generation preserves files outside the generated resource directories', async t => {
+  const output = await mkdtemp(path.join(tmpdir(), 'luoye-build-output-'));
+  t.after(() => rm(output, { recursive: true, force: true }));
+  const marker = path.join(output, 'original.txt');
+  await writeFile(marker, 'untouched');
+  await assert.rejects(build({ output }), /资源输出必须位于/);
+  assert.equal(await readFile(marker, 'utf8'), 'untouched');
 });

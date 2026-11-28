@@ -37,7 +37,7 @@ if (distribution === 'store') {
   privacyPolicy = policyPage.match(/<main>([\s\S]+)<\/main>/)?.[1];
   if (!privacyPolicy) throw new Error('缺少随包发布的隐私政策。');
 }
-await build({ client: true, distribution, privacyPolicy });
+const site = await build({ client: true, output: 'build/client/ios', distribution, privacyPolicy });
 await rm(resources, { recursive: true, force: true });
 await mkdir(path.join(resources, 'audio'), { recursive: true });
 await mkdir(path.join(resources, 'Assets.xcassets', 'AppIcon.appiconset'), { recursive: true });
@@ -48,7 +48,7 @@ if (configuration === 'Debug') {
     if (/^native-[a-z0-9-]+\.js$/.test(name)) await cp(path.join(root, 'tests', name), path.join(smoke, name));
   }
 }
-await cp(path.join(root, 'dist'), path.join(resources, 'site'), { recursive: true });
+await cp(site, path.join(resources, 'site'), { recursive: true });
 if (distribution === 'store') {
   await cp(path.join(storeDocs, 'credits.txt'), path.join(resources, 'site', 'CREDITS.txt'));
 }

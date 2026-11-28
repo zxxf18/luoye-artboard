@@ -91,13 +91,14 @@ test('iPad journey covers compact layout, themes, drawing, assets and recovery',
   assert.match(journey, /runtimeErrors/);
 });
 
-test('iOS build helper refuses to claim a build without Xcode and copies the current dist', async () => {
+test('iOS build helper requires Xcode and includes its staged client assets', async () => {
   const source = await read('tools/build-ios.mjs');
   const project = await read('ios/LuoyeArtboard.xcodeproj/project.pbxproj');
   const music = await read('native/ios/LuoyeMusic.swift');
   assert.match(source, /xcodebuild/);
   assert.match(source, /iphoneos|iphonesimulator/);
-  assert.match(source, /dist/);
+  assert.match(source, /output: 'build\/client\/ios'/);
+  assert.match(source, /cp\(site, path\.join\(resources, 'site'\)/);
   assert.match(source, /'native', 'audio'/);
   assert.match(music, /"Luoye-Piano"/);
   assert.match(source, /Assets\.xcassets/);

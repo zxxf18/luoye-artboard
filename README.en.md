@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/branding/app-icon-windows.png" alt="Luoye Artboard app icon" width="128" height="128">
+  <img src="public/branding/app-icon-windows.png" alt="Fallen Leaf Studio app icon" width="128" height="128">
 </p>
 
-<h1 align="center">Luoye Artboard · 落叶画板</h1>
+<h1 align="center">Fallen Leaf Studio · 落叶画板</h1>
 
 <p align="center"><strong>A little painting studio for big imaginations.</strong></p>
 
@@ -16,13 +16,13 @@
   <a href="#build-from-source">Build</a>
 </p>
 
-## About Luoye
+## About Fallen Leaf Studio
 
 - **Start with a blank page or a landscape.** Choose a background, add characters, and make the scene your own
 - **Explore at your own pace.** Illustrated tools, brush previews, and a warm color palette help children find their way around
 - **Keep creating offline.** Artwork, drafts, the art library, and music stay on your device
 
-![Luoye Artboard desktop app with a mountain lake background and painting tools](docs/images/interface.png)
+![Fallen Leaf Studio desktop app with a mountain lake background and painting tools](docs/images/interface.png)
 
 ## Features
 
@@ -30,7 +30,7 @@ From a blank page to a finished little scene, the brushes, gallery, drawing help
 
 | | What you can do |
 | --- | --- |
-| **11 brushes** | Sketch with a pencil, spray soft dots, layer watercolor, or try a brush, marker, crayon, chalk, paint tube, star brush, rainbow brush, and two-color gradient brush. |
+| **12 brushes** | Sketch with a pencil, spray soft dots, layer watercolor, or try a brush, marker, crayon, chalk, paint tube, star brush, rainbow brush, two-color gradient brush, or pixel pen with ten cell sizes |
 | **Drawing helpers and fill** | Use vertical, horizontal, four-way, or radial symmetry with guide lines. Closed-line fill colors an area without spilling out, while the shape eraser cuts star, heart, or cloud silhouettes. |
 | **Paper, backgrounds, and coloring pages** | Start a picture in a forest, by a lake, on a farm, or in space; fill and paint themed coloring pages, or add paper grain to a brush. |
 | **Gallery and animated characters** | Start with a colored background, stamp individual pictures, combine patterns, and add moving characters to a scene. |
@@ -48,10 +48,10 @@ From a blank page to a finished little scene, the brushes, gallery, drawing help
 ## Getting started
 
 1. Open [Releases](https://github.com/zxxf18/luoye-artboard/releases) and choose the package for your system
-2. Launch Luoye Artboard and start with a blank page, or choose **Gallery → Colored backgrounds** to set a scene
+2. Launch Fallen Leaf Studio and start with a blank page, or choose **Gallery → Colored backgrounds** to set a scene
 3. Pick a brush or open the magic bag. Save your project to keep editing, or export an image to share
 
-The current interface is in Simplified Chinese. See the [build guide](docs/build.md) to run the editor from source
+The interface supports Simplified Chinese, English, Japanese, German, Korean, and French. It follows the system or browser by default, and you can switch with **Language** in the toolbar. See the [build guide](docs/build.md) to run the editor from source
 
 ## System requirements
 

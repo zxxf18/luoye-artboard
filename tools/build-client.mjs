@@ -1,12 +1,17 @@
 import { build } from './build.mjs';
+import { parseArgs } from 'node:util';
 
-const args=process.argv.slice(2);
+const { values } = parseArgs({ options: {
+ store: { type: 'boolean' },
+ output: { type: 'string' },
+ 'project-link': { type: 'string' },
+ 'donation-link': { type: 'string' },
+} });
 function toggle(name) {
- const values=args.filter(arg=>arg.startsWith(`--${name}=`));
- if (!values.length) return undefined;
- const value=values.at(-1).split('=')[1];
+ const value = values[name];
+ if (value === undefined) return undefined;
  if (!['on','off'].includes(value)) throw new Error(`${name} must be on or off`);
  return value==='on';
 }
-await build({ client: true, distribution: args.includes('--store') ? 'store' : 'community',
+await build({ client: true, output: values.output, distribution: values.store ? 'store' : 'community',
  showProjectLink:toggle('project-link'),showDonationLink:toggle('donation-link') });

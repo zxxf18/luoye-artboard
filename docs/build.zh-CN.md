@@ -15,6 +15,17 @@ npm run dev
 
 网站构建使用 `npm run build`，会保留可选的远程统计脚本。客户端构建使用 `npm run build:client`，会在构建期移除该脚本；macOS、Windows、Android 和 iOS 构建都使用客户端变体。
 
+已安装 Playwright 及所需浏览器时，运行 `node tools/browser-acceptance.mjs` 可检查绘画、存储和布局等功能。默认使用 Chromium，设置 `LUOYE_BROWSER_ENGINE=webkit` 可用同一套用例验证 WebKit。传入 `storage`、`layout` 等用例名可以单独运行
+
+## 项目结构
+
+- `src/core/` 放置画布算法、编辑引擎和工程格式
+- `src/ui/` 放置工具面板、弹窗、主题和翻译
+- `src/platform/` 负责装配编辑器，以及文件保存、本地草稿和画夹存储
+- `native/`、`ios/` 和 `android/` 提供各端宿主及平台工程，`public/` 提供共用页面和素材
+
+`tools/bundle.mjs` 从 `src/platform/app.js` 的导入关系生成各端共用的单文件脚本。各端构建把客户端资源写入各自的构建目录
+
 ## macOS 应用
 
 在 macOS 上构建，需要 Xcode Command Line Tools、Swift 6 和 macOS SDK：
@@ -23,7 +34,7 @@ npm run dev
 npm run build:mac
 ```
 
-当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本会移除网站统计脚本，但不执行应用签名和公证。
+当前目标为 Apple Silicon（arm64）、macOS 13+。应用输出到 `build/releases/v<version>/落叶画板.app`，其中 `<version>` 取自 `package.json`。构建脚本会移除网站统计脚本，并对应用执行临时签名
 
 ## 离线 Web App
 
@@ -49,7 +60,7 @@ npm run build:ios
 
 构建 iPad 专用真机包时使用 `IOS_DEVICE=ipad SDK=iphoneos CONFIGURATION=Release npm run build:ios`。
 
-默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本会先生成不含网站统计脚本的客户端 `dist/`，再将资源和音色库复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存/导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。iPad 固定全屏横屏；尺寸、触控、Apple Pencil、音频中断和后台恢复需要在模拟器及真机分别验收，不能只用浏览器测试替代。
+默认输出模拟器应用。构建真机包时使用 `SDK=iphoneos CONFIGURATION=Release npm run build:ios`。脚本从 `build/client/ios/` 取用客户端资源，与音色库一起复制到临时的 `ios/Resources/`，最后调用 `xcodebuild`。文件保存和导入使用系统文档面板，画夹和草稿使用 WKWebView 持久化存储。iPad 固定全屏横屏；尺寸、触控、Apple Pencil、音频中断和后台恢复需在模拟器及真机分别验收
 
 ## Windows 应用
 
@@ -78,5 +89,3 @@ npm run build:windows:installer
 ```
 
 安装器输出到 `build/releases/v<version>/windows-installer/`。分发时保留整个目录：安装器需要同目录的 DLL、JSON 文件，以及目标系统上的 .NET 10 Desktop Runtime。
-
-桌面构建共用生成的编辑器资源，请依次构建各平台。

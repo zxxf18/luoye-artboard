@@ -8,7 +8,7 @@ import { runtimeAssetPaths, includeAsset } from './assets/runtime-assets.mjs';
 import { readAssetCatalog, renderRuntimeAssetCatalog } from './assets/asset-distribution.mjs';
 import { addOfflineWebShell, finalizeOfflineWeb, offlineWebFiles } from './offline-web.mjs';
 import { Script } from 'node:vm';
-import {mkdirSync,rmSync} from 'node:fs';
+import { createHash } from 'node:crypto';
 
 const TRACKER_ORIGIN = 'https://yebuluo.com.cn';
 const TRACKER_SCRIPT = /<script\b[^>]*\bsrc=["']https:\/\/yebuluo\.com\.cn\/stats\/tracker\.js["'][^>]*><\/script>/gi;
@@ -24,19 +24,27 @@ export function buildIndex(html, { client = false, distribution = 'community', s
   return privacyPolicy ? index.replace(/<body\b[^>]*>/, body => `${body}\n<template id="bundled-privacy-policy">${privacyPolicy}</template>`) : index;
 }
 
-export async function build({ client = false, distribution = 'community', showProjectLink, showDonationLink, offlineWeb = false, privacyPolicy = '' } = {}) {
-  const lock = path.join(root, 'build/desktop-build.lock');
-  mkdirSync(path.dirname(lock), { recursive: true });
+export async function build({ client = false, distribution = 'community', showProjectLink, showDonationLink, offlineWeb = false, privacyPolicy = '',
+  output = path.join(root, offlineWeb ? 'build/offline' : 'dist') } = {}) {
+  output = path.resolve(root, output);
+  const relative = path.relative(root, output);
+  const clientDirectories = [path.join('build', 'client'), path.join('android', 'app', 'build', 'generated', 'luoyeWebAssets')];
+  if (relative !== 'dist' && relative !== path.join('build', 'offline') &&
+      !clientDirectories.some(dir => relative.startsWith(dir + path.sep))) {
+    throw new Error(`资源输出必须位于 dist 或构建目录中：${output}`);
+  }
+  const lock = path.join(root, 'build/resource-locks', createHash('sha256').update(output).digest('hex'));
+  await mkdir(path.dirname(lock), { recursive: true });
   try {
-    mkdirSync(lock);
+    await mkdir(lock);
   } catch (error) {
-    throw new Error('另一个桌面构建正在使用资源目录，请等它完成后重试。', { cause: error });
+    if (error.code !== 'EEXIST') throw error;
+    throw new Error(`另一个构建正在使用资源目录 ${output}，请等它完成后重试。`, { cause: error });
   }
 
   try {
     const script = await bundle();
     new Script(script, { filename: 'app.js' });
-    const output = path.join(root, offlineWeb ? 'build/offline' : 'dist');
     // Remove generated output so old or rejected assets cannot survive a rebuild.
     await rm(output, { recursive: true, force: true });
     await mkdir(output, { recursive: true });
@@ -69,8 +77,9 @@ export async function build({ client = false, distribution = 'community', showPr
       console.log(`离线 Web App：${catalog.length} 项素材，下载约 ${Math.ceil(bytes / 1024 ** 2)} MiB。`);
     }
     console.log(`Desktop interface resources built: ${output}${client ? ' (client)' : ''}`);
+    return output;
   } finally {
-    rmSync(lock, { recursive: true, force: true });
+    await rm(lock, { recursive: true, force: true });
   }
 }
 

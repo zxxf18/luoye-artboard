@@ -14,6 +14,7 @@ import {
   renderFractalCanvas,
 } from '../src/ui/fractal-studio.js';
 import { CanvasDouble, withCanvasDouble, silenceEngine } from './helpers/canvas-double.js';
+import { bundle } from '../tools/bundle.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = file => readFileSync(new URL(file, root), 'utf8');
@@ -81,11 +82,11 @@ test('点击画纸放置分形会新增可移动图层', async () => {
   });
 });
 
-test('分形入口从工具第三页进入，旧的像素分形对话框已移除', () => {
+test('分形入口从工具第三页进入，客户端打包当前分形实现', async () => {
   const classic = read('src/ui/classic-ui.js');
   const app = read('src/platform/app.js');
   const creative = read('src/ui/creative-ui.js');
-  const bundle = read('tools/bundle.mjs');
+  const built = await bundle();
   // 分形排在最后一位（第三页），左侧列表与参数栏接线齐全。
   assert.match(read('src/core/tool-registry.js'), /label: '仿制印章'[\s\S]*label: '分形'[\s\S]*label: '刮刮画'[\s\S]*label: '小动画'[\s\S]*label: '像素画'/);
   assert.match(classic, /createToolRegistry\(\)\.list\(\)/);
@@ -94,7 +95,7 @@ test('分形入口从工具第三页进入，旧的像素分形对话框已移�
   assert.match(app, /placeFractal\(engine,point,\{color\}\)/);
   assert.doesNotMatch(creative, /fractal/);
   assert.doesNotMatch(creative, /generateFractal/);
-  assert.match(bundle, /fractal-studio\.js/);
-  assert.doesNotMatch(bundle, /'fractals\.js'/);
+  assert.match(built, /^\/\/ ui\/fractal-studio\.js$/m);
+  assert.doesNotMatch(built, /^\/\/ core\/fractals\.js$/m);
   assert.equal(fractalState.depth >= 1 && fractalState.depth <= 6, true);
 });

@@ -19,6 +19,17 @@ Open `http://127.0.0.1:4173`. This browser preview runs the shared editor; nativ
 npm run build:client
 ```
 
+With Playwright and the required browser installed, run `node tools/browser-acceptance.mjs` to check the drawing, storage, and layout flows. It runs Chromium by default. Set `LUOYE_BROWSER_ENGINE=webkit` to run the same suites in WebKit, and pass suite names such as `storage` or `layout` to run them individually
+
+## Project structure
+
+- `src/core/` contains the canvas algorithms, editing engine, and project format
+- `src/ui/` contains the tools, dialogs, themes, and translations
+- `src/platform/` assembles the editor and handles file delivery, drafts, and gallery storage
+- `native/`, `ios/`, and `android/` contain the platform hosts and projects, and `public/` contains the shared pages and assets
+
+`tools/bundle.mjs` follows imports from `src/platform/app.js` to produce the shared single-script editor. Each target has its own generated client resource directory
+
 ## macOS app
 
 Build on macOS with Xcode Command Line Tools, Swift 6, and the macOS SDK:
@@ -27,7 +38,7 @@ Build on macOS with Xcode Command Line Tools, Swift 6, and the macOS SDK:
 npm run build:mac
 ```
 
-The current target is Apple Silicon (arm64), macOS 13+. The application is written to `build/releases/v<version>/落叶画板.app`, where `<version>` comes from `package.json`. The build script removes the website usage tracker from the bundled client and does not sign or notarize the app.
+The current target is Apple Silicon (arm64), macOS 13+. The application is written to `build/releases/v<version>/落叶画板.app`, where `<version>` comes from `package.json`. The build uses the client resources and applies an ad hoc signature
 
 ## Offline Web App
 
@@ -51,7 +62,7 @@ npm run build:ios
 
 For an iPad-only device build, use `IOS_DEVICE=ipad SDK=iphoneos CONFIGURATION=Release npm run build:ios`.
 
-This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script rebuilds `dist/`, copies the web resources and SoundFont into the ignored `ios/Resources/` staging directory, and invokes `xcodebuild`. File import/export uses the system document picker, while drafts and the gallery use persistent WKWebView storage. iPad uses a full-screen landscape workspace; touch, Apple Pencil, audio interruptions, and background recovery must be checked on Simulator and a real device separately.
+This builds a Simulator app by default. Use `SDK=iphoneos CONFIGURATION=Release npm run build:ios` for a device build. The script copies the generated client resources from `build/client/ios/` and the SoundFont into the ignored `ios/Resources/` staging directory, then invokes `xcodebuild`. File import and export use the system document picker, and drafts and the gallery use persistent WKWebView storage. On iPad, verify the full-screen landscape workspace, touch, Apple Pencil, audio interruptions, and background recovery on Simulator and on a device
 
 ## Windows app
 
@@ -80,5 +91,3 @@ npm run build:windows:installer
 ```
 
 The installer is written to `build/releases/v<version>/windows-installer/`. Distribute the whole folder together: the installer needs its companion DLL and JSON files, and .NET 10 Desktop Runtime on the target machine.
-
-Build one desktop target at a time; the packaging scripts share the generated editor resources.

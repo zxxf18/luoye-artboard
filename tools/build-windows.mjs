@@ -5,13 +5,13 @@ import { root } from './bundle.mjs';
 import { build } from './build.mjs';
 import { version, releaseRoot, versionDocs } from './release-paths.mjs';
 import { createHash } from 'node:crypto';
-await build({ client: true });
+const site = await build({ client: true, output: 'build/client/windows' });
 const local=path.join(root,'build/tooling/dotnet',process.platform==='win32'?'dotnet.exe':'dotnet');
 let dotnet=process.env.LUOYE_DOTNET||local;try{await access(dotnet);}catch{dotnet='dotnet';}
 await mkdir(path.join(root,'build/dotnet-home'),{recursive:true});
 const output=path.join(releaseRoot,'windows-amd64');
 await rm(output,{recursive:true,force:true});
-const result=spawnSync(dotnet,['publish',path.join(root,'native/windows/Luoye.csproj'),'-c','Release','-r','win-x64','--self-contained','true','-p:EnableWindowsTargeting=true','-o',output],{stdio:'inherit',env:{...process.env,DOTNET_CLI_HOME:path.join(root,'build/dotnet-home'),NUGET_PACKAGES:path.join(root,'build/nuget'),DOTNET_CLI_TELEMETRY_OPTOUT:'1',DOTNET_GENERATE_ASPNET_CERTIFICATE:'false'}});
+const result=spawnSync(dotnet,['publish',path.join(root,'native/windows/Luoye.csproj'),'-c','Release','-r','win-x64','--self-contained','true','-p:EnableWindowsTargeting=true',`-p:LuoyeSiteDirectory=${site}`,'-o',output],{stdio:'inherit',env:{...process.env,DOTNET_CLI_HOME:path.join(root,'build/dotnet-home'),NUGET_PACKAGES:path.join(root,'build/nuget'),DOTNET_CLI_TELEMETRY_OPTOUT:'1',DOTNET_GENERATE_ASPNET_CERTIFICATE:'false'}});
 if(result.status!==0)process.exit(result.status||1);
 await cp(path.join(root,'native/windows/使用说明.txt'),path.join(output,'使用说明.txt'));
 await cp(path.join(root,'build/tooling/MicrosoftEdgeWebView2RuntimeInstallerX64.exe'),path.join(output,'MicrosoftEdgeWebView2RuntimeInstallerX64.exe'));

@@ -4,8 +4,8 @@ plugins {
 }
 
 def repositoryRoot = rootProject.projectDir.parentFile
-def webOutput = new File(repositoryRoot, 'dist')
-def webAssets = new File(projectDir, 'src/main/assets/www')
+def webAssetsRoot = layout.buildDirectory.dir('generated/luoyeWebAssets').get().asFile
+def webAssets = new File(webAssetsRoot, 'www')
 def distribution = providers.gradleProperty('distribution').getOrElse('community')
 if (!(distribution in ['community', 'store'])) throw new GradleException('distribution must be community or store')
 def projectLink = providers.gradleProperty('projectLink').getOrElse('default')
@@ -29,14 +29,9 @@ def syncWebAssets = tasks.register('syncWebAssets') {
     doLast {
         exec {
             workingDir repositoryRoot
-            commandLine(['node', 'tools/build-client.mjs'] + (distribution == 'store' ? ['--store'] : []) +
+            commandLine(['node', 'tools/build-client.mjs', "--output=${webAssets.absolutePath}"] + (distribution == 'store' ? ['--store'] : []) +
                 (projectLink == 'default' ? [] : ["--project-link=${projectLink}"]) +
                 (donationLink == 'default' ? [] : ["--donation-link=${donationLink}"]))
-        }
-        delete webAssets
-        copy {
-            from webOutput
-            into webAssets
         }
     }
 }
@@ -46,6 +41,7 @@ tasks.named('preBuild').configure { dependsOn syncWebAssets }
 android {
     namespace 'cn.com.yebuluo'
     compileSdk 35
+    sourceSets.main.assets.srcDirs = [webAssetsRoot]
 
     defaultConfig {
         applicationId 'cn.com.yebuluo'
